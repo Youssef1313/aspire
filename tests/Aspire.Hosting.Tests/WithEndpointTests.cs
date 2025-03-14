@@ -5,16 +5,16 @@ using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class WithEndpointTests
 {
     // copied from /src/Shared/StringComparers.cs to avoid ambiguous reference since StringComparers exists internally in multiple Hosting assemblies.
     private static StringComparison EndpointAnnotationName => StringComparison.OrdinalIgnoreCase;
 
-    [Fact]
+    [TestMethod]
     public void WithEndpointInvokesCallback()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -28,10 +28,10 @@ public class WithEndpointTests
 
         var endpoint = projectA.Resource.Annotations.OfType<EndpointAnnotation>()
             .Where(e => string.Equals(e.Name, "mybinding", EndpointAnnotationName)).Single();
-        Assert.Equal(2000, endpoint.Port);
+        Assert.AreEqual(2000, endpoint.Port);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithEndpointMakesTargetPortEqualToPortIfProxyless()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -47,26 +47,26 @@ public class WithEndpointTests
             .Where(e => string.Equals(e.Name, "mybinding", EndpointAnnotationName)).Single();
 
         // It should fall back to the Port value since TargetPort was not set
-        Assert.Equal(2000, endpoint.TargetPort);
+        Assert.AreEqual(2000, endpoint.TargetPort);
 
         // In Proxy mode, the fallback should not happen
         endpoint.IsProxied = true;
-        Assert.Null(endpoint.TargetPort);
+        Assert.IsNull(endpoint.TargetPort);
 
         // Back in proxy-less mode, it should fall back again
         endpoint.IsProxied = false;
-        Assert.Equal(2000, endpoint.TargetPort);
+        Assert.AreEqual(2000, endpoint.TargetPort);
 
         // Setting it to null explicitly should disable the override mechanism
         endpoint.TargetPort = null;
-        Assert.Null(endpoint.TargetPort);
+        Assert.IsNull(endpoint.TargetPort);
 
         // No fallback when setting TargetPort explicitly
         endpoint.TargetPort = 2001;
-        Assert.Equal(2001, endpoint.TargetPort);
+        Assert.AreEqual(2001, endpoint.TargetPort);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithEndpointMakesPortEqualToTargetPortIfProxyless()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -82,26 +82,26 @@ public class WithEndpointTests
             .Where(e => string.Equals(e.Name, "mybinding", EndpointAnnotationName)).Single();
 
         // It should fall back to the TargetPort value since Port was not set
-        Assert.Equal(2000, endpoint.Port);
+        Assert.AreEqual(2000, endpoint.Port);
 
         // In Proxy mode, the fallback should not happen
         endpoint.IsProxied = true;
-        Assert.Null(endpoint.Port);
+        Assert.IsNull(endpoint.Port);
 
         // Back in proxy-less mode, it should fall back again
         endpoint.IsProxied = false;
-        Assert.Equal(2000, endpoint.Port);
+        Assert.AreEqual(2000, endpoint.Port);
 
         // Setting it to null explicitly should disable the override mechanism
         endpoint.Port = null;
-        Assert.Null(endpoint.Port);
+        Assert.IsNull(endpoint.Port);
 
         // No fallback when setting Port explicitly
         endpoint.Port = 2001;
-        Assert.Equal(2001, endpoint.Port);
+        Assert.AreEqual(2001, endpoint.Port);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithEndpointCallbackDoesNotRunIfEndpointDoesntExistAndCreateIfNotExistsIsFalse()
     {
         var executed = false;
@@ -115,11 +115,11 @@ public class WithEndpointTests
                               },
                               createIfNotExists: false);
 
-        Assert.False(executed);
-        Assert.False(projectA.Resource.TryGetAnnotationsOfType<EndpointAnnotation>(out var annotations));
+        Assert.IsFalse(executed);
+        Assert.IsFalse(projectA.Resource.TryGetAnnotationsOfType<EndpointAnnotation>(out var annotations));
     }
 
-    [Fact]
+    [TestMethod]
     public void WithEndpointCallbackRunsIfEndpointDoesntExistAndCreateIfNotExistsIsDefault()
     {
         var executed = false;
@@ -132,11 +132,11 @@ public class WithEndpointTests
                                   executed = true;
                               });
 
-        Assert.True(executed);
-        Assert.True(projectA.Resource.TryGetAnnotationsOfType<EndpointAnnotation>(out _));
+        Assert.IsTrue(executed);
+        Assert.IsTrue(projectA.Resource.TryGetAnnotationsOfType<EndpointAnnotation>(out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void WithEndpointCallbackRunsIfEndpointDoesntExistAndCreateIfNotExistsIsTrue()
     {
         var executed = false;
@@ -149,11 +149,11 @@ public class WithEndpointTests
         },
         createIfNotExists: true);
 
-        Assert.True(executed);
-        Assert.True(projectA.Resource.TryGetAnnotationsOfType<EndpointAnnotation>(out _));
+        Assert.IsTrue(executed);
+        Assert.IsTrue(projectA.Resource.TryGetAnnotationsOfType<EndpointAnnotation>(out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void EndpointsWithTwoPortsSameNameThrows()
     {
         var ex = Assert.Throws<DistributedApplicationException>(() =>
@@ -165,10 +165,10 @@ public class WithEndpointTests
                     .WithHttpsEndpoint(3000, 2000, name: "mybinding");
         });
 
-        Assert.Equal("Endpoint with name 'mybinding' already exists. Endpoint name may not have been explicitly specified and was derived automatically from scheme argument (e.g. 'http', 'https', or 'tcp'). Multiple calls to WithEndpoint (and related methods) may result in a conflict if name argument is not specified. Each endpoint must have a unique name. For more information on networking in .NET Aspire see: https://aka.ms/dotnet/aspire/networking", ex.Message);
+        Assert.AreEqual("Endpoint with name 'mybinding' already exists. Endpoint name may not have been explicitly specified and was derived automatically from scheme argument (e.g. 'http', 'https', or 'tcp'). Multiple calls to WithEndpoint (and related methods) may result in a conflict if name argument is not specified. Each endpoint must have a unique name. For more information on networking in .NET Aspire see: https://aka.ms/dotnet/aspire/networking", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddingTwoEndpointsWithDefaultNames()
     {
         var ex = Assert.Throws<DistributedApplicationException>(() =>
@@ -180,10 +180,10 @@ public class WithEndpointTests
                     .WithHttpsEndpoint(3000, 2000);
         });
 
-        Assert.Equal("Endpoint with name 'https' already exists. Endpoint name may not have been explicitly specified and was derived automatically from scheme argument (e.g. 'http', 'https', or 'tcp'). Multiple calls to WithEndpoint (and related methods) may result in a conflict if name argument is not specified. Each endpoint must have a unique name. For more information on networking in .NET Aspire see: https://aka.ms/dotnet/aspire/networking", ex.Message);
+        Assert.AreEqual("Endpoint with name 'https' already exists. Endpoint name may not have been explicitly specified and was derived automatically from scheme argument (e.g. 'http', 'https', or 'tcp'). Multiple calls to WithEndpoint (and related methods) may result in a conflict if name argument is not specified. Each endpoint must have a unique name. For more information on networking in .NET Aspire see: https://aka.ms/dotnet/aspire/networking", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void EndpointsWithSinglePortSameNameThrows()
     {
         var ex = Assert.Throws<DistributedApplicationException>(() =>
@@ -194,10 +194,10 @@ public class WithEndpointTests
                    .WithHttpsEndpoint(2000, name: "mybinding");
         });
 
-        Assert.Equal("Endpoint with name 'mybinding' already exists. Endpoint name may not have been explicitly specified and was derived automatically from scheme argument (e.g. 'http', 'https', or 'tcp'). Multiple calls to WithEndpoint (and related methods) may result in a conflict if name argument is not specified. Each endpoint must have a unique name. For more information on networking in .NET Aspire see: https://aka.ms/dotnet/aspire/networking", ex.Message);
+        Assert.AreEqual("Endpoint with name 'mybinding' already exists. Endpoint name may not have been explicitly specified and was derived automatically from scheme argument (e.g. 'http', 'https', or 'tcp'). Multiple calls to WithEndpoint (and related methods) may result in a conflict if name argument is not specified. Each endpoint must have a unique name. For more information on networking in .NET Aspire see: https://aka.ms/dotnet/aspire/networking", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CanAddEndpointsWithContainerPortAndEnv()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -210,20 +210,20 @@ public class WithEndpointTests
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var exeResources = appModel.GetExecutableResources();
 
-        var resource = Assert.Single(exeResources);
+        var resource = Assert.ContainsSingle(exeResources);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
-        Assert.Equal("foo", resource.Name);
+        Assert.AreEqual("foo", resource.Name);
         var endpoints = resource.Annotations.OfType<EndpointAnnotation>().ToArray();
-        Assert.Single(endpoints);
-        Assert.Equal("mybinding", endpoints[0].Name);
-        Assert.Equal(3001, endpoints[0].TargetPort);
-        Assert.Equal("http", endpoints[0].UriScheme);
-        Assert.Equal("3001", config["PORT"]);
+        Assert.ContainsSingle(endpoints);
+        Assert.AreEqual("mybinding", endpoints[0].Name);
+        Assert.AreEqual(3001, endpoints[0].TargetPort);
+        Assert.AreEqual("http", endpoints[0].UriScheme);
+        Assert.AreEqual("3001", config["PORT"]);
     }
 
-    [Fact]
+    [TestMethod]
     public void GettingContainerHostNameFailsIfNoContainerHostNameSet()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -238,10 +238,10 @@ public class WithEndpointTests
             return container.GetEndpoint("ep").ContainerHost;
         });
 
-        Assert.Equal("The endpoint \"ep\" has no associated container host name.", ex.Message);
+        Assert.AreEqual("The endpoint \"ep\" has no associated container host name.", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithExternalHttpEndpointsMarkExistingHttpEndpointsAsExternal()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -255,14 +255,14 @@ public class WithEndpointTests
         var ep1 = container.GetEndpoint("ep1");
         var ep2 = container.GetEndpoint("ep2");
 
-        Assert.False(ep0.EndpointAnnotation.IsExternal);
-        Assert.True(ep1.EndpointAnnotation.IsExternal);
-        Assert.True(ep2.EndpointAnnotation.IsExternal);
+        Assert.IsFalse(ep0.EndpointAnnotation.IsExternal);
+        Assert.IsTrue(ep1.EndpointAnnotation.IsExternal);
+        Assert.IsTrue(ep2.EndpointAnnotation.IsExternal);
     }
 
     // Existing code...
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithBothDifferentPortAndTargetPort()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -287,10 +287,10 @@ public class WithEndpointTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithHttpPortWithTargetPort()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -314,10 +314,10 @@ public class WithEndpointTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithHttpsAndTargetPort()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -341,10 +341,10 @@ public class WithEndpointTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestContainerWithHttpEndpointAndNoPortsAllocatesPort()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -368,10 +368,10 @@ public class WithEndpointTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestContainerWithHttpsEndpointAllocatesPort()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -395,10 +395,10 @@ public class WithEndpointTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithHttpEndpointAndPortOnlySetsTargetPort()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -422,10 +422,10 @@ public class WithEndpointTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithTcpEndpointAndNoPortAllocatesPort()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -449,10 +449,10 @@ public class WithEndpointTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestProjectWithDefaultHttpEndpointsDoesNotAllocatePort()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -511,10 +511,10 @@ public class WithEndpointTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestProjectWithEndpointsSetsPortsEnvVariables()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -547,10 +547,10 @@ public class WithEndpointTests
             }
             """;
 
-        Assert.Equal(expectedEnv, manifest["env"]!.ToString());
+        Assert.AreEqual(expectedEnv, manifest["env"]!.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestPortAllocationIsGlobal()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -593,11 +593,11 @@ public class WithEndpointTests
             }
             """;
 
-        Assert.Equal(expectedManifest0, manifests[0].ToString());
-        Assert.Equal(expectedManifest1, manifests[1].ToString());
+        Assert.AreEqual(expectedManifest0, manifests[0].ToString());
+        Assert.AreEqual(expectedManifest1, manifests[1].ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void WithEndpoint_WithAllArguments_ForwardsAllArguments()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -608,13 +608,13 @@ public class WithEndpointTests
         var endpoint = projectA.Resource.Annotations.OfType<EndpointAnnotation>()
             .Where(e => string.Equals(e.Name, "mybinding", EndpointAnnotationName)).Single();
 
-        Assert.Equal(123, endpoint.Port);
-        Assert.Equal(456, endpoint.TargetPort);
-        Assert.Equal("scheme", endpoint.UriScheme);
-        Assert.Equal("env", endpoint.TargetPortEnvironmentVariable);
-        Assert.True(endpoint.IsProxied);
-        Assert.True(endpoint.IsExternal);
-        Assert.Equal(System.Net.Sockets.ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual(123, endpoint.Port);
+        Assert.AreEqual(456, endpoint.TargetPort);
+        Assert.AreEqual("scheme", endpoint.UriScheme);
+        Assert.AreEqual("env", endpoint.TargetPortEnvironmentVariable);
+        Assert.IsTrue(endpoint.IsProxied);
+        Assert.IsTrue(endpoint.IsExternal);
+        Assert.AreEqual(System.Net.Sockets.ProtocolType.Tcp, endpoint.Protocol);
     }
 
     private sealed class TestProject : IProjectMetadata

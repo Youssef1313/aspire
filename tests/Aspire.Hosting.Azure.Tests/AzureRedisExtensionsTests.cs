@@ -3,14 +3,15 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Azure.Tests;
 
-public class AzureRedisExtensionsTests(ITestOutputHelper output)
+[TestClass]
+public class AzureRedisExtensionsTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     public async Task AddAzureRedis()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -30,7 +31,7 @@ public class AzureRedisExtensionsTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -73,11 +74,11 @@ public class AzureRedisExtensionsTests(ITestOutputHelper output)
 
             output connectionString string = '${redis_cache.properties.hostName},ssl=true'
             """;
-        output.WriteLine(manifest.BicepText);
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        TestContext.WriteLine(manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddAzureRedisWithAccessKeyAuthentication()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -97,7 +98,7 @@ public class AzureRedisExtensionsTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -134,11 +135,11 @@ public class AzureRedisExtensionsTests(ITestOutputHelper output)
               parent: keyVault
             }
             """;
-        output.WriteLine(manifest.BicepText);
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        TestContext.WriteLine(manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddAzureRedisRunAsContainerProducesCorrectConnectionString()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -152,15 +153,15 @@ public class AzureRedisExtensionsTests(ITestOutputHelper output)
                 c.WithEndpoint("tcp", e => e.AllocatedEndpoint = new AllocatedEndpoint(e, "localhost", 12455));
             });
 
-        Assert.True(redis.Resource.IsContainer(), "The resource should now be a container resource.");
+        Assert.IsTrue(redis.Resource.IsContainer(), "The resource should now be a container resource.");
 
-        Assert.NotNull(redisResource?.PasswordParameter);
-        Assert.Equal($"localhost:12455,password={redisResource.PasswordParameter.Value}", await redis.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None));
+        Assert.IsNotNull(redisResource?.PasswordParameter);
+        Assert.AreEqual($"localhost:12455,password={redisResource.PasswordParameter.Value}", await redis.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None));
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void RunAsContainerAppliesAnnotationsCorrectly(bool before)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -184,11 +185,11 @@ public class AzureRedisExtensionsTests(ITestOutputHelper output)
 
         var cacheInModel = builder.Resources.Single(r => r.Name == "cache");
 
-        Assert.True(cacheInModel.TryGetAnnotationsOfType<Dummy1Annotation>(out var cacheAnnotations1));
-        Assert.Single(cacheAnnotations1);
+        Assert.IsTrue(cacheInModel.TryGetAnnotationsOfType<Dummy1Annotation>(out var cacheAnnotations1));
+        Assert.ContainsSingle(cacheAnnotations1);
 
-        Assert.True(cacheInModel.TryGetAnnotationsOfType<Dummy2Annotation>(out var cacheAnnotations2));
-        Assert.Single(cacheAnnotations2);
+        Assert.IsTrue(cacheInModel.TryGetAnnotationsOfType<Dummy2Annotation>(out var cacheAnnotations2));
+        Assert.ContainsSingle(cacheAnnotations2);
     }
 
     private sealed class Dummy1Annotation : IResourceAnnotation

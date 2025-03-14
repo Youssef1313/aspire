@@ -8,10 +8,10 @@ using Microsoft.DotNet.RemoteExecutor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Microsoft.Data.SqlClient.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<SqlConnection, MicrosoftDataSqlClientSettings>, IClassFixture<SqlServerContainerFixture>
 {
     private readonly SqlServerContainerFixture? _containerFixture;
@@ -93,13 +93,13 @@ public class ConformanceTests : ConformanceTests<SqlConnection, MicrosoftDataSql
         command.ExecuteScalar();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void TracingEnablesTheRightActivitySource()
         => RemoteExecutor.Invoke(static connectionStringToUse => RunWithConnectionString(connectionStringToUse, obj => obj.ActivitySourceTest(key: null)),
                                  ConnectionString).Dispose();
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void TracingEnablesTheRightActivitySource_Keyed()
         => RemoteExecutor.Invoke(static connectionStringToUse => RunWithConnectionString(connectionStringToUse, obj => obj.ActivitySourceTest(key: "key")),

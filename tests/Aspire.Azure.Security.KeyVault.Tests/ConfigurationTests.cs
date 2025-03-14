@@ -1,21 +1,21 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 
 namespace Aspire.Azure.Security.KeyVault.Tests;
 
+[TestClass]
 public class ConfigurationTests
 {
-    [Fact]
+    [TestMethod]
     public void VaultUriIsNullByDefault()
-        => Assert.Null(new AzureSecurityKeyVaultSettings().VaultUri);
+        => Assert.IsNull(new AzureSecurityKeyVaultSettings().VaultUri);
 
-    [Fact]
+    [TestMethod]
     public void HealthCheckIsEnabledByDefault()
-        => Assert.False(new AzureSecurityKeyVaultSettings().DisableHealthChecks);
+        => Assert.IsFalse(new AzureSecurityKeyVaultSettings().DisableHealthChecks);
 
-    [Fact]
+    [TestMethod]
     public void TracingIsEnabledByDefault()
-        => Assert.False(new AzureSecurityKeyVaultSettings().DisableTracing);
+        => Assert.IsFalse(new AzureSecurityKeyVaultSettings().DisableTracing);
 }

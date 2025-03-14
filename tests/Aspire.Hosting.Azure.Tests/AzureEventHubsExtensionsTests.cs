@@ -13,20 +13,19 @@ using Azure.Messaging.EventHubs.Producer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Azure.Tests;
 
-public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class AzureEventHubsExtensionsTests(TestContext testContext)
 {
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
-    [ActiveIssue("https://github.com/dotnet/aspire/issues/7175")]
+    // [ActiveIssue("https://github.com/dotnet/aspire/issues/7175")]
     public async Task VerifyWaitForOnEventHubsEmulatorBlocksDependentResources()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>
@@ -63,14 +62,14 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
-    [ActiveIssue("https://github.com/dotnet/aspire/issues/6751")]
+    // [ActiveIssue("https://github.com/dotnet/aspire/issues/6751")]
     public async Task VerifyAzureEventHubsEmulatorResource(bool referenceHub)
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
         var eventHubns = builder.AddAzureEventHubs("eventhubns")
             .RunAsEmulator();
         var eventHub = eventHubns.AddHub("hub");
@@ -105,20 +104,20 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
         await foreach (var partitionEvent in consumerClient.ReadEventsAsync(new ReadEventOptions { MaximumWaitTime = TimeSpan.FromSeconds(5) }))
         {
-            Assert.Equal("hello worlds", Encoding.UTF8.GetString(partitionEvent.Data.EventBody.ToArray()));
+            Assert.AreEqual("hello worlds", Encoding.UTF8.GetString(partitionEvent.Data.EventBody.ToArray()));
             break;
         }
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("random")]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("random")]
     [RequiresDocker]
     public async Task AzureEventHubsNs_ProducesAndConsumes(string? hubName)
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
 
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
         var eventHubNs = builder.AddAzureEventHubs("eventhubns")
             .RunAsEmulator();
 
@@ -149,12 +148,12 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
         await foreach (var partitionEvent in consumerClient.ReadEventsAsync(new ReadEventOptions { MaximumWaitTime = TimeSpan.FromSeconds(5) }))
         {
-            Assert.Equal("hello worlds", Encoding.UTF8.GetString(partitionEvent.Data.EventBody.ToArray()));
+            Assert.AreEqual("hello worlds", Encoding.UTF8.GetString(partitionEvent.Data.EventBody.ToArray()));
             break;
         }
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureEventHubsUseEmulatorCallbackWithWithDataBindMountResultsInBindMountAnnotationWithDefaultPath()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -165,13 +164,13 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
         // Ignoring the annotation created for the custom Config.json file
         var volumeAnnotation = eventHubs.Resource.Annotations.OfType<ContainerMountAnnotation>().Single(a => !a.Target.Contains("Config.json"));
-        Assert.Equal(Path.Combine(builder.AppHostDirectory, ".eventhubs", "eh"), volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.BindMount, volumeAnnotation.Type);
-        Assert.False(volumeAnnotation.IsReadOnly);
+        Assert.AreEqual(Path.Combine(builder.AppHostDirectory, ".eventhubs", "eh"), volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.BindMount, volumeAnnotation.Type);
+        Assert.IsFalse(volumeAnnotation.IsReadOnly);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureEventHubsUseEmulatorCallbackWithWithDataBindMountResultsInBindMountAnnotation()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -182,13 +181,13 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
         // Ignoring the annotation created for the custom Config.json file
         var volumeAnnotation = eventHubs.Resource.Annotations.OfType<ContainerMountAnnotation>().Single(a => !a.Target.Contains("Config.json"));
-        Assert.Equal(Path.Combine(builder.AppHostDirectory, "mydata"), volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.BindMount, volumeAnnotation.Type);
-        Assert.False(volumeAnnotation.IsReadOnly);
+        Assert.AreEqual(Path.Combine(builder.AppHostDirectory, "mydata"), volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.BindMount, volumeAnnotation.Type);
+        Assert.IsFalse(volumeAnnotation.IsReadOnly);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureEventHubsUseEmulatorCallbackWithWithDataVolumeResultsInVolumeAnnotationWithDefaultName()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -199,13 +198,13 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
         // Ignoring the annotation created for the custom Config.json file
         var volumeAnnotation = eventHubs.Resource.Annotations.OfType<ContainerMountAnnotation>().Single(a => !a.Target.Contains("Config.json"));
-        Assert.Equal($"{builder.GetVolumePrefix()}-eh-data", volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.Volume, volumeAnnotation.Type);
-        Assert.False(volumeAnnotation.IsReadOnly);
+        Assert.AreEqual($"{builder.GetVolumePrefix()}-eh-data", volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.Volume, volumeAnnotation.Type);
+        Assert.IsFalse(volumeAnnotation.IsReadOnly);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureEventHubsUseEmulatorCallbackWithWithDataVolumeResultsInVolumeAnnotation()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -216,16 +215,16 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
         // Ignoring the annotation created for the custom Config.json file
         var volumeAnnotation = eventHubs.Resource.Annotations.OfType<ContainerMountAnnotation>().Single(a => !a.Target.Contains("Config.json"));
-        Assert.Equal("mydata", volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.Volume, volumeAnnotation.Type);
-        Assert.False(volumeAnnotation.IsReadOnly);
+        Assert.AreEqual("mydata", volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.Volume, volumeAnnotation.Type);
+        Assert.IsFalse(volumeAnnotation.IsReadOnly);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData(8081)]
-    [InlineData(9007)]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(8081)]
+    [DataRow(9007)]
     public void AzureEventHubsWithEmulatorGetsExpectedPort(int? port = null)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -234,16 +233,16 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
             builder.WithHostPort(port);
         });
 
-        Assert.Collection(
+        Assert.That.Collection(
             eventHubs.Resource.Annotations.OfType<EndpointAnnotation>(),
-            e => Assert.Equal(port, e.Port)
+            e => Assert.AreEqual(port, e.Port)
             );
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("2.3.97-preview")]
-    [InlineData("1.0.7")]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("2.3.97-preview")]
+    [DataRow("1.0.7")]
     public void AzureEventHubsWithEmulatorGetsExpectedImageTag(string? imageTag)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -258,14 +257,14 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
         });
 
         var containerImageAnnotation = eventHubs.Resource.Annotations.OfType<ContainerImageAnnotation>().FirstOrDefault();
-        Assert.NotNull(containerImageAnnotation);
+        Assert.IsNotNull(containerImageAnnotation);
 
-        Assert.Equal(imageTag ?? EventHubsEmulatorContainerImageTags.Tag, containerImageAnnotation.Tag);
-        Assert.Equal(EventHubsEmulatorContainerImageTags.Registry, containerImageAnnotation.Registry);
-        Assert.Equal(EventHubsEmulatorContainerImageTags.Image, containerImageAnnotation.Image);
+        Assert.AreEqual(imageTag ?? EventHubsEmulatorContainerImageTags.Tag, containerImageAnnotation.Tag);
+        Assert.AreEqual(EventHubsEmulatorContainerImageTags.Registry, containerImageAnnotation.Registry);
+        Assert.AreEqual(EventHubsEmulatorContainerImageTags.Image, containerImageAnnotation.Image);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CanSetHubAndConsumerGroupName()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -324,10 +323,10 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
             output eventHubsEndpoint string = eh.properties.serviceBusEndpoint
             """;
 
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AzureEventHubsEmulatorResourceInitializesProvisioningModel()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -350,15 +349,15 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
         var manifest = await AzureManifestUtils.GetManifestWithBicep(eventHubs.Resource);
 
-        Assert.NotNull(hub);
-        Assert.Equal("hub1", hub.Name.Value);
-        Assert.Equal(4, hub.PartitionCount.Value);
+        Assert.IsNotNull(hub);
+        Assert.AreEqual("hub1", hub.Name.Value);
+        Assert.AreEqual(4, hub.PartitionCount.Value);
 
-        Assert.NotNull(cg);
-        Assert.Equal("cg1", cg.Name.Value);
+        Assert.IsNotNull(cg);
+        Assert.AreEqual("cg1", cg.Name.Value);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task AzureEventHubsEmulatorResourceGeneratesConfigJson()
     {
@@ -379,7 +378,7 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
         var configJsonContent = File.ReadAllText(volumeAnnotation.Source!);
 
-        Assert.Equal(/*json*/"""
+        Assert.AreEqual(/*json*/"""
         {
           "UserConfig": {
             "NamespaceConfig": [
@@ -409,7 +408,7 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task AzureEventHubsEmulatorResourceGeneratesConfigJsonWithCustomizations()
     {
@@ -444,10 +443,10 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
             var expectedUnixFileMode = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead | UnixFileMode.OtherRead;
 
-            Assert.True(fileInfo.UnixFileMode.HasFlag(expectedUnixFileMode));
+            Assert.IsTrue(fileInfo.UnixFileMode.HasFlag(expectedUnixFileMode));
         }
 
-        Assert.Equal(/*json*/"""
+        Assert.AreEqual(/*json*/"""
         {
           "UserConfig": {
             "NamespaceConfig": [
@@ -474,7 +473,7 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task AzureEventHubsEmulator_WithConfigurationFile()
     {
@@ -518,9 +517,9 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
         var configJsonContent = File.ReadAllText(volumeAnnotation.Source!);
 
-        Assert.Equal("/Eventhubs_Emulator/ConfigFiles/Config.json", volumeAnnotation.Target);
+        Assert.AreEqual("/Eventhubs_Emulator/ConfigFiles/Config.json", volumeAnnotation.Target);
 
-        Assert.Equal(source, configJsonContent);
+        Assert.AreEqual(source, configJsonContent);
 
         await app.StopAsync();
 
@@ -533,9 +532,9 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddAzureEventHubsWithEmulator_SetsStorageLifetime(bool isPersistent)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -548,16 +547,16 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
         var azurite = builder.Resources.FirstOrDefault(x => x.Name == "eh-storage");
 
-        Assert.NotNull(azurite);
+        Assert.IsNotNull(azurite);
 
         serviceBus.Resource.TryGetLastAnnotation<ContainerLifetimeAnnotation>(out var sbLifetimeAnnotation);
         azurite.TryGetLastAnnotation<ContainerLifetimeAnnotation>(out var sqlLifetimeAnnotation);
 
-        Assert.Equal(lifetime, sbLifetimeAnnotation?.Lifetime);
-        Assert.Equal(lifetime, sqlLifetimeAnnotation?.Lifetime);
+        Assert.AreEqual(lifetime, sbLifetimeAnnotation?.Lifetime);
+        Assert.AreEqual(lifetime, sqlLifetimeAnnotation?.Lifetime);
     }
 
-    [Fact]
+    [TestMethod]
     public void RunAsEmulator_CalledTwice_Throws()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -566,7 +565,7 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
         Assert.Throws<InvalidOperationException>(() => serviceBus.RunAsEmulator());
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureEventHubsHasCorrectConnectionStrings()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -575,12 +574,12 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
         var eventHub = eventHubs.AddHub("hub1");
         var consumerGroup = eventHub.AddConsumerGroup("cg1");
 
-        Assert.Equal("{eh.outputs.eventHubsEndpoint}", eventHubs.Resource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal("Endpoint={eh.outputs.eventHubsEndpoint};EntityPath=hub1", eventHub.Resource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal("Endpoint={eh.outputs.eventHubsEndpoint};EntityPath=hub1;ConsumerGroup=cg1", consumerGroup.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{eh.outputs.eventHubsEndpoint}", eventHubs.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("Endpoint={eh.outputs.eventHubsEndpoint};EntityPath=hub1", eventHub.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("Endpoint={eh.outputs.eventHubsEndpoint};EntityPath=hub1;ConsumerGroup=cg1", consumerGroup.Resource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureEventHubsAppliesAzureFunctionsConfiguration()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -591,50 +590,50 @@ public class AzureEventHubsExtensionsTests(ITestOutputHelper testOutputHelper)
 
         var target = new Dictionary<string, object>();
         ((IResourceWithAzureFunctionsConfig)eventHubs.Resource).ApplyAzureFunctionsConfiguration(target, "eh");
-        Assert.Collection(target.Keys.OrderBy(k => k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__eh__FullyQualifiedNamespace", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__eh__FullyQualifiedNamespace", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__eh__FullyQualifiedNamespace", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__eh__FullyQualifiedNamespace", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__PartitionReceiver__eh__FullyQualifiedNamespace", k),
-            k => Assert.Equal("eh__fullyQualifiedNamespace", k));
+        Assert.That.Collection(target.Keys.OrderBy(k => k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__eh__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__eh__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__eh__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__eh__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__PartitionReceiver__eh__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("eh__fullyQualifiedNamespace", k));
 
         target.Clear();
         ((IResourceWithAzureFunctionsConfig)eventHub.Resource).ApplyAzureFunctionsConfiguration(target, "hub1");
-        Assert.Collection(target.Keys.OrderBy(k => k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__hub1__EventHubName", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__hub1__FullyQualifiedNamespace", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__hub1__EventHubName", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__hub1__FullyQualifiedNamespace", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__hub1__EventHubName", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__hub1__FullyQualifiedNamespace", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__hub1__EventHubName", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__hub1__FullyQualifiedNamespace", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__PartitionReceiver__hub1__EventHubName", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__PartitionReceiver__hub1__FullyQualifiedNamespace", k),
-            k => Assert.Equal("hub1__fullyQualifiedNamespace", k));
-        Assert.Equal("hub1", target["Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__hub1__EventHubName"]);
+        Assert.That.Collection(target.Keys.OrderBy(k => k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__hub1__EventHubName", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__hub1__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__hub1__EventHubName", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__hub1__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__hub1__EventHubName", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__hub1__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__hub1__EventHubName", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__hub1__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__PartitionReceiver__hub1__EventHubName", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__PartitionReceiver__hub1__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("hub1__fullyQualifiedNamespace", k));
+        Assert.AreEqual("hub1", target["Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__hub1__EventHubName"]);
 
         target.Clear();
         ((IResourceWithAzureFunctionsConfig)consumerGroup.Resource).ApplyAzureFunctionsConfiguration(target, "cg1");
-        Assert.Collection(target.Keys.OrderBy(k => k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__cg1__ConsumerGroup", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__cg1__EventHubName", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__cg1__FullyQualifiedNamespace", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__cg1__ConsumerGroup", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__cg1__EventHubName", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__cg1__FullyQualifiedNamespace", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__cg1__ConsumerGroup", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__cg1__EventHubName", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__cg1__FullyQualifiedNamespace", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__cg1__ConsumerGroup", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__cg1__EventHubName", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__cg1__FullyQualifiedNamespace", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__PartitionReceiver__cg1__ConsumerGroup", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__PartitionReceiver__cg1__EventHubName", k),
-            k => Assert.Equal("Aspire__Azure__Messaging__EventHubs__PartitionReceiver__cg1__FullyQualifiedNamespace", k),
-            k => Assert.Equal("cg1__fullyQualifiedNamespace", k));
-        Assert.Equal("cg1", target["Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__cg1__ConsumerGroup"]);
-        Assert.Equal("hub1", target["Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__cg1__EventHubName"]);
+        Assert.That.Collection(target.Keys.OrderBy(k => k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__cg1__ConsumerGroup", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__cg1__EventHubName", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__cg1__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__cg1__ConsumerGroup", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__cg1__EventHubName", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__cg1__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__cg1__ConsumerGroup", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__cg1__EventHubName", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__cg1__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__cg1__ConsumerGroup", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__cg1__EventHubName", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__cg1__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__PartitionReceiver__cg1__ConsumerGroup", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__PartitionReceiver__cg1__EventHubName", k),
+            k => Assert.AreEqual("Aspire__Azure__Messaging__EventHubs__PartitionReceiver__cg1__FullyQualifiedNamespace", k),
+            k => Assert.AreEqual("cg1__fullyQualifiedNamespace", k));
+        Assert.AreEqual("cg1", target["Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__cg1__ConsumerGroup"]);
+        Assert.AreEqual("hub1", target["Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__cg1__EventHubName"]);
     }
 }

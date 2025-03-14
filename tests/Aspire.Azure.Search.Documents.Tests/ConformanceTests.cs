@@ -8,10 +8,10 @@ using Microsoft.DotNet.RemoteExecutor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Search.Documents.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<SearchIndexClient, AzureSearchSettings>
 {
     protected const string Endpoint = "https://aspireazuresearchtests.search.windows.net/";
@@ -82,11 +82,11 @@ public class ConformanceTests : ConformanceTests<SearchIndexClient, AzureSearchS
         }
     }
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: null)).Dispose();
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource_Keyed()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: "key")).Dispose();
 

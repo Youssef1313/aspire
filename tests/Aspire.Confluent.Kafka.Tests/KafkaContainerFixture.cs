@@ -9,11 +9,10 @@ using Docker.DotNet.Models;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 using Testcontainers.Kafka;
-using Xunit;
 
 namespace Aspire.Confluent.Kafka.Tests;
 
-public partial class KafkaContainerFixture : IAsyncLifetime
+public partial class KafkaContainerFixture
 {
     private sealed partial class ConfluentLocalKafkaBuilder : ContainerBuilder<ConfluentLocalKafkaBuilder, KafkaContainer, KafkaConfiguration>
     {
@@ -85,9 +84,16 @@ public partial class KafkaContainerFixture : IAsyncLifetime
         private static partial Regex KafkaReadyRegex();
     }
 
+    private static int s_activeCallers;
+
+    private KafkaContainerFixture()
+    {
+    }
+
+    public static KafkaContainerFixture Instance { get; } = new();
     public async Task InitializeAsync()
     {
-        if (RequiresDockerAttribute.IsSupported)
+        if (Interlocked.Increment(ref s_activeCallers) == 1 && RequiresDockerAttribute.IsSupported)
         {
             Container = new ConfluentLocalKafkaBuilder().Build();
             await Container.StartAsync();
@@ -98,15 +104,9 @@ public partial class KafkaContainerFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        if (Container is not null)
+        if (Interlocked.Decrement(ref s_activeCallers) == 0 && Container is not null)
         {
             await Container.DisposeAsync();
         }
     }
-}
-
-[CollectionDefinition("Kafka Broker collection")]
-public class KafkaBrokerCollection : ICollectionFixture<KafkaContainerFixture>
-{
-
 }

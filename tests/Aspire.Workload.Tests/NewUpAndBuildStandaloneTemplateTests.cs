@@ -1,14 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Workload.Tests;
 
-public class NewUpAndBuildStandaloneTemplateTests(ITestOutputHelper testOutput) : WorkloadTestsBase(testOutput)
+public class NewUpAndBuildStandaloneTemplateTests(TestContext testOutput) : WorkloadTestsBase(testOutput)
 {
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(TestDataForNewAndBuildTemplateTests), parameters: "aspire")]
     [MemberData(nameof(TestDataForNewAndBuildTemplateTests), parameters: "aspire-starter")]
     public async Task CanNewAndBuild(string templateName, TestSdk sdk, TestTargetFramework tfm, TestTemplatesInstall templates, string? error)
@@ -42,13 +41,13 @@ public class NewUpAndBuildStandaloneTemplateTests(ITestOutputHelper testOutput) 
                 targetFramework: tfm,
                 customHiveForTemplates: templateHive.CustomHiveDirectory);
 
-            Assert.True(error is null, $"Expected to throw an exception with message: {error}");
+            Assert.IsTrue(error is null, $"Expected to throw an exception with message: {error}");
 
             await project.BuildAsync(extraBuildArgs: [$"-c Debug"]);
         }
         catch (ToolCommandException tce) when (error is not null)
         {
-            Assert.NotNull(tce.Result);
+            Assert.IsNotNull(tce.Result);
             Assert.Contains(error, tce.Result.Value.Output);
         }
     }

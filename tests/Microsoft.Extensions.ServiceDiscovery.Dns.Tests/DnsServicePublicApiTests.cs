@@ -3,13 +3,12 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Microsoft.Extensions.ServiceDiscovery.Dns.Tests;
 
 public class DnsServicePublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddDnsSrvServiceEndpointProviderShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -17,10 +16,10 @@ public class DnsServicePublicApiTests
         var action = () => services.AddDnsSrvServiceEndpointProvider();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddDnsSrvServiceEndpointProviderWithConfigureOptionsShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -29,10 +28,10 @@ public class DnsServicePublicApiTests
         var action = () => services.AddDnsSrvServiceEndpointProvider(configureOptions);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddDnsSrvServiceEndpointProviderWithConfigureOptionsShouldThrowWhenConfigureOptionsIsNull()
     {
         IServiceCollection services = new ServiceCollection();
@@ -41,10 +40,10 @@ public class DnsServicePublicApiTests
         var action = () => services.AddDnsSrvServiceEndpointProvider(configureOptions);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureOptions), exception.ParamName);
+        Assert.AreEqual(nameof(configureOptions), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddDnsServiceEndpointProviderShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -52,10 +51,10 @@ public class DnsServicePublicApiTests
         var action = () => services.AddDnsServiceEndpointProvider();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddDnsServiceEndpointProviderWithConfigureOptionsShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -64,10 +63,10 @@ public class DnsServicePublicApiTests
         var action = () => services.AddDnsServiceEndpointProvider(configureOptions);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddDnsServiceEndpointProviderWithConfigureOptionsShouldThrowWhenConfigureOptionsIsNull()
     {
         IServiceCollection services = new ServiceCollection();
@@ -76,6 +75,6 @@ public class DnsServicePublicApiTests
         var action = () => services.AddDnsServiceEndpointProvider(configureOptions);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureOptions), exception.ParamName);
+        Assert.AreEqual(nameof(configureOptions), exception.ParamName);
     }
 }

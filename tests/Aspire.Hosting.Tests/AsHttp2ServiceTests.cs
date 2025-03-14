@@ -4,13 +4,13 @@
 using Aspire.Hosting.Publishing;
 using Aspire.Hosting.Tests.Helpers;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class AsHttp2ServiceTests
 {
-    [Fact]
+    [TestMethod]
     public void Http2TransportIsNotSetWhenHttp2ServiceAnnotationIsNotApplied()
     {
         using var testProgram = CreateTestProgram(["--publisher", "manifest"]);
@@ -27,10 +27,10 @@ public class AsHttp2ServiceTests
             );
 
         // There should be no endpoints which are set to transport http2.
-        Assert.False(endpointsForAllServices.Any());
+        Assert.IsFalse(endpointsForAllServices.Any());
     }
 
-    [Fact]
+    [TestMethod]
     public void Http2TransportIsSetWhenHttp2ServiceAnnotationIsApplied()
     {
         using var testProgram = CreateTestProgram(["--publisher", "manifest"]);
@@ -43,11 +43,11 @@ public class AsHttp2ServiceTests
         testProgram.Run();
 
         var httpEndpoints = testProgram.ServiceABuilder.Resource.Annotations.OfType<EndpointAnnotation>().Where(sb => sb.UriScheme == "http" || sb.UriScheme == "https");
-        Assert.Equal(2, httpEndpoints.Count());
-        Assert.True(httpEndpoints.All(sb => sb.Transport == "http2"));
+        Assert.AreEqual(2, httpEndpoints.Count());
+        Assert.IsTrue(httpEndpoints.All(sb => sb.Transport == "http2"));
     }
 
-    [Fact]
+    [TestMethod]
     public void Http2TransportIsNotAppliedToNonHttpEndpoints()
     {
         using var testProgram = CreateTestProgram(["--publisher", "manifest"]);
@@ -62,13 +62,13 @@ public class AsHttp2ServiceTests
 
         var endpoints = testProgram.ServiceABuilder.Resource.Annotations.OfType<EndpointAnnotation>();
         var tcpBinding = endpoints.Single(sb => sb.UriScheme == "tcp");
-        Assert.Equal("tcp", tcpBinding.Transport);
+        Assert.AreEqual("tcp", tcpBinding.Transport);
 
         var httpsBinding = endpoints.Single(sb => sb.UriScheme == "https");
-        Assert.Equal("http2", httpsBinding.Transport);
+        Assert.AreEqual("http2", httpsBinding.Transport);
 
         var httpBinding = endpoints.Single(sb => sb.UriScheme == "http");
-        Assert.Equal("http2", httpsBinding.Transport);
+        Assert.AreEqual("http2", httpsBinding.Transport);
     }
 
     private static TestProgram CreateTestProgram(string[] args) => TestProgram.Create<AsHttp2ServiceTests>(args, disableDashboard: true);

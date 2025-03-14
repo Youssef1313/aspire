@@ -7,10 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Qdrant.Client;
-using Xunit;
 
 namespace Aspire.Qdrant.Client.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<QdrantClient, QdrantClientSettings>, IClassFixture<QdrantContainerFixture>
 {
     private readonly QdrantContainerFixture _containerFixture;

@@ -10,13 +10,13 @@ using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Tests.Orchestrator;
 
+[TestClass]
 public class ApplicationOrchestratorTests
 {
-    [Fact]
+    [TestMethod]
     public async Task ParentPropertySetOnChildResource()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -59,10 +59,10 @@ public class ApplicationOrchestratorTests
 
         await watchResourceTask.DefaultTimeout();
 
-        Assert.Equal(parentResourceId, childParentResourceId);
+        Assert.AreEqual(parentResourceId, childParentResourceId);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithParentRelationshipSetsParentPropertyCorrectly()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -120,14 +120,14 @@ public class ApplicationOrchestratorTests
 
         await watchResourceTask.DefaultTimeout();
 
-        Assert.Equal(parentResourceId, childParentResourceId);
-        Assert.Equal(parentResourceId, child2ParentResourceId);
+        Assert.AreEqual(parentResourceId, childParentResourceId);
+        Assert.AreEqual(parentResourceId, child2ParentResourceId);
 
         // Nested child should be parented on the direct parent
-        Assert.Equal(childResourceId, nestedChildParentResourceId);
+        Assert.AreEqual(childResourceId, nestedChildParentResourceId);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task LastWithParentRelationshipWins()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -182,10 +182,10 @@ public class ApplicationOrchestratorTests
         await watchResourceTask.DefaultTimeout();
 
         // child should be parented to the last parent set
-        Assert.Equal(secondParentResourceId, childParentResourceId);
+        Assert.AreEqual(secondParentResourceId, childParentResourceId);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithParentRelationshipWorksWithProjects()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -229,10 +229,10 @@ public class ApplicationOrchestratorTests
 
         await watchResourceTask.DefaultTimeout();
 
-        Assert.Equal(projectAResourceId, projectBParentResourceId);
+        Assert.AreEqual(projectAResourceId, projectBParentResourceId);
     }
 
-    [Fact]
+    [TestMethod]
     public void DetectsCircularDependency()
     {
         using var builder = TestDistributedApplicationBuilder.Create();

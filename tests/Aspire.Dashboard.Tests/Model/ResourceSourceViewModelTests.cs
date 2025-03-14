@@ -6,13 +6,13 @@ using Aspire.Dashboard.Utils;
 using Aspire.Tests.Shared.DashboardModel;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.Model;
 
+[TestClass]
 public class ResourceSourceViewModelTests
 {
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(ResourceSourceViewModel_ReturnsCorrectValue_TestData))]
     public void ResourceSourceViewModel_ReturnsCorrectValue(TestData testData, ResourceSourceViewModel? expected)
     {
@@ -44,15 +44,15 @@ public class ResourceSourceViewModelTests
         var actual = ResourceSourceViewModel.GetSourceViewModel(resource);
         if (expected is null)
         {
-            Assert.Null(actual);
+            Assert.IsNull(actual);
         }
         else
         {
-            Assert.NotNull(actual);
-            Assert.Equal(expected.Value, actual.Value);
-            Assert.Equal(expected.ContentAfterValue, actual.ContentAfterValue);
-            Assert.Equal(expected.ValueToVisualize, actual.ValueToVisualize);
-            Assert.Equal(expected.Tooltip, actual.Tooltip);
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(expected.Value, actual.Value);
+            Assert.AreEqual(expected.ContentAfterValue, actual.ContentAfterValue);
+            Assert.AreEqual(expected.ValueToVisualize, actual.ValueToVisualize);
+            Assert.AreEqual(expected.Tooltip, actual.Tooltip);
         }
 
         void AddStringProperty(string propertyName, string? propertyValue)

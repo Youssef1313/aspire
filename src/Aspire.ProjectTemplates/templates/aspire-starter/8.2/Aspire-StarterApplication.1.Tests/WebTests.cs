@@ -21,7 +21,7 @@ public class WebTests
             clientBuilder.AddStandardResilienceHandler();
         });
 #if (TestFx == "xUnit.net")
-        // To output logs to the xUnit.net ITestOutputHelper, consider adding a package from https://www.nuget.org/packages?q=xunit+logging
+        // To output logs to the xUnit.net TestContext, consider adding a package from https://www.nuget.org/packages?q=xunit+logging
 #endif
 
         await using var app = await appHost.BuildAsync();

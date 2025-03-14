@@ -3,14 +3,14 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 using static Aspire.Hosting.ApplicationModel.ReferenceExpression;
 
 namespace Aspire.Hosting.Azure.Tests.PublicApiTests;
 
+[TestClass]
 public class WebPubSubPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddAzureWebPubSubShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -19,12 +19,12 @@ public class WebPubSubPublicApiTests
         var action = () => builder.AddAzureWebPubSub(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddAzureWebPubSubShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -35,10 +35,10 @@ public class WebPubSubPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddHubShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureWebPubSubResource> builder = null!;
@@ -47,12 +47,12 @@ public class WebPubSubPublicApiTests
         var action = () => builder.AddHub(hubName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddHubShouldThrowWhenHubNameIsNullOrEmpty(bool isNull)
     {
         using var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -64,12 +64,12 @@ public class WebPubSubPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(hubName), exception.ParamName);
+        Assert.AreEqual(nameof(hubName), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(1)]
     public void AddEventHandlerShouldThrowWhenBuilderIsNull(int overrideIndex)
     {
         IResourceBuilder<AzureWebPubSubHubResource> builder = null!;
@@ -84,14 +84,14 @@ public class WebPubSubPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0, false)]
-    [InlineData(0, true)]
-    [InlineData(1, false)]
-    [InlineData(1, true)]
+    [TestMethod]
+    [DataRow(0, false)]
+    [DataRow(0, true)]
+    [DataRow(1, false)]
+    [DataRow(1, true)]
     public void AddEventHandlerShouldThrowWhenUserEventPatternIsNull(int overrideIndex, bool isNull)
     {
         using var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -109,10 +109,10 @@ public class WebPubSubPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(userEventPattern), exception.ParamName);
+        Assert.AreEqual(nameof(userEventPattern), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddEventHandlerShouldThrowWhenUrlExpressionIsNull()
     {
         using var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -122,12 +122,12 @@ public class WebPubSubPublicApiTests
         var action = () => builder.AddEventHandler(urlExpression);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(urlExpression), exception.ParamName);
+        Assert.AreEqual(nameof(urlExpression), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureWebPubSubHubResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
@@ -138,10 +138,10 @@ public class WebPubSubPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureWebPubSubHubResourceShouldThrowWhenWebPubSubIsNull()
     {
         const string name = "web-pub-sub";
@@ -150,12 +150,12 @@ public class WebPubSubPublicApiTests
         var action = () => new AzureWebPubSubHubResource(name, webpubsub);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(webpubsub), exception.ParamName);
+        Assert.AreEqual(nameof(webpubsub), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureWebPubSubResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
@@ -166,10 +166,10 @@ public class WebPubSubPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureWebPubSubResourceShouldThrowWhenConfigureInfrastructureIsNull()
     {
         const string name = "web-pub-sub";
@@ -178,6 +178,6 @@ public class WebPubSubPublicApiTests
         var action = () => new AzureWebPubSubResource(name, configureInfrastructure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureInfrastructure), exception.ParamName);
+        Assert.AreEqual(nameof(configureInfrastructure), exception.ParamName);
     }
 }

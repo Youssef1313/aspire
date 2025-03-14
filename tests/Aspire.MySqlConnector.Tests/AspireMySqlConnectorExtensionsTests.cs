@@ -6,10 +6,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MySqlConnector;
-using Xunit;
 
 namespace Aspire.MySqlConnector.Tests;
 
+[TestClass]
 public class AspireMySqlConnectorExtensionsTests : IClassFixture<MySqlContainerFixture>
 {
     private readonly MySqlContainerFixture _containerFixture;
@@ -21,9 +21,9 @@ public class AspireMySqlConnectorExtensionsTests : IClassFixture<MySqlContainerF
     public AspireMySqlConnectorExtensionsTests(MySqlContainerFixture containerFixture)
         => _containerFixture = containerFixture;
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -45,12 +45,12 @@ public class AspireMySqlConnectorExtensionsTests : IClassFixture<MySqlContainerF
             host.Services.GetRequiredKeyedService<MySqlDataSource>("mysql") :
             host.Services.GetRequiredService<MySqlDataSource>();
 
-        Assert.Equal(NormalizedConnectionString, dataSource.ConnectionString);
+        Assert.AreEqual(NormalizedConnectionString, dataSource.ConnectionString);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -73,14 +73,14 @@ public class AspireMySqlConnectorExtensionsTests : IClassFixture<MySqlContainerF
             host.Services.GetRequiredKeyedService<MySqlDataSource>("mysql") :
             host.Services.GetRequiredService<MySqlDataSource>();
 
-        Assert.Equal(NormalizedConnectionString, dataSource.ConnectionString);
+        Assert.AreEqual(NormalizedConnectionString, dataSource.ConnectionString);
         // the connection string from config should not be used since code set it explicitly
         Assert.DoesNotContain("unused", dataSource.ConnectionString);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -105,12 +105,12 @@ public class AspireMySqlConnectorExtensionsTests : IClassFixture<MySqlContainerF
             host.Services.GetRequiredKeyedService<MySqlDataSource>("mysql") :
             host.Services.GetRequiredService<MySqlDataSource>();
 
-        Assert.Equal(NormalizedConnectionString, dataSource.ConnectionString);
+        Assert.AreEqual(NormalizedConnectionString, dataSource.ConnectionString);
         // the connection string from config should not be used since it was found in ConnectionStrings
         Assert.DoesNotContain("unused", dataSource.ConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -130,9 +130,9 @@ public class AspireMySqlConnectorExtensionsTests : IClassFixture<MySqlContainerF
         var connection2 = host.Services.GetRequiredKeyedService<MySqlDataSource>("mysql2");
         var connection3 = host.Services.GetRequiredKeyedService<MySqlDataSource>("mysql3");
 
-        Assert.NotSame(connection1, connection2);
-        Assert.NotSame(connection1, connection3);
-        Assert.NotSame(connection2, connection3);
+        Assert.AreNotSame(connection1, connection2);
+        Assert.AreNotSame(connection1, connection3);
+        Assert.AreNotSame(connection2, connection3);
 
         Assert.Contains("localhost1", connection1.ConnectionString);
         Assert.Contains("localhost2", connection2.ConnectionString);

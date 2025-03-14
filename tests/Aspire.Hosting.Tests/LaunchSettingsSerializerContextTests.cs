@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class LaunchSettingsSerializerContextTests
 {
-    [Fact]
+    [TestMethod]
     public void CommentsInLaunchSettingsJsonDoesNotThrow()
     {
         const string launchSettingsJson = """

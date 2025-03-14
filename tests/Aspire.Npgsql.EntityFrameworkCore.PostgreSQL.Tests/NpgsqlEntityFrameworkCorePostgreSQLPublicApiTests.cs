@@ -3,13 +3,13 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Npgsql.EntityFrameworkCore.PostgreSQL.Tests;
 
+[TestClass]
 public class NpgsqlEntityFrameworkCorePostgreSQLPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddNpgsqlDbContextShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -18,12 +18,12 @@ public class NpgsqlEntityFrameworkCorePostgreSQLPublicApiTests
         var action = () => builder.AddNpgsqlDbContext<DbContext>(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddNpgsqlDbContextShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -34,10 +34,10 @@ public class NpgsqlEntityFrameworkCorePostgreSQLPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void EnrichNpgsqlDbContextShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -45,6 +45,6 @@ public class NpgsqlEntityFrameworkCorePostgreSQLPublicApiTests
         var action = () => builder.EnrichNpgsqlDbContext<DbContext>();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 }

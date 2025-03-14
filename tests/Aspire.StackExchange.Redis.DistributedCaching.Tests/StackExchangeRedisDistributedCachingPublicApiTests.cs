@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.StackExchange.Redis.DistributedCaching.Tests;
 
+[TestClass]
 public class StackExchangeRedisDistributedCachingPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddRedisDistributedCacheShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -17,12 +17,12 @@ public class StackExchangeRedisDistributedCachingPublicApiTests
         var action = () => builder.AddRedisDistributedCache(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddRedisDistributedCacheShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -33,10 +33,10 @@ public class StackExchangeRedisDistributedCachingPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeyedRedisDistributedCacheShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -45,12 +45,12 @@ public class StackExchangeRedisDistributedCachingPublicApiTests
         var action = () => builder.AddKeyedRedisDistributedCache(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddKeyedRedisDistributedCacheShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -61,6 +61,6 @@ public class StackExchangeRedisDistributedCachingPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 }

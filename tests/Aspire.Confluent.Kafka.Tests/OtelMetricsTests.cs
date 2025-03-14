@@ -7,34 +7,42 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Metrics;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Confluent.Kafka.Tests;
 
-[Collection("Kafka Broker collection")]
+[TestClass]
 public class OtelMetricsTests
 {
-    private readonly KafkaContainerFixture? _containerFixture;
-    private readonly ITestOutputHelper _outputHelper;
+    private readonly TestContext _testContext;
 
-    public OtelMetricsTests(KafkaContainerFixture? kafkaContainerFixture, ITestOutputHelper outputHelper)
+    public OtelMetricsTests(TestContext testContext)
     {
-        _containerFixture = kafkaContainerFixture;
-        _outputHelper = outputHelper;
+        _testContext = testContext;
     }
 
-    [Theory]
+    [ClassInitialize]
+    public static async Task ClassInitialize(TestContext context)
+    {
+        await KafkaContainerFixture.Instance.InitializeAsync();
+    }
+
+    [ClassCleanup(ClassCleanupBehavior.EndOfClass)]
+    public static async Task ClassCleanup(TestContext context)
+    {
+        await KafkaContainerFixture.Instance.DisposeAsync();
+    }
+
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(true)]
-    [InlineData(false)]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task EnsureMetricsAreProducedAsync(bool useKeyed)
     {
         List<Metric> metrics = new();
         var builder = Host.CreateEmptyApplicationBuilder(null);
         var key = useKeyed ? "messaging" : null;
         builder.Configuration.AddInMemoryCollection([
-            new KeyValuePair<string, string?>("ConnectionStrings:messaging", _containerFixture?.Container?.GetBootstrapAddress()),
+            new KeyValuePair<string, string?>("ConnectionStrings:messaging", KafkaContainerFixture.Instance?.Container?.GetBootstrapAddress()),
         ]);
 
         if (useKeyed)
@@ -76,7 +84,7 @@ public class OtelMetricsTests
                     Key = $"any_key_{i}",
                     Value = $"any_value_{i}",
                 });
-                _outputHelper.WriteLine("produced message {0}", i);
+                _testContext.WriteLine("produced message {0}", i);
             }
 
             await producer.FlushAsync();
@@ -102,7 +110,7 @@ public class OtelMetricsTests
                     break;
                 }
 
-                _outputHelper.WriteLine("consumed message {0}", j);
+                _testContext.WriteLine("consumed message {0}", j);
                 j++;
             }
         }
@@ -114,11 +122,11 @@ public class OtelMetricsTests
         groups = metrics.Where(x => x.MeterName == "OpenTelemetry.Instrumentation.ConfluentKafka")
             .GroupBy(x => x.Name).ToArray();
 
-        Assert.Equal(4, groups.Length);
+        Assert.AreEqual(4, groups.Length);
 
-        Assert.Contains(groups, x => x.Key == "messaging.receive.duration");
-        Assert.Contains(groups, x => x.Key == "messaging.receive.messages");
-        Assert.Contains(groups, x => x.Key == "messaging.publish.duration");
-        Assert.Contains(groups, x => x.Key == "messaging.publish.messages");
+        Assert.Contains(x => x.Key == "messaging.receive.duration", groups);
+        Assert.Contains(x => x.Key == "messaging.receive.messages", groups);
+        Assert.Contains(x => x.Key == "messaging.publish.duration", groups);
+        Assert.Contains(x => x.Key == "messaging.publish.messages", groups);
     }
 }

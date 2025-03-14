@@ -9,10 +9,10 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using NATS.Client.Core;
 using OpenTelemetry.Trace;
-using Xunit;
 
 namespace Aspire.NATS.Net.Tests;
 
+[TestClass]
 public class AspireNatsClientExtensionsTests : IClassFixture<NatsContainerFixture>
 {
     private const string DefaultConnectionName = "nats";
@@ -28,9 +28,9 @@ public class AspireNatsClientExtensionsTests : IClassFixture<NatsContainerFixtur
             : "nats://aspire-host:4222";
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -52,12 +52,12 @@ public class AspireNatsClientExtensionsTests : IClassFixture<NatsContainerFixtur
             host.Services.GetRequiredKeyedService<INatsConnection>("nats") :
             host.Services.GetRequiredService<INatsConnection>();
 
-        Assert.Equal(_connectionString, connection.Opts.Url);
+        Assert.AreEqual(_connectionString, connection.Opts.Url);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanContainUserAndPassword(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -79,14 +79,14 @@ public class AspireNatsClientExtensionsTests : IClassFixture<NatsContainerFixtur
             host.Services.GetRequiredKeyedService<INatsConnection>("nats") :
             host.Services.GetRequiredService<INatsConnection>();
 
-        Assert.Equal("nats://nats:password@aspire-host:4222", connection.Opts.Url);
-        Assert.Equal("nats", connection.Opts.AuthOpts.Username);
-        Assert.Equal("password", connection.Opts.AuthOpts.Password);
+        Assert.AreEqual("nats://nats:password@aspire-host:4222", connection.Opts.Url);
+        Assert.AreEqual("nats", connection.Opts.AuthOpts.Username);
+        Assert.AreEqual("password", connection.Opts.AuthOpts.Password);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -110,14 +110,14 @@ public class AspireNatsClientExtensionsTests : IClassFixture<NatsContainerFixtur
             host.Services.GetRequiredKeyedService<INatsConnection>("nats") :
             host.Services.GetRequiredService<INatsConnection>();
 
-        Assert.Equal(_connectionString, connection.Opts.Url);
+        Assert.AreEqual(_connectionString, connection.Opts.Url);
         // the connection string from config should not be used since code set it explicitly
         Assert.DoesNotContain("unused", connection.Opts.Url);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -142,14 +142,14 @@ public class AspireNatsClientExtensionsTests : IClassFixture<NatsContainerFixtur
             host.Services.GetRequiredKeyedService<INatsConnection>("nats") :
             host.Services.GetRequiredService<INatsConnection>();
 
-        Assert.Equal(_connectionString, connection.Opts.Url);
+        Assert.AreEqual(_connectionString, connection.Opts.Url);
         // the connection string from config should not be used since it was found in ConnectionStrings
         Assert.DoesNotContain("unused", connection.Opts.Url);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task AddNatsClient_HealthCheckShouldBeRegisteredByDefault(bool useKeyed)
     {
         var key = DefaultConnectionName;
@@ -175,9 +175,9 @@ public class AspireNatsClientExtensionsTests : IClassFixture<NatsContainerFixtur
         Assert.Contains(healthCheckReport.Entries, x => x.Key == healthCheckName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddNatsClient_HealthCheckShouldNotBeRegisteredWhenDisabled(bool useKeyed)
     {
         var builder = CreateBuilder(_connectionString);
@@ -201,10 +201,10 @@ public class AspireNatsClientExtensionsTests : IClassFixture<NatsContainerFixtur
 
         var healthCheckService = host.Services.GetService<HealthCheckService>();
 
-        Assert.Null(healthCheckService);
+        Assert.IsNull(healthCheckService);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void NatsInstrumentationEndToEnd()
     {
@@ -224,15 +224,15 @@ public class AspireNatsClientExtensionsTests : IClassFixture<NatsContainerFixtur
             await nats.PublishAsync("test");
 
             var activityList = await notifier.TakeAsync(1, TimeSpan.FromSeconds(10));
-            Assert.Single(activityList);
+            Assert.ContainsSingle(activityList);
 
             var activity = activityList[0];
-            Assert.Equal("test publish", activity.OperationName);
+            Assert.AreEqual("test publish", activity.OperationName);
             Assert.Contains(activity.Tags, kvp => kvp.Key == "messaging.system" && kvp.Value == "nats");
         }, _connectionString).Dispose();
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -252,9 +252,9 @@ public class AspireNatsClientExtensionsTests : IClassFixture<NatsContainerFixtur
         var connection2 = host.Services.GetRequiredKeyedService<INatsConnection>("nats2");
         var connection3 = host.Services.GetRequiredKeyedService<INatsConnection>("nats3");
 
-        Assert.NotSame(connection1, connection2);
-        Assert.NotSame(connection1, connection3);
-        Assert.NotSame(connection2, connection3);
+        Assert.AreNotSame(connection1, connection2);
+        Assert.AreNotSame(connection1, connection3);
+        Assert.AreNotSame(connection2, connection3);
 
         Assert.Contains("aspire-host1", connection1.Opts.Url);
         Assert.Contains("aspire-host2", connection2.Opts.Url);

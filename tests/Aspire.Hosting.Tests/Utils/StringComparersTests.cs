@@ -1,15 +1,15 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 using System.Reflection;
 using System.Globalization;
 
 namespace Aspire.Hosting.Tests.Utils;
 
+[TestClass]
 public sealed class StringComparersTests
 {
-    [Fact]
+    [TestMethod]
     public void StringComparersAndStringComparisonsMatch()
     {
         var flags = BindingFlags.Public | BindingFlags.Static;
@@ -71,7 +71,7 @@ public sealed class StringComparersTests
             // Check that all comparer values match the corresponding comparison values.
             foreach (var (comparer, comparison) in comparerValues.Zip(comparisonValues))
             {
-                Assert.Equal(comparer.Name, comparison.Name, StringComparer.Ordinal);
+                Assert.AreEqual(comparer.Name, comparison.Name, StringComparer.Ordinal);
 
                 var comparerKind = GetComparerKind(comparer.Value);
                 var comparisonKind = GetComparisonKind(comparison.Value);

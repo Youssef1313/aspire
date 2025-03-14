@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Milvus.Client.Tests;
 
+[TestClass]
 public class MilvusClientPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddMilvusClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -17,12 +17,12 @@ public class MilvusClientPublicApiTests
         var action = () => builder.AddMilvusClient(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddMilvusClientShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -33,10 +33,10 @@ public class MilvusClientPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeyedMilvusClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -45,12 +45,12 @@ public class MilvusClientPublicApiTests
         var action = () => builder.AddKeyedMilvusClient(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddKeyedMilvusClientShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -61,6 +61,6 @@ public class MilvusClientPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 }

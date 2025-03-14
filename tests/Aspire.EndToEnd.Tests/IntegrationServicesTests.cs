@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
-using Xunit.Abstractions;
 using Aspire.TestProject;
 using Aspire.Workload.Tests;
 
@@ -13,17 +11,17 @@ public class IntegrationServicesTests : IClassFixture<IntegrationServicesFixture
     private readonly IntegrationServicesFixture _integrationServicesFixture;
     private readonly TestOutputWrapper _testOutput;
 
-    public IntegrationServicesTests(ITestOutputHelper testOutput, IntegrationServicesFixture integrationServicesFixture)
+    public IntegrationServicesTests(TestContext testOutput, IntegrationServicesFixture integrationServicesFixture)
     {
         _integrationServicesFixture = integrationServicesFixture;
         _testOutput = new TestOutputWrapper(testOutput);
     }
 
-    [Theory]
+    [TestMethod]
     [Trait("scenario", "basicservices")]
-    [InlineData(TestResourceNames.postgres)]
-    [InlineData(TestResourceNames.efnpgsql)]
-    [InlineData(TestResourceNames.redis)]
+    [DataRow(TestResourceNames.postgres)]
+    [DataRow(TestResourceNames.efnpgsql)]
+    [DataRow(TestResourceNames.redis)]
     public Task VerifyComponentWorks(TestResourceNames resourceName)
         => RunTestAsync(async () =>
         {
@@ -33,7 +31,7 @@ public class IntegrationServicesTests : IClassFixture<IntegrationServicesFixture
                 var response = await _integrationServicesFixture.IntegrationServiceA.HttpGetAsync("http", $"/{resourceName}/verify");
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                Assert.True(response.IsSuccessStatusCode, responseContent);
+                Assert.IsTrue(response.IsSuccessStatusCode, responseContent);
             }
             catch
             {
@@ -42,7 +40,7 @@ public class IntegrationServicesTests : IClassFixture<IntegrationServicesFixture
             }
         });
 
-    [Fact]
+    [TestMethod]
     [Trait("scenario", "basicservices")]
     public Task VerifyHealthyOnIntegrationServiceA()
         => RunTestAsync(async () =>

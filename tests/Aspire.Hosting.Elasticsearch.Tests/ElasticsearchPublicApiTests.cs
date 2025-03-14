@@ -3,105 +3,105 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Elasticsearch.Tests;
 
+[TestClass]
 public class ElasticsearchPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddElasticsearchShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
         const string name = "elasticsearch";
 
-        var action = () => builder.AddElasticsearch(name);
+        Action action = () => builder.AddElasticsearch(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddElasticsearchShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
         var name = isNull ? null! : string.Empty;
 
-        var action = () => builder.AddElasticsearch(name);
+        Action action = () => builder.AddElasticsearch(name);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataVolumeShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<ElasticsearchResource> builder = null!;
 
-        var action = () => builder.WithDataVolume();
+        Action action = () => builder.WithDataVolume();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataBindMountShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<ElasticsearchResource> builder = null!;
         const string source = "/usr/share/elasticsearch/data";
 
-        var action = () => builder.WithDataBindMount(source);
+        Action action = () => builder.WithDataBindMount(source);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithDataBindMountShouldThrowWhenSourceIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create()
             .AddElasticsearch("elasticsearch");
         var source = isNull ? null! : string.Empty;
 
-        var action = () => builder.WithDataBindMount(source);
+        Action action = () => builder.WithDataBindMount(source);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(source), exception.ParamName);
+        Assert.AreEqual(nameof(source), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorElasticsearchResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
         var builder = TestDistributedApplicationBuilder.Create();
         var password = builder.AddParameter("password");
 
-        var action = () => new ElasticsearchResource(name, password.Resource);
+        Action action = () => new ElasticsearchResource(name, password.Resource);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
-    [Fact]
+    [TestMethod]
     public void CtorElasticsearchResourceShouldThrowWhenPasswordIsNull()
     {
         const string name = "elasticsearch";
         ParameterResource password = null!;
 
-        var action = () => new ElasticsearchResource(name, password);
+        Action action = () => new ElasticsearchResource(name, password);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(password), exception.ParamName);
+        Assert.AreEqual(nameof(password), exception.ParamName);
     }
 }

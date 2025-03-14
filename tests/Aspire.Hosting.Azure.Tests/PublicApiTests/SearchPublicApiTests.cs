@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests.PublicApiTests;
 
+[TestClass]
 public class SearchPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddAzureSearchShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -17,12 +17,12 @@ public class SearchPublicApiTests
         var action = () => builder.AddAzureSearch(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddAzureSearchShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -33,12 +33,12 @@ public class SearchPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureSearchResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
@@ -49,10 +49,10 @@ public class SearchPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureSearchResourceShouldThrowWhenConfigureInfrastructureIsNull()
     {
         const string name = "search";
@@ -61,6 +61,6 @@ public class SearchPublicApiTests
         var action = () => new AzureSearchResource(name, configureInfrastructure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureInfrastructure), exception.ParamName);
+        Assert.AreEqual(nameof(configureInfrastructure), exception.ParamName);
     }
 }

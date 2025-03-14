@@ -7,15 +7,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenAI;
-using Xunit;
 
 namespace Aspire.Azure.AI.OpenAI.Tests;
 
+[TestClass]
 public class AspireConfigurableOpenAIExtensionsTests
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void EmptyEndpointAndKeyThrowsException(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -36,9 +36,9 @@ public class AspireConfigurableOpenAIExtensionsTests
         });
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void EndpointRegistersAzureComponentIsAzureTrue(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -60,12 +60,12 @@ public class AspireConfigurableOpenAIExtensionsTests
             host.Services.GetRequiredKeyedService<OpenAIClient>("openai") :
             host.Services.GetRequiredService<OpenAIClient>();
 
-        Assert.IsType<AzureOpenAIClient>(openAiClient);
+        Assert.IsInstanceOfType<AzureOpenAIClient>(openAiClient);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void EndpointRegistersOpenAIComponentIsAzureFalse(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -87,12 +87,12 @@ public class AspireConfigurableOpenAIExtensionsTests
             host.Services.GetRequiredKeyedService<OpenAIClient>("openai") :
             host.Services.GetRequiredService<OpenAIClient>();
 
-        Assert.IsType<OpenAIClient>(openAiClient);
+        Assert.IsInstanceOfType<OpenAIClient>(openAiClient);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void EndpointRegistersAzureComponentWithAzureDomain(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -114,13 +114,13 @@ public class AspireConfigurableOpenAIExtensionsTests
             host.Services.GetRequiredKeyedService<OpenAIClient>("openai") :
             host.Services.GetRequiredService<OpenAIClient>();
 
-        Assert.IsType<AzureOpenAIClient>(openAiClient);
+        Assert.IsInstanceOfType<AzureOpenAIClient>(openAiClient);
     }
 
-    [Theory]
-    [InlineData("https://aspireopenaitests.azure.com/")]
-    [InlineData("https://aspireopenaitests.AZURE.com/")]
-    [InlineData("https://aspireopenaitests.azure.cn/")]
+    [TestMethod]
+    [DataRow("https://aspireopenaitests.azure.com/")]
+    [DataRow("https://aspireopenaitests.AZURE.com/")]
+    [DataRow("https://aspireopenaitests.azure.cn/")]
     public void EndpointRegistersAzureComponentWithValidAzureHosts(string domain)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -133,12 +133,12 @@ public class AspireConfigurableOpenAIExtensionsTests
         using var host = builder.Build();
         var openAiClient = host.Services.GetRequiredService<OpenAIClient>();
 
-        Assert.IsType<AzureOpenAIClient>(openAiClient);
+        Assert.IsInstanceOfType<AzureOpenAIClient>(openAiClient);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void EndpointRegistersOpenAIWithAzureDomainIsAzureFalse(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -160,12 +160,12 @@ public class AspireConfigurableOpenAIExtensionsTests
             host.Services.GetRequiredKeyedService<OpenAIClient>("openai") :
             host.Services.GetRequiredService<OpenAIClient>();
 
-        Assert.IsType<OpenAIClient>(openAiClient);
+        Assert.IsInstanceOfType<OpenAIClient>(openAiClient);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void EmptyEndpointRegistersOpenAI(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -187,12 +187,12 @@ public class AspireConfigurableOpenAIExtensionsTests
             host.Services.GetRequiredKeyedService<OpenAIClient>("openai") :
             host.Services.GetRequiredService<OpenAIClient>();
 
-        Assert.IsType<OpenAIClient>(openAiClient);
+        Assert.IsInstanceOfType<OpenAIClient>(openAiClient);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void MissingEndpointRegistersOpenAI(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -214,12 +214,12 @@ public class AspireConfigurableOpenAIExtensionsTests
             host.Services.GetRequiredKeyedService<OpenAIClient>("openai") :
             host.Services.GetRequiredService<OpenAIClient>();
 
-        Assert.IsType<OpenAIClient>(openAiClient);
+        Assert.IsInstanceOfType<OpenAIClient>(openAiClient);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CanChainBuilderOperations(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -238,12 +238,12 @@ public class AspireConfigurableOpenAIExtensionsTests
             host.Services.GetRequiredKeyedService<OpenAIClient>("openai") :
             host.Services.GetRequiredService<OpenAIClient>();
 
-        Assert.IsType<AzureOpenAIClient>(openAiClient);
+        Assert.IsInstanceOfType<AzureOpenAIClient>(openAiClient);
 
         var chatClient = useKeyed ?
             host.Services.GetRequiredKeyedService<IChatClient>("chat") :
             host.Services.GetRequiredService<IChatClient>();
 
-        Assert.IsType<FunctionInvokingChatClient>(chatClient);
+        Assert.IsInstanceOfType<FunctionInvokingChatClient>(chatClient);
     }
 }

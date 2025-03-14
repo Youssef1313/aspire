@@ -5,13 +5,13 @@ using Aspire.Dashboard.Model;
 using Aspire.Dashboard.Otlp.Model;
 using Aspire.Tests.Shared.Telemetry;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.Model;
 
+[TestClass]
 public sealed class TraceHelpersTests
 {
-    [Fact]
+    [TestMethod]
     public void GetOrderedApplications_SingleSpan_GroupedResult()
     {
         // Arrange
@@ -25,14 +25,14 @@ public sealed class TraceHelpersTests
         var results = TraceHelpers.GetOrderedApplications(trace);
 
         // Assert
-        Assert.Collection(results,
+        Assert.That.Collection(results,
             g =>
             {
-                Assert.Equal(app1, g.Application);
+                Assert.AreEqual(app1, g.Application);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetOrderedApplications_MultipleUnparentedSpans_GroupedResult()
     {
         // Arrange
@@ -48,18 +48,18 @@ public sealed class TraceHelpersTests
         var results = TraceHelpers.GetOrderedApplications(trace);
 
         // Assert
-        Assert.Collection(results,
+        Assert.That.Collection(results,
             g =>
             {
-                Assert.Equal(app1, g.Application);
+                Assert.AreEqual(app1, g.Application);
             },
             g =>
             {
-                Assert.Equal(app2, g.Application);
+                Assert.AreEqual(app2, g.Application);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetOrderedApplications_ChildSpanAfterParentSpan_GroupedResult()
     {
         // Arrange
@@ -75,18 +75,18 @@ public sealed class TraceHelpersTests
         var results = TraceHelpers.GetOrderedApplications(trace);
 
         // Assert
-        Assert.Collection(results,
+        Assert.That.Collection(results,
             g =>
             {
-                Assert.Equal(app1, g.Application);
+                Assert.AreEqual(app1, g.Application);
             },
             g =>
             {
-                Assert.Equal(app2, g.Application);
+                Assert.AreEqual(app2, g.Application);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetOrderedApplications_ChildSpanDifferentStartTime_GroupedResult()
     {
         // Arrange
@@ -105,18 +105,18 @@ public sealed class TraceHelpersTests
         var results = TraceHelpers.GetOrderedApplications(trace);
 
         // Assert
-        Assert.Collection(results,
+        Assert.That.Collection(results,
             g =>
             {
-                Assert.Equal(app1, g.Application);
+                Assert.AreEqual(app1, g.Application);
             },
             g =>
             {
-                Assert.Equal(app3, g.Application);
+                Assert.AreEqual(app3, g.Application);
             },
             g =>
             {
-                Assert.Equal(app2, g.Application);
+                Assert.AreEqual(app2, g.Application);
             });
     }
 }

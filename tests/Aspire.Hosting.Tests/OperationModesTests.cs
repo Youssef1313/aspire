@@ -4,14 +4,14 @@
 using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Tests;
 
-public class OperationModesTests(ITestOutputHelper outputHelper)
+[TestClass]
+public class OperationModesTests(TestContext outputHelper)
 {
-    [Fact]
+    [TestMethod]
     public async Task VerifyBackwardsCompatableRunModeInvocation()
     {
         // The purpose of this test is to verify that the apphost executable will continue
@@ -34,11 +34,11 @@ public class OperationModesTests(ITestOutputHelper outputHelper)
 
         await app.StopAsync().WaitAsync(TestConstants.DefaultTimeoutTimeSpan);
 
-        Assert.Equal(DistributedApplicationOperation.Run, context.Operation);
-        Assert.True(context.IsRunMode);
+        Assert.AreEqual(DistributedApplicationOperation.Run, context.Operation);
+        Assert.IsTrue(context.IsRunMode);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyExplicitRunModeInvocation()
     {
         // The purpose of this test is to verify that the apphost executable will enter
@@ -63,11 +63,11 @@ public class OperationModesTests(ITestOutputHelper outputHelper)
 
         await app.StopAsync().WaitAsync(TestConstants.DefaultTimeoutTimeSpan);
 
-        Assert.Equal(DistributedApplicationOperation.Run, context.Operation);
-        Assert.True(context.IsRunMode);
+        Assert.AreEqual(DistributedApplicationOperation.Run, context.Operation);
+        Assert.IsTrue(context.IsRunMode);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyExplicitRunModeWithPublisherInvocation()
     {
         // The purpose of this test is to verify that the apphost executable will enter
@@ -92,11 +92,11 @@ public class OperationModesTests(ITestOutputHelper outputHelper)
 
         await app.StopAsync().WaitAsync(TestConstants.DefaultTimeoutTimeSpan);
 
-        Assert.Equal(DistributedApplicationOperation.Run, context.Operation);
-        Assert.True(context.IsRunMode);
+        Assert.AreEqual(DistributedApplicationOperation.Run, context.Operation);
+        Assert.IsTrue(context.IsRunMode);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyBackwardsCompatablePublishModeInvocation()
     {
         // The purpose of this test is to verify that the apphost executable will continue
@@ -123,11 +123,11 @@ public class OperationModesTests(ITestOutputHelper outputHelper)
 
         await app.StopAsync().WaitAsync(TestConstants.DefaultTimeoutTimeSpan);
 
-        Assert.Equal(DistributedApplicationOperation.Publish, context.Operation);
-        Assert.True(context.IsPublishMode);
+        Assert.AreEqual(DistributedApplicationOperation.Publish, context.Operation);
+        Assert.IsTrue(context.IsPublishMode);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyExplicitPublishModeInvocation()
     {
         // The purpose of this test is to verify that the apphost executable will continue
@@ -154,11 +154,11 @@ public class OperationModesTests(ITestOutputHelper outputHelper)
 
         await app.StopAsync().WaitAsync(TestConstants.DefaultTimeoutTimeSpan);
 
-        Assert.Equal(DistributedApplicationOperation.Publish, context.Operation);
-        Assert.True(context.IsPublishMode);
+        Assert.AreEqual(DistributedApplicationOperation.Publish, context.Operation);
+        Assert.IsTrue(context.IsPublishMode);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyExplicitInspectModeInvocation()
     {
         // The purpose of this test is to verify that the apphost executable will continue
@@ -185,11 +185,11 @@ public class OperationModesTests(ITestOutputHelper outputHelper)
 
         await app.StopAsync().WaitAsync(TestConstants.DefaultTimeoutTimeSpan);
 
-        Assert.Equal(DistributedApplicationOperation.Inspect, context.Operation);
-        Assert.True(context.IsInspectMode);
+        Assert.AreEqual(DistributedApplicationOperation.Inspect, context.Operation);
+        Assert.IsTrue(context.IsInspectMode);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyExplicitInspectModeWithPublisherSpecifiedInvocation()
     {
         // The purpose of this test is to verify that the apphost executable will continue
@@ -216,7 +216,7 @@ public class OperationModesTests(ITestOutputHelper outputHelper)
 
         await app.StopAsync().WaitAsync(TestConstants.DefaultTimeoutTimeSpan);
 
-        Assert.Equal(DistributedApplicationOperation.Inspect, context.Operation);
-        Assert.True(context.IsInspectMode);
+        Assert.AreEqual(DistributedApplicationOperation.Inspect, context.Operation);
+        Assert.IsTrue(context.IsInspectMode);
     }
 }

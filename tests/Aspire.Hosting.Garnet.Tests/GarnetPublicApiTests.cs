@@ -3,92 +3,92 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Garnet.Tests;
 
+[TestClass]
 public class GarnetPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddGarnetShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
         const string name = "garnet";
 
-        var action = () => builder.AddGarnet(name);
+        Action action = () => builder.AddGarnet(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddGarnetShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
         var name = isNull ? null! : string.Empty;
 
-        var action = () => builder.AddGarnet(name);
+        Action action = () => builder.AddGarnet(name);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataVolumeShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<GarnetResource> builder = null!;
 
-        var action = () => builder.WithDataVolume();
+        Action action = () => builder.WithDataVolume();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataBindMountShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<GarnetResource> builder = null!;
         const string source = "/data";
 
-        var action = () => builder.WithDataBindMount(source);
+        Action action = () => builder.WithDataBindMount(source);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithDataBindMountShouldThrowWhenSourceIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create()
             .AddGarnet("garnet");
         var source = isNull ? null! : string.Empty;
 
-        var action = () => builder.WithDataBindMount(source);
+        Action action = () => builder.WithDataBindMount(source);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(source), exception.ParamName);
+        Assert.AreEqual(nameof(source), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPersistenceShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<GarnetResource> builder = null!;
 
-        var action = () => builder.WithPersistence();
+        Action action = () => builder.WithPersistence();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete("This method is obsolete and will be removed in a future version. Use the overload without the keysChangedThreshold parameter.")]
     public void ObsoleteWithPersistenceShouldThrowWhenBuilderIsNull()
     {
@@ -96,26 +96,26 @@ public class GarnetPublicApiTests
         TimeSpan? interval = null;
         long keysChangedThreshold = 0;
 
-        var action = () => builder.WithPersistence(interval, keysChangedThreshold);
+        Action action = () => builder.WithPersistence(interval, keysChangedThreshold);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
     //
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorGarnetResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
 
-        var action = () => new GarnetResource(name);
+        Action action = () => new GarnetResource(name);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 }

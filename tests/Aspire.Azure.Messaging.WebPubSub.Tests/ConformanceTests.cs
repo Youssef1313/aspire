@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Aspire.Azure.Messaging.WebPubSub.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<WebPubSubServiceClient, AzureMessagingWebPubSubSettings>
 {
     public const string Endpoint = "https://aspirewebpubsubtests.webpubsub.azure.com/";

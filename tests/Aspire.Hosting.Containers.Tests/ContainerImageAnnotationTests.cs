@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Hosting.ApplicationModel;
-using Xunit;
 
 namespace Aspire.Hosting.Containers.Tests;
 
+[TestClass]
 public class ContainerImageAnnotationTests
 {
-    [Fact]
+    [TestMethod]
     public void SettingTagNullsSha()
     {
         var annotation = new ContainerImageAnnotation()
@@ -17,13 +17,13 @@ public class ContainerImageAnnotationTests
             SHA256 = "pretendthisisasha"
         };
 
-        Assert.Null(annotation.Tag);
+        Assert.IsNull(annotation.Tag);
         annotation.Tag = "latest";
-        Assert.Equal("latest", annotation.Tag);
-        Assert.Null(annotation.SHA256);
+        Assert.AreEqual("latest", annotation.Tag);
+        Assert.IsNull(annotation.SHA256);
     }
 
-    [Fact]
+    [TestMethod]
     public void SettingShaNullsTag()
     {
         var annotation = new ContainerImageAnnotation()
@@ -32,10 +32,10 @@ public class ContainerImageAnnotationTests
             Tag = "latest"
         };
 
-        Assert.Null(annotation.SHA256);
+        Assert.IsNull(annotation.SHA256);
         annotation.SHA256 = "pretendthisisasha";
-        Assert.Equal("pretendthisisasha", annotation.SHA256);
-        Assert.Null(annotation.Tag);
+        Assert.AreEqual("pretendthisisasha", annotation.SHA256);
+        Assert.IsNull(annotation.Tag);
     }
 
 }

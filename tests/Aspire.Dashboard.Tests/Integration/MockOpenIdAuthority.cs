@@ -12,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.Integration;
 
@@ -117,7 +116,7 @@ internal static class MockOpenIdAuthority
         {
             var serverAddress = webHost.ServerFeatures.Get<IServerAddressesFeature>();
 
-            Assert.NotNull(serverAddress);
+            Assert.IsNotNull(serverAddress);
 
             var authorityUrl = serverAddress.Addresses.First().Replace("127.0.0.1", "localhost");
 

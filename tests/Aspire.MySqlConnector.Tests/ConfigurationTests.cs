@@ -1,25 +1,25 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 
 namespace Aspire.MySqlConnector.Tests;
 
+[TestClass]
 public class ConfigurationTests
 {
-    [Fact]
+    [TestMethod]
     public void ConnectionStringIsNullByDefault()
-    => Assert.Null(new MySqlConnectorSettings().ConnectionString);
+    => Assert.IsNull(new MySqlConnectorSettings().ConnectionString);
 
-    [Fact]
+    [TestMethod]
     public void HealthCheckIsEnabledByDefault()
-        => Assert.False(new MySqlConnectorSettings().DisableHealthChecks);
+        => Assert.IsFalse(new MySqlConnectorSettings().DisableHealthChecks);
 
-    [Fact]
+    [TestMethod]
     public void TracingIsEnabledByDefault()
-        => Assert.False(new MySqlConnectorSettings().DisableTracing);
+        => Assert.IsFalse(new MySqlConnectorSettings().DisableTracing);
 
-    [Fact]
+    [TestMethod]
     public void MetricsAreEnabledByDefault()
-        => Assert.False(new MySqlConnectorSettings().DisableMetrics);
+        => Assert.IsFalse(new MySqlConnectorSettings().DisableMetrics);
 }

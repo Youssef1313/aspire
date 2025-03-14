@@ -4,11 +4,11 @@
 using Aspire.Components.Common.Tests;
 using Aspire.Hosting.Testing.Tests;
 using Microsoft.AspNetCore.InternalTesting;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
 [Collection("SlimTestProgram")]
+[TestClass]
 public class SlimTestProgramTests
 {
     private readonly SlimTestProgramFixture _slimTestProgramFixture;
@@ -18,7 +18,7 @@ public class SlimTestProgramTests
         _slimTestProgramFixture = slimTestProgramFixture;
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/7923", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnGithubActions), nameof(PlatformDetection.IsWindows))]
     public async Task TestProjectStartsAndStopsCleanly()
     {
@@ -43,7 +43,7 @@ public class SlimTestProgramTests
         await clientC.GetStringAsync("/", cancellationToken);
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/7923", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnGithubActions), nameof(PlatformDetection.IsWindows))]
     public async Task TestPortOnEndpointAnnotationAndAllocatedEndpointAnnotationMatch()
     {
@@ -57,12 +57,12 @@ public class SlimTestProgramTests
         foreach (var projectBuilders in testProgram.ServiceProjectBuilders)
         {
             var endpoint = projectBuilders.Resource.Annotations.OfType<EndpointAnnotation>().Single();
-            Assert.NotNull(endpoint.AllocatedEndpoint);
-            Assert.Equal(endpoint.Port, endpoint.AllocatedEndpoint.Port);
+            Assert.IsNotNull(endpoint.AllocatedEndpoint);
+            Assert.AreEqual(endpoint.Port, endpoint.AllocatedEndpoint.Port);
         }
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/7923", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnGithubActions), nameof(PlatformDetection.IsWindows))]
     public async Task TestPortOnEndpointAnnotationAndAllocatedEndpointAnnotationMatchForReplicatedServices()
     {
@@ -76,8 +76,8 @@ public class SlimTestProgramTests
         foreach (var projectBuilders in testProgram.ServiceProjectBuilders)
         {
             var endpoint = projectBuilders.Resource.Annotations.OfType<EndpointAnnotation>().Single();
-            Assert.NotNull(endpoint.AllocatedEndpoint);
-            Assert.Equal(endpoint.Port, endpoint.AllocatedEndpoint.Port);
+            Assert.IsNotNull(endpoint.AllocatedEndpoint);
+            Assert.AreEqual(endpoint.Port, endpoint.AllocatedEndpoint.Port);
         }
     }
 }

@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ServiceDiscovery.Internal;
 using Microsoft.Extensions.ServiceDiscovery.PassThrough;
-using Xunit;
 
 namespace Microsoft.Extensions.ServiceDiscovery.Tests;
 
@@ -17,7 +16,7 @@ namespace Microsoft.Extensions.ServiceDiscovery.Tests;
 /// </summary>
 public class PassThroughServiceEndpointResolverTests
 {
-    [Fact]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_PassThrough()
     {
         var services = new ServiceCollection()
@@ -28,19 +27,19 @@ public class PassThroughServiceEndpointResolverTests
         ServiceEndpointWatcher watcher;
         await using ((watcher = watcherFactory.CreateWatcher("http://basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            var ep = Assert.Single(initialResult.EndpointSource.Endpoints);
-            Assert.Equal(new DnsEndPoint("basket", 80), ep.EndPoint);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            var ep = Assert.ContainsSingle(initialResult.EndpointSource.Endpoints);
+            Assert.AreEqual(new DnsEndPoint("basket", 80), ep.EndPoint);
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_Superseded()
     {
         var configSource = new MemoryConfigurationSource
@@ -59,21 +58,21 @@ public class PassThroughServiceEndpointResolverTests
         ServiceEndpointWatcher watcher;
         await using ((watcher = watcherFactory.CreateWatcher("http://basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
 
             // We expect the basket service to be resolved from Configuration, not the pass-through provider.
-            Assert.Single(initialResult.EndpointSource.Endpoints);
-            Assert.Equal(new UriEndPoint(new Uri("http://localhost:8080")), initialResult.EndpointSource.Endpoints[0].EndPoint);
+            Assert.ContainsSingle(initialResult.EndpointSource.Endpoints);
+            Assert.AreEqual(new UriEndPoint(new Uri("http://localhost:8080")), initialResult.EndpointSource.Endpoints[0].EndPoint);
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_Fallback()
     {
         var configSource = new MemoryConfigurationSource
@@ -92,22 +91,22 @@ public class PassThroughServiceEndpointResolverTests
         ServiceEndpointWatcher watcher;
         await using ((watcher = watcherFactory.CreateWatcher("http://catalog")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
 
             // We expect the CATALOG service to be resolved from the pass-through provider.
-            Assert.Single(initialResult.EndpointSource.Endpoints);
-            Assert.Equal(new DnsEndPoint("catalog", 80), initialResult.EndpointSource.Endpoints[0].EndPoint);
+            Assert.ContainsSingle(initialResult.EndpointSource.Endpoints);
+            Assert.AreEqual(new DnsEndPoint("catalog", 80), initialResult.EndpointSource.Endpoints[0].EndPoint);
         }
     }
 
     // Ensures that pass-through resolution succeeds in scenarios where no scheme is specified during resolution.
-    [Fact]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_Fallback_NoScheme()
     {
         var configSource = new MemoryConfigurationSource
@@ -125,6 +124,6 @@ public class PassThroughServiceEndpointResolverTests
 
         var resolver = services.GetRequiredService<ServiceEndpointResolver>();
         var result = await resolver.GetEndpointsAsync("catalog", default);
-        Assert.Equal(new DnsEndPoint("catalog", 0), result.Endpoints[0].EndPoint);
+        Assert.AreEqual(new DnsEndPoint("catalog", 0), result.Endpoints[0].EndPoint);
     }
 }

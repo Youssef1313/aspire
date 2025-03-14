@@ -10,14 +10,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Polly;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Oracle.Tests;
 
-[ActiveIssue("https://github.com/dotnet/aspire/issues/5362", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
-public class OracleFunctionalTests(ITestOutputHelper testOutputHelper)
+// [ActiveIssue("https://github.com/dotnet/aspire/issues/5362", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
+[TestClass]
+public class OracleFunctionalTests
 {
+    public TestContext TestContext { get; set; }
+
     // Folders created for mounted folders need to be granted specific permissions
     // for the non-root user in the container to be able to access them.
 
@@ -27,13 +28,14 @@ public class OracleFunctionalTests(ITestOutputHelper testOutputHelper)
 
     private const string DatabaseReadyText = "Completed: ALTER DATABASE OPEN";
 
-    [Fact(Skip = "https://github.com/dotnet/aspire/issues/5362")]
+    [TestMethod]
+    [Ignore("https://github.com/dotnet/aspire/issues/5362")]
     [RequiresDocker]
     public async Task VerifyEfOracle()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(15));
 
-        using var builder = TestDistributedApplicationBuilder.Create(o => { }, testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(o => { }, TestContext);
 
         var oracleDbName = "freepdb1";
 
@@ -64,13 +66,14 @@ public class OracleFunctionalTests(ITestOutputHelper testOutputHelper)
         await dbContext.SaveChangesAsync(cts.Token);
 
         var cars = await dbContext.Cars.ToListAsync(cts.Token);
-        Assert.Single(cars);
-        Assert.Equal("BatMobile", cars[0].Brand);
+        Assert.ContainsSingle(cars);
+        Assert.AreEqual("BatMobile", cars[0].Brand);
     }
 
-    [Theory(Skip = "https://github.com/dotnet/aspire/issues/5362")]
-    [InlineData(true)]
-    [InlineData(false, Skip = "https://github.com/dotnet/aspire/issues/5191")]
+    [TestMethod]
+    [Ignore("https://github.com/dotnet/aspire/issues/5362")]
+    [DataRow(true)]
+    [DataRow(false, IgnoreMessage = "https://github.com/dotnet/aspire/issues/5191")]
     [RequiresDocker]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
@@ -84,7 +87,7 @@ public class OracleFunctionalTests(ITestOutputHelper testOutputHelper)
             .AddRetry(new()
             {
                 MaxRetryAttempts = int.MaxValue,
-                BackoffType = DelayBackoffType.Linear,
+                BackoffType = Polly.DelayBackoffType.Linear,
                 ShouldHandle = new PredicateBuilder().HandleResult(false),
                 Delay = TimeSpan.FromSeconds(2)
             })
@@ -92,7 +95,7 @@ public class OracleFunctionalTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.Create(o => { }, testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.Create(o => { }, TestContext);
 
             var oracle1 = builder1.AddOracle("oracle");
 
@@ -166,7 +169,7 @@ public class OracleFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            using var builder2 = TestDistributedApplicationBuilder.Create(o => { }, testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.Create(o => { }, TestContext);
             var passwordParameter2 = builder2.AddParameter("pwd", password);
 
             var oracle2 = builder2.AddOracle("oracle", passwordParameter2);
@@ -203,7 +206,7 @@ public class OracleFunctionalTests(ITestOutputHelper testOutputHelper)
                         using var dbContext = host.Services.GetRequiredService<TestDbContext>();
 
                         var brands = await dbContext.Cars.ToListAsync(cancellationToken: cts.Token);
-                        Assert.Single(brands);
+                        Assert.ContainsSingle(brands);
 
                         await app.StopAsync();
 
@@ -243,9 +246,10 @@ public class OracleFunctionalTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Theory(Skip = "https://github.com/dotnet/aspire/issues/5362")]
-    [InlineData(true)]
-    [InlineData(false, Skip = "https://github.com/dotnet/aspire/issues/5190")]
+    [TestMethod]
+    [Ignore("https://github.com/dotnet/aspire/issues/5362")]
+    [DataRow(true)]
+    [DataRow(false, IgnoreMessage = "https://github.com/dotnet/aspire/issues/5190")]
     [RequiresDocker]
     public async Task VerifyWithInitBindMount(bool init)
     {
@@ -256,7 +260,7 @@ public class OracleFunctionalTests(ITestOutputHelper testOutputHelper)
             .AddRetry(new()
             {
                 MaxRetryAttempts = int.MaxValue,
-                BackoffType = DelayBackoffType.Linear,
+                BackoffType = Polly.DelayBackoffType.Linear,
                 ShouldHandle = new PredicateBuilder().HandleResult(false),
                 Delay = TimeSpan.FromSeconds(2)
             })
@@ -282,7 +286,7 @@ public class OracleFunctionalTests(ITestOutputHelper testOutputHelper)
                 COMMIT;
             """);
 
-            using var builder = TestDistributedApplicationBuilder.Create(o => { }, testOutputHelper);
+            using var builder = TestDistributedApplicationBuilder.Create(o => { }, TestContext);
 
             var oracle = builder.AddOracle("oracle");
             var db = oracle.AddDatabase(oracleDbName);
@@ -325,8 +329,8 @@ public class OracleFunctionalTests(ITestOutputHelper testOutputHelper)
                 }, cts.Token);
 
                 var brands = await dbContext.Cars.ToListAsync(cancellationToken: cts.Token);
-                Assert.Single(brands);
-                Assert.Equal("BatMobile", brands[0].Brand);
+                Assert.ContainsSingle(brands);
+                Assert.AreEqual("BatMobile", brands[0].Brand);
             }
             finally
             {
@@ -346,12 +350,13 @@ public class OracleFunctionalTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact(Skip = "https://github.com/dotnet/aspire/issues/5362")]
+    [TestMethod]
+    [Ignore("https://github.com/dotnet/aspire/issues/5362")]
     [RequiresDocker]
     public async Task VerifyWaitForOnOracleBlocksDependentResources()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>

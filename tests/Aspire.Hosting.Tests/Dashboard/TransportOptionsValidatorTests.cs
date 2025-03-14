@@ -3,13 +3,13 @@
 
 using Aspire.Hosting.Dashboard;
 using Microsoft.Extensions.Configuration;
-using Xunit;
 
 namespace Aspire.Hosting.Tests.Dashboard;
 
+[TestClass]
 public class TransportOptionsValidatorTests
 {
-    [Fact]
+    [TestMethod]
     public void ValidationFailsWhenHttpUrlSpecifiedWithAllowSecureTransportSetToFalse()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -22,14 +22,14 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Failed);
-        Assert.Equal(
+        Assert.IsTrue(result.Failed);
+        Assert.AreEqual(
             $"The 'applicationUrl' setting must be an https address unless the '{KnownConfigNames.AllowUnsecuredTransport}' environment variable is set to true. This configuration is commonly set in the launch profile. See https://aka.ms/dotnet/aspire/allowunsecuredtransport for more details.",
             result.FailureMessage
             );
     }
 
-    [Fact]
+    [TestMethod]
     public void InvalidTransportOptionSucceedValidationInPublishMode()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -42,10 +42,10 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Succeeded, result.FailureMessage);
+        Assert.IsTrue(result.Succeeded, result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void InvalidTransportOptionSucceedValidationWithDashboardDisabled()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions()
@@ -60,10 +60,10 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Succeeded, result.FailureMessage);
+        Assert.IsTrue(result.Succeeded, result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void InvalidTransportOptionSucceedValidationWithDistributedAppOptionsFlag()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions()
@@ -78,10 +78,10 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Succeeded, result.FailureMessage);
+        Assert.IsTrue(result.Succeeded, result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void ValidationFailsWithInvalidUrl()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -95,14 +95,14 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Failed);
-        Assert.Equal(
+        Assert.IsTrue(result.Failed);
+        Assert.AreEqual(
             $"The 'applicationUrl' setting of the launch profile has value '{invalidUrl}' which could not be parsed as a URI.",
             result.FailureMessage
             );
     }
 
-    [Fact]
+    [TestMethod]
     public void ValidationFailsWithMissingUrl()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -114,14 +114,14 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Failed);
-        Assert.Equal(
+        Assert.IsTrue(result.Failed);
+        Assert.AreEqual(
             $"AppHost does not have applicationUrl in launch profile, or {KnownConfigNames.AspNetCoreUrls} environment variable set.",
             result.FailureMessage
             );
     }
 
-    [Fact]
+    [TestMethod]
     public void ValidationFailsWithStringEmptyUrl()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -134,14 +134,14 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Failed);
-        Assert.Equal(
+        Assert.IsTrue(result.Failed);
+        Assert.AreEqual(
             $"AppHost does not have applicationUrl in launch profile, or {KnownConfigNames.AspNetCoreUrls} environment variable set.",
             result.FailureMessage
             );
     }
 
-    [Fact]
+    [TestMethod]
     public void ValidationFailsWhenResourceUrlNotDefined()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -156,14 +156,14 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Failed);
-        Assert.Equal(
+        Assert.IsTrue(result.Failed);
+        Assert.AreEqual(
             $"AppHost does not have the {KnownConfigNames.ResourceServiceEndpointUrl} setting defined.",
             result.FailureMessage
             );
     }
 
-    [Fact]
+    [TestMethod]
     public void ValidationFailsWhenOtlpUrlNotDefined()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -178,14 +178,14 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Failed);
-        Assert.Equal(
+        Assert.IsTrue(result.Failed);
+        Assert.AreEqual(
             $"AppHost does not have the {KnownConfigNames.DashboardOtlpGrpcEndpointUrl} or {KnownConfigNames.DashboardOtlpHttpEndpointUrl} settings defined. At least one OTLP endpoint must be provided.",
             result.FailureMessage
             );
     }
 
-    [Fact]
+    [TestMethod]
     public void ValidationFailsWhenResourceServiceUrlMalformed()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -201,16 +201,16 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Failed);
-        Assert.Equal(
+        Assert.IsTrue(result.Failed);
+        Assert.AreEqual(
             $"The {KnownConfigNames.ResourceServiceEndpointUrl} setting with a value of '{invalidUrl}' could not be parsed as a URI.",
             result.FailureMessage
             );
     }
 
-    [Theory]
-    [InlineData(KnownConfigNames.DashboardOtlpGrpcEndpointUrl)]
-    [InlineData(KnownConfigNames.DashboardOtlpHttpEndpointUrl)]
+    [TestMethod]
+    [DataRow(KnownConfigNames.DashboardOtlpGrpcEndpointUrl)]
+    [DataRow(KnownConfigNames.DashboardOtlpHttpEndpointUrl)]
     public void ValidationFailsWhenOtlpUrlMalformed(string otlpEndpointConfigName)
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -226,16 +226,16 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Failed);
-        Assert.Equal(
+        Assert.IsTrue(result.Failed);
+        Assert.AreEqual(
             $"The {otlpEndpointConfigName} setting with a value of '{invalidUrl}' could not be parsed as a URI.",
             result.FailureMessage
             );
     }
 
-    [Theory]
-    [InlineData(KnownConfigNames.DashboardOtlpGrpcEndpointUrl)]
-    [InlineData(KnownConfigNames.DashboardOtlpHttpEndpointUrl)]
+    [TestMethod]
+    [DataRow(KnownConfigNames.DashboardOtlpGrpcEndpointUrl)]
+    [DataRow(KnownConfigNames.DashboardOtlpHttpEndpointUrl)]
     public void ValidationFailsWhenDashboardOtlpUrlIsHttp(string otlpEndpointConfigName)
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -250,14 +250,14 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Failed);
-        Assert.Equal(
+        Assert.IsTrue(result.Failed);
+        Assert.AreEqual(
             $"The '{otlpEndpointConfigName}' setting must be an https address unless the '{KnownConfigNames.AllowUnsecuredTransport}' environment variable is set to true. This configuration is commonly set in the launch profile. See https://aka.ms/dotnet/aspire/allowunsecuredtransport for more details.",
             result.FailureMessage
             );
     }
 
-    [Fact]
+    [TestMethod]
     public void ValidationFailsWhenResourceServiceUrlIsHttp()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -272,14 +272,14 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Failed);
-        Assert.Equal(
+        Assert.IsTrue(result.Failed);
+        Assert.AreEqual(
             $"The '{KnownConfigNames.ResourceServiceEndpointUrl}' setting must be an https address unless the '{KnownConfigNames.AllowUnsecuredTransport}' environment variable is set to true. This configuration is commonly set in the launch profile. See https://aka.ms/dotnet/aspire/allowunsecuredtransport for more details.",
             result.FailureMessage
             );
     }
 
-    [Fact]
+    [TestMethod]
     public void ValidationSucceedsWhenHttpUrlSpecifiedWithAllowSecureTransportSetToTrue()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -292,10 +292,10 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Succeeded, result.FailureMessage);
+        Assert.IsTrue(result.Succeeded, result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void ValidationSucceedsWhenHttpsUrlSpecifiedWithAllowSecureTransportSetToTrue()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -308,10 +308,10 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Succeeded, result.FailureMessage);
+        Assert.IsTrue(result.Succeeded, result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void ValidationSucceedsWhenHttpsUrlSpecifiedWithAllowSecureTransportSetToFalse()
     {
         var distributedApplicationOptions = new DistributedApplicationOptions();
@@ -326,6 +326,6 @@ public class TransportOptionsValidatorTests
 
         var validator = new TransportOptionsValidator(config, executionContext, distributedApplicationOptions);
         var result = validator.Validate(null, options);
-        Assert.True(result.Succeeded, result.FailureMessage);
+        Assert.IsTrue(result.Succeeded, result.FailureMessage);
     }
 }

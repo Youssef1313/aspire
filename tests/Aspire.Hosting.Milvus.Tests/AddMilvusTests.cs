@@ -6,14 +6,15 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Milvus.Tests;
+
+[TestClass]
 public class AddMilvusTests
 {
     private const int MilvusPortGrpc = 19530;
 
-    [Fact]
+    [TestMethod]
     public void AddMilvusWithDefaultsAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -25,25 +26,25 @@ public class AddMilvusTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.GetContainerResources());
-        Assert.Equal("my-milvus", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.GetContainerResources());
+        Assert.AreEqual("my-milvus", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(MilvusContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(MilvusContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(MilvusContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(MilvusContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(MilvusContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(MilvusContainerImageTags.Registry, containerAnnotation.Registry);
 
         var endpoint = containerResource.Annotations.OfType<EndpointAnnotation>()
             .FirstOrDefault(e => e.Name == "grpc");
-        Assert.NotNull(endpoint);
-        Assert.Equal(MilvusPortGrpc, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("grpc", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.IsNotNull(endpoint);
+        Assert.AreEqual(MilvusPortGrpc, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("grpc", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddMilvusAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -55,25 +56,25 @@ public class AddMilvusTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.GetContainerResources());
-        Assert.Equal("my-milvus", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.GetContainerResources());
+        Assert.AreEqual("my-milvus", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(MilvusContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(MilvusContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(MilvusContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(MilvusContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(MilvusContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(MilvusContainerImageTags.Registry, containerAnnotation.Registry);
 
         var endpoint = containerResource.Annotations.OfType<EndpointAnnotation>()
             .FirstOrDefault(e => e.Name == "grpc");
-        Assert.NotNull(endpoint);
-        Assert.Equal(MilvusPortGrpc, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("grpc", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.IsNotNull(endpoint);
+        Assert.AreEqual(MilvusPortGrpc, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("grpc", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task MilvusCreatesConnectionString()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -86,10 +87,10 @@ public class AddMilvusTests
         var connectionStringResource = milvus.Resource as IResourceWithConnectionString;
 
         var connectionString = await connectionStringResource.GetConnectionStringAsync();
-        Assert.Equal($"Endpoint=http://localhost:19530;Key=root:pass", connectionString);
+        Assert.AreEqual($"Endpoint=http://localhost:19530;Key=root:pass", connectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task MilvusClientAppWithReferenceContainsConnectionStrings()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -106,7 +107,7 @@ public class AddMilvusTests
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(projectA.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
         var servicesKeysCount = config.Keys.Count(k => k.StartsWith("ConnectionStrings__"));
-        Assert.Equal(1, servicesKeysCount);
+        Assert.AreEqual(1, servicesKeysCount);
 
         Assert.Contains(config, kvp => kvp.Key == "ConnectionStrings__my-milvus" && kvp.Value == "Endpoint=http://localhost:19530;Key=root:pass");
 
@@ -117,12 +118,12 @@ public class AddMilvusTests
         var containerConfig = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(container1.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
         var containerServicesKeysCount = containerConfig.Keys.Count(k => k.StartsWith("ConnectionStrings__"));
-        Assert.Equal(1, containerServicesKeysCount);
+        Assert.AreEqual(1, containerServicesKeysCount);
 
         Assert.Contains(containerConfig, kvp => kvp.Key == "ConnectionStrings__my-milvus" && kvp.Value == "Endpoint=http://my-milvus:19530;Key=root:pass");
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifest()
     {
         var appBuilder = DistributedApplication.CreateBuilder(new DistributedApplicationOptions() { Args = new string[] { "--publisher", "manifest" } });
@@ -160,7 +161,7 @@ public class AddMilvusTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, serverManifest.ToString());
+        Assert.AreEqual(expectedManifest, serverManifest.ToString());
 
         expectedManifest = """
             {
@@ -168,10 +169,10 @@ public class AddMilvusTests
               "connectionString": "{milvus.connectionString};Database=db1"
             }
             """;
-        Assert.Equal(expectedManifest, dbManifest.ToString());
+        Assert.AreEqual(expectedManifest, dbManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void AddMilvusWithSpecifyingPorts()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -184,18 +185,18 @@ public class AddMilvusTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var milvusResource = Assert.Single(appModel.Resources.OfType<MilvusServerResource>());
-        Assert.Equal("my-milvus", milvusResource.Name);
+        var milvusResource = Assert.ContainsSingle(appModel.Resources.OfType<MilvusServerResource>());
+        Assert.AreEqual("my-milvus", milvusResource.Name);
 
-        Assert.Single(milvusResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.ContainsSingle(milvusResource.Annotations.OfType<EndpointAnnotation>());
 
         var grpcEndpoint = milvusResource.Annotations.OfType<EndpointAnnotation>().Single(e => e.Name == "grpc");
-        Assert.Equal(MilvusPortGrpc, grpcEndpoint.TargetPort);
-        Assert.False(grpcEndpoint.IsExternal);
-        Assert.Equal(5503, grpcEndpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, grpcEndpoint.Protocol);
-        Assert.Equal("http2", grpcEndpoint.Transport);
-        Assert.Equal("http", grpcEndpoint.UriScheme);
+        Assert.AreEqual(MilvusPortGrpc, grpcEndpoint.TargetPort);
+        Assert.IsFalse(grpcEndpoint.IsExternal);
+        Assert.AreEqual(5503, grpcEndpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, grpcEndpoint.Protocol);
+        Assert.AreEqual("http2", grpcEndpoint.Transport);
+        Assert.AreEqual("http", grpcEndpoint.UriScheme);
     }
 
     private sealed class ProjectA : IProjectMetadata

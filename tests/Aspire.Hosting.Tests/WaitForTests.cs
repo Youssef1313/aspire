@@ -7,18 +7,18 @@ using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Tests;
 
-public class WaitForTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class WaitForTests(TestContext testContext)
 {
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task ResourceThatFailsToStartDueToExceptionDoesNotCauseStartAsyncToThrow()
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
         var throwingResource = builder.AddContainer("throwingresource", "doesnotmatter")
                               .WithEnvironment(ctx => throw new InvalidOperationException("BOOM!"));
         var dependingContainerResource = builder.AddContainer("dependingcontainerresource", "doesnotmatter")
@@ -37,7 +37,7 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync(abortCts.Token);
     }
 
-    [Fact]
+    [TestMethod]
     public void ResourceCannotWaitForItself()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -48,17 +48,17 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
             resource.WaitFor(resource);
         });
 
-        Assert.Equal("The 'test' resource cannot wait for itself.", waitForEx.Message);
+        Assert.AreEqual("The 'test' resource cannot wait for itself.", waitForEx.Message);
 
         var waitForCompletionEx = Assert.Throws<DistributedApplicationException>(() =>
         {
             resource.WaitForCompletion(resource);
         });
 
-        Assert.Equal("The 'test' resource cannot wait for itself.", waitForCompletionEx.Message);
+        Assert.AreEqual("The 'test' resource cannot wait for itself.", waitForCompletionEx.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void ResourceCannotWaitForItsParent()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -70,21 +70,21 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
             childResourceBuilder.WaitFor(parentResourceBuilder);
         });
 
-        Assert.Equal("The 'child' resource cannot wait for its parent 'parent'.", waitForEx.Message);
+        Assert.AreEqual("The 'child' resource cannot wait for its parent 'parent'.", waitForEx.Message);
 
         var waitForCompletionEx = Assert.Throws<DistributedApplicationException>(() =>
         {
             childResourceBuilder.WaitForCompletion(parentResourceBuilder);
         });
 
-        Assert.Equal("The 'child' resource cannot wait for its parent 'parent'.", waitForCompletionEx.Message);
+        Assert.AreEqual("The 'child' resource cannot wait for its parent 'parent'.", waitForCompletionEx.Message);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task WaitingForParameterResourceCompletesImmediately()
     {
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
 
         builder.Configuration["ConnectionStrings:cs"] = "cs-value";
 
@@ -118,11 +118,11 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task WaitingForConnectionStringResourceWaitsForReferencedResources()
     {
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
 
         var dependency = builder.AddResource(new CustomResource("test"));
         var cs = builder.AddConnectionString("cs", ReferenceExpression.Create($"{dependency};Timeout=100"));
@@ -148,11 +148,11 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task EnsureDependentResourceMovesIntoWaitingState()
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         var dependency = builder.AddResource(new CustomResource("test"));
         var nginx = builder.AddContainer("nginx", "mcr.microsoft.com/cbl-mariner/base/nginx", "1.22")
@@ -192,15 +192,15 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
     // and the dependent resource is waiting for the dependency.
     // Use a theory to test the different states and expected behavior.
 
-    [Theory]
-    [InlineData(nameof(KnownResourceStates.Exited))]
-    [InlineData(nameof(KnownResourceStates.FailedToStart))]
-    [InlineData(nameof(KnownResourceStates.RuntimeUnhealthy))]
-    [InlineData(nameof(KnownResourceStates.Finished))]
+    [TestMethod]
+    [DataRow(nameof(KnownResourceStates.Exited))]
+    [DataRow(nameof(KnownResourceStates.FailedToStart))]
+    [DataRow(nameof(KnownResourceStates.RuntimeUnhealthy))]
+    [DataRow(nameof(KnownResourceStates.Finished))]
     [RequiresDocker]
     public async Task WaitForBehaviorStopOnResourceUnavailable(string status)
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         var dependency = builder.AddResource(new CustomResource("test"));
         var nginx = builder.AddContainer("nginx", "mcr.microsoft.com/cbl-mariner/base/nginx", "1.22")
@@ -226,11 +226,11 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await startTask;
     }
 
-   [Fact]
+   [TestMethod]
    [RequiresDocker]
    public async Task WhenWaitBehaviorIsStopOnResourceUnavailableWaitForResourceHealthyAsyncShouldThrowWhenResourceFailsToStart()
    {
-      using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+      using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
       var failToStart = builder.AddExecutable("failToStart", "does-not-exist", ".");
       var dependency = builder.AddContainer("redis", "redis");
@@ -247,14 +247,14 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
             ).WaitAsync(TimeSpan.FromSeconds(15));
       });
 
-      Assert.Equal("Stopped waiting for resource 'redis' to become healthy because it failed to start.", ex.Message);
+      Assert.AreEqual("Stopped waiting for resource 'redis' to become healthy because it failed to start.", ex.Message);
    }
 
-   [Fact]
+   [TestMethod]
    [RequiresDocker]
    public async Task WhenWaitBehaviorIsWaitOnResourceUnavailableWaitForResourceHealthyAsyncShouldThrowWhenResourceFailsToStart()
    {
-      using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+      using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
       var failToStart = builder.AddExecutable("failToStart", "does-not-exist", ".");
       var dependency = builder.AddContainer("redis", "redis");
@@ -271,16 +271,16 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
             ).WaitAsync(TimeSpan.FromSeconds(15));
       });
 
-      Assert.Equal("The operation has timed out.", ex.Message);
+      Assert.AreEqual("The operation has timed out.", ex.Message);
    }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(WaitBehavior.WaitOnResourceUnavailable, typeof(TimeoutException), "The operation has timed out.")]
-    [InlineData(WaitBehavior.StopOnResourceUnavailable, typeof(DistributedApplicationException), "Stopped waiting for resource 'redis' to become healthy because it failed to start.")]
+    [DataRow(WaitBehavior.WaitOnResourceUnavailable, typeof(TimeoutException), "The operation has timed out.")]
+    [DataRow(WaitBehavior.StopOnResourceUnavailable, typeof(DistributedApplicationException), "Stopped waiting for resource 'redis' to become healthy because it failed to start.")]
     public async Task WhenWaitBehaviorIsMissingWaitForResourceHealthyAsyncShouldUseDefaultWaitBehavior(WaitBehavior defaultWaitBehavior, Type exceptionType, string exceptionMessage)
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         builder.Services.Configure<ResourceNotificationServiceOptions>(o =>
         {
@@ -300,18 +300,18 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
                 .WaitAsync(TimeSpan.FromSeconds(15));
         });
 
-        Assert.Equal(exceptionMessage, ex.Message);
+        Assert.AreEqual(exceptionMessage, ex.Message);
     }
 
-    [Theory]
-    [InlineData(nameof(KnownResourceStates.Exited))]
-    [InlineData(nameof(KnownResourceStates.FailedToStart))]
-    [InlineData(nameof(KnownResourceStates.RuntimeUnhealthy))]
-    [InlineData(nameof(KnownResourceStates.Finished))]
+    [TestMethod]
+    [DataRow(nameof(KnownResourceStates.Exited))]
+    [DataRow(nameof(KnownResourceStates.FailedToStart))]
+    [DataRow(nameof(KnownResourceStates.RuntimeUnhealthy))]
+    [DataRow(nameof(KnownResourceStates.Finished))]
     [RequiresDocker]
     public async Task WaitForBehaviorStopOnDependencyIsDefaultWithNoDashboardFailure(string status)
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         var dependency = builder.AddResource(new CustomResource("test"));
         var nginx = builder.AddContainer("nginx", "mcr.microsoft.com/cbl-mariner/base/nginx", "1.22")
@@ -337,15 +337,15 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await startTask;
     }
 
-    [Theory]
-    [InlineData(nameof(KnownResourceStates.Exited))]
-    [InlineData(nameof(KnownResourceStates.FailedToStart))]
-    [InlineData(nameof(KnownResourceStates.RuntimeUnhealthy))]
-    [InlineData(nameof(KnownResourceStates.Finished))]
+    [TestMethod]
+    [DataRow(nameof(KnownResourceStates.Exited))]
+    [DataRow(nameof(KnownResourceStates.FailedToStart))]
+    [DataRow(nameof(KnownResourceStates.RuntimeUnhealthy))]
+    [DataRow(nameof(KnownResourceStates.Finished))]
     [RequiresDocker]
     public async Task WaitForBehaviorWaitOnResourceUnavailable(string status)
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         var dependency = builder.AddResource(new CustomResource("test"));
         var nginx = builder.AddContainer("nginx", "mcr.microsoft.com/cbl-mariner/base/nginx", "1.22")
@@ -379,15 +379,15 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await startTask;
     }
 
-    [Theory]
-    [InlineData(nameof(KnownResourceStates.Exited))]
-    [InlineData(nameof(KnownResourceStates.FailedToStart))]
-    [InlineData(nameof(KnownResourceStates.RuntimeUnhealthy))]
-    [InlineData(nameof(KnownResourceStates.Finished))]
+    [TestMethod]
+    [DataRow(nameof(KnownResourceStates.Exited))]
+    [DataRow(nameof(KnownResourceStates.FailedToStart))]
+    [DataRow(nameof(KnownResourceStates.RuntimeUnhealthy))]
+    [DataRow(nameof(KnownResourceStates.Finished))]
     [RequiresDocker]
     public async Task WaitForBehaviorWaitOnResourceUnavailableViaOptions(string status)
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         builder.Services.Configure<ResourceNotificationServiceOptions>(o =>
         {
@@ -426,11 +426,11 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await startTask;
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task WaitForCompletionWaitsForTerminalStateOfDependencyResource()
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         var dependency = builder.AddResource(new CustomResource("test"));
         var nginx = builder.AddContainer("nginx", "mcr.microsoft.com/cbl-mariner/base/nginx", "1.22")
@@ -473,11 +473,11 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task WaitForThrowsIfResourceMovesToTerminalStateBeforeRunning()
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         var dependency = builder.AddResource(new CustomResource("test"));
         var nginx = builder.AddContainer("nginx", "mcr.microsoft.com/cbl-mariner/base/nginx", "1.22")
@@ -520,11 +520,11 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task WaitForObservedResultOfResourceReadyEvent()
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         builder.Services.AddLogging(b =>
         {
@@ -582,11 +582,11 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task EnsureDependencyResourceThatReturnsNonMatchingExitCodeResultsInDependentResourceFailingToStart()
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         var dependency = builder.AddResource(new CustomResource("test"));
         var nginx = builder.AddContainer("nginx", "mcr.microsoft.com/cbl-mariner/base/nginx", "1.22")
@@ -628,11 +628,11 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task DependencyWithGreaterThan1ReplicaAnnotationWaitsForAll()
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         var dependency = builder.AddResource(new CustomResource("test"))
                                 .WithAnnotation(new ReplicaAnnotation(2))
@@ -681,11 +681,11 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task DependencyWithGreaterThan1ReplicaAnnotationWaitsForAllToComplete()
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         var dependency = builder.AddResource(new CustomResource("test"))
                                 .WithAnnotation(new ReplicaAnnotation(2))
@@ -734,11 +734,11 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task WaitForCompletionSucceedsIfDependentResourceEntersTerminalStateWithoutAnExitCode()
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         var dependency = builder.AddResource(new CustomResource("test"));
 
@@ -775,7 +775,7 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     public void WaitForOnChildResourceAddsWaitAnnotationPointingToParent()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -784,18 +784,18 @@ public class WaitForTests(ITestOutputHelper testOutputHelper)
         var containerResource = builder.AddContainer("container", "image", "tag")
                                        .WaitFor(childResource);
 
-        Assert.True(containerResource.Resource.TryGetAnnotationsOfType<WaitAnnotation>(out var waitAnnotations));
-        Assert.Collection(
+        Assert.IsTrue(containerResource.Resource.TryGetAnnotationsOfType<WaitAnnotation>(out var waitAnnotations));
+        Assert.That.Collection(
             waitAnnotations,
-            a => Assert.Equal(a.Resource, parentResource.Resource),
-            a => Assert.Equal(a.Resource, childResource.Resource)
+            a => Assert.AreEqual(a.Resource, parentResource.Resource),
+            a => Assert.AreEqual(a.Resource, childResource.Resource)
             );
 
-        Assert.True(containerResource.Resource.TryGetAnnotationsOfType<ResourceRelationshipAnnotation>(out var relationshipAnnotations));
-        var relationshipAnnotation = Assert.Single(relationshipAnnotations);
+        Assert.IsTrue(containerResource.Resource.TryGetAnnotationsOfType<ResourceRelationshipAnnotation>(out var relationshipAnnotations));
+        var relationshipAnnotation = Assert.ContainsSingle(relationshipAnnotations);
 
-        Assert.Equal(childResource.Resource, relationshipAnnotation.Resource);
-        Assert.Equal(KnownRelationshipTypes.WaitFor, relationshipAnnotation.Type);
+        Assert.AreEqual(childResource.Resource, relationshipAnnotation.Resource);
+        Assert.AreEqual(KnownRelationshipTypes.WaitFor, relationshipAnnotation.Type);
     }
 
     private sealed class CustomChildResource(string name, CustomResource parent) : Resource(name), IResourceWithParent<CustomResource>, IResourceWithWaitSupport

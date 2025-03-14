@@ -7,10 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NATS.Client.Core;
-using Xunit;
 
 namespace Aspire.NATS.Net.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<INatsConnection, NatsClientSettings>, IClassFixture<NatsContainerFixture>
 {
     private readonly NatsContainerFixture _containerFixture;

@@ -15,18 +15,18 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FluentUI.AspNetCore.Components;
 using OpenTelemetry.Proto.Metrics.V1;
-using Xunit;
 using static Aspire.Dashboard.Components.Pages.Metrics;
 using static Aspire.Tests.Shared.Telemetry.TelemetryTestHelpers;
 
 namespace Aspire.Dashboard.Components.Tests.Pages;
 
 [UseCulture("en-US")]
-public partial class MetricsTests : TestContext
+[TestClass]
+public partial class MetricsTests : Bunit.TestContext
 {
     private static readonly DateTime s_testTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-    [Fact]
+    [TestMethod]
     public void ChangeResource_MeterAndInstrumentOnNewResource_InstrumentSet()
     {
         ChangeResourceAndAssertInstrument(
@@ -36,7 +36,7 @@ public partial class MetricsTests : TestContext
             expectedInstrumentNameAfterChange: "test1");
     }
 
-    [Fact]
+    [TestMethod]
     public void ChangeResource_MeterAndInstrumentNotOnNewResources_InstrumentCleared()
     {
         ChangeResourceAndAssertInstrument(
@@ -46,7 +46,7 @@ public partial class MetricsTests : TestContext
             expectedInstrumentNameAfterChange: null);
     }
 
-    [Fact]
+    [TestMethod]
     public void InitialLoad_HasSessionState_RedirectUsingState()
     {
         // Arrange
@@ -110,17 +110,17 @@ public partial class MetricsTests : TestContext
         });
 
         // Assert
-        Assert.NotNull(loadRedirect);
-        Assert.Equal("/metrics/resource/TestApp", loadRedirect.AbsolutePath);
+        Assert.IsNotNull(loadRedirect);
+        Assert.AreEqual("/metrics/resource/TestApp", loadRedirect.AbsolutePath);
 
         var query = HttpUtility.ParseQueryString(loadRedirect.Query);
-        Assert.Equal("test-meter", query["meter"]);
-        Assert.Equal("test-instrument", query["instrument"]);
-        Assert.Equal("720", query["duration"]);
-        Assert.Equal(MetricViewKind.Table.ToString(), query["view"]);
+        Assert.AreEqual("test-meter", query["meter"]);
+        Assert.AreEqual("test-instrument", query["instrument"]);
+        Assert.AreEqual("720", query["duration"]);
+        Assert.AreEqual(MetricViewKind.Table.ToString(), query["view"]);
     }
 
-    [Fact]
+    [TestMethod]
     public void MetricsTree_MetricsAdded_TreeUpdated()
     {
         // Arrange
@@ -162,8 +162,8 @@ public partial class MetricsTests : TestContext
 
         foreach (var instrument in cut.Instance.PageViewModel.Instruments!)
         {
-            Assert.Single(items1.Where(i => i.Instance.Data as OtlpInstrumentSummary == instrument));
-            Assert.Single(items1.Where(i => i.Instance.Data as OtlpMeter == instrument.Parent));
+            Assert.ContainsSingle(items1.Where(i => i.Instance.Data as OtlpInstrumentSummary == instrument));
+            Assert.ContainsSingle(items1.Where(i => i.Instance.Data as OtlpMeter == instrument.Parent));
         }
 
         // Act 2
@@ -203,8 +203,8 @@ public partial class MetricsTests : TestContext
 
         foreach (var instrument in cut.Instance.PageViewModel.Instruments!)
         {
-            Assert.Single(items2.Where(i => i.Instance.Data as OtlpInstrumentSummary == instrument));
-            Assert.Single(items2.Where(i => i.Instance.Data as OtlpMeter == instrument.Parent));
+            Assert.ContainsSingle(items2.Where(i => i.Instance.Data as OtlpInstrumentSummary == instrument));
+            Assert.ContainsSingle(items2.Where(i => i.Instance.Data as OtlpMeter == instrument.Parent));
         }
     }
 
@@ -272,20 +272,20 @@ public partial class MetricsTests : TestContext
         var viewModel = cut.Instance.PageViewModel;
 
         // Assert 1
-        Assert.Equal("test-meter", viewModel.SelectedMeter!.MeterName);
-        Assert.Equal(app1InstrumentName, viewModel.SelectedInstrument!.Name);
+        Assert.AreEqual("test-meter", viewModel.SelectedMeter!.MeterName);
+        Assert.AreEqual(app1InstrumentName, viewModel.SelectedInstrument!.Name);
 
         // Act 2
         var resourceSelect = cut.FindComponent<ResourceSelect>();
         var innerSelect = resourceSelect.Find("fluent-select");
         innerSelect.Change("TestApp2");
 
-        cut.WaitForAssertion(() => Assert.Equal("TestApp2", viewModel.SelectedApplication.Name), TestConstants.WaitTimeout);
+        cut.WaitForAssertion(() => Assert.AreEqual("TestApp2", viewModel.SelectedApplication.Name), TestConstants.WaitTimeout);
 
-        Assert.Equal(expectedInstrumentNameAfterChange, viewModel.SelectedInstrument?.Name);
-        Assert.Equal(expectedMeterNameAfterChange, viewModel.SelectedMeter?.MeterName);
+        Assert.AreEqual(expectedInstrumentNameAfterChange, viewModel.SelectedInstrument?.Name);
+        Assert.AreEqual(expectedMeterNameAfterChange, viewModel.SelectedMeter?.MeterName);
 
-        Assert.Equal(MetricViewKind.Table, viewModel.SelectedViewKind);
-        Assert.Equal(TimeSpan.FromMinutes(720), viewModel.SelectedDuration.Id);
+        Assert.AreEqual(MetricViewKind.Table, viewModel.SelectedViewKind);
+        Assert.AreEqual(TimeSpan.FromMinutes(720), viewModel.SelectedDuration.Id);
     }
 }

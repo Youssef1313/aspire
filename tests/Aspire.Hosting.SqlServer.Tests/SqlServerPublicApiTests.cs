@@ -3,13 +3,13 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.SqlServer.Tests;
 
+[TestClass]
 public class SqlServerPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddSqlServerShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -18,12 +18,12 @@ public class SqlServerPublicApiTests
         var action = () => builder.AddSqlServer(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddSqlServerShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -34,10 +34,10 @@ public class SqlServerPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddDatabaseShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<SqlServerServerResource> builder = null!;
@@ -46,12 +46,12 @@ public class SqlServerPublicApiTests
         var action = () => builder.AddDatabase(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddDatabaseShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create()
@@ -63,10 +63,10 @@ public class SqlServerPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataVolumeShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<SqlServerServerResource> builder = null!;
@@ -74,10 +74,10 @@ public class SqlServerPublicApiTests
         var action = () => builder.WithDataVolume();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataBindMountShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<SqlServerServerResource> builder = null!;
@@ -86,12 +86,12 @@ public class SqlServerPublicApiTests
         var action = () => builder.WithDataBindMount(source);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithDataBindMountShouldThrowWhenSourceIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create()
@@ -103,12 +103,12 @@ public class SqlServerPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(source), exception.ParamName);
+        Assert.AreEqual(nameof(source), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorSqlServerDatabaseResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -124,12 +124,12 @@ public class SqlServerPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorSqlServerDatabaseResourceShouldThrowWhenDatabaseNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -145,10 +145,10 @@ public class SqlServerPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(databaseName), exception.ParamName);
+        Assert.AreEqual(nameof(databaseName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorSqlServerDatabaseResourceShouldThrowWhenParentIsNull()
     {
         const string name = "sql";
@@ -158,12 +158,12 @@ public class SqlServerPublicApiTests
         var action = () => new SqlServerDatabaseResource(name, databaseName, parent);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(parent), exception.ParamName);
+        Assert.AreEqual(nameof(parent), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorSqlServerServerResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -176,10 +176,10 @@ public class SqlServerPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorSqlServerServerResourceShouldThrowWhenPasswordIsNull()
     {
         const string name = "sql";
@@ -188,6 +188,6 @@ public class SqlServerPublicApiTests
         var action = () => new SqlServerServerResource(name, password);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(password), exception.ParamName);
+        Assert.AreEqual(nameof(password), exception.ParamName);
     }
 }

@@ -5,13 +5,13 @@ using Aspire.Dashboard.Model.Otlp;
 using Aspire.Dashboard.Otlp.Model;
 using Aspire.Tests.Shared.Telemetry;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.Model;
 
+[TestClass]
 public sealed class SpanWaterfallViewModelTests
 {
-    [Fact]
+    [TestMethod]
     public void Create_HasChildren_ChildrenPopulated()
     {
         // Arrange
@@ -28,16 +28,16 @@ public sealed class SpanWaterfallViewModelTests
         var vm = SpanWaterfallViewModel.Create(trace, new SpanWaterfallViewModel.TraceDetailState([], []));
 
         // Assert
-        Assert.Collection(vm,
+        Assert.That.Collection(vm,
             e =>
             {
-                Assert.Equal("1", e.Span.SpanId);
-                Assert.Equal("1-1", Assert.Single(e.Children).Span.SpanId);
+                Assert.AreEqual("1", e.Span.SpanId);
+                Assert.AreEqual("1-1", Assert.ContainsSingle(e.Children).Span.SpanId);
             },
             e =>
             {
-                Assert.Equal("1-1", e.Span.SpanId);
-                Assert.Empty(e.Children);
+                Assert.AreEqual("1-1", e.Span.SpanId);
+                Assert.IsEmpty(e.Children);
             });
     }
 }

@@ -2,18 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Hosting.ApplicationModel;
-using Xunit;
 using static Microsoft.CodeAnalysis.Testing.DiagnosticResult;
 
 namespace Aspire.Hosting.Analyzers.Tests;
 
+[TestClass]
 public class EndpointNameAnalyzerTests
 {
-    [Theory]
+    [TestMethod]
     [ClassData(typeof(TestData.InvalidModelNames))]
     public async Task EndpointNameInvalid(string endpointName)
     {
-        Assert.False(ModelName.TryValidateName("Endpoint", endpointName, out var message));
+        Assert.IsFalse(ModelName.TryValidateName("Endpoint", endpointName, out var message));
 
         var diagnostic = AppHostAnalyzer.Diagnostics.s_modelNameMustBeValid;
 
@@ -30,12 +30,12 @@ public class EndpointNameAnalyzerTests
         await test.RunAsync();
     }
 
-    [Theory]
+    [TestMethod]
     [ClassData(typeof(TestData.InvalidModelNames))]
     public async Task EndpointNameInvalidMultipleParameters(string endpointName)
     {
-        Assert.False(ModelName.TryValidateName("Endpoint", $"{endpointName}-one", out var message1));
-        Assert.False(ModelName.TryValidateName("Endpoint", $"{endpointName}-two", out var message2));
+        Assert.IsFalse(ModelName.TryValidateName("Endpoint", $"{endpointName}-one", out var message1));
+        Assert.IsFalse(ModelName.TryValidateName("Endpoint", $"{endpointName}-two", out var message2));
 
         var diagnostic = AppHostAnalyzer.Diagnostics.s_modelNameMustBeValid;
 
@@ -69,7 +69,7 @@ public class EndpointNameAnalyzerTests
         await test.RunAsync();
     }
 
-    [Theory]
+    [TestMethod]
     [ClassData(typeof(TestData.ValidModelNames))]
     public async Task EndpointNameValid(string endpointName)
     {
@@ -85,7 +85,7 @@ public class EndpointNameAnalyzerTests
         await test.RunAsync();
     }
 
-    [Theory]
+    [TestMethod]
     [ClassData(typeof(TestData.ValidModelNames))]
     public async Task EndpointNameValidMultipleParameters(string endpointName)
     {

@@ -5,10 +5,10 @@ using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Microsoft.DotNet.RemoteExecutor;
 using Microsoft.Extensions.Configuration;
-using Xunit;
 
 namespace Aspire.Azure.Messaging.ServiceBus.Tests;
 
+[TestClass]
 public class ConformanceTests_Topic : ConformanceTests
 {
     // A pre-existing topic and subscription
@@ -33,11 +33,11 @@ public class ConformanceTests_Topic : ConformanceTests
     protected override void TriggerActivity(ServiceBusClient service)
         => _ = service.CreateReceiver(topicName: HealthCheckTopicName, subscriptionName: SubscriptionName).PeekMessageAsync().GetAwaiter().GetResult();
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: null), EnableTracingForAzureSdk()).Dispose();
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource_Keyed()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: "key"), EnableTracingForAzureSdk()).Dispose();
 

@@ -7,10 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
-using Xunit;
 
 namespace Aspire.MongoDB.Driver.Tests;
 
+[TestClass]
 public class AspireMongoDBDriverExtensionsTests : IClassFixture<MongoDbContainerFixture>
 {
     private const string DefaultConnectionName = "mongodb";
@@ -24,11 +24,11 @@ public class AspireMongoDBDriverExtensionsTests : IClassFixture<MongoDbContainer
 
     private string DefaultConnectionString => _containerFixture.GetConnectionString();
 
-    [Theory]
-    [InlineData("mongodb://localhost:27017/mydatabase", true, false)]
-    [InlineData("mongodb://localhost:27017", false, false)]
-    [InlineData("mongodb://admin:pass@localhost:27017/mydatabase?authSource=admin&authMechanism=SCRAM-SHA-256", true, true)]
-    [InlineData("mongodb://admin:pass@localhost:27017?authSource=admin&authMechanism=SCRAM-SHA-256", false, true)]
+    [TestMethod]
+    [DataRow("mongodb://localhost:27017/mydatabase", true, false)]
+    [DataRow("mongodb://localhost:27017", false, false)]
+    [DataRow("mongodb://admin:pass@localhost:27017/mydatabase?authSource=admin&authMechanism=SCRAM-SHA-256", true, true)]
+    [DataRow("mongodb://admin:pass@localhost:27017?authSource=admin&authMechanism=SCRAM-SHA-256", false, true)]
     public void AddMongoDBDataSource_ReadsFromConnectionStringsCorrectly(string connectionString, bool shouldRegisterDatabase, bool shouldUseAuthentication)
     {
         var builder = CreateBuilder(connectionString);
@@ -41,38 +41,38 @@ public class AspireMongoDBDriverExtensionsTests : IClassFixture<MongoDbContainer
 
         var uri = MongoUrl.Create(connectionString);
 
-        Assert.Equal(uri.Server.Host, mongoClient.Settings.Server.Host);
-        Assert.Equal(uri.Server.Port, mongoClient.Settings.Server.Port);
+        Assert.AreEqual(uri.Server.Host, mongoClient.Settings.Server.Host);
+        Assert.AreEqual(uri.Server.Port, mongoClient.Settings.Server.Port);
 
         if (shouldUseAuthentication)
         {
-            Assert.NotNull(mongoClient.Settings.Credential);
-            Assert.Equal(uri.AuthenticationSource, mongoClient.Settings.Credential.Source);
-            Assert.Equal(uri.AuthenticationMechanism, mongoClient.Settings.Credential.Mechanism);
-            Assert.Equal(uri.Username, mongoClient.Settings.Credential.Username);
+            Assert.IsNotNull(mongoClient.Settings.Credential);
+            Assert.AreEqual(uri.AuthenticationSource, mongoClient.Settings.Credential.Source);
+            Assert.AreEqual(uri.AuthenticationMechanism, mongoClient.Settings.Credential.Mechanism);
+            Assert.AreEqual(uri.Username, mongoClient.Settings.Credential.Username);
         }
         else
         {
-            Assert.Null(mongoClient.Settings.Credential);
+            Assert.IsNull(mongoClient.Settings.Credential);
         }
         var mongoDatabase = host.Services.GetService<IMongoDatabase>();
 
         if (shouldRegisterDatabase)
         {
-            Assert.NotNull(mongoDatabase);
-            Assert.Equal(uri.DatabaseName, mongoDatabase.DatabaseNamespace.DatabaseName);
+            Assert.IsNotNull(mongoDatabase);
+            Assert.AreEqual(uri.DatabaseName, mongoDatabase.DatabaseNamespace.DatabaseName);
         }
         else
         {
-            Assert.Null(mongoDatabase);
+            Assert.IsNull(mongoDatabase);
         }
     }
 
-    [Theory]
-    [InlineData("mongodb://localhost:27017/mydatabase", true, false)]
-    [InlineData("mongodb://localhost:27017", false, false)]
-    [InlineData("mongodb://admin:pass@localhost:27017/mydatabase?authSource=admin&authMechanism=SCRAM-SHA-256", true, true)]
-    [InlineData("mongodb://admin:pass@localhost:27017?authSource=admin&authMechanism=SCRAM-SHA-256", false, true)]
+    [TestMethod]
+    [DataRow("mongodb://localhost:27017/mydatabase", true, false)]
+    [DataRow("mongodb://localhost:27017", false, false)]
+    [DataRow("mongodb://admin:pass@localhost:27017/mydatabase?authSource=admin&authMechanism=SCRAM-SHA-256", true, true)]
+    [DataRow("mongodb://admin:pass@localhost:27017?authSource=admin&authMechanism=SCRAM-SHA-256", false, true)]
     public void AddKeyedMongoDBDataSource_ReadsFromConnectionStringsCorrectly(string connectionString, bool shouldRegisterDatabase, bool shouldUseAuthentication)
     {
         var key = DefaultConnectionName;
@@ -87,35 +87,35 @@ public class AspireMongoDBDriverExtensionsTests : IClassFixture<MongoDbContainer
 
         var uri = MongoUrl.Create(connectionString);
 
-        Assert.Equal(uri.Server.Host, mongoClient.Settings.Server.Host);
-        Assert.Equal(uri.Server.Port, mongoClient.Settings.Server.Port);
+        Assert.AreEqual(uri.Server.Host, mongoClient.Settings.Server.Host);
+        Assert.AreEqual(uri.Server.Port, mongoClient.Settings.Server.Port);
 
         if (shouldUseAuthentication)
         {
-            Assert.NotNull(mongoClient.Settings.Credential);
-            Assert.Equal(uri.AuthenticationSource, mongoClient.Settings.Credential.Source);
-            Assert.Equal(uri.AuthenticationMechanism, mongoClient.Settings.Credential.Mechanism);
-            Assert.Equal(uri.Username, mongoClient.Settings.Credential.Username);
+            Assert.IsNotNull(mongoClient.Settings.Credential);
+            Assert.AreEqual(uri.AuthenticationSource, mongoClient.Settings.Credential.Source);
+            Assert.AreEqual(uri.AuthenticationMechanism, mongoClient.Settings.Credential.Mechanism);
+            Assert.AreEqual(uri.Username, mongoClient.Settings.Credential.Username);
         }
         else
         {
-            Assert.Null(mongoClient.Settings.Credential);
+            Assert.IsNull(mongoClient.Settings.Credential);
         }
 
         var mongoDatabase = host.Services.GetKeyedService<IMongoDatabase>(key);
 
         if (shouldRegisterDatabase)
         {
-            Assert.NotNull(mongoDatabase);
-            Assert.Equal(uri.DatabaseName, mongoDatabase.DatabaseNamespace.DatabaseName);
+            Assert.IsNotNull(mongoDatabase);
+            Assert.AreEqual(uri.DatabaseName, mongoDatabase.DatabaseNamespace.DatabaseName);
         }
         else
         {
-            Assert.Null(mongoDatabase);
+            Assert.IsNull(mongoDatabase);
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task AddMongoDBDataSource_HealthCheckShouldBeRegisteredWhenEnabled()
     {
@@ -138,7 +138,7 @@ public class AspireMongoDBDriverExtensionsTests : IClassFixture<MongoDbContainer
         Assert.Contains(healthCheckReport.Entries, x => x.Key == healthCheckName);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void AddKeyedMongoDBDataSource_HealthCheckShouldNotBeRegisteredWhenDisabled()
     {
@@ -153,11 +153,11 @@ public class AspireMongoDBDriverExtensionsTests : IClassFixture<MongoDbContainer
 
         var healthCheckService = host.Services.GetService<HealthCheckService>();
 
-        Assert.Null(healthCheckService);
+        Assert.IsNull(healthCheckService);
 
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task AddKeyedMongoDBDataSource_HealthCheckShouldBeRegisteredWhenEnabled()
     {
@@ -182,7 +182,7 @@ public class AspireMongoDBDriverExtensionsTests : IClassFixture<MongoDbContainer
         Assert.Contains(healthCheckReport.Entries, x => x.Key == healthCheckName);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void AddMongoDBDataSource_HealthCheckShouldNotBeRegisteredWhenDisabled()
     {
@@ -197,10 +197,10 @@ public class AspireMongoDBDriverExtensionsTests : IClassFixture<MongoDbContainer
 
         var healthCheckService = host.Services.GetService<HealthCheckService>();
 
-        Assert.Null(healthCheckService);
+        Assert.IsNull(healthCheckService);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -220,13 +220,13 @@ public class AspireMongoDBDriverExtensionsTests : IClassFixture<MongoDbContainer
         var connection2 = host.Services.GetRequiredKeyedService<IMongoDatabase>("mongodb2");
         var connection3 = host.Services.GetRequiredKeyedService<IMongoDatabase>("mongodb3");
 
-        Assert.NotSame(connection1, connection2);
-        Assert.NotSame(connection1, connection3);
-        Assert.NotSame(connection2, connection3);
+        Assert.AreNotSame(connection1, connection2);
+        Assert.AreNotSame(connection1, connection3);
+        Assert.AreNotSame(connection2, connection3);
 
-        Assert.Equal("mydatabase1", connection1.DatabaseNamespace.DatabaseName);
-        Assert.Equal("mydatabase2", connection2.DatabaseNamespace.DatabaseName);
-        Assert.Equal("mydatabase3", connection3.DatabaseNamespace.DatabaseName);
+        Assert.AreEqual("mydatabase1", connection1.DatabaseNamespace.DatabaseName);
+        Assert.AreEqual("mydatabase2", connection2.DatabaseNamespace.DatabaseName);
+        Assert.AreEqual("mydatabase3", connection3.DatabaseNamespace.DatabaseName);
     }
 
     private static HostApplicationBuilder CreateBuilder(string connectionString)

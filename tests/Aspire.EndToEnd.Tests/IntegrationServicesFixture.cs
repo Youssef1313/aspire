@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
-using Xunit.Abstractions;
 using Aspire.TestProject;
 using Aspire.Workload.Tests;
 
@@ -86,7 +84,7 @@ public sealed class IntegrationServicesFixture : IAsyncLifetime
         }
     }
 
-    public Task DumpComponentLogsAsync(TestResourceNames resource, ITestOutputHelper? testOutputArg = null)
+    public Task DumpComponentLogsAsync(TestResourceNames resource, TestContext? testOutputArg = null)
     {
         if (resource == TestResourceNames.None)
         {

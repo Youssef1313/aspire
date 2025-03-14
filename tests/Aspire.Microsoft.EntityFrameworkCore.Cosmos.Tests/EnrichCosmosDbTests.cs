@@ -2,17 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Components.Common.Tests;
-using Microsoft.DotNet.XUnitExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Trace;
-using Xunit;
 
 namespace Aspire.Microsoft.EntityFrameworkCore.Cosmos.Tests;
 
+[TestClass]
 public class EnrichCosmosDbTests : ConformanceTests
 {
     private const string ConnectionString = "Host=fake;Database=catalog";
@@ -24,16 +23,16 @@ public class EnrichCosmosDbTests : ConformanceTests
         builder.EnrichCosmosDbContext<TestDbContext>(configure);
     }
 
-    [Fact]
+    [TestMethod]
     public void ShouldThrowIfDbContextIsNotRegistered()
     {
         HostApplicationBuilder builder = Host.CreateEmptyApplicationBuilder(settings: null);
 
         var exception = Assert.Throws<InvalidOperationException>(() => builder.EnrichCosmosDbContext<TestDbContext>());
-        Assert.Equal("DbContext<TestDbContext> was not registered. Ensure you have registered the DbContext in DI before calling EnrichCosmosDbContext.", exception.Message);
+        Assert.AreEqual("DbContext<TestDbContext> was not registered. Ensure you have registered the DbContext in DI before calling EnrichCosmosDbContext.", exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void ShouldNotThrowIfDbContextIsRegistered()
     {
         HostApplicationBuilder builder = Host.CreateEmptyApplicationBuilder(settings: null);
@@ -45,10 +44,10 @@ public class EnrichCosmosDbTests : ConformanceTests
 
     protected override void SetupConnectionInformationIsDelayValidated()
     {
-        throw new SkipTestException("Enrich doesn't use ConnectionString");
+        Assert.Inconclusive("Enrich doesn't use ConnectionString");
     }
 
-    [Fact]
+    [TestMethod]
     public void EnrichCanConfigureDbContextOptions()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -70,18 +69,18 @@ public class EnrichCosmosDbTests : ConformanceTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<CosmosOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // Ensure the request timeout was respected
-        Assert.Equal(TimeSpan.FromSeconds(123), extension.RequestTimeout);
+        Assert.AreEqual(TimeSpan.FromSeconds(123), extension.RequestTimeout);
 
         // Ensure the region from the lambda was respected
-        Assert.Equal("westus", extension.Region);
+        Assert.AreEqual("westus", extension.Region);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Fact]
+    [TestMethod]
     public void EnrichSupportServiceType()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -95,10 +94,10 @@ public class EnrichCosmosDbTests : ConformanceTests
 
         using var host = builder.Build();
         var context = host.Services.GetRequiredService<ITestDbContext>() as TestDbContext;
-        Assert.NotNull(context);
+        Assert.IsNotNull(context);
     }
 
-    [Fact]
+    [TestMethod]
     public void EnrichSupportCustomOptionsLifetime()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -111,15 +110,15 @@ public class EnrichCosmosDbTests : ConformanceTests
         builder.EnrichCosmosDbContext<TestDbContext>();
 
         var optionsDescriptor = builder.Services.FirstOrDefault(sd => sd.ServiceType == typeof(DbContextOptions<TestDbContext>));
-        Assert.NotNull(optionsDescriptor);
-        Assert.Equal(ServiceLifetime.Singleton, optionsDescriptor.Lifetime);
+        Assert.IsNotNull(optionsDescriptor);
+        Assert.AreEqual(ServiceLifetime.Singleton, optionsDescriptor.Lifetime);
 
         using var host = builder.Build();
         var context = host.Services.GetRequiredService<ITestDbContext>() as TestDbContext;
-        Assert.NotNull(context);
+        Assert.IsNotNull(context);
     }
 
-    [Fact]
+    [TestMethod]
     public void EnrichWithConflictingRequestTimeoutThrows()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -132,11 +131,11 @@ public class EnrichCosmosDbTests : ConformanceTests
         builder.EnrichCosmosDbContext<TestDbContext>(settings => settings.RequestTimeout = TimeSpan.FromSeconds(456));
         using var host = builder.Build();
 
-        var exception = Assert.Throws<InvalidOperationException>(host.Services.GetRequiredService<TestDbContext>);
-        Assert.Equal("Conflicting values for 'RequestTimeout' were found in EntityFrameworkCoreCosmosSettings and set in DbContextOptions<TestDbContext>.", exception.Message);
+        var exception = Assert.Throws<InvalidOperationException>(() => host.Services.GetRequiredService<TestDbContext>());
+        Assert.AreEqual("Conflicting values for 'RequestTimeout' were found in EntityFrameworkCoreCosmosSettings and set in DbContextOptions<TestDbContext>.", exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void EnrichWithNamedAndNonNamedUsesBoth()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -155,6 +154,6 @@ public class EnrichCosmosDbTests : ConformanceTests
         using var host = builder.Build();
 
         var tracerProvider = host.Services.GetService<TracerProvider>();
-        Assert.Null(tracerProvider);
+        Assert.IsNull(tracerProvider);
     }
 }

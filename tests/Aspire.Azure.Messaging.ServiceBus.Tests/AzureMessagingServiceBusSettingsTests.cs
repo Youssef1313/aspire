@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.DotNet.RemoteExecutor;
-using Xunit;
 
 namespace Aspire.Azure.Messaging.ServiceBus.Tests;
 
+[TestClass]
 public class AzureMessagingServiceBusSettingsTests
 {
-    [Fact]
+    [TestMethod]
     public void TracingIsEnabledWhenAzureSwitchIsSet()
     {
         RemoteExecutor.Invoke(() => EnsureTracingIsEnabledWhenAzureSwitchIsSet(true)).Dispose();
@@ -17,6 +17,6 @@ public class AzureMessagingServiceBusSettingsTests
 
     private static void EnsureTracingIsEnabledWhenAzureSwitchIsSet(bool expectedValue)
     {
-        Assert.Equal(expectedValue, new AzureMessagingServiceBusSettings().DisableTracing);
+        Assert.AreEqual(expectedValue, new AzureMessagingServiceBusSettings().DisableTracing);
     }
 }

@@ -12,7 +12,7 @@ public class StarterTemplateWithRedisCacheTests_PreviousTFM : StarterTemplateRun
 {
     protected override int DashboardResourcesWaitTimeoutSecs => 300;
 
-    public StarterTemplateWithRedisCacheTests_PreviousTFM(StarterTemplateWithRedisCacheFixture_PreviousTFM fixture, ITestOutputHelper testOutput)
+    public StarterTemplateWithRedisCacheTests_PreviousTFM(StarterTemplateWithRedisCacheFixture_PreviousTFM fixture, TestContext testOutput)
         : base(fixture, testOutput)
     {
         HasRedisCache = true;

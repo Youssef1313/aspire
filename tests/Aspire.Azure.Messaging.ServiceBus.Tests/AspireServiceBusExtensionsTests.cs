@@ -5,17 +5,17 @@ using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Messaging.ServiceBus.Tests;
 
+[TestClass]
 public class AspireServiceBusExtensionsTests
 {
     private const string ConnectionString = "Endpoint=sb://aspireservicebustests.servicebus.windows.net/;SharedAccessKeyName=fake;SharedAccessKey=fake";
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -37,12 +37,12 @@ public class AspireServiceBusExtensionsTests
             host.Services.GetRequiredKeyedService<ServiceBusClient>("sb") :
             host.Services.GetRequiredService<ServiceBusClient>();
 
-        Assert.Equal(ConformanceTests.FullyQualifiedNamespace, client.FullyQualifiedNamespace);
+        Assert.AreEqual(ConformanceTests.FullyQualifiedNamespace, client.FullyQualifiedNamespace);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -64,12 +64,12 @@ public class AspireServiceBusExtensionsTests
             host.Services.GetRequiredKeyedService<ServiceBusClient>("sb") :
             host.Services.GetRequiredService<ServiceBusClient>();
 
-        Assert.Equal(ConformanceTests.FullyQualifiedNamespace, client.FullyQualifiedNamespace);
+        Assert.AreEqual(ConformanceTests.FullyQualifiedNamespace, client.FullyQualifiedNamespace);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -94,12 +94,12 @@ public class AspireServiceBusExtensionsTests
             host.Services.GetRequiredKeyedService<ServiceBusClient>("sb") :
             host.Services.GetRequiredService<ServiceBusClient>();
 
-        Assert.Equal(ConformanceTests.FullyQualifiedNamespace, client.FullyQualifiedNamespace);
+        Assert.AreEqual(ConformanceTests.FullyQualifiedNamespace, client.FullyQualifiedNamespace);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void NamespaceWorksInConnectionStrings(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -122,10 +122,10 @@ public class AspireServiceBusExtensionsTests
             host.Services.GetRequiredKeyedService<ServiceBusClient>("sb") :
             host.Services.GetRequiredService<ServiceBusClient>();
 
-        Assert.Equal(ConformanceTests.FullyQualifiedNamespace, client.FullyQualifiedNamespace);
+        Assert.AreEqual(ConformanceTests.FullyQualifiedNamespace, client.FullyQualifiedNamespace);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -146,16 +146,16 @@ public class AspireServiceBusExtensionsTests
         var client2 = host.Services.GetRequiredKeyedService<ServiceBusClient>("sb2");
         var client3 = host.Services.GetRequiredKeyedService<ServiceBusClient>("sb3");
 
-        //Assert.NotSame(client1, client2);
-        //Assert.NotSame(client1, client3);
-        Assert.NotSame(client2, client3);
+        //Assert.AreNotSame(client1, client2);
+        //Assert.AreNotSame(client1, client3);
+        Assert.AreNotSame(client2, client3);
 
-        //Assert.Equal(ConformanceTests.FullyQualifiedNamespace, client1.FullyQualifiedNamespace);
-        Assert.Equal("aspireservicebustests2.servicebus.windows.net", client2.FullyQualifiedNamespace);
-        Assert.Equal("aspireservicebustests3.servicebus.windows.net", client3.FullyQualifiedNamespace);
+        //Assert.AreEqual(ConformanceTests.FullyQualifiedNamespace, client1.FullyQualifiedNamespace);
+        Assert.AreEqual("aspireservicebustests2.servicebus.windows.net", client2.FullyQualifiedNamespace);
+        Assert.AreEqual("aspireservicebustests3.servicebus.windows.net", client3.FullyQualifiedNamespace);
     }
 
-    [Fact]
+    [TestMethod]
     public void FavorsNamedClientOptionsOverTopLevelClientOptionsWhenBothProvided()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -171,17 +171,17 @@ public class AspireServiceBusExtensionsTests
         using var host = builder.Build();
 
         var client = host.Services.GetRequiredService<ServiceBusClient>();
-        Assert.Equal("local-identifier", client.Identifier);
+        Assert.AreEqual("local-identifier", client.Identifier);
     }
 
-    [Theory]
-    [InlineData("Endpoint=sb://aspireservicebustests.servicebus.windows.net;EntityPath=myqueue;", "aspireservicebustests.servicebus.windows.net")]
-    [InlineData("Endpoint=sb://aspireservicebustests.servicebus.windows.net;EntityPath=mytopic;", "aspireservicebustests.servicebus.windows.net")]
-    [InlineData("Endpoint=sb://aspireservicebustests.servicebus.windows.net;EntityPath=mytopic/Subscriptions/mysub;", "aspireservicebustests.servicebus.windows.net")]
-    [InlineData("Endpoint=sb://localhost:50418;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true", "localhost")]
-    [InlineData("Endpoint=sb://localhost:50418;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;EntityPath=myqueue", "localhost")]
-    [InlineData("Endpoint=sb://localhost:50418;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;EntityPath=mytopic/Subscriptions/mysub;", "localhost")]
-    [InlineData("aspireservicebustests.servicebus.windows.net", "aspireservicebustests.servicebus.windows.net")]
+    [TestMethod]
+    [DataRow("Endpoint=sb://aspireservicebustests.servicebus.windows.net;EntityPath=myqueue;", "aspireservicebustests.servicebus.windows.net")]
+    [DataRow("Endpoint=sb://aspireservicebustests.servicebus.windows.net;EntityPath=mytopic;", "aspireservicebustests.servicebus.windows.net")]
+    [DataRow("Endpoint=sb://aspireservicebustests.servicebus.windows.net;EntityPath=mytopic/Subscriptions/mysub;", "aspireservicebustests.servicebus.windows.net")]
+    [DataRow("Endpoint=sb://localhost:50418;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true", "localhost")]
+    [DataRow("Endpoint=sb://localhost:50418;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;EntityPath=myqueue", "localhost")]
+    [DataRow("Endpoint=sb://localhost:50418;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;EntityPath=mytopic/Subscriptions/mysub;", "localhost")]
+    [DataRow("aspireservicebustests.servicebus.windows.net", "aspireservicebustests.servicebus.windows.net")]
     public void AddAzureServiceBusClient_EnsuresConnectionStringIsCorrect(string connectionString, string expectedEndpoint)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -193,7 +193,7 @@ public class AspireServiceBusExtensionsTests
         using var host = builder.Build();
         var client = host.Services.GetRequiredService<ServiceBusClient>();
 
-        Assert.Equal(expectedEndpoint, client.FullyQualifiedNamespace);
+        Assert.AreEqual(expectedEndpoint, client.FullyQualifiedNamespace);
     }
 
     private static void PopulateConfiguration(ConfigurationManager configuration, string connectionString) =>

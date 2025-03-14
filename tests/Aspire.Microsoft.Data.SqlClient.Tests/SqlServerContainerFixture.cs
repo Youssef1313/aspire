@@ -4,7 +4,6 @@
 using Aspire.Components.Common.Tests;
 using Aspire.Hosting;
 using Testcontainers.MsSql;
-using Xunit;
 
 namespace Aspire.Microsoft.Data.SqlClient.Tests;
 

@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Messaging.EventHubs.Tests;
 
+[TestClass]
 public class MessagingEventHubsPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddAzureEventProcessorClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -17,12 +17,12 @@ public class MessagingEventHubsPublicApiTests
         var action = () => builder.AddAzureEventProcessorClient(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddAzureEventProcessorClientShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -33,10 +33,10 @@ public class MessagingEventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeyedAzureEventProcessorClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -45,12 +45,12 @@ public class MessagingEventHubsPublicApiTests
         var action = () => builder.AddKeyedAzureEventProcessorClient(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddKeyedAzureEventProcessorClientShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -61,10 +61,10 @@ public class MessagingEventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzurePartitionReceiverClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -73,12 +73,12 @@ public class MessagingEventHubsPublicApiTests
         var action = () => builder.AddAzurePartitionReceiverClient(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddAzurePartitionReceiverClientShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -89,10 +89,10 @@ public class MessagingEventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeyedAzurePartitionReceiverClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -101,12 +101,12 @@ public class MessagingEventHubsPublicApiTests
         var action = () => builder.AddKeyedAzurePartitionReceiverClient(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddKeyedAzurePartitionReceiverClientShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -117,10 +117,10 @@ public class MessagingEventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureEventHubProducerClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -129,12 +129,12 @@ public class MessagingEventHubsPublicApiTests
         var action = () => builder.AddAzureEventHubProducerClient(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddAzureEventHubProducerClientShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -145,10 +145,10 @@ public class MessagingEventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeyedAzureEventHubProducerClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -157,12 +157,12 @@ public class MessagingEventHubsPublicApiTests
         var action = () => builder.AddKeyedAzureEventHubProducerClient(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddKeyedAzureEventHubProducerClientShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -173,10 +173,10 @@ public class MessagingEventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureEventHubBufferedProducerClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -185,12 +185,12 @@ public class MessagingEventHubsPublicApiTests
         var action = () => builder.AddAzureEventHubBufferedProducerClient(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddAzureEventHubBufferedProducerClientShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -201,10 +201,10 @@ public class MessagingEventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeyedAzureEventHubBufferedProducerClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -213,12 +213,12 @@ public class MessagingEventHubsPublicApiTests
         var action = () => builder.AddKeyedAzureEventHubBufferedProducerClient(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddKeyedAzureEventHubBufferedProducerClientShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -229,10 +229,10 @@ public class MessagingEventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureEventHubConsumerClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -241,12 +241,12 @@ public class MessagingEventHubsPublicApiTests
         var action = () => builder.AddAzureEventHubConsumerClient(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddAzureEventHubConsumerClientShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -257,10 +257,10 @@ public class MessagingEventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeyedAzureEventHubConsumerClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -269,12 +269,12 @@ public class MessagingEventHubsPublicApiTests
         var action = () => builder.AddKeyedAzureEventHubConsumerClient(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddKeyedAzureEventHubConsumerClientShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -285,6 +285,6 @@ public class MessagingEventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 }

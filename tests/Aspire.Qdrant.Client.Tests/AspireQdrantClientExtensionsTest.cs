@@ -7,10 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Qdrant.Client;
-using Xunit;
 
 namespace Aspire.Qdrant.Client.Tests;
 
+[TestClass]
 public class AspireQdrantClientExtensionsTest : IClassFixture<QdrantContainerFixture>
 {
     private const string DefaultConnectionName = "qdrant";
@@ -25,9 +25,9 @@ public class AspireQdrantClientExtensionsTest : IClassFixture<QdrantContainerFix
     private string DefaultConnectionString =>
             RequiresDockerAttribute.IsSupported ? _containerFixture.GetConnectionString() : "Endpoint=http://localhost1:6331;Key=pass";
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task AddQdrantClient_HealthCheckShouldBeRegisteredWhenEnabled(bool useKeyed)
     {
@@ -55,9 +55,9 @@ public class AspireQdrantClientExtensionsTest : IClassFixture<QdrantContainerFix
         Assert.Contains(healthCheckReport.Entries, x => x.Key == healthCheckName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddQdrant_HealthCheckShouldNotBeRegisteredWhenDisabled(bool useKeyed)
     {
         var builder = CreateBuilder(DefaultConnectionString);
@@ -81,10 +81,10 @@ public class AspireQdrantClientExtensionsTest : IClassFixture<QdrantContainerFix
 
         var healthCheckService = host.Services.GetService<HealthCheckService>();
 
-        Assert.Null(healthCheckService);
+        Assert.IsNull(healthCheckService);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -104,9 +104,9 @@ public class AspireQdrantClientExtensionsTest : IClassFixture<QdrantContainerFix
         var client2 = host.Services.GetRequiredKeyedService<QdrantClient>("qdrant2");
         var client3 = host.Services.GetRequiredKeyedService<QdrantClient>("qdrant3");
 
-        Assert.NotSame(client1, client2);
-        Assert.NotSame(client1, client3);
-        Assert.NotSame(client2, client3);
+        Assert.AreNotSame(client1, client2);
+        Assert.AreNotSame(client1, client3);
+        Assert.AreNotSame(client2, client3);
     }
 
     private static HostApplicationBuilder CreateBuilder(string connectionString)

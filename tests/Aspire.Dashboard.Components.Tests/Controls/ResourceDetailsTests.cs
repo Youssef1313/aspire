@@ -8,14 +8,14 @@ using Aspire.Dashboard.Model;
 using Aspire.Tests.Shared.DashboardModel;
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
-using Xunit;
 
 namespace Aspire.Dashboard.Components.Tests.Controls;
 
 [UseCulture("en-US")]
-public class ResourceDetailsTests : TestContext
+[TestClass]
+public class ResourceDetailsTests : Bunit.TestContext
 {
-    [Fact]
+    [TestMethod]
     public async Task ClickMaskAllSwitch_UpdatedResource_MaskChanged()
     {
         // Arrange
@@ -37,33 +37,33 @@ public class ResourceDetailsTests : TestContext
         });
 
         // Assert
-        Assert.Collection(cut.Instance.FilteredEnvironmentVariables,
+        Assert.That.Collection(cut.Instance.FilteredEnvironmentVariables,
             e =>
             {
-                Assert.Equal("envvar1", e.Name);
-                Assert.Equal("value!", e.Value);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar1", e.Name);
+                Assert.AreEqual("value!", e.Value);
+                Assert.IsTrue(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar2", e.Name);
-                Assert.Equal("value!", e.Value);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar2", e.Name);
+                Assert.AreEqual("value!", e.Value);
+                Assert.IsTrue(e.IsValueMasked);
             });
 
         var maskAllSwitch = cut.Find(".mask-all-switch");
         await maskAllSwitch.ClickAsync(new MouseEventArgs());
 
-        Assert.Collection(cut.Instance.FilteredEnvironmentVariables,
+        Assert.That.Collection(cut.Instance.FilteredEnvironmentVariables,
             e =>
             {
-                Assert.Equal("envvar1", e.Name);
-                Assert.False(e.IsValueMasked);
+                Assert.AreEqual("envvar1", e.Name);
+                Assert.IsFalse(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar2", e.Name);
-                Assert.False(e.IsValueMasked);
+                Assert.AreEqual("envvar2", e.Name);
+                Assert.IsFalse(e.IsValueMasked);
             });
 
         var resource2 = ModelTestHelpers.CreateResource(
@@ -80,25 +80,25 @@ public class ResourceDetailsTests : TestContext
             builder.Add(p => p.Resource, resource2);
         });
 
-        Assert.Collection(cut.Instance.FilteredEnvironmentVariables,
+        Assert.That.Collection(cut.Instance.FilteredEnvironmentVariables,
             e =>
             {
-                Assert.Equal("envvar1", e.Name);
-                Assert.False(e.IsValueMasked);
+                Assert.AreEqual("envvar1", e.Name);
+                Assert.IsFalse(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar2", e.Name);
-                Assert.False(e.IsValueMasked);
+                Assert.AreEqual("envvar2", e.Name);
+                Assert.IsFalse(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar3", e.Name);
-                Assert.False(e.IsValueMasked);
+                Assert.AreEqual("envvar3", e.Name);
+                Assert.IsFalse(e.IsValueMasked);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ClickMaskAllSwitch_NewResource_MaskChanged()
     {
         // Arrange
@@ -120,33 +120,33 @@ public class ResourceDetailsTests : TestContext
         });
 
         // Assert
-        Assert.Collection(cut.Instance.FilteredEnvironmentVariables,
+        Assert.That.Collection(cut.Instance.FilteredEnvironmentVariables,
             e =>
             {
-                Assert.Equal("envvar1", e.Name);
-                Assert.Equal("value!", e.Value);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar1", e.Name);
+                Assert.AreEqual("value!", e.Value);
+                Assert.IsTrue(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar2", e.Name);
-                Assert.Equal("value!", e.Value);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar2", e.Name);
+                Assert.AreEqual("value!", e.Value);
+                Assert.IsTrue(e.IsValueMasked);
             });
 
         var maskAllSwitch = cut.Find(".mask-all-switch");
         await maskAllSwitch.ClickAsync(new MouseEventArgs());
 
-        Assert.Collection(cut.Instance.FilteredEnvironmentVariables,
+        Assert.That.Collection(cut.Instance.FilteredEnvironmentVariables,
             e =>
             {
-                Assert.Equal("envvar1", e.Name);
-                Assert.False(e.IsValueMasked);
+                Assert.AreEqual("envvar1", e.Name);
+                Assert.IsFalse(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar2", e.Name);
-                Assert.False(e.IsValueMasked);
+                Assert.AreEqual("envvar2", e.Name);
+                Assert.IsFalse(e.IsValueMasked);
             });
 
         var resource2 = ModelTestHelpers.CreateResource(
@@ -163,25 +163,25 @@ public class ResourceDetailsTests : TestContext
             builder.Add(p => p.Resource, resource2);
         });
 
-        Assert.Collection(cut.Instance.FilteredEnvironmentVariables,
+        Assert.That.Collection(cut.Instance.FilteredEnvironmentVariables,
             e =>
             {
-                Assert.Equal("envvar1", e.Name);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar1", e.Name);
+                Assert.IsTrue(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar2", e.Name);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar2", e.Name);
+                Assert.IsTrue(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar3", e.Name);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar3", e.Name);
+                Assert.IsTrue(e.IsValueMasked);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ClickMaskEnvVarSwitch_UpdatedResource_MaskChanged()
     {
         // Arrange
@@ -203,33 +203,33 @@ public class ResourceDetailsTests : TestContext
         });
 
         // Assert
-        Assert.Collection(cut.Instance.FilteredEnvironmentVariables,
+        Assert.That.Collection(cut.Instance.FilteredEnvironmentVariables,
             e =>
             {
-                Assert.Equal("envvar1", e.Name);
-                Assert.Equal("value!", e.Value);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar1", e.Name);
+                Assert.AreEqual("value!", e.Value);
+                Assert.IsTrue(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar2", e.Name);
-                Assert.Equal("value!", e.Value);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar2", e.Name);
+                Assert.AreEqual("value!", e.Value);
+                Assert.IsTrue(e.IsValueMasked);
             });
 
         var maskValueButton = cut.Find(".env-var-properties .grid-value-mask-button");
         await maskValueButton.ClickAsync(new MouseEventArgs());
 
-        Assert.Collection(cut.Instance.FilteredEnvironmentVariables,
+        Assert.That.Collection(cut.Instance.FilteredEnvironmentVariables,
             e =>
             {
-                Assert.Equal("envvar1", e.Name);
-                Assert.False(e.IsValueMasked);
+                Assert.AreEqual("envvar1", e.Name);
+                Assert.IsFalse(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar2", e.Name);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar2", e.Name);
+                Assert.IsTrue(e.IsValueMasked);
             });
 
         var resource2 = ModelTestHelpers.CreateResource(
@@ -246,25 +246,25 @@ public class ResourceDetailsTests : TestContext
             builder.Add(p => p.Resource, resource2);
         });
 
-        Assert.Collection(cut.Instance.FilteredEnvironmentVariables,
+        Assert.That.Collection(cut.Instance.FilteredEnvironmentVariables,
             e =>
             {
-                Assert.Equal("envvar1", e.Name);
-                Assert.False(e.IsValueMasked);
+                Assert.AreEqual("envvar1", e.Name);
+                Assert.IsFalse(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar2", e.Name);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar2", e.Name);
+                Assert.IsTrue(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar3", e.Name);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar3", e.Name);
+                Assert.IsTrue(e.IsValueMasked);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ClickMaskEnvVarSwitch_NewResource_MaskChanged()
     {
         // Arrange
@@ -286,33 +286,33 @@ public class ResourceDetailsTests : TestContext
         });
 
         // Assert
-        Assert.Collection(cut.Instance.FilteredEnvironmentVariables,
+        Assert.That.Collection(cut.Instance.FilteredEnvironmentVariables,
             e =>
             {
-                Assert.Equal("envvar1", e.Name);
-                Assert.Equal("value!", e.Value);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar1", e.Name);
+                Assert.AreEqual("value!", e.Value);
+                Assert.IsTrue(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar2", e.Name);
-                Assert.Equal("value!", e.Value);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar2", e.Name);
+                Assert.AreEqual("value!", e.Value);
+                Assert.IsTrue(e.IsValueMasked);
             });
 
         var maskValueButton = cut.Find(".env-var-properties .grid-value-mask-button");
         await maskValueButton.ClickAsync(new MouseEventArgs());
 
-        Assert.Collection(cut.Instance.FilteredEnvironmentVariables,
+        Assert.That.Collection(cut.Instance.FilteredEnvironmentVariables,
             e =>
             {
-                Assert.Equal("envvar1", e.Name);
-                Assert.False(e.IsValueMasked);
+                Assert.AreEqual("envvar1", e.Name);
+                Assert.IsFalse(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar2", e.Name);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar2", e.Name);
+                Assert.IsTrue(e.IsValueMasked);
             });
 
         var resource2 = ModelTestHelpers.CreateResource(
@@ -329,21 +329,21 @@ public class ResourceDetailsTests : TestContext
             builder.Add(p => p.Resource, resource2);
         });
 
-        Assert.Collection(cut.Instance.FilteredEnvironmentVariables,
+        Assert.That.Collection(cut.Instance.FilteredEnvironmentVariables,
             e =>
             {
-                Assert.Equal("envvar1", e.Name);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar1", e.Name);
+                Assert.IsTrue(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar2", e.Name);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar2", e.Name);
+                Assert.IsTrue(e.IsValueMasked);
             },
             e =>
             {
-                Assert.Equal("envvar3", e.Name);
-                Assert.True(e.IsValueMasked);
+                Assert.AreEqual("envvar3", e.Name);
+                Assert.IsTrue(e.IsValueMasked);
             });
     }
 }

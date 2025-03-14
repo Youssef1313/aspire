@@ -1,13 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
-
 namespace Aspire.Hosting.Analyzers.Tests;
 
 internal static class TestData
 {
-    public sealed class InvalidModelNames : TheoryData<string>
+    public sealed class InvalidModelNames : List<string>
     {
         public InvalidModelNames()
         {
@@ -32,7 +30,7 @@ internal static class TestData
         }
     }
 
-    public sealed class ValidModelNames : TheoryData<string>
+    public sealed class ValidModelNames : List<string>
     {
         public ValidModelNames()
         {

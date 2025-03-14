@@ -8,15 +8,15 @@ using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Security.KeyVault.Tests;
 
+[TestClass]
 public class AspireKeyVaultExtensionsTests
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void VaultUriCanBeSetInCode(bool useKeyed)
     {
         var vaultUri = new Uri(ConformanceTests.VaultUri);
@@ -40,12 +40,12 @@ public class AspireKeyVaultExtensionsTests
             host.Services.GetRequiredKeyedService<SecretClient>("secrets") :
             host.Services.GetRequiredService<SecretClient>();
 
-        Assert.Equal(vaultUri, client.VaultUri);
+        Assert.AreEqual(vaultUri, client.VaultUri);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -70,10 +70,10 @@ public class AspireKeyVaultExtensionsTests
             host.Services.GetRequiredKeyedService<SecretClient>("secrets") :
             host.Services.GetRequiredService<SecretClient>();
 
-        Assert.Equal(new Uri(ConformanceTests.VaultUri), client.VaultUri);
+        Assert.AreEqual(new Uri(ConformanceTests.VaultUri), client.VaultUri);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddsKeyVaultSecretsToConfig()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -139,8 +139,8 @@ public class AspireKeyVaultExtensionsTests
                     """));
         });
 
-        Assert.Equal("Secret 1 Value", builder.Configuration["super-secret-1"]);
-        Assert.Equal("Secret 2 Value", builder.Configuration["super-secret-2"]);
+        Assert.AreEqual("Secret 1 Value", builder.Configuration["super-secret-1"]);
+        Assert.AreEqual("Secret 2 Value", builder.Configuration["super-secret-2"]);
     }
 
     private static MockResponse CreateResponse(string content)
@@ -172,7 +172,7 @@ public class AspireKeyVaultExtensionsTests
         return response;
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -193,12 +193,12 @@ public class AspireKeyVaultExtensionsTests
         var client2 = host.Services.GetRequiredKeyedService<SecretClient>("secrets2");
         var client3 = host.Services.GetRequiredKeyedService<SecretClient>("secrets3");
 
-        //Assert.NotSame(client1, client2);
-        //Assert.NotSame(client1, client3);
-        Assert.NotSame(client2, client3);
+        //Assert.AreNotSame(client1, client2);
+        //Assert.AreNotSame(client1, client3);
+        Assert.AreNotSame(client2, client3);
 
-        //Assert.Equal(new Uri(ConformanceTests.VaultUri), client1.VaultUri);
-        Assert.Equal(new Uri("https://aspiretests2.vault.azure.net/"), client2.VaultUri);
-        Assert.Equal(new Uri("https://aspiretests3.vault.azure.net/"), client3.VaultUri);
+        //Assert.AreEqual(new Uri(ConformanceTests.VaultUri), client1.VaultUri);
+        Assert.AreEqual(new Uri("https://aspiretests2.vault.azure.net/"), client2.VaultUri);
+        Assert.AreEqual(new Uri("https://aspiretests3.vault.azure.net/"), client3.VaultUri);
     }
 }

@@ -2,55 +2,55 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Dashboard.Model;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.Model;
 
+[TestClass]
 public sealed class TargetLocationInterceptorTests
 {
-    [Fact]
+    [TestMethod]
     public void InterceptTargetLocation_RelativeRoot_Redirect()
     {
-        Assert.True(TargetLocationInterceptor.InterceptTargetLocation("http://localhost", "/", out var newTargetLocation));
-        Assert.Equal(TargetLocationInterceptor.StructuredLogsPath, newTargetLocation);
+        Assert.IsTrue(TargetLocationInterceptor.InterceptTargetLocation("http://localhost", "/", out var newTargetLocation));
+        Assert.AreEqual(TargetLocationInterceptor.StructuredLogsPath, newTargetLocation);
     }
 
-    [Fact]
+    [TestMethod]
     public void InterceptTargetLocation_Absolute_Redirect()
     {
-        Assert.True(TargetLocationInterceptor.InterceptTargetLocation("http://localhost", "http://localhost/", out var newTargetLocation));
-        Assert.Equal(TargetLocationInterceptor.StructuredLogsPath, newTargetLocation);
+        Assert.IsTrue(TargetLocationInterceptor.InterceptTargetLocation("http://localhost", "http://localhost/", out var newTargetLocation));
+        Assert.AreEqual(TargetLocationInterceptor.StructuredLogsPath, newTargetLocation);
     }
 
-    [Fact]
+    [TestMethod]
     public void InterceptTargetLocation_Absolute_WithoutTrailingSlash_Redirect()
     {
-        Assert.True(TargetLocationInterceptor.InterceptTargetLocation("http://localhost", "http://localhost", out var newTargetLocation));
-        Assert.Equal(TargetLocationInterceptor.StructuredLogsPath, newTargetLocation);
+        Assert.IsTrue(TargetLocationInterceptor.InterceptTargetLocation("http://localhost", "http://localhost", out var newTargetLocation));
+        Assert.AreEqual(TargetLocationInterceptor.StructuredLogsPath, newTargetLocation);
     }
 
-    [Fact]
+    [TestMethod]
     public void InterceptTargetLocation_AbsoluteDifferentCase_Redirect()
     {
-        Assert.True(TargetLocationInterceptor.InterceptTargetLocation("http://LOCALHOST", "http://localhost/", out var newTargetLocation));
-        Assert.Equal(TargetLocationInterceptor.StructuredLogsPath, newTargetLocation);
+        Assert.IsTrue(TargetLocationInterceptor.InterceptTargetLocation("http://LOCALHOST", "http://localhost/", out var newTargetLocation));
+        Assert.AreEqual(TargetLocationInterceptor.StructuredLogsPath, newTargetLocation);
     }
 
-    [Fact]
+    [TestMethod]
     public void InterceptTargetLocation_StructuredLogs_Unchanged()
     {
-        Assert.False(TargetLocationInterceptor.InterceptTargetLocation("http://localhost", TargetLocationInterceptor.StructuredLogsPath, out _));
+        Assert.IsFalse(TargetLocationInterceptor.InterceptTargetLocation("http://localhost", TargetLocationInterceptor.StructuredLogsPath, out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void InterceptTargetLocation_DifferentHost_Unchanged()
     {
-        Assert.False(TargetLocationInterceptor.InterceptTargetLocation("http://localhost", "http://localhost:8888/", out _));
+        Assert.IsFalse(TargetLocationInterceptor.InterceptTargetLocation("http://localhost", "http://localhost:8888/", out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void InterceptTargetLocation_DifferentHost_TrailingSlash_Unchanged()
     {
-        Assert.False(TargetLocationInterceptor.InterceptTargetLocation("http://localhost/", "http://localhost:8888/", out _));
+        Assert.IsFalse(TargetLocationInterceptor.InterceptTargetLocation("http://localhost/", "http://localhost:8888/", out _));
     }
 }

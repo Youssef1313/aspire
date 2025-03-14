@@ -8,41 +8,41 @@ using Aspire.Hosting.Postgres;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.PostgreSQL.Tests;
 
+[TestClass]
 public class AddPostgresTests
 {
-    [Fact]
+    [TestMethod]
     public void AddPostgresAddsHealthCheckAnnotationToResource()
     {
         var builder = DistributedApplication.CreateBuilder();
         var redis = builder.AddPostgres("postgres");
-        Assert.Single(redis.Resource.Annotations, a => a is HealthCheckAnnotation hca && hca.Key == "postgres_check");
+        Assert.ContainsSingle(redis.Resource.Annotations, a => a is HealthCheckAnnotation hca && hca.Key == "postgres_check");
     }
 
-    [Fact]
+    [TestMethod]
     public void AddPostgresAddsGeneratedPasswordParameterWithUserSecretsParameterDefaultInRunMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
 
         var pg = appBuilder.AddPostgres("pg");
 
-        Assert.Equal("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", pg.Resource.PasswordParameter.Default?.GetType().FullName);
+        Assert.AreEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", pg.Resource.PasswordParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddPostgresDoesNotAddGeneratedPasswordParameterWithUserSecretsParameterDefaultInPublishMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
 
         var pg = appBuilder.AddPostgres("pg");
 
-        Assert.NotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", pg.Resource.PasswordParameter.Default?.GetType().FullName);
+        Assert.AreNotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", pg.Resource.PasswordParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddPostgresWithDefaultsAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -52,49 +52,49 @@ public class AddPostgresTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.GetContainerResources());
-        Assert.Equal("myPostgres", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.GetContainerResources());
+        Assert.AreEqual("myPostgres", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(PostgresContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(PostgresContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(PostgresContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(PostgresContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(PostgresContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(PostgresContainerImageTags.Registry, containerAnnotation.Registry);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(5432, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(5432, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("POSTGRES_HOST_AUTH_METHOD", env.Key);
-                Assert.Equal("scram-sha-256", env.Value);
+                Assert.AreEqual("POSTGRES_HOST_AUTH_METHOD", env.Key);
+                Assert.AreEqual("scram-sha-256", env.Value);
             },
             env =>
             {
-                Assert.Equal("POSTGRES_INITDB_ARGS", env.Key);
-                Assert.Equal("--auth-host=scram-sha-256 --auth-local=scram-sha-256", env.Value);
+                Assert.AreEqual("POSTGRES_INITDB_ARGS", env.Key);
+                Assert.AreEqual("--auth-host=scram-sha-256 --auth-local=scram-sha-256", env.Value);
             },
             env =>
             {
-                Assert.Equal("POSTGRES_USER", env.Key);
-                Assert.Equal("postgres", env.Value);
+                Assert.AreEqual("POSTGRES_USER", env.Key);
+                Assert.AreEqual("postgres", env.Value);
             },
             env =>
             {
-                Assert.Equal("POSTGRES_PASSWORD", env.Key);
-                Assert.False(string.IsNullOrEmpty(env.Value));
+                Assert.AreEqual("POSTGRES_PASSWORD", env.Key);
+                Assert.IsFalse(string.IsNullOrEmpty(env.Value));
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddPostgresAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -106,49 +106,49 @@ public class AddPostgresTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.GetContainerResources());
-        Assert.Equal("myPostgres", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.GetContainerResources());
+        Assert.AreEqual("myPostgres", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(PostgresContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(PostgresContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(PostgresContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(PostgresContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(PostgresContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(PostgresContainerImageTags.Registry, containerAnnotation.Registry);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(5432, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Equal(1234, endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(5432, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.AreEqual(1234, endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("POSTGRES_HOST_AUTH_METHOD", env.Key);
-                Assert.Equal("scram-sha-256", env.Value);
+                Assert.AreEqual("POSTGRES_HOST_AUTH_METHOD", env.Key);
+                Assert.AreEqual("scram-sha-256", env.Value);
             },
             env =>
             {
-                Assert.Equal("POSTGRES_INITDB_ARGS", env.Key);
-                Assert.Equal("--auth-host=scram-sha-256 --auth-local=scram-sha-256", env.Value);
+                Assert.AreEqual("POSTGRES_INITDB_ARGS", env.Key);
+                Assert.AreEqual("--auth-host=scram-sha-256 --auth-local=scram-sha-256", env.Value);
             },
             env =>
             {
-                Assert.Equal("POSTGRES_USER", env.Key);
-                Assert.Equal("postgres", env.Value);
+                Assert.AreEqual("POSTGRES_USER", env.Key);
+                Assert.AreEqual("postgres", env.Value);
             },
             env =>
             {
-                Assert.Equal("POSTGRES_PASSWORD", env.Key);
-                Assert.Equal("pass", env.Value);
+                Assert.AreEqual("POSTGRES_PASSWORD", env.Key);
+                Assert.AreEqual("pass", env.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task PostgresCreatesConnectionString()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -158,11 +158,11 @@ public class AddPostgresTests
         var connectionStringResource = postgres.Resource as IResourceWithConnectionString;
 
         var connectionString = await connectionStringResource.GetConnectionStringAsync();
-        Assert.Equal("Host={postgres.bindings.tcp.host};Port={postgres.bindings.tcp.port};Username=postgres;Password={postgres-password.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal($"Host=localhost;Port=2000;Username=postgres;Password={postgres.Resource.PasswordParameter.Value}", connectionString);
+        Assert.AreEqual("Host={postgres.bindings.tcp.host};Port={postgres.bindings.tcp.port};Username=postgres;Password={postgres-password.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual($"Host=localhost;Port=2000;Username=postgres;Password={postgres.Resource.PasswordParameter.Value}", connectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task PostgresCreatesConnectionStringWithDatabase()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -174,17 +174,17 @@ public class AddPostgresTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var postgresResource = Assert.Single(appModel.Resources.OfType<PostgresServerResource>());
+        var postgresResource = Assert.ContainsSingle(appModel.Resources.OfType<PostgresServerResource>());
         var postgresConnectionString = await postgresResource.GetConnectionStringAsync();
-        var postgresDatabaseResource = Assert.Single(appModel.Resources.OfType<PostgresDatabaseResource>());
+        var postgresDatabaseResource = Assert.ContainsSingle(appModel.Resources.OfType<PostgresDatabaseResource>());
         var postgresDatabaseConnectionStringResource = (IResourceWithConnectionString)postgresDatabaseResource;
         var dbConnectionString = await postgresDatabaseConnectionStringResource.GetConnectionStringAsync();
 
-        Assert.Equal("{postgres.connectionString};Database=db", postgresDatabaseResource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal(postgresConnectionString + ";Database=db", dbConnectionString);
+        Assert.AreEqual("{postgres.connectionString};Database=db", postgresDatabaseResource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual(postgresConnectionString + ";Database=db", dbConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddDatabaseToPostgresAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -197,49 +197,49 @@ public class AddPostgresTests
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var containerResources = appModel.GetContainerResources();
 
-        var containerResource = Assert.Single(containerResources);
-        Assert.Equal("postgres", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(containerResources);
+        Assert.AreEqual("postgres", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(PostgresContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(PostgresContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(PostgresContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(PostgresContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(PostgresContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(PostgresContainerImageTags.Registry, containerAnnotation.Registry);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(5432, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Equal(1234, endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(5432, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.AreEqual(1234, endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("POSTGRES_HOST_AUTH_METHOD", env.Key);
-                Assert.Equal("scram-sha-256", env.Value);
+                Assert.AreEqual("POSTGRES_HOST_AUTH_METHOD", env.Key);
+                Assert.AreEqual("scram-sha-256", env.Value);
             },
             env =>
             {
-                Assert.Equal("POSTGRES_INITDB_ARGS", env.Key);
-                Assert.Equal("--auth-host=scram-sha-256 --auth-local=scram-sha-256", env.Value);
+                Assert.AreEqual("POSTGRES_INITDB_ARGS", env.Key);
+                Assert.AreEqual("--auth-host=scram-sha-256 --auth-local=scram-sha-256", env.Value);
             },
             env =>
             {
-                Assert.Equal("POSTGRES_USER", env.Key);
-                Assert.Equal("postgres", env.Value);
+                Assert.AreEqual("POSTGRES_USER", env.Key);
+                Assert.AreEqual("postgres", env.Value);
             },
             env =>
             {
-                Assert.Equal("POSTGRES_PASSWORD", env.Key);
-                Assert.Equal("pass", env.Value);
+                Assert.AreEqual("POSTGRES_PASSWORD", env.Key);
+                Assert.AreEqual("pass", env.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -270,7 +270,7 @@ public class AddPostgresTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, serverManifest.ToString());
+        Assert.AreEqual(expectedManifest, serverManifest.ToString());
 
         expectedManifest = """
             {
@@ -278,10 +278,10 @@ public class AddPostgresTests
               "connectionString": "{pg.connectionString};Database=db"
             }
             """;
-        Assert.Equal(expectedManifest, dbManifest.ToString());
+        Assert.AreEqual(expectedManifest, dbManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithParameters()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -313,7 +313,7 @@ public class AddPostgresTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, serverManifest.ToString());
+        Assert.AreEqual(expectedManifest, serverManifest.ToString());
 
         pgServer = builder.AddPostgres("pg2", userNameParameter);
         serverManifest = await ManifestUtils.GetManifest(pgServer.Resource);
@@ -339,7 +339,7 @@ public class AddPostgresTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, serverManifest.ToString());
+        Assert.AreEqual(expectedManifest, serverManifest.ToString());
 
         pgServer = builder.AddPostgres("pg3", password: passwordParameter);
         serverManifest = await ManifestUtils.GetManifest(pgServer.Resource);
@@ -365,10 +365,10 @@ public class AddPostgresTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, serverManifest.ToString());
+        Assert.AreEqual(expectedManifest, serverManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithPgAdminAddsContainer()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -383,21 +383,21 @@ public class AddPostgresTests
         var container = builder.Resources.Single(r => r.Name == "mypostgres-pgadmin");
         var volume = container.Annotations.OfType<ContainerMountAnnotation>().Single();
 
-        Assert.True(File.Exists(volume.Source)); // File should exist, but will be empty.
-        Assert.Equal("/pgadmin4/servers.json", volume.Target);
+        Assert.IsTrue(File.Exists(volume.Source)); // File should exist, but will be empty.
+        Assert.AreEqual("/pgadmin4/servers.json", volume.Target);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPgWebAddsWithPgWebResource()
     {
         var builder = DistributedApplication.CreateBuilder();
         builder.AddPostgres("mypostgres1").WithPgWeb();
         builder.AddPostgres("mypostgres2").WithPgWeb();
 
-        Assert.Single(builder.Resources.OfType<PgWebContainerResource>());
+        Assert.ContainsSingle(builder.Resources.OfType<PgWebContainerResource>());
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPgWebSupportsChangingContainerImageValues()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -408,14 +408,14 @@ public class AddPostgresTests
             c.WithImageTag("someothertag");
         });
 
-        var resource = Assert.Single(builder.Resources.OfType<PgWebContainerResource>());
-        var containerAnnotation = Assert.Single(resource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal("example.mycompany.com", containerAnnotation.Registry);
-        Assert.Equal("customrediscommander", containerAnnotation.Image);
-        Assert.Equal("someothertag", containerAnnotation.Tag);
+        var resource = Assert.ContainsSingle(builder.Resources.OfType<PgWebContainerResource>());
+        var containerAnnotation = Assert.ContainsSingle(resource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual("example.mycompany.com", containerAnnotation.Registry);
+        Assert.AreEqual("customrediscommander", containerAnnotation.Image);
+        Assert.AreEqual("someothertag", containerAnnotation.Tag);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithRedisInsightSupportsChangingHostPort()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -424,12 +424,12 @@ public class AddPostgresTests
             c.WithHostPort(1000);
         });
 
-        var resource = Assert.Single(builder.Resources.OfType<PgWebContainerResource>());
-        var endpoint = Assert.Single(resource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(1000, endpoint.Port);
+        var resource = Assert.ContainsSingle(builder.Resources.OfType<PgWebContainerResource>());
+        var endpoint = Assert.ContainsSingle(resource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(1000, endpoint.Port);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPgAdminWithCallbackMutatesImage()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -438,20 +438,20 @@ public class AddPostgresTests
         var container = builder.Resources.Single(r => r.Name == "mypostgres-pgadmin");
         var imageAnnotation = container.Annotations.OfType<ContainerImageAnnotation>().Single();
 
-        Assert.Equal("8.3", imageAnnotation.Tag);
+        Assert.AreEqual("8.3", imageAnnotation.Tag);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPostgresTwiceEndsUpWithOneContainer()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         builder.AddPostgres("mypostgres1").WithPgAdmin(pga => pga.WithHostPort(8081));
         builder.AddPostgres("mypostgres2").WithPgAdmin(pga => pga.WithHostPort(8081));
 
-        Assert.Single(builder.Resources.Where(r => r.Name.EndsWith("-pgadmin")));
+        Assert.ContainsSingle(builder.Resources.Where(r => r.Name.EndsWith("-pgadmin")));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithPostgresProducesValidServersJsonFile()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -480,24 +480,24 @@ public class AddPostgresTests
         var servers = document.RootElement.GetProperty("Servers");
 
         // Make sure the first server is correct.
-        Assert.Equal(pg1.Resource.Name, servers.GetProperty("1").GetProperty("Name").GetString());
-        Assert.Equal("Servers", servers.GetProperty("1").GetProperty("Group").GetString());
-        Assert.Equal("mypostgres1", servers.GetProperty("1").GetProperty("Host").GetString());
-        Assert.Equal(5432, servers.GetProperty("1").GetProperty("Port").GetInt32());
-        Assert.Equal("postgres", servers.GetProperty("1").GetProperty("Username").GetString());
-        Assert.Equal("prefer", servers.GetProperty("1").GetProperty("SSLMode").GetString());
-        Assert.Equal("postgres", servers.GetProperty("1").GetProperty("MaintenanceDB").GetString());
-        Assert.Equal($"echo '{pg1.Resource.PasswordParameter.Value}'", servers.GetProperty("1").GetProperty("PasswordExecCommand").GetString());
+        Assert.AreEqual(pg1.Resource.Name, servers.GetProperty("1").GetProperty("Name").GetString());
+        Assert.AreEqual("Servers", servers.GetProperty("1").GetProperty("Group").GetString());
+        Assert.AreEqual("mypostgres1", servers.GetProperty("1").GetProperty("Host").GetString());
+        Assert.AreEqual(5432, servers.GetProperty("1").GetProperty("Port").GetInt32());
+        Assert.AreEqual("postgres", servers.GetProperty("1").GetProperty("Username").GetString());
+        Assert.AreEqual("prefer", servers.GetProperty("1").GetProperty("SSLMode").GetString());
+        Assert.AreEqual("postgres", servers.GetProperty("1").GetProperty("MaintenanceDB").GetString());
+        Assert.AreEqual($"echo '{pg1.Resource.PasswordParameter.Value}'", servers.GetProperty("1").GetProperty("PasswordExecCommand").GetString());
 
         // Make sure the second server is correct.
-        Assert.Equal(pg2.Resource.Name, servers.GetProperty("2").GetProperty("Name").GetString());
-        Assert.Equal("Servers", servers.GetProperty("2").GetProperty("Group").GetString());
-        Assert.Equal("mypostgres2", servers.GetProperty("2").GetProperty("Host").GetString());
-        Assert.Equal(5432, servers.GetProperty("2").GetProperty("Port").GetInt32());
-        Assert.Equal("myuser", servers.GetProperty("2").GetProperty("Username").GetString());
-        Assert.Equal("prefer", servers.GetProperty("2").GetProperty("SSLMode").GetString());
-        Assert.Equal("postgres", servers.GetProperty("2").GetProperty("MaintenanceDB").GetString());
-        Assert.Equal($"echo '{pg2.Resource.PasswordParameter.Value}'", servers.GetProperty("2").GetProperty("PasswordExecCommand").GetString());
+        Assert.AreEqual(pg2.Resource.Name, servers.GetProperty("2").GetProperty("Name").GetString());
+        Assert.AreEqual("Servers", servers.GetProperty("2").GetProperty("Group").GetString());
+        Assert.AreEqual("mypostgres2", servers.GetProperty("2").GetProperty("Host").GetString());
+        Assert.AreEqual(5432, servers.GetProperty("2").GetProperty("Port").GetInt32());
+        Assert.AreEqual("myuser", servers.GetProperty("2").GetProperty("Username").GetString());
+        Assert.AreEqual("prefer", servers.GetProperty("2").GetProperty("SSLMode").GetString());
+        Assert.AreEqual("postgres", servers.GetProperty("2").GetProperty("MaintenanceDB").GetString());
+        Assert.AreEqual($"echo '{pg2.Resource.PasswordParameter.Value}'", servers.GetProperty("2").GetProperty("PasswordExecCommand").GetString());
 
         try
         {
@@ -509,7 +509,7 @@ public class AddPostgresTests
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithPgwebProducesValidBookmarkFiles()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -537,14 +537,14 @@ public class AddPostgresTests
 
         var bookMarkFiles = Directory.GetFiles(volume.Source!).OrderBy(f => f).ToArray();
 
-        Assert.Collection(bookMarkFiles,
+        Assert.That.Collection(bookMarkFiles,
             filePath =>
             {
-                Assert.Equal(".toml", Path.GetExtension(filePath));
+                Assert.AreEqual(".toml", Path.GetExtension(filePath));
             },
             filePath =>
             {
-                Assert.Equal(".toml", Path.GetExtension(filePath));
+                Assert.AreEqual(".toml", Path.GetExtension(filePath));
             });
 
         var bookmarkFilesContent = new List<string>();
@@ -555,14 +555,14 @@ public class AddPostgresTests
         }
 
         Assert.NotEmpty(bookmarkFilesContent);
-        Assert.Collection(bookmarkFilesContent,
+        Assert.That.Collection(bookmarkFilesContent,
             content =>
             {
-                Assert.Equal(CreatePgWebBookmarkfileContent(db1.Resource), content);
+                Assert.AreEqual(CreatePgWebBookmarkfileContent(db1.Resource), content);
             },
             content =>
             {
-                Assert.Equal(CreatePgWebBookmarkfileContent(db2.Resource), content);
+                Assert.AreEqual(CreatePgWebBookmarkfileContent(db2.Resource), content);
             });
 
         try
@@ -575,7 +575,7 @@ public class AddPostgresTests
         }
     }
 
-    [Fact]
+    [TestMethod]
     public void ThrowsWithIdenticalChildResourceNames()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -586,7 +586,7 @@ public class AddPostgresTests
         Assert.Throws<DistributedApplicationException>(() => db.AddDatabase("db"));
     }
 
-    [Fact]
+    [TestMethod]
     public void ThrowsWithIdenticalChildResourceNamesDifferentParents()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -598,7 +598,7 @@ public class AddPostgresTests
         Assert.Throws<DistributedApplicationException>(() => db.AddDatabase("db"));
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddDatabasesWithDifferentNamesOnSingleServer()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -608,14 +608,14 @@ public class AddPostgresTests
         var db1 = postgres1.AddDatabase("db1", "customers1");
         var db2 = postgres1.AddDatabase("db2", "customers2");
 
-        Assert.Equal("customers1", db1.Resource.DatabaseName);
-        Assert.Equal("customers2", db2.Resource.DatabaseName);
+        Assert.AreEqual("customers1", db1.Resource.DatabaseName);
+        Assert.AreEqual("customers2", db2.Resource.DatabaseName);
 
-        Assert.Equal("{postgres1.connectionString};Database=customers1", db1.Resource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal("{postgres1.connectionString};Database=customers2", db2.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{postgres1.connectionString};Database=customers1", db1.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{postgres1.connectionString};Database=customers2", db2.Resource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddDatabasesWithTheSameNameOnMultipleServers()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -626,11 +626,11 @@ public class AddPostgresTests
         var db2 = builder.AddPostgres("postgres2")
             .AddDatabase("db2", "imports");
 
-        Assert.Equal("imports", db1.Resource.DatabaseName);
-        Assert.Equal("imports", db2.Resource.DatabaseName);
+        Assert.AreEqual("imports", db1.Resource.DatabaseName);
+        Assert.AreEqual("imports", db2.Resource.DatabaseName);
 
-        Assert.Equal("{postgres1.connectionString};Database=imports", db1.Resource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal("{postgres2.connectionString};Database=imports", db2.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{postgres1.connectionString};Database=imports", db1.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{postgres2.connectionString};Database=imports", db2.Resource.ConnectionStringExpression.ValueExpression);
     }
 
     private static string CreatePgWebBookmarkfileContent(PostgresDatabaseResource postgresDatabase)

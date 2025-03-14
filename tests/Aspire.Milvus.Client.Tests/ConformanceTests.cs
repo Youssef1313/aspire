@@ -7,10 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Milvus.Client;
-using Xunit;
 
 namespace Aspire.Milvus.Client.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<MilvusClient, MilvusClientSettings>, IClassFixture<MilvusContainerFixture>
 {
     private readonly MilvusContainerFixture? _containerFixture;
@@ -101,7 +101,7 @@ public class ConformanceTests : ConformanceTests<MilvusClient, MilvusClientSetti
             ("""{"Aspire": { "Milvus":{ "Client": { "Endpoint": "hello" }}}}""", "Value does not match format \"uri\"")
         };
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -121,8 +121,8 @@ public class ConformanceTests : ConformanceTests<MilvusClient, MilvusClientSetti
         var client2 = host.Services.GetRequiredKeyedService<MilvusClient>("milvus2");
         var client3 = host.Services.GetRequiredKeyedService<MilvusClient>("milvus3");
 
-        Assert.NotSame(client1, client2);
-        Assert.NotSame(client1, client3);
-        Assert.NotSame(client2, client3);
+        Assert.AreNotSame(client1, client2);
+        Assert.AreNotSame(client1, client3);
+        Assert.AreNotSame(client2, client3);
     }
 }

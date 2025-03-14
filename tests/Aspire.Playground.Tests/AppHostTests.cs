@@ -8,29 +8,26 @@ using Aspire.Components.Common.Tests;
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Tests.Utils;
-using Microsoft.DotNet.XUnitExtensions;
 using Microsoft.Extensions.DependencyInjection;
 using Polly.Timeout;
 using SamplesIntegrationTests;
 using SamplesIntegrationTests.Infrastructure;
-using Xunit;
-using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace Aspire.Playground.Tests;
 
 [RequiresDocker]
+[TestClass]
 public class AppHostTests
 {
-    private readonly ITestOutputHelper _testOutput;
+    private readonly TestContext _testOutput;
     private static readonly string? s_appHostNameFilter = Environment.GetEnvironmentVariable("TEST_PLAYGROUND_APPHOST_FILTER");
 
-    public AppHostTests(ITestOutputHelper testOutput)
+    public AppHostTests(TestContext testOutput)
     {
         _testOutput = testOutput;
     }
 
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(TestEndpoints))]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/6866")]
     public async Task TestEndpointsReturnOk(TestEndpoints testEndpoints)
@@ -108,7 +105,7 @@ public class AppHostTests
                     throw new XunitException($"Endpoint '{client.BaseAddress}{path.TrimStart('/')}' for resource '{resource}' in app '{appHost.AppHostAssembly}' timed out", tre);
                 }
 
-                Assert.True(HttpStatusCode.OK == response.StatusCode, $"Endpoint '{client.BaseAddress}{path.TrimStart('/')}' for resource '{resource}' in app '{appHost.AppHostAssembly}' returned status code {response.StatusCode}");
+                Assert.IsTrue(HttpStatusCode.OK == response.StatusCode, $"Endpoint '{client.BaseAddress}{path.TrimStart('/')}' for resource '{resource}' in app '{appHost.AppHostAssembly}' returned status code {response.StatusCode}");
             }
         }
 
@@ -270,7 +267,7 @@ public class AppHostTests
 
         if (!theoryData.Any() && !string.IsNullOrEmpty(s_appHostNameFilter))
         {
-            throw new SkipTestException($"No test endpoints found matching filter '{s_appHostNameFilter}'");
+            Assert.Inconclusive($"No test endpoints found matching filter '{s_appHostNameFilter}'");
         }
 
         return theoryData;

@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 using Xunit.Abstractions;
 using System.Text.RegularExpressions;
 
@@ -9,12 +8,12 @@ namespace Aspire.Workload.Tests;
 
 public partial class AppHostTemplateTests : WorkloadTestsBase
 {
-    public AppHostTemplateTests(ITestOutputHelper testOutput)
+    public AppHostTemplateTests(TestContext testOutput)
         : base(testOutput)
     {
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnsureProjectsReferencing8_1_0AppHostWithNewerWorkloadCanBuild()
     {
         string projectId = "aspire-can-reference-8.1.0";

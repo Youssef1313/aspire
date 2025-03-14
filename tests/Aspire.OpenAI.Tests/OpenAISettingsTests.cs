@@ -2,20 +2,20 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.DotNet.RemoteExecutor;
-using Xunit;
 
 namespace Aspire.OpenAI.Tests;
 
+[TestClass]
 public class OpenAISettingsTests
 {
-    [Fact]
+    [TestMethod]
     public void MetricsIsEnabledWhenAzureSwitchIsSet()
     {
         RemoteExecutor.Invoke(() => EnsureMetricsIsEnabledWhenAzureSwitchIsSet(true)).Dispose();
         RemoteExecutor.Invoke(() => EnsureMetricsIsEnabledWhenAzureSwitchIsSet(false), EnableTelemetry()).Dispose();
     }
 
-    [Fact]
+    [TestMethod]
     public void TracingIsEnabledWhenAzureSwitchIsSet()
     {
         RemoteExecutor.Invoke(() => EnsureTracingIsEnabledWhenAzureSwitchIsSet(true)).Dispose();
@@ -24,12 +24,12 @@ public class OpenAISettingsTests
 
     private static void EnsureMetricsIsEnabledWhenAzureSwitchIsSet(bool expectedValue)
     {
-        Assert.Equal(expectedValue, new OpenAISettings().DisableMetrics);
+        Assert.AreEqual(expectedValue, new OpenAISettings().DisableMetrics);
     }
 
     private static void EnsureTracingIsEnabledWhenAzureSwitchIsSet(bool expectedValue)
     {
-        Assert.Equal(expectedValue, new OpenAISettings().DisableTracing);
+        Assert.AreEqual(expectedValue, new OpenAISettings().DisableTracing);
     }
 
     private static RemoteInvokeOptions EnableTelemetry()

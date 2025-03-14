@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Aspire.Microsoft.EntityFrameworkCore.SqlServer.Tests;
 
+[TestClass]
 public class ConformanceTests_TypeSpecificConfig : ConformanceTests
 {
     public ConformanceTests_TypeSpecificConfig(SqlServerContainerFixture containerFixture)

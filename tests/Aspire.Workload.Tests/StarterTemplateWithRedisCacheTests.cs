@@ -12,7 +12,7 @@ public class StarterTemplateWithRedisCacheTests : StarterTemplateRunTestsBase<St
 {
     protected override int DashboardResourcesWaitTimeoutSecs => 300;
 
-    public StarterTemplateWithRedisCacheTests(StarterTemplateWithRedisCacheFixture fixture, ITestOutputHelper testOutput)
+    public StarterTemplateWithRedisCacheTests(StarterTemplateWithRedisCacheFixture fixture, TestContext testOutput)
         : base(fixture, testOutput)
     {
         HasRedisCache = true;

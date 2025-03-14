@@ -8,19 +8,20 @@ using Azure.Storage.Blobs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Azure.Tests;
 
-public class AzureStorageEmulatorFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class AzureStorageEmulatorFunctionalTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWaitForOnAzureStorageEmulatorForBlobsBlocksDependentResources()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>
@@ -64,11 +65,11 @@ public class AzureStorageEmulatorFunctionalTests(ITestOutputHelper testOutputHel
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyAzureStorageEmulatorResource()
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(TestContext);
         var storage = builder.AddAzureStorage("storage").RunAsEmulator().AddBlobs("BlobConnection");
 
         using var app = builder.Build();
@@ -88,6 +89,6 @@ public class AzureStorageEmulatorFunctionalTests(ITestOutputHelper testOutputHel
         await blobClient.UploadAsync(BinaryData.FromString("testValue"));
 
         var downloadResult = (await blobClient.DownloadContentAsync()).Value;
-        Assert.Equal("testValue", downloadResult.Content.ToString());
+        Assert.AreEqual("testValue", downloadResult.Content.ToString());
     }
 }

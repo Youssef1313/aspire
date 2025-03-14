@@ -11,28 +11,27 @@ using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using OpenTelemetry.Proto.Collector.Logs.V1;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Dashboard.Tests.Integration;
 
+[TestClass]
 public class OtlpGrpcServiceTests
 {
-    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly TestContext _testContext;
 
-    public OtlpGrpcServiceTests(ITestOutputHelper testOutputHelper)
+    public OtlpGrpcServiceTests(TestContext testContext)
     {
-        _testOutputHelper = testOutputHelper;
+        _testContext = testContext;
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CallService_OtlpGrpcEndPoint_Success()
     {
         // Arrange
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper);
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext);
         await app.StartAsync().DefaultTimeout();
 
-        using var channel = IntegrationTestHelpers.CreateGrpcChannel($"http://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}", _testOutputHelper);
+        using var channel = IntegrationTestHelpers.CreateGrpcChannel($"http://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}", _testContext);
         var client = new LogsService.LogsServiceClient(channel);
 
         // Act
@@ -41,45 +40,45 @@ public class OtlpGrpcServiceTests
         var headers = await response.ResponseHeadersAsync.DefaultTimeout();
 
         // Assert
-        Assert.Null(headers.GetValue("content-security-policy"));
-        Assert.Equal(0, message.PartialSuccess.RejectedLogRecords);
+        Assert.IsNull(headers.GetValue("content-security-policy"));
+        Assert.AreEqual(0, message.PartialSuccess.RejectedLogRecords);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CallService_OtlpGrpcEndPoint_RequiredApiKeyMissing_Failure()
     {
         // Arrange
         var apiKey = "TestKey123!";
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper, config =>
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext, config =>
         {
             config[DashboardConfigNames.DashboardOtlpAuthModeName.ConfigKey] = OtlpAuthMode.ApiKey.ToString();
             config[DashboardConfigNames.DashboardOtlpPrimaryApiKeyName.ConfigKey] = apiKey;
         });
         await app.StartAsync().DefaultTimeout();
 
-        using var channel = IntegrationTestHelpers.CreateGrpcChannel($"http://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}", _testOutputHelper);
+        using var channel = IntegrationTestHelpers.CreateGrpcChannel($"http://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}", _testContext);
         var client = new LogsService.LogsServiceClient(channel);
 
         // Act
         var ex = await Assert.ThrowsAsync<RpcException>(() => client.ExportAsync(new ExportLogsServiceRequest()).ResponseAsync).DefaultTimeout();
 
         // Assert
-        Assert.Equal(StatusCode.Unauthenticated, ex.StatusCode);
+        Assert.AreEqual(StatusCode.Unauthenticated, ex.StatusCode);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CallService_OtlpGrpcEndPoint_RequiredApiKeyWrong_Failure()
     {
         // Arrange
         var apiKey = "TestKey123!";
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper, config =>
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext, config =>
         {
             config[DashboardConfigNames.DashboardOtlpAuthModeName.ConfigKey] = OtlpAuthMode.ApiKey.ToString();
             config[DashboardConfigNames.DashboardOtlpPrimaryApiKeyName.ConfigKey] = apiKey;
         });
         await app.StartAsync().DefaultTimeout();
 
-        using var channel = IntegrationTestHelpers.CreateGrpcChannel($"http://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}", _testOutputHelper);
+        using var channel = IntegrationTestHelpers.CreateGrpcChannel($"http://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}", _testContext);
         var client = new LogsService.LogsServiceClient(channel);
 
         var metadata = new Metadata
@@ -91,22 +90,22 @@ public class OtlpGrpcServiceTests
         var ex = await Assert.ThrowsAsync<RpcException>(() => client.ExportAsync(new ExportLogsServiceRequest(), metadata).ResponseAsync).DefaultTimeout();
 
         // Assert
-        Assert.Equal(StatusCode.Unauthenticated, ex.StatusCode);
+        Assert.AreEqual(StatusCode.Unauthenticated, ex.StatusCode);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CallService_OtlpGrpcEndPoint_RequiredApiKeySent_Success()
     {
         // Arrange
         var apiKey = "TestKey123!";
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper, config =>
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext, config =>
         {
             config[DashboardConfigNames.DashboardOtlpAuthModeName.ConfigKey] = OtlpAuthMode.ApiKey.ToString();
             config[DashboardConfigNames.DashboardOtlpPrimaryApiKeyName.ConfigKey] = apiKey;
         });
         await app.StartAsync().DefaultTimeout();
 
-        using var channel = IntegrationTestHelpers.CreateGrpcChannel($"http://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}", _testOutputHelper);
+        using var channel = IntegrationTestHelpers.CreateGrpcChannel($"http://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}", _testContext);
         var client = new LogsService.LogsServiceClient(channel);
 
         var metadata = new Metadata
@@ -118,16 +117,16 @@ public class OtlpGrpcServiceTests
         var response = await client.ExportAsync(new ExportLogsServiceRequest(), metadata).ResponseAsync.DefaultTimeout();
 
         // Assert
-        Assert.Equal(0, response.PartialSuccess.RejectedLogRecords);
+        Assert.AreEqual(0, response.PartialSuccess.RejectedLogRecords);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CallService_OtlpGrpcEndPoint_RequiredSecondaryApiKeySent_Success()
     {
         // Arrange
         var apiKey = "TestKey123!";
         var secondaryApiKey = "!321yeKtseT";
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper, config =>
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext, config =>
         {
             config[DashboardConfigNames.DashboardOtlpAuthModeName.ConfigKey] = OtlpAuthMode.ApiKey.ToString();
             config[DashboardConfigNames.DashboardOtlpPrimaryApiKeyName.ConfigKey] = apiKey;
@@ -135,7 +134,7 @@ public class OtlpGrpcServiceTests
         });
         await app.StartAsync().DefaultTimeout();
 
-        using var channel = IntegrationTestHelpers.CreateGrpcChannel($"http://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}", _testOutputHelper);
+        using var channel = IntegrationTestHelpers.CreateGrpcChannel($"http://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}", _testContext);
         var client = new LogsService.LogsServiceClient(channel);
 
         var metadata = new Metadata
@@ -147,15 +146,15 @@ public class OtlpGrpcServiceTests
         var response = await client.ExportAsync(new ExportLogsServiceRequest(), metadata).ResponseAsync.DefaultTimeout();
 
         // Assert
-        Assert.Equal(0, response.PartialSuccess.RejectedLogRecords);
+        Assert.AreEqual(0, response.PartialSuccess.RejectedLogRecords);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CallService_OtlpGrpcEndPoint_ExternalFile_FileChanged_UseConfiguredKey()
     {
         // Arrange
         var testSink = new TestSink();
-        using var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(_testOutputHelper, testSink: testSink);
+        using var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(_testContext, testSink: testSink);
         var logger = loggerFactory.CreateLogger(GetType());
 
         var apiKey = "TestKey123!";
@@ -192,7 +191,7 @@ public class OtlpGrpcServiceTests
         var response1 = await client.ExportAsync(new ExportLogsServiceRequest(), metadata).ResponseAsync.DefaultTimeout();
 
         // Assert 1
-        Assert.Equal(0, response1.PartialSuccess.RejectedLogRecords);
+        Assert.AreEqual(0, response1.PartialSuccess.RejectedLogRecords);
 
         // Change config file
         var tcs = new TaskCompletionSource<DashboardOptions>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -221,23 +220,23 @@ public class OtlpGrpcServiceTests
         var options = await tcs.Task;
 
         logger.LogInformation("Assert new API key.");
-        Assert.Equal("Different", options.Otlp.PrimaryApiKey);
+        Assert.AreEqual("Different", options.Otlp.PrimaryApiKey);
 
         // Act 2
         logger.LogInformation("Client sends new request with old API key.");
         var ex = await Assert.ThrowsAsync<RpcException>(() => client.ExportAsync(new ExportLogsServiceRequest(), metadata).ResponseAsync).DefaultTimeout();
 
         // Assert 2
-        Assert.Equal(StatusCode.Unauthenticated, ex.StatusCode);
+        Assert.AreEqual(StatusCode.Unauthenticated, ex.StatusCode);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CallService_BrowserEndPoint_Failure()
     {
         // Arrange
         X509Certificate2? clientCallbackCert = null;
 
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper, config =>
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext, config =>
         {
             // Change dashboard to HTTPS so the caller can negotiate a HTTP/2 connection.
             config[DashboardConfigNames.DashboardFrontendUrlName.ConfigKey] = "https://127.0.0.1:0";
@@ -246,7 +245,7 @@ public class OtlpGrpcServiceTests
 
         using var channel = IntegrationTestHelpers.CreateGrpcChannel(
             $"https://{app.FrontendSingleEndPointAccessor().EndPoint}",
-            _testOutputHelper,
+            _testContext,
             validationCallback: cert =>
             {
                 clientCallbackCert = cert;
@@ -257,16 +256,16 @@ public class OtlpGrpcServiceTests
         var ex = await Assert.ThrowsAsync<RpcException>(() => client.ExportAsync(new ExportLogsServiceRequest()).ResponseAsync).DefaultTimeout();
 
         // Assert
-        Assert.Equal(StatusCode.Unauthenticated, ex.StatusCode);
-        Assert.NotNull(clientCallbackCert);
-        Assert.Equal(TestCertificateLoader.GetTestCertificate().Thumbprint, clientCallbackCert.Thumbprint);
+        Assert.AreEqual(StatusCode.Unauthenticated, ex.StatusCode);
+        Assert.IsNotNull(clientCallbackCert);
+        Assert.AreEqual(TestCertificateLoader.GetTestCertificate().Thumbprint, clientCallbackCert.Thumbprint);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CallService_OtlpEndpoint_RequiredClientCertificateMissing_Failure()
     {
         // Arrange
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper, config =>
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext, config =>
         {
             // Change dashboard to HTTPS so the caller can negotiate a HTTP/2 connection.
             config[DashboardConfigNames.DashboardOtlpGrpcUrlName.ConfigKey] = "https://127.0.0.1:0";
@@ -275,7 +274,7 @@ public class OtlpGrpcServiceTests
         });
         await app.StartAsync().DefaultTimeout();
 
-        using var channel = IntegrationTestHelpers.CreateGrpcChannel($"https://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}", _testOutputHelper);
+        using var channel = IntegrationTestHelpers.CreateGrpcChannel($"https://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}", _testContext);
         var client = new LogsService.LogsServiceClient(channel);
 
         // Act
@@ -283,16 +282,16 @@ public class OtlpGrpcServiceTests
 
         // Assert
         // StatusCode can change depending upon order of execution inside HttpClient.
-        Assert.True(ex.StatusCode is StatusCode.Unavailable or StatusCode.Internal, "gRPC call fails without cert.");
+        Assert.IsTrue(ex.StatusCode is StatusCode.Unavailable or StatusCode.Internal, "gRPC call fails without cert.");
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("A1D2CE3FA7405B5824F207180EA8201EE8BA01B3C07C54AC44BF927D7666F38B")]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("A1D2CE3FA7405B5824F207180EA8201EE8BA01B3C07C54AC44BF927D7666F38B")]
     public async Task CallService_OtlpEndpoint_RequiredClientCertificateValid_Success(string? allowedThumbprint)
     {
         // Arrange
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper, config =>
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext, config =>
         {
             // Change dashboard to HTTPS so the caller can negotiate a HTTP/2 connection.
             config[DashboardConfigNames.DashboardOtlpGrpcUrlName.ConfigKey] = "https://127.0.0.1:0";
@@ -312,7 +311,7 @@ public class OtlpGrpcServiceTests
         var clientCertificate = TestCertificateLoader.GetTestCertificate("eku.client.pfx");
         using var channel = IntegrationTestHelpers.CreateGrpcChannel(
             $"https://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}",
-            _testOutputHelper,
+            _testContext,
             clientCertificates: new X509CertificateCollection(new[] { clientCertificate }));
 
         var client = new LogsService.LogsServiceClient(channel);
@@ -321,17 +320,17 @@ public class OtlpGrpcServiceTests
         var response = await client.ExportAsync(new ExportLogsServiceRequest()).ResponseAsync.DefaultTimeout();
 
         // Assert
-        Assert.Equal(0, response.PartialSuccess.RejectedLogRecords);
+        Assert.AreEqual(0, response.PartialSuccess.RejectedLogRecords);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CallService_OtlpEndpoint_RequiredClientCertificateSHA1Thumbprint_Failure()
     {
         // Arrange
         var clientCertificate = TestCertificateLoader.GetTestCertificate("eku.client.pfx");
         X509Certificate2? clientCallbackCert = null;
 
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper, config =>
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext, config =>
         {
             // Change dashboard to HTTPS so the caller can negotiate a HTTP/2 connection.
             config[DashboardConfigNames.DashboardOtlpGrpcUrlName.ConfigKey] = "https://127.0.0.1:0";
@@ -348,7 +347,7 @@ public class OtlpGrpcServiceTests
 
         using var channel = IntegrationTestHelpers.CreateGrpcChannel(
             $"https://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}",
-            _testOutputHelper,
+            _testContext,
             validationCallback: cert =>
             {
                 clientCallbackCert = cert;
@@ -361,16 +360,16 @@ public class OtlpGrpcServiceTests
         var ex = await Assert.ThrowsAsync<RpcException>(() => client.ExportAsync(new ExportLogsServiceRequest()).ResponseAsync).DefaultTimeout();
 
         // Assert
-        Assert.Equal(StatusCode.Unauthenticated, ex.StatusCode);
+        Assert.AreEqual(StatusCode.Unauthenticated, ex.StatusCode);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CallService_OtlpEndpoint_RequiredClientCertificateValid_NotInAllowedList_Failure()
     {
         // Arrange
         X509Certificate2? clientCallbackCert = null;
 
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper, config =>
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext, config =>
         {
             // Change dashboard to HTTPS so the caller can negotiate a HTTP/2 connection.
             config[DashboardConfigNames.DashboardOtlpGrpcUrlName.ConfigKey] = "https://127.0.0.1:0";
@@ -387,7 +386,7 @@ public class OtlpGrpcServiceTests
         var clientCertificates = new X509CertificateCollection(new[] { TestCertificateLoader.GetTestCertificate("eku.client.pfx") });
         using var channel = IntegrationTestHelpers.CreateGrpcChannel(
             $"https://{app.OtlpServiceGrpcEndPointAccessor().EndPoint}",
-            _testOutputHelper,
+            _testContext,
             validationCallback: cert =>
             {
                 clientCallbackCert = cert;
@@ -400,6 +399,6 @@ public class OtlpGrpcServiceTests
         var ex = await Assert.ThrowsAsync<RpcException>(() => client.ExportAsync(new ExportLogsServiceRequest()).ResponseAsync).DefaultTimeout();
 
         // Assert
-        Assert.Equal(StatusCode.Unauthenticated, ex.StatusCode);
+        Assert.AreEqual(StatusCode.Unauthenticated, ex.StatusCode);
     }
 }

@@ -11,20 +11,20 @@ using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace Aspire.Hosting.Tests.Dashboard;
 
-public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class DashboardResourceTests(TestContext testContext)
 {
-    [Fact]
+    [TestMethod]
     public async Task DashboardIsAutomaticallyAddedAsHiddenResource()
     {
         using var builder = TestDistributedApplicationBuilder.Create(
             options => options.DisableDashboard = false,
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         // Ensure any ambient configuration doesn't impact this test.
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
@@ -45,21 +45,21 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var dashboard = Assert.Single(model.Resources.OfType<ExecutableResource>());
-        var initialSnapshot = Assert.Single(dashboard.Annotations.OfType<ResourceSnapshotAnnotation>());
+        var dashboard = Assert.ContainsSingle(model.Resources.OfType<ExecutableResource>());
+        var initialSnapshot = Assert.ContainsSingle(dashboard.Annotations.OfType<ResourceSnapshotAnnotation>());
 
-        Assert.NotNull(dashboard);
-        Assert.Equal("aspire-dashboard", dashboard.Name);
-        Assert.Equal(dashboardPath, dashboard.Command);
-        Assert.Equal("Hidden", initialSnapshot.InitialSnapshot.State);
+        Assert.IsNotNull(dashboard);
+        Assert.AreEqual("aspire-dashboard", dashboard.Name);
+        Assert.AreEqual(dashboardPath, dashboard.Command);
+        Assert.AreEqual("Hidden", initialSnapshot.InitialSnapshot.State);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task DashboardIsAddedFirst()
     {
         using var builder = TestDistributedApplicationBuilder.Create(
             options => options.DisableDashboard = false,
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         builder.AddContainer("my-container", "my-image");
 
@@ -69,18 +69,18 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        Assert.Collection(model.Resources,
-            r => Assert.Equal("aspire-dashboard", r.Name),
-            r => Assert.Equal("my-container", r.Name)
+        Assert.That.Collection(model.Resources,
+            r => Assert.AreEqual("aspire-dashboard", r.Name),
+            r => Assert.AreEqual("my-container", r.Name)
         );
     }
 
-    [Fact]
+    [TestMethod]
     public async Task DashboardDoesNotAddResource_ConfiguresExistingDashboard()
     {
         using var builder = TestDistributedApplicationBuilder.Create(
             options => options.DisableDashboard = false,
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         builder.Services.AddSingleton<IDashboardEndpointProvider, MockDashboardEndpointProvider>();
 
@@ -100,62 +100,62 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var dashboard = Assert.Single(model.Resources);
+        var dashboard = Assert.ContainsSingle(model.Resources);
 
-        Assert.Same(container.Resource, dashboard);
+        Assert.AreSame(container.Resource, dashboard);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(dashboard, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             e =>
             {
-                Assert.Equal("ASPNETCORE_ENVIRONMENT", e.Key);
-                Assert.Equal("Production", e.Value);
+                Assert.AreEqual("ASPNETCORE_ENVIRONMENT", e.Key);
+                Assert.AreEqual("Production", e.Value);
             },
             e =>
             {
-                Assert.Equal("ASPNETCORE_URLS", e.Key);
-                Assert.Equal("http://localhost", e.Value);
+                Assert.AreEqual("ASPNETCORE_URLS", e.Key);
+                Assert.AreEqual("http://localhost", e.Value);
             },
             e =>
             {
-                Assert.Equal("DOTNET_RESOURCE_SERVICE_ENDPOINT_URL", e.Key);
-                Assert.Equal("http://localhost:5000", e.Value);
+                Assert.AreEqual("DOTNET_RESOURCE_SERVICE_ENDPOINT_URL", e.Key);
+                Assert.AreEqual("http://localhost:5000", e.Value);
             },
             e =>
             {
-                Assert.Equal("DOTNET_DASHBOARD_OTLP_ENDPOINT_URL", e.Key);
-                Assert.Equal("http://localhost", e.Value);
+                Assert.AreEqual("DOTNET_DASHBOARD_OTLP_ENDPOINT_URL", e.Key);
+                Assert.AreEqual("http://localhost", e.Value);
             },
             e =>
             {
-                Assert.Equal("DASHBOARD__FRONTEND__AUTHMODE", e.Key);
-                Assert.Equal("Unsecured", e.Value);
+                Assert.AreEqual("DASHBOARD__FRONTEND__AUTHMODE", e.Key);
+                Assert.AreEqual("Unsecured", e.Value);
             },
             e =>
             {
-                Assert.Equal("DASHBOARD__RESOURCESERVICECLIENT__AUTHMODE", e.Key);
-                Assert.Equal("Unsecured", e.Value);
+                Assert.AreEqual("DASHBOARD__RESOURCESERVICECLIENT__AUTHMODE", e.Key);
+                Assert.AreEqual("Unsecured", e.Value);
             },
             e =>
             {
-                Assert.Equal("DASHBOARD__OTLP__AUTHMODE", e.Key);
-                Assert.Equal("Unsecured", e.Value);
+                Assert.AreEqual("DASHBOARD__OTLP__AUTHMODE", e.Key);
+                Assert.AreEqual("Unsecured", e.Value);
             },
             e =>
             {
-                Assert.Equal("LOGGING__CONSOLE__FORMATTERNAME", e.Key);
-                Assert.Equal("json", e.Value);
+                Assert.AreEqual("LOGGING__CONSOLE__FORMATTERNAME", e.Key);
+                Assert.AreEqual("json", e.Value);
             }
         );
     }
 
-    [Fact]
+    [TestMethod]
     public async Task DashboardWithDllPathLaunchesDotnet()
     {
         using var builder = TestDistributedApplicationBuilder.Create(
             options => options.DisableDashboard = false,
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         var dashboardPath = Path.GetFullPath("dashboard.dll");
 
@@ -170,23 +170,23 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var dashboard = Assert.Single(model.Resources.OfType<ExecutableResource>());
+        var dashboard = Assert.ContainsSingle(model.Resources.OfType<ExecutableResource>());
 
         var args = await ArgumentEvaluator.GetArgumentListAsync(dashboard).DefaultTimeout();
 
-        Assert.NotNull(dashboard);
-        Assert.Equal("aspire-dashboard", dashboard.Name);
-        Assert.Equal("dotnet", dashboard.Command);
-        Assert.Equal([dashboardPath], args);
+        Assert.IsNotNull(dashboard);
+        Assert.AreEqual("aspire-dashboard", dashboard.Name);
+        Assert.AreEqual("dotnet", dashboard.Command);
+        Assert.AreEqual([dashboardPath], args);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task DashboardAuthConfigured_EnvVarsPresent()
     {
         // Arrange
         using var builder = TestDistributedApplicationBuilder.Create(
             options => options.DisableDashboard = false,
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         builder.Services.AddSingleton<IDashboardEndpointProvider, MockDashboardEndpointProvider>();
 
@@ -206,24 +206,24 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var dashboard = Assert.Single(model.Resources);
+        var dashboard = Assert.ContainsSingle(model.Resources);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(dashboard, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
-        Assert.Equal("BrowserToken", config.Single(e => e.Key == DashboardConfigNames.DashboardFrontendAuthModeName.EnvVarName).Value);
-        Assert.Equal("TestBrowserToken!", config.Single(e => e.Key == DashboardConfigNames.DashboardFrontendBrowserTokenName.EnvVarName).Value);
+        Assert.AreEqual("BrowserToken", config.Single(e => e.Key == DashboardConfigNames.DashboardFrontendAuthModeName.EnvVarName).Value);
+        Assert.AreEqual("TestBrowserToken!", config.Single(e => e.Key == DashboardConfigNames.DashboardFrontendBrowserTokenName.EnvVarName).Value);
 
-        Assert.Equal("ApiKey", config.Single(e => e.Key == DashboardConfigNames.DashboardOtlpAuthModeName.EnvVarName).Value);
-        Assert.Equal("TestOtlpApiKey!", config.Single(e => e.Key == DashboardConfigNames.DashboardOtlpPrimaryApiKeyName.EnvVarName).Value);
+        Assert.AreEqual("ApiKey", config.Single(e => e.Key == DashboardConfigNames.DashboardOtlpAuthModeName.EnvVarName).Value);
+        Assert.AreEqual("TestOtlpApiKey!", config.Single(e => e.Key == DashboardConfigNames.DashboardOtlpPrimaryApiKeyName.EnvVarName).Value);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task DashboardAuthRemoved_EnvVarsUnsecured()
     {
         // Arrange
         using var builder = TestDistributedApplicationBuilder.Create(
             options => options.DisableDashboard = false,
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         builder.Services.AddSingleton<IDashboardEndpointProvider, MockDashboardEndpointProvider>();
 
@@ -241,21 +241,21 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var dashboard = Assert.Single(model.Resources);
+        var dashboard = Assert.ContainsSingle(model.Resources);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(dashboard, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
-        Assert.Equal("Unsecured", config.Single(e => e.Key == DashboardConfigNames.DashboardFrontendAuthModeName.EnvVarName).Value);
-        Assert.Equal("Unsecured", config.Single(e => e.Key == DashboardConfigNames.DashboardOtlpAuthModeName.EnvVarName).Value);
+        Assert.AreEqual("Unsecured", config.Single(e => e.Key == DashboardConfigNames.DashboardFrontendAuthModeName.EnvVarName).Value);
+        Assert.AreEqual("Unsecured", config.Single(e => e.Key == DashboardConfigNames.DashboardOtlpAuthModeName.EnvVarName).Value);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task DashboardResourceServiceUriIsSet()
     {
         // Arrange
         using var builder = TestDistributedApplicationBuilder.Create(
             options => options.DisableDashboard = false,
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         builder.Services.AddSingleton<IDashboardEndpointProvider, MockDashboardEndpointProvider>();
 
@@ -273,22 +273,22 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var dashboard = Assert.Single(model.Resources);
+        var dashboard = Assert.ContainsSingle(model.Resources);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(dashboard, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
-        Assert.Equal("http://localhost:5000", config.Single(e => e.Key == DashboardConfigNames.ResourceServiceUrlName.EnvVarName).Value);
+        Assert.AreEqual("http://localhost:5000", config.Single(e => e.Key == DashboardConfigNames.ResourceServiceUrlName.EnvVarName).Value);
     }
 
-    [Theory]
-    [InlineData("*")]
-    [InlineData(null)]
+    [TestMethod]
+    [DataRow("*")]
+    [DataRow(null)]
     public async Task DashboardResource_OtlpHttpEndpoint_CorsEnvVarSet(string? explicitCorsAllowedOrigins)
     {
         // Arrange
         using var builder = TestDistributedApplicationBuilder.Create(
             options => options.DisableDashboard = false,
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         builder.AddContainer("my-container", "my-image").WithHttpEndpoint(port: 8080, targetPort: 58080);
 
@@ -310,28 +310,28 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
         // Hack in an AllocatedEndpoint. This is what is used to build the list of CORS endpoints.
-        var container = Assert.Single(model.Resources.Where(r => r.Name == "my-container"));
-        var endpointAnnotation = Assert.Single(container.Annotations.OfType<EndpointAnnotation>());
+        var container = Assert.ContainsSingle(model.Resources.Where(r => r.Name == "my-container"));
+        var endpointAnnotation = Assert.ContainsSingle(container.Annotations.OfType<EndpointAnnotation>());
         endpointAnnotation.AllocatedEndpoint = new AllocatedEndpoint(endpointAnnotation, "localhost", 8081);
 
-        var dashboard = Assert.Single(model.Resources.Where(r => r.Name == "aspire-dashboard"));
+        var dashboard = Assert.ContainsSingle(model.Resources.Where(r => r.Name == "aspire-dashboard"));
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(dashboard, DistributedApplicationOperation.Run, app.Services).DefaultTimeout();
 
         var expectedAllowedOrigins = !string.IsNullOrEmpty(explicitCorsAllowedOrigins) ? explicitCorsAllowedOrigins : "http://localhost:8081,http://localhost:58080";
-        Assert.Equal(expectedAllowedOrigins, config.Single(e => e.Key == DashboardConfigNames.DashboardOtlpCorsAllowedOriginsKeyName.EnvVarName).Value);
-        Assert.Equal("*", config.Single(e => e.Key == DashboardConfigNames.DashboardOtlpCorsAllowedHeadersKeyName.EnvVarName).Value);
+        Assert.AreEqual(expectedAllowedOrigins, config.Single(e => e.Key == DashboardConfigNames.DashboardOtlpCorsAllowedOriginsKeyName.EnvVarName).Value);
+        Assert.AreEqual("*", config.Single(e => e.Key == DashboardConfigNames.DashboardOtlpCorsAllowedHeadersKeyName.EnvVarName).Value);
     }
 
-    [Theory]
-    [InlineData("*")]
-    [InlineData(null)]
+    [TestMethod]
+    [DataRow("*")]
+    [DataRow(null)]
     public async Task DashboardResource_OtlpGrpcEndpoint_CorsEnvVarNotSet(string? explicitCorsAllowedOrigins)
     {
         // Arrange
         using var builder = TestDistributedApplicationBuilder.Create(
             options => options.DisableDashboard = false,
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         builder.AddContainer("my-container", "my-image").WithHttpEndpoint(port: 8080, targetPort: 58080);
 
@@ -352,7 +352,7 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var dashboard = Assert.Single(model.Resources.Where(r => r.Name == "aspire-dashboard"));
+        var dashboard = Assert.ContainsSingle(model.Resources.Where(r => r.Name == "aspire-dashboard"));
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(dashboard, DistributedApplicationOperation.Run, app.Services).DefaultTimeout();
 
@@ -360,7 +360,7 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
         Assert.DoesNotContain(config, e => e.Key == DashboardConfigNames.DashboardOtlpCorsAllowedHeadersKeyName.EnvVarName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task DashboardIsNotAddedInPublishMode()
     {
         using var builder = TestDistributedApplicationBuilder.Create(
@@ -369,7 +369,7 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
                 options.DisableDashboard = false;
                 options.Args = ["--publisher", "manifest"];
             },
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         using var app = builder.Build();
 
@@ -377,15 +377,15 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        Assert.Empty(model.Resources);
+        Assert.IsEmpty(model.Resources);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task DashboardIsNotAddedIfDisabled()
     {
         using var builder = TestDistributedApplicationBuilder.Create(
             options => options.DisableDashboard = true,
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         var app = builder.Build();
 
@@ -393,10 +393,10 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        Assert.Empty(model.Resources);
+        Assert.IsEmpty(model.Resources);
     }
 
-    [Fact]
+    [TestMethod]
     public void ContainerIsValidWithDashboardIsDisabled()
     {
         // Set the host environment to "Development" so that the container validates services.
@@ -406,24 +406,24 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
                 options.DisableDashboard = true;
                 options.Args = ["--environment", "Development"];
             },
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         // Container validation logic runs when the service provider is built.
         using var app = builder.Build();
     }
 
-    [Theory]
-    [InlineData(LogLevel.Critical)]
-    [InlineData(LogLevel.Error)]
-    [InlineData(LogLevel.Warning)]
-    [InlineData(LogLevel.Information)]
-    [InlineData(LogLevel.Debug)]
-    [InlineData(LogLevel.Trace)]
+    [TestMethod]
+    [DataRow(LogLevel.Critical)]
+    [DataRow(LogLevel.Error)]
+    [DataRow(LogLevel.Warning)]
+    [DataRow(LogLevel.Information)]
+    [DataRow(LogLevel.Debug)]
+    [DataRow(LogLevel.Trace)]
     public async Task DashboardLifecycleHookWatchesLogs(LogLevel logLevel)
     {
         using var builder = TestDistributedApplicationBuilder.Create(
             options => options.DisableDashboard = false,
-            testOutputHelper: testOutputHelper);
+            testContext: testContext);
 
         var loggerProvider = new TestLoggerProvider();
 
@@ -459,10 +459,10 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
         var resourceNotificationService = app.Services.GetRequiredService<ResourceNotificationService>();
 
-        var dashboard = Assert.Single(model.Resources.OfType<ExecutableResource>());
+        var dashboard = Assert.ContainsSingle(model.Resources.OfType<ExecutableResource>());
 
-        Assert.NotNull(dashboard);
-        Assert.Equal("aspire-dashboard", dashboard.Name);
+        Assert.IsNotNull(dashboard);
+        Assert.AreEqual("aspire-dashboard", dashboard.Name);
 
         // Push a notification through to the dashboard resource.
         await resourceNotificationService.PublishUpdateAsync(dashboard, "aspire-dashboard-0", s => s with { State = "Running" }).DefaultTimeout();
@@ -486,18 +486,18 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
         // Get the logger with the category we expect Aspire.Hosting.Dashboard.Test
         var testLogger = loggerProvider.CreateLogger("Aspire.Hosting.Dashboard.Test") as TestLogger;
 
-        Assert.NotNull(testLogger);
+        Assert.IsNotNull(testLogger);
 
         // Get the first log message that was logged
         var log = await testLogger.FirstLogTask.DefaultTimeout();
 
-        Assert.Equal("Test dashboard message", log.Message);
-        Assert.Equal(logLevel, log.LogLevel);
+        Assert.AreEqual("Test dashboard message", log.Message);
+        Assert.AreEqual(logLevel, log.LogLevel);
 
         await app.DisposeAsync().AsTask().DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task DashboardIsExcludedFromManifestInPublishModeEvenIfAddedExplicitly()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -510,16 +510,16 @@ public class DashboardResourceTests(ITestOutputHelper testOutputHelper)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var dashboard = Assert.Single(model.Resources.OfType<ProjectResource>());
+        var dashboard = Assert.ContainsSingle(model.Resources.OfType<ProjectResource>());
 
-        Assert.NotNull(dashboard);
-        var annotation = Assert.Single(dashboard.Annotations.OfType<ManifestPublishingCallbackAnnotation>());
+        Assert.IsNotNull(dashboard);
+        var annotation = Assert.ContainsSingle(dashboard.Annotations.OfType<ManifestPublishingCallbackAnnotation>());
 
         var manifest = await ManifestUtils.GetManifestOrNull(dashboard).DefaultTimeout();
 
-        Assert.Equal("aspire-dashboard", dashboard.Name);
-        Assert.Same(ManifestPublishingCallbackAnnotation.Ignore, annotation);
-        Assert.Null(manifest);
+        Assert.AreEqual("aspire-dashboard", dashboard.Name);
+        Assert.AreSame(ManifestPublishingCallbackAnnotation.Ignore, annotation);
+        Assert.IsNull(manifest);
     }
 
     private sealed class DashboardProject : IProjectMetadata

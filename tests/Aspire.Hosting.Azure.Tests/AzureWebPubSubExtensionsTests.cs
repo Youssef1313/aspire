@@ -6,23 +6,23 @@ using Aspire.Hosting.Utils;
 
 using Azure.Provisioning.WebPubSub;
 
-using Xunit;
-using Xunit.Abstractions;
-
 namespace Aspire.Hosting.Azure.Tests;
 
-public class AzureWebPubSubExtensionsTests(ITestOutputHelper output)
+[TestClass]
+public class AzureWebPubSubExtensionsTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     public void InvalidWebPubSubHubNameThrows()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         var wps = builder.AddAzureWebPubSub("wps1");
         var ex = Assert.Throws<ArgumentException>(() => wps.AddHub("a_b_c"));
-        Assert.StartsWith("Resource name 'a_b_c' is invalid.", ex.Message);
+        StringAssert.StartsWith(ex.Message, "Resource name 'a_b_c' is invalid.");
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddWebPubSubHubNameWithSpecialChars()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -34,14 +34,14 @@ public class AzureWebPubSubExtensionsTests(ITestOutputHelper output)
         var hubName = "a-b-c";
         var hub = wps.AddHub(hubName);
 
-        Assert.Equal(hubName, hub.Resource.Name);
+        Assert.AreEqual(hubName, hub.Resource.Name);
         var manifest = await AzureManifestUtils.GetManifestWithBicep(wps.Resource);
-        Assert.NotNull(realHub);
-        Assert.Equal(hubName, realHub.Name.Value);
-        Assert.Equal("a_b_c", realHub.BicepIdentifier);
+        Assert.IsNotNull(realHub);
+        Assert.AreEqual(hubName, realHub.Name.Value);
+        Assert.AreEqual("a_b_c", realHub.BicepIdentifier);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddAzureWebPubSubHubWorks()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -62,11 +62,11 @@ public class AzureWebPubSubExtensionsTests(ITestOutputHelper output)
 
         var manifest = await AzureManifestUtils.GetManifestWithBicep(wps.Resource);
         var manifestString = manifest.ManifestNode.ToString();
-        output.WriteLine(manifestString);
-        output.WriteLine(manifest.BicepText);
+        TestContext.WriteLine(manifestString);
+        TestContext.WriteLine(manifest.BicepText);
 
-        Assert.Equal(expectedManifest, manifestString);
-        Assert.Equal("wps1", wps.Resource.Name);
+        Assert.AreEqual(expectedManifest, manifestString);
+        Assert.AreEqual("wps1", wps.Resource.Name);
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
             param location string = resourceGroup().location
@@ -108,10 +108,10 @@ public class AzureWebPubSubExtensionsTests(ITestOutputHelper output)
 
             output endpoint string = 'https://${wps1.properties.hostName}'
             """;
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddWebPubSubWithHubConfigure()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -137,11 +137,11 @@ public class AzureWebPubSubExtensionsTests(ITestOutputHelper output)
 
         var manifest = await AzureManifestUtils.GetManifestWithBicep(wps.Resource);
         var manifestString = manifest.ManifestNode.ToString();
-        output.WriteLine(manifestString);
-        output.WriteLine(manifest.BicepText);
+        TestContext.WriteLine(manifestString);
+        TestContext.WriteLine(manifest.BicepText);
 
-        Assert.Equal(expectedManifest, manifestString);
-        Assert.Equal("wps1", wps.Resource.Name);
+        Assert.AreEqual(expectedManifest, manifestString);
+        Assert.AreEqual("wps1", wps.Resource.Name);
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
             param location string = resourceGroup().location
@@ -186,10 +186,10 @@ public class AzureWebPubSubExtensionsTests(ITestOutputHelper output)
 
             output endpoint string = 'https://${wps1.properties.hostName}'
             """;
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddAzureWebPubSubHubWithEventHandlerExpressionWorks()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -212,11 +212,11 @@ public class AzureWebPubSubExtensionsTests(ITestOutputHelper output)
 
         var manifest = await AzureManifestUtils.GetManifestWithBicep(wps.Resource);
         var manifestString = manifest.ManifestNode.ToString();
-        output.WriteLine(manifestString);
-        output.WriteLine(manifest.BicepText);
+        TestContext.WriteLine(manifestString);
+        TestContext.WriteLine(manifest.BicepText);
 
-        Assert.Equal(expectedManifest, manifestString);
-        Assert.Equal("wps1", wps.Resource.Name);
+        Assert.AreEqual(expectedManifest, manifestString);
+        Assert.AreEqual("wps1", wps.Resource.Name);
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
             param location string = resourceGroup().location
@@ -268,10 +268,10 @@ public class AzureWebPubSubExtensionsTests(ITestOutputHelper output)
 
             output endpoint string = 'https://${wps1.properties.hostName}'
             """;
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ConfigureConstructOverridesAddEventHandler()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -289,10 +289,10 @@ public class AzureWebPubSubExtensionsTests(ITestOutputHelper output)
         wps.Resource.Outputs["endpoint"] = "https://mywebpubsubendpoint";
         var manifest = await AzureManifestUtils.GetManifestWithBicep(wps.Resource);
         var manifestString = manifest.ManifestNode.ToString();
-        output.WriteLine(manifestString);
-        output.WriteLine(manifest.BicepText);
+        TestContext.WriteLine(manifestString);
+        TestContext.WriteLine(manifest.BicepText);
 
-        Assert.Equal("wps1", wps.Resource.Name);
+        Assert.AreEqual("wps1", wps.Resource.Name);
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
             param location string = resourceGroup().location
@@ -345,10 +345,10 @@ public class AzureWebPubSubExtensionsTests(ITestOutputHelper output)
 
             output endpoint string = 'https://${wps1.properties.hostName}'
             """;
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddAzureWebPubSubHubSettings()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -391,15 +391,15 @@ public class AzureWebPubSubExtensionsTests(ITestOutputHelper output)
 
         var connectionStringResource = (IResourceWithConnectionString)wps.Resource;
 
-        Assert.Equal("https://mywebpubsubendpoint", await connectionStringResource.GetConnectionStringAsync());
+        Assert.AreEqual("https://mywebpubsubendpoint", await connectionStringResource.GetConnectionStringAsync());
         var manifest = await AzureManifestUtils.GetManifestWithBicep(wps.Resource);
         var manifestString = manifest.ManifestNode.ToString();
-        output.WriteLine(manifestString);
-        output.WriteLine(manifest.BicepText);
+        TestContext.WriteLine(manifestString);
+        TestContext.WriteLine(manifest.BicepText);
 
-        Assert.Equal(expectedManifest, manifestString);
+        Assert.AreEqual(expectedManifest, manifestString);
 
-        Assert.Equal("wps1", wps.Resource.Name);
+        Assert.AreEqual("wps1", wps.Resource.Name);
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
             param location string = resourceGroup().location
@@ -497,7 +497,7 @@ public class AzureWebPubSubExtensionsTests(ITestOutputHelper output)
 
             output endpoint string = 'https://${wps1.properties.hostName}'
             """;
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
     private sealed class ProjectA : IProjectMetadata

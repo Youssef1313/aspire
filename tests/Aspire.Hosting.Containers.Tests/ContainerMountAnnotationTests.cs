@@ -2,15 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Hosting.ApplicationModel;
-using Xunit;
 
 namespace Aspire.Hosting.Containers.Tests;
 
+[TestClass]
 public class ContainerMountAnnotationTests
 {
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
     public void CtorThrowsArgumentNullExceptionIfSourceIsMissingForBindMount(string? source)
     {
 #pragma warning disable CA1507 // Use nameof to express symbol names: false positive here, the parameter name being tested isn't the parameter to the test method
@@ -18,13 +18,13 @@ public class ContainerMountAnnotationTests
 #pragma warning restore CA1507
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorThrowsArgumentExceptionIfBindMountSourceIsNotRooted()
     {
         Assert.Throws<ArgumentException>("source", () => new ContainerMountAnnotation("usr/foo", "/usr/foo", ContainerMountType.BindMount, false));
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorThrowsArgumentExceptionIfAnonymousVolumeIsReadOnly()
     {
         Assert.Throws<ArgumentException>("isReadOnly", () => new ContainerMountAnnotation(null, "/usr/foo", ContainerMountType.Volume, true));

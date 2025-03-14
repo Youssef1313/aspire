@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests;
 
+[TestClass]
 public class ResourceWithAzureFunctionsConfigTests
 {
-    [Fact]
+    [TestMethod]
     public void AzureStorageResource_ImplementsIResourceWithAzureFunctionsConfig()
     {
         // Arrange
@@ -16,10 +16,10 @@ public class ResourceWithAzureFunctionsConfigTests
         var storageResource = builder.AddAzureStorage("storage").Resource;
 
         // Act & Assert
-        Assert.IsAssignableFrom<IResourceWithAzureFunctionsConfig>(storageResource);
+        Assert.IsInstanceOfType<IResourceWithAzureFunctionsConfig>(storageResource);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureBlobStorageResource_ImplementsIResourceWithAzureFunctionsConfig()
     {
         // Arrange
@@ -28,10 +28,10 @@ public class ResourceWithAzureFunctionsConfigTests
         var blobResource = storageResource.AddBlobs("blobs").Resource;
 
         // Act & Assert
-        Assert.IsAssignableFrom<IResourceWithAzureFunctionsConfig>(blobResource);
+        Assert.IsInstanceOfType<IResourceWithAzureFunctionsConfig>(blobResource);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureQueueStorageResource_ImplementsIResourceWithAzureFunctionsConfig()
     {
         // Arrange
@@ -40,10 +40,10 @@ public class ResourceWithAzureFunctionsConfigTests
         var queueResource = storageResource.AddQueues("queues").Resource;
 
         // Act & Assert
-        Assert.IsAssignableFrom<IResourceWithAzureFunctionsConfig>(queueResource);
+        Assert.IsInstanceOfType<IResourceWithAzureFunctionsConfig>(queueResource);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureCosmosDBResource_ImplementsIResourceWithAzureFunctionsConfig()
     {
         // Arrange
@@ -51,10 +51,10 @@ public class ResourceWithAzureFunctionsConfigTests
         var cosmosResource = builder.AddAzureCosmosDB("cosmos").Resource;
 
         // Act & Assert
-        Assert.IsAssignableFrom<IResourceWithAzureFunctionsConfig>(cosmosResource);
+        Assert.IsInstanceOfType<IResourceWithAzureFunctionsConfig>(cosmosResource);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureCosmosDBDatabaseResource_ImplementsIResourceWithAzureFunctionsConfig()
     {
         // Arrange
@@ -63,10 +63,10 @@ public class ResourceWithAzureFunctionsConfigTests
         var dbResource = cosmosResource.AddCosmosDatabase("database").Resource;
 
         // Act & Assert
-        Assert.IsAssignableFrom<IResourceWithAzureFunctionsConfig>(dbResource);
+        Assert.IsInstanceOfType<IResourceWithAzureFunctionsConfig>(dbResource);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureCosmosDBContainerResource_ImplementsIResourceWithAzureFunctionsConfig()
     {
         // Arrange
@@ -76,10 +76,10 @@ public class ResourceWithAzureFunctionsConfigTests
         var containerResource = dbResource.AddContainer("container", "/id").Resource;
 
         // Act & Assert
-        Assert.IsAssignableFrom<IResourceWithAzureFunctionsConfig>(containerResource);
+        Assert.IsInstanceOfType<IResourceWithAzureFunctionsConfig>(containerResource);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureEventHubsResource_ImplementsIResourceWithAzureFunctionsConfig()
     {
         // Arrange
@@ -87,10 +87,10 @@ public class ResourceWithAzureFunctionsConfigTests
         var eventHubsResource = builder.AddAzureEventHubs("eventhubs").Resource;
 
         // Act & Assert
-        Assert.IsAssignableFrom<IResourceWithAzureFunctionsConfig>(eventHubsResource);
+        Assert.IsInstanceOfType<IResourceWithAzureFunctionsConfig>(eventHubsResource);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureServiceBusResource_ImplementsIResourceWithAzureFunctionsConfig()
     {
         // Arrange
@@ -98,10 +98,10 @@ public class ResourceWithAzureFunctionsConfigTests
         var serviceBusResource = builder.AddAzureServiceBus("servicebus").Resource;
 
         // Act & Assert
-        Assert.IsAssignableFrom<IResourceWithAzureFunctionsConfig>(serviceBusResource);
+        Assert.IsInstanceOfType<IResourceWithAzureFunctionsConfig>(serviceBusResource);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureStorageEmulator_AppliesCorrectConfigurationFormat()
     {
         // Arrange
@@ -113,13 +113,13 @@ public class ResourceWithAzureFunctionsConfigTests
         ((IResourceWithAzureFunctionsConfig)storage).ApplyAzureFunctionsConfiguration(target, "myconnection");
 
         // Assert
-        Assert.True(target.ContainsKey("myconnection"));
-        Assert.True(target.ContainsKey("Aspire__Azure__Storage__Blobs__myconnection__ConnectionString"));
-        Assert.True(target.ContainsKey("Aspire__Azure__Storage__Queues__myconnection__ConnectionString"));
-        Assert.True(target.ContainsKey("Aspire__Azure__Storage__Tables__myconnection__ConnectionString"));
+        Assert.IsTrue(target.ContainsKey("myconnection"));
+        Assert.IsTrue(target.ContainsKey("Aspire__Azure__Storage__Blobs__myconnection__ConnectionString"));
+        Assert.IsTrue(target.ContainsKey("Aspire__Azure__Storage__Queues__myconnection__ConnectionString"));
+        Assert.IsTrue(target.ContainsKey("Aspire__Azure__Storage__Tables__myconnection__ConnectionString"));
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureStorage_AppliesCorrectConfigurationFormat()
     {
         // Arrange
@@ -131,15 +131,15 @@ public class ResourceWithAzureFunctionsConfigTests
         ((IResourceWithAzureFunctionsConfig)storage).ApplyAzureFunctionsConfiguration(target, "myconnection");
 
         // Assert
-        Assert.True(target.ContainsKey("myconnection__blobServiceUri"));
-        Assert.True(target.ContainsKey("myconnection__queueServiceUri"));
-        Assert.True(target.ContainsKey("myconnection__tableServiceUri"));
-        Assert.True(target.ContainsKey("Aspire__Azure__Storage__Blobs__myconnection__ServiceUri"));
-        Assert.True(target.ContainsKey("Aspire__Azure__Storage__Queues__myconnection__ServiceUri"));
-        Assert.True(target.ContainsKey("Aspire__Azure__Storage__Tables__myconnection__ServiceUri"));
+        Assert.IsTrue(target.ContainsKey("myconnection__blobServiceUri"));
+        Assert.IsTrue(target.ContainsKey("myconnection__queueServiceUri"));
+        Assert.IsTrue(target.ContainsKey("myconnection__tableServiceUri"));
+        Assert.IsTrue(target.ContainsKey("Aspire__Azure__Storage__Blobs__myconnection__ServiceUri"));
+        Assert.IsTrue(target.ContainsKey("Aspire__Azure__Storage__Queues__myconnection__ServiceUri"));
+        Assert.IsTrue(target.ContainsKey("Aspire__Azure__Storage__Tables__myconnection__ServiceUri"));
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureBlobStorage_AppliesCorrectConfigurationFormat()
     {
         // Arrange
@@ -152,11 +152,11 @@ public class ResourceWithAzureFunctionsConfigTests
         ((IResourceWithAzureFunctionsConfig)blobResource).ApplyAzureFunctionsConfiguration(target, "myblobs");
 
         // Assert
-        Assert.True(target.ContainsKey("myblobs"));
-        Assert.True(target.ContainsKey("Aspire__Azure__Storage__Blobs__myblobs__ConnectionString"));
+        Assert.IsTrue(target.ContainsKey("myblobs"));
+        Assert.IsTrue(target.ContainsKey("Aspire__Azure__Storage__Blobs__myblobs__ConnectionString"));
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureTableStorage_AppliesCorrectConfigurationFormat()
     {
         // Arrange
@@ -169,11 +169,11 @@ public class ResourceWithAzureFunctionsConfigTests
         ((IResourceWithAzureFunctionsConfig)tableResource).ApplyAzureFunctionsConfiguration(target, "mytables");
 
         // Assert
-        Assert.True(target.ContainsKey("mytables"));
-        Assert.True(target.ContainsKey("Aspire__Azure__Storage__Tables__mytables__ConnectionString"));
+        Assert.IsTrue(target.ContainsKey("mytables"));
+        Assert.IsTrue(target.ContainsKey("Aspire__Azure__Storage__Tables__mytables__ConnectionString"));
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureQueueStorage_AppliesCorrectConfigurationFormat()
     {
         // Arrange
@@ -186,11 +186,11 @@ public class ResourceWithAzureFunctionsConfigTests
         ((IResourceWithAzureFunctionsConfig)queueResource).ApplyAzureFunctionsConfiguration(target, "myqueues");
 
         // Assert
-        Assert.True(target.ContainsKey("myqueues"));
-        Assert.True(target.ContainsKey("Aspire__Azure__Storage__Queues__myqueues__ConnectionString"));
+        Assert.IsTrue(target.ContainsKey("myqueues"));
+        Assert.IsTrue(target.ContainsKey("Aspire__Azure__Storage__Queues__myqueues__ConnectionString"));
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureCosmosDBEmulator_AppliesCorrectConfigurationFormat()
     {
         // Arrange
@@ -202,11 +202,11 @@ public class ResourceWithAzureFunctionsConfigTests
         ((IResourceWithAzureFunctionsConfig)cosmosResource).ApplyAzureFunctionsConfiguration(target, "mycosmosdb");
 
         // Assert
-        Assert.True(target.ContainsKey("mycosmosdb"));
-        Assert.True(target.ContainsKey("Aspire__Microsoft__Azure__Cosmos__mycosmosdb__ConnectionString"));
+        Assert.IsTrue(target.ContainsKey("mycosmosdb"));
+        Assert.IsTrue(target.ContainsKey("Aspire__Microsoft__Azure__Cosmos__mycosmosdb__ConnectionString"));
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureCosmosDB_WithAccessKey_AppliesCorrectConfigurationFormat()
     {
         // Arrange
@@ -218,11 +218,11 @@ public class ResourceWithAzureFunctionsConfigTests
         ((IResourceWithAzureFunctionsConfig)cosmosResource).ApplyAzureFunctionsConfiguration(target, "mycosmosdb");
 
         // Assert
-        Assert.True(target.ContainsKey("mycosmosdb"));
-        Assert.True(target.ContainsKey("Aspire__Microsoft__Azure__Cosmos__mycosmosdb__ConnectionString"));
+        Assert.IsTrue(target.ContainsKey("mycosmosdb"));
+        Assert.IsTrue(target.ContainsKey("Aspire__Microsoft__Azure__Cosmos__mycosmosdb__ConnectionString"));
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureCosmosDB_WithEntraID_AppliesCorrectConfigurationFormat()
     {
         // Arrange
@@ -234,11 +234,11 @@ public class ResourceWithAzureFunctionsConfigTests
         ((IResourceWithAzureFunctionsConfig)cosmosResource).ApplyAzureFunctionsConfiguration(target, "mycosmosdb");
 
         // Assert
-        Assert.True(target.ContainsKey("mycosmosdb__accountEndpoint"));
-        Assert.True(target.ContainsKey("Aspire__Microsoft__Azure__Cosmos__mycosmosdb__AccountEndpoint"));
+        Assert.IsTrue(target.ContainsKey("mycosmosdb__accountEndpoint"));
+        Assert.IsTrue(target.ContainsKey("Aspire__Microsoft__Azure__Cosmos__mycosmosdb__AccountEndpoint"));
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureEventHubsEmulator_AppliesCorrectConfigurationFormat()
     {
         // Arrange
@@ -250,7 +250,7 @@ public class ResourceWithAzureFunctionsConfigTests
         ((IResourceWithAzureFunctionsConfig)eventHubsResource).ApplyAzureFunctionsConfiguration(target, "myeventhubs");
 
         // Assert
-        Assert.True(target.ContainsKey("myeventhubs"));
+        Assert.IsTrue(target.ContainsKey("myeventhubs"));
         Assert.Contains("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__myeventhubs__ConnectionString", target.Keys);
         Assert.Contains("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__myeventhubs__ConnectionString", target.Keys);
         Assert.Contains("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__myeventhubs__ConnectionString", target.Keys);
@@ -258,7 +258,7 @@ public class ResourceWithAzureFunctionsConfigTests
         Assert.Contains("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__myeventhubs__ConnectionString", target.Keys);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureEventHubs_AppliesCorrectConfigurationFormat()
     {
         // Arrange
@@ -270,7 +270,7 @@ public class ResourceWithAzureFunctionsConfigTests
         ((IResourceWithAzureFunctionsConfig)eventHubsResource).ApplyAzureFunctionsConfiguration(target, "myeventhubs");
 
         // Assert
-        Assert.True(target.ContainsKey("myeventhubs__fullyQualifiedNamespace"));
+        Assert.IsTrue(target.ContainsKey("myeventhubs__fullyQualifiedNamespace"));
         Assert.Contains("Aspire__Azure__Messaging__EventHubs__EventHubProducerClient__myeventhubs__FullyQualifiedNamespace", target.Keys);
         Assert.Contains("Aspire__Azure__Messaging__EventHubs__EventHubConsumerClient__myeventhubs__FullyQualifiedNamespace", target.Keys);
         Assert.Contains("Aspire__Azure__Messaging__EventHubs__EventProcessorClient__myeventhubs__FullyQualifiedNamespace", target.Keys);
@@ -278,7 +278,7 @@ public class ResourceWithAzureFunctionsConfigTests
         Assert.Contains("Aspire__Azure__Messaging__EventHubs__EventHubBufferedProducerClient__myeventhubs__FullyQualifiedNamespace", target.Keys);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureServiceBus_AppliesCorrectConfigurationFormat()
     {
         // Arrange
@@ -290,7 +290,7 @@ public class ResourceWithAzureFunctionsConfigTests
         ((IResourceWithAzureFunctionsConfig)serviceBusResource).ApplyAzureFunctionsConfiguration(target, "myservicebus");
 
         // Assert
-        Assert.True(target.ContainsKey("myservicebus__fullyQualifiedNamespace"));
+        Assert.IsTrue(target.ContainsKey("myservicebus__fullyQualifiedNamespace"));
         Assert.Contains("Aspire__Azure__Messaging__ServiceBus__myservicebus__FullyQualifiedNamespace", target.Keys);
     }
 }

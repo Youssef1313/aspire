@@ -4,13 +4,13 @@
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.StackExchange.Redis.OutputCaching.Tests;
 
+[TestClass]
 public class AspireRedisOutputCacheExtensionsTests
 {
-    [Fact]
+    [TestMethod]
     public void AddsRedisOutputCacheCorrectly()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);

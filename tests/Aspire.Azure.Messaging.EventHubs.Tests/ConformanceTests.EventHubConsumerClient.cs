@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Aspire.Azure.Messaging.EventHubs.Tests;
 
+[TestClass]
 public class ConformanceTests_EventHubConsumerClient : ConformanceTestsBase<EventHubConsumerClient, AzureMessagingEventHubsConsumerSettings>
 {
     protected override void SetHealthCheck(AzureMessagingEventHubsConsumerSettings options, bool enabled)

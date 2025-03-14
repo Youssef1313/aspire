@@ -3,13 +3,13 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Oracle.EntityFrameworkCore.Tests;
 
+[TestClass]
 public class OracleEntityFrameworkCorePublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddOracleDatabaseDbContextShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -18,12 +18,12 @@ public class OracleEntityFrameworkCorePublicApiTests
         var action = () => builder.AddOracleDatabaseDbContext<DbContext>(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddOracleDatabaseDbContextShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -34,10 +34,10 @@ public class OracleEntityFrameworkCorePublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void EnrichOracleDatabaseDbContextShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -45,6 +45,6 @@ public class OracleEntityFrameworkCorePublicApiTests
         var action = () => builder.EnrichOracleDatabaseDbContext<DbContext>();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 }

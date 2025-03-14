@@ -6,13 +6,13 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests;
 
+[TestClass]
 public class AzureFunctionsTests
 {
-    [Fact]
+    [TestMethod]
     public void AddAzureFunctionsProject_Works()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -26,28 +26,28 @@ public class AzureFunctionsTests
             resource is AzureFunctionsProjectResource && resource.Name == "funcapp");
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddAzureFunctionsProject_WiresUpHttpEndpointCorrectly_WhenPortArgumentIsProvided()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         builder.AddAzureFunctionsProject<TestProject>("funcapp");
 
         // Assert that the EndpointAnnotation is configured correctly
-        var functionsResource = Assert.Single(builder.Resources.OfType<AzureFunctionsProjectResource>());
-        Assert.True(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
-        Assert.Equal(7071, endpointAnnotation.Port);
-        Assert.Equal(7071, endpointAnnotation.TargetPort);
-        Assert.False(endpointAnnotation.IsProxied);
+        var functionsResource = Assert.ContainsSingle(builder.Resources.OfType<AzureFunctionsProjectResource>());
+        Assert.IsTrue(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
+        Assert.AreEqual(7071, endpointAnnotation.Port);
+        Assert.AreEqual(7071, endpointAnnotation.TargetPort);
+        Assert.IsFalse(endpointAnnotation.IsProxied);
 
         // Check that no `--port` is present in the generated argument
         // list if it's already defined in the launch profile
         using var app = builder.Build();
         var args = await ArgumentEvaluator.GetArgumentListAsync(functionsResource);
 
-        Assert.Empty(args);
+        Assert.IsEmpty(args);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddAzureFunctionsProject_WiresUpHttpEndpointCorrectly_WhenPortArgumentIsNotProvided()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -61,77 +61,77 @@ public class AzureFunctionsTests
             });;
 
         // Assert that the EndpointAnnotation is configured correctly
-        var functionsResource = Assert.Single(builder.Resources.OfType<AzureFunctionsProjectResource>());
-        Assert.True(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
-        Assert.Null(endpointAnnotation.Port);
-        Assert.Equal(9876, endpointAnnotation.TargetPort);
-        Assert.True(endpointAnnotation.IsProxied);
+        var functionsResource = Assert.ContainsSingle(builder.Resources.OfType<AzureFunctionsProjectResource>());
+        Assert.IsTrue(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
+        Assert.IsNull(endpointAnnotation.Port);
+        Assert.AreEqual(9876, endpointAnnotation.TargetPort);
+        Assert.IsTrue(endpointAnnotation.IsProxied);
 
         // Check that `--port` is present in the args
         using var app = builder.Build();
         var args = await ArgumentEvaluator.GetArgumentListAsync(functionsResource);
 
-        Assert.Collection(args,
-            arg => Assert.Equal("--port", arg),
-            arg => Assert.Equal("9876", arg)
+        Assert.That.Collection(args,
+            arg => Assert.AreEqual("--port", arg),
+            arg => Assert.AreEqual("9876", arg)
         );
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureFunctionsProject_WiresUpHttpEndpointCorrectly_WhenMultiplePortArgumentsProvided()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         builder.AddAzureFunctionsProject<TestProjectWithMultiplePorts>("funcapp");
 
         // Assert that the EndpointAnnotation is configured correctly
-        var functionsResource = Assert.Single(builder.Resources.OfType<AzureFunctionsProjectResource>());
-        Assert.True(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
-        Assert.Equal(7072, endpointAnnotation.Port);
-        Assert.Equal(7072, endpointAnnotation.TargetPort);
-        Assert.False(endpointAnnotation.IsProxied);
+        var functionsResource = Assert.ContainsSingle(builder.Resources.OfType<AzureFunctionsProjectResource>());
+        Assert.IsTrue(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
+        Assert.AreEqual(7072, endpointAnnotation.Port);
+        Assert.AreEqual(7072, endpointAnnotation.TargetPort);
+        Assert.IsFalse(endpointAnnotation.IsProxied);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureFunctionsProject_WiresUpHttpEndpointCorrectly_WhenPortArgumentIsMalformed()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         builder.AddAzureFunctionsProject<TestProjectWithMalformedPort>("funcapp");
 
         // Assert that the EndpointAnnotation is configured correctly
-        var functionsResource = Assert.Single(builder.Resources.OfType<AzureFunctionsProjectResource>());
-        Assert.True(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
-        Assert.Null(endpointAnnotation.Port);
-        Assert.Null(endpointAnnotation.TargetPort);
-        Assert.True(endpointAnnotation.IsProxied);
+        var functionsResource = Assert.ContainsSingle(builder.Resources.OfType<AzureFunctionsProjectResource>());
+        Assert.IsTrue(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
+        Assert.IsNull(endpointAnnotation.Port);
+        Assert.IsNull(endpointAnnotation.TargetPort);
+        Assert.IsTrue(endpointAnnotation.IsProxied);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureFunctionsProject_WiresUpHttpEndpointCorrectly_WhenPortArgumentIsPartial()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         builder.AddAzureFunctionsProject<TestProjectWithPartialPort>("funcapp");
 
         // Assert that the EndpointAnnotation is configured correctly
-        var functionsResource = Assert.Single(builder.Resources.OfType<AzureFunctionsProjectResource>());
-        Assert.True(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
-        Assert.Null(endpointAnnotation.Port);
-        Assert.Null(endpointAnnotation.TargetPort);
-        Assert.True(endpointAnnotation.IsProxied);
+        var functionsResource = Assert.ContainsSingle(builder.Resources.OfType<AzureFunctionsProjectResource>());
+        Assert.IsTrue(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
+        Assert.IsNull(endpointAnnotation.Port);
+        Assert.IsNull(endpointAnnotation.TargetPort);
+        Assert.IsTrue(endpointAnnotation.IsProxied);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureFunctionsProject_GeneratesUniqueDefaultHostStorageResourceName()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         builder.AddAzureFunctionsProject<TestProjectWithMalformedPort>("funcapp");
 
         // Assert that the default storage resource is unique
-        var storageResources = Assert.Single(builder.Resources.OfType<AzureStorageResource>());
-        Assert.NotEqual(AzureFunctionsProjectResourceExtensions.DefaultAzureFunctionsHostStorageName, storageResources.Name);
+        var storageResources = Assert.ContainsSingle(builder.Resources.OfType<AzureStorageResource>());
+        Assert.AreNotEqual(AzureFunctionsProjectResourceExtensions.DefaultAzureFunctionsHostStorageName, storageResources.Name);
         Assert.StartsWith(AzureFunctionsProjectResourceExtensions.DefaultAzureFunctionsHostStorageName, storageResources.Name);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task AddAzureFunctionsProject_RemoveDefaultHostStorageWhenUseHostStorageIsUsed()
     {
@@ -147,13 +147,13 @@ public class AzureFunctionsTests
         var model = host.Services.GetRequiredService<DistributedApplicationModel>();
         Assert.DoesNotContain(model.Resources.OfType<AzureStorageResource>(),
             r => r.Name.StartsWith(AzureFunctionsProjectResourceExtensions.DefaultAzureFunctionsHostStorageName));
-        var storageResource = Assert.Single(model.Resources.OfType<AzureStorageResource>());
-        Assert.Equal("my-own-storage", storageResource.Name);
+        var storageResource = Assert.ContainsSingle(model.Resources.OfType<AzureStorageResource>());
+        Assert.AreEqual("my-own-storage", storageResource.Name);
 
         await host.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task AddAzureFunctionsProject_WorksWithMultipleProjects()
     {
@@ -166,47 +166,47 @@ public class AzureFunctionsTests
 
         // Assert that the default storage resource is not present
         var model = host.Services.GetRequiredService<DistributedApplicationModel>();
-        Assert.Single(model.Resources.OfType<AzureStorageResource>(),
+        Assert.ContainsSingle(model.Resources.OfType<AzureStorageResource>(),
             r => r.Name.StartsWith(AzureFunctionsProjectResourceExtensions.DefaultAzureFunctionsHostStorageName));
 
         await host.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureFunctionsProject_UsesCorrectNameUnderPublish()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
         builder.AddAzureFunctionsProject<TestProject>("funcapp");
 
-        var resource = Assert.Single(builder.Resources.OfType<AzureStorageResource>());
+        var resource = Assert.ContainsSingle(builder.Resources.OfType<AzureStorageResource>());
 
-        Assert.NotEqual(AzureFunctionsProjectResourceExtensions.DefaultAzureFunctionsHostStorageName, resource.Name);
-        Assert.StartsWith(AzureFunctionsProjectResourceExtensions.DefaultAzureFunctionsHostStorageName, resource.Name);
+        Assert.AreNotEqual(AzureFunctionsProjectResourceExtensions.DefaultAzureFunctionsHostStorageName, resource.Name);
+        StringAssert.StartsWith(AzureFunctionsProjectResourceExtensions.DefaultAzureFunctionsHostStorageName, resource.Name);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureFunctionsProject_WiresUpHttpsEndpointCorrectly_WhenUseHttpsArgumentIsProvided()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         builder.AddAzureFunctionsProject<TestProjectWithHttps>("funcapp");
 
         // Assert that the EndpointAnnotation is configured correctly
-        var functionsResource = Assert.Single(builder.Resources.OfType<AzureFunctionsProjectResource>());
-        Assert.True(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
-        Assert.Equal(7071, endpointAnnotation.Port);
-        Assert.Equal(7071, endpointAnnotation.TargetPort);
-        Assert.False(endpointAnnotation.IsProxied);
-        Assert.Equal("https", endpointAnnotation.UriScheme);
+        var functionsResource = Assert.ContainsSingle(builder.Resources.OfType<AzureFunctionsProjectResource>());
+        Assert.IsTrue(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
+        Assert.AreEqual(7071, endpointAnnotation.Port);
+        Assert.AreEqual(7071, endpointAnnotation.TargetPort);
+        Assert.IsFalse(endpointAnnotation.IsProxied);
+        Assert.AreEqual("https", endpointAnnotation.UriScheme);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddAzureFunctionsProject_ConfiguresEnvironmentVariables_WhenInPublishMode()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
         builder.AddAzureFunctionsProject<TestProject>("funcapp");
 
-        var functionsResource = Assert.Single(builder.Resources.OfType<AzureFunctionsProjectResource>());
-        Assert.True(functionsResource.TryGetAnnotationsOfType<EnvironmentCallbackAnnotation>(out var envAnnotations));
+        var functionsResource = Assert.ContainsSingle(builder.Resources.OfType<AzureFunctionsProjectResource>());
+        Assert.IsTrue(functionsResource.TryGetAnnotationsOfType<EnvironmentCallbackAnnotation>(out var envAnnotations));
 
         var context = new EnvironmentCallbackContext(builder.ExecutionContext);
         foreach (var envAnnotation in envAnnotations)
@@ -216,12 +216,13 @@ public class AzureFunctionsTests
 
         // Verify ASPNETCORE_URLS is set correctly with the target port
         var aspNetCoreUrls = context.EnvironmentVariables["ASPNETCORE_URLS"];
-        Assert.NotNull(aspNetCoreUrls);
+        Assert.IsNotNull(aspNetCoreUrls);
         var aspNetCoreUrlsValue = await ((ReferenceExpression)aspNetCoreUrls).GetValueAsync(default);
+        Assert.IsNotNull(aspNetCoreUrlsValue);
         Assert.Contains("8080", aspNetCoreUrlsValue);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddAzureFunctionsProject_WiresUpHttpsEndpointCorrectly_WhenOnlyUseHttpsArgumentIsProvided()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -235,20 +236,20 @@ public class AzureFunctionsTests
             });
 
         // Assert that the EndpointAnnotation is configured correctly
-        var functionsResource = Assert.Single(builder.Resources.OfType<AzureFunctionsProjectResource>());
-        Assert.True(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
-        Assert.Null(endpointAnnotation.Port);
-        Assert.Equal(9876, endpointAnnotation.TargetPort);
-        Assert.True(endpointAnnotation.IsProxied);
-        Assert.Equal("https", endpointAnnotation.UriScheme);
+        var functionsResource = Assert.ContainsSingle(builder.Resources.OfType<AzureFunctionsProjectResource>());
+        Assert.IsTrue(functionsResource.TryGetLastAnnotation<EndpointAnnotation>(out var endpointAnnotation));
+        Assert.IsNull(endpointAnnotation.Port);
+        Assert.AreEqual(9876, endpointAnnotation.TargetPort);
+        Assert.IsTrue(endpointAnnotation.IsProxied);
+        Assert.AreEqual("https", endpointAnnotation.UriScheme);
 
         // Check that `--port` is present in the args
         using var app = builder.Build();
         var args = await ArgumentEvaluator.GetArgumentListAsync(functionsResource);
 
-        Assert.Collection(args,
-            arg => Assert.Equal("--port", arg),
-            arg => Assert.Equal("9876", arg)
+        Assert.That.Collection(args,
+            arg => Assert.AreEqual("--port", arg),
+            arg => Assert.AreEqual("9876", arg)
         );
     }
 

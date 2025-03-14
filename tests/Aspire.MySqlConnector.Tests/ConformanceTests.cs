@@ -9,10 +9,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MySqlConnector;
-using Xunit;
 
 namespace Aspire.MySqlConnector.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<MySqlDataSource, MySqlConnectorSettings>, IClassFixture<MySqlContainerFixture>
 {
     private readonly MySqlContainerFixture? _containerFixture;
@@ -99,9 +99,9 @@ public class ConformanceTests : ConformanceTests<MySqlDataSource, MySqlConnector
         command.ExecuteScalar();
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("key")]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("key")]
     public void BothDataSourceAndConnectionCanBeResolved(string? key)
     {
         using IHost host = CreateHostWithComponent(key: key);
@@ -111,25 +111,25 @@ public class ConformanceTests : ConformanceTests<MySqlDataSource, MySqlConnector
         MySqlConnection? mySqlConnection = Resolve<MySqlConnection>();
         DbConnection? dbConnection = Resolve<DbConnection>();
 
-        Assert.NotNull(mySqlDataSource);
-        Assert.Same(mySqlDataSource, dbDataSource);
+        Assert.IsNotNull(mySqlDataSource);
+        Assert.AreSame(mySqlDataSource, dbDataSource);
 
-        Assert.NotNull(mySqlConnection);
-        Assert.NotNull(dbConnection);
+        Assert.IsNotNull(mySqlConnection);
+        Assert.IsNotNull(dbConnection);
 
-        Assert.Equal(dbConnection.ConnectionString, mySqlConnection.ConnectionString);
-        Assert.Equal(mySqlDataSource.ConnectionString, mySqlConnection.ConnectionString);
+        Assert.AreEqual(dbConnection.ConnectionString, mySqlConnection.ConnectionString);
+        Assert.AreEqual(mySqlDataSource.ConnectionString, mySqlConnection.ConnectionString);
 
         T? Resolve<T>() => key is null ? host.Services.GetService<T>() : host.Services.GetKeyedService<T>(key);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void TracingEnablesTheRightActivitySource()
         => RemoteExecutor.Invoke(static connectionStringToUse => RunWithConnectionString(connectionStringToUse, obj => obj.ActivitySourceTest(key: null)),
                                  ConnectionString).Dispose();
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void TracingEnablesTheRightActivitySource_Keyed()
         => RemoteExecutor.Invoke(static connectionStringToUse => RunWithConnectionString(connectionStringToUse, obj => obj.ActivitySourceTest(key: "key")),

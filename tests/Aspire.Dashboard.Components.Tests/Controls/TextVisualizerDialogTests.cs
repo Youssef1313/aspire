@@ -8,13 +8,13 @@ using Aspire.Dashboard.Model;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FluentUI.AspNetCore.Components;
-using Xunit;
 
 namespace Aspire.Dashboard.Components.Tests.Controls;
 
-public class TextVisualizerDialogTests : TestContext
+[TestClass]
+public class TextVisualizerDialogTests : Bunit.TestContext
 {
-    [Fact]
+    [TestMethod]
     public async Task Render_TextVisualizerDialog_WithValidJson_FormatsJsonAsync()
     {
         var rawJson = """
@@ -44,12 +44,12 @@ public class TextVisualizerDialogTests : TestContext
 
         var instance = cut.FindComponent<TextVisualizerDialog>().Instance;
 
-        Assert.Equal(expectedJson, instance.FormattedText);
-        Assert.Equal(TextVisualizerDialog.JsonFormat, instance.FormatKind);
-        Assert.Equal([TextVisualizerDialog.JsonFormat, TextVisualizerDialog.PlaintextFormat], instance.EnabledOptions.ToImmutableSortedSet());
+        Assert.AreEqual(expectedJson, instance.FormattedText);
+        Assert.AreEqual(TextVisualizerDialog.JsonFormat, instance.FormatKind);
+        Assert.AreEqual([TextVisualizerDialog.JsonFormat, TextVisualizerDialog.PlaintextFormat], instance.EnabledOptions.ToImmutableSortedSet());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Render_TextVisualizerDialog_WithValidXml_FormatsXml_CanChangeFormatAsync()
     {
         const string rawXml = """<parent><child>text<!-- comment --></child></parent>""";
@@ -66,18 +66,18 @@ public class TextVisualizerDialogTests : TestContext
 
         var instance = cut.FindComponent<TextVisualizerDialog>().Instance;
 
-        Assert.Equal(TextVisualizerDialog.XmlFormat, instance.FormatKind);
-        Assert.Equal(expectedXml, instance.FormattedText);
-        Assert.Equal([TextVisualizerDialog.PlaintextFormat, TextVisualizerDialog.XmlFormat], instance.EnabledOptions.ToImmutableSortedSet());
+        Assert.AreEqual(TextVisualizerDialog.XmlFormat, instance.FormatKind);
+        Assert.AreEqual(expectedXml, instance.FormattedText);
+        Assert.AreEqual([TextVisualizerDialog.PlaintextFormat, TextVisualizerDialog.XmlFormat], instance.EnabledOptions.ToImmutableSortedSet());
 
         // changing format works
         instance.ChangeFormat(TextVisualizerDialog.PlaintextFormat, rawXml);
 
-        Assert.Equal(TextVisualizerDialog.PlaintextFormat, instance.FormatKind);
-        Assert.Equal(rawXml, instance.FormattedText);
+        Assert.AreEqual(TextVisualizerDialog.PlaintextFormat, instance.FormatKind);
+        Assert.AreEqual(rawXml, instance.FormattedText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Render_TextVisualizerDialog_WithValidXml_FormatsXmlWithDoctypeAsync()
     {
         const string rawXml = """<?xml version="1.0" encoding="utf-16"?><test>text content</test>""";
@@ -92,12 +92,12 @@ public class TextVisualizerDialogTests : TestContext
 
         var instance = cut.FindComponent<TextVisualizerDialog>().Instance;
 
-        Assert.Equal(TextVisualizerDialog.XmlFormat, instance.FormatKind);
-        Assert.Equal(expectedXml, instance.FormattedText);
-        Assert.Equal([TextVisualizerDialog.PlaintextFormat, TextVisualizerDialog.XmlFormat], instance.EnabledOptions.ToImmutableSortedSet());
+        Assert.AreEqual(TextVisualizerDialog.XmlFormat, instance.FormatKind);
+        Assert.AreEqual(expectedXml, instance.FormattedText);
+        Assert.AreEqual([TextVisualizerDialog.PlaintextFormat, TextVisualizerDialog.XmlFormat], instance.EnabledOptions.ToImmutableSortedSet());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Render_TextVisualizerDialog_WithInvalidJson_FormatsPlaintextAsync()
     {
         const string rawText = """{{{{{{"test": 4}""";
@@ -107,12 +107,12 @@ public class TextVisualizerDialogTests : TestContext
 
         var instance = cut.FindComponent<TextVisualizerDialog>().Instance;
 
-        Assert.Equal(TextVisualizerDialog.PlaintextFormat, instance.FormatKind);
-        Assert.Equal(rawText, instance.FormattedText);
-        Assert.Equal([TextVisualizerDialog.PlaintextFormat], instance.EnabledOptions.ToImmutableSortedSet());
+        Assert.AreEqual(TextVisualizerDialog.PlaintextFormat, instance.FormatKind);
+        Assert.AreEqual(rawText, instance.FormattedText);
+        Assert.AreEqual([TextVisualizerDialog.PlaintextFormat], instance.EnabledOptions.ToImmutableSortedSet());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Render_TextVisualizerDialog_WithDifferentThemes_LineClassesChange()
     {
         var xml = @"<hello><!-- world --></hello>";
@@ -130,7 +130,7 @@ public class TextVisualizerDialogTests : TestContext
         Assert.NotEmpty(cut.FindAll(".theme-a11y-dark-min"));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Render_TextVisualizerDialog_ResolveTheme_LineClassesChange()
     {
         var xml = @"<hello><!-- world --></hello>";

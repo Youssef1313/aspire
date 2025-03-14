@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Components.Common.Tests;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Workload.Tests;
@@ -10,7 +9,7 @@ namespace Aspire.Workload.Tests;
 public abstract class StarterTemplateProjectNamesTests : WorkloadTestsBase
 {
     private readonly string _testType;
-    public StarterTemplateProjectNamesTests(string testType, ITestOutputHelper testOutput)
+    public StarterTemplateProjectNamesTests(string testType, TestContext testOutput)
         : base(testOutput)
     {
         _testType = testType;
@@ -19,7 +18,7 @@ public abstract class StarterTemplateProjectNamesTests : WorkloadTestsBase
     public static TheoryData<string> ProjectNamesWithTestType_TestData()
         => new(GetProjectNamesForTest());
 
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(ProjectNamesWithTestType_TestData))]
     [RequiresSSLCertificate("Needs dashboard, web front end access")]
     public async Task StarterTemplateWithTest_ProjectNames(string prefix)
@@ -46,28 +45,28 @@ public abstract class StarterTemplateProjectNamesTests : WorkloadTestsBase
 // Individual class for each test framework so the tests can run in separate helix jobs
 public class None_StarterTemplateProjectNamesTests : StarterTemplateProjectNamesTests
 {
-    public None_StarterTemplateProjectNamesTests(ITestOutputHelper testOutput) : base("none", testOutput)
+    public None_StarterTemplateProjectNamesTests(TestContext testOutput) : base("none", testOutput)
     {
     }
 }
 
 public class MSTest_StarterTemplateProjectNamesTests : StarterTemplateProjectNamesTests
 {
-    public MSTest_StarterTemplateProjectNamesTests(ITestOutputHelper testOutput) : base("mstest", testOutput)
+    public MSTest_StarterTemplateProjectNamesTests(TestContext testOutput) : base("mstest", testOutput)
     {
     }
 }
 
 public class Xunit_StarterTemplateProjectNamesTests : StarterTemplateProjectNamesTests
 {
-    public Xunit_StarterTemplateProjectNamesTests(ITestOutputHelper testOutput) : base("xunit.net", testOutput)
+    public Xunit_StarterTemplateProjectNamesTests(TestContext testOutput) : base("xunit.net", testOutput)
     {
     }
 }
 
 public class Nunit_StarterTemplateProjectNamesTests : StarterTemplateProjectNamesTests
 {
-    public Nunit_StarterTemplateProjectNamesTests(ITestOutputHelper testOutput) : base("nunit", testOutput)
+    public Nunit_StarterTemplateProjectNamesTests(TestContext testOutput) : base("nunit", testOutput)
     {
     }
 }

@@ -5,13 +5,13 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.StackExchange.Redis.DistributedCaching.Tests;
 
+[TestClass]
 public class AspireRedisDistributedCacheExtensionsTests
 {
-    [Fact]
+    [TestMethod]
     public void AddsRedisDistributedCacheCorrectly()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);

@@ -6,14 +6,15 @@ using System.Threading.Channels;
 using Aspire.Cli;
 using Aspire.Hosting.Utils;
 using StreamJsonRpc;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Tests.Cli;
 
-public class CliBackchannelTests(ITestOutputHelper outputHelper)
+[TestClass]
+public class CliBackchannelTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     public async Task AppHostRespondsToPingWithMatchingTimestamp()
     {
         var socketPath = DotNetCliRunner.GetBackchannelSocketPath();
@@ -22,7 +23,7 @@ public class CliBackchannelTests(ITestOutputHelper outputHelper)
         serverSocket.Bind(endpoint);
         serverSocket.Listen(1);
 
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(outputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(TestContext);
         builder.Configuration["ASPIRE_LAUNCHER_BACKCHANNEL_PATH"] = socketPath;
         using var app = builder.Build();
 
@@ -43,12 +44,12 @@ public class CliBackchannelTests(ITestOutputHelper outputHelper)
         var sendTimestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var responseTimestamp = await rpc.InvokeAsync<long>("PingAsync", sendTimestamp);
 
-        Assert.Equal(sendTimestamp, responseTimestamp);
+        Assert.AreEqual(sendTimestamp, responseTimestamp);
 
         await app.StopAsync().WaitAsync(TimeSpan.FromSeconds(10));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AppHostConnectsBackToCliWithPingRequest()
     {
         var testStartedTimestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
@@ -59,7 +60,7 @@ public class CliBackchannelTests(ITestOutputHelper outputHelper)
         serverSocket.Bind(endpoint);
         serverSocket.Listen(1);
 
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(outputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(TestContext);
         builder.Configuration["ASPIRE_LAUNCHER_BACKCHANNEL_PATH"] = socketPath;
         using var app = builder.Build();
         await app.StartAsync().WaitAsync(TimeSpan.FromSeconds(20));
@@ -73,12 +74,12 @@ public class CliBackchannelTests(ITestOutputHelper outputHelper)
         // This assertion is a little absurd, but the apphsot pinging the CLI
         // after the test starts is an invaraint I can assert on :)
         var pingTimestamp = await cliRpcTarget.PingAsyncChannel.Reader.ReadAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(10));
-        Assert.True(pingTimestamp > testStartedTimestamp);
+        Assert.IsTrue(pingTimestamp > testStartedTimestamp);
     
         await app.StopAsync().WaitAsync(TimeSpan.FromSeconds(10));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AppHostConnectsBackToCliWithPingRequestInInspectMode()
     {
         var testStartedTimestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
@@ -91,7 +92,7 @@ public class CliBackchannelTests(ITestOutputHelper outputHelper)
 
         using var builder = TestDistributedApplicationBuilder
             .Create("--operation", "inspect")
-            .WithTestAndResourceLogging(outputHelper);
+            .WithTestAndResourceLogging(TestContext);
 
         builder.Configuration["ASPIRE_LAUNCHER_BACKCHANNEL_PATH"] = socketPath;
         using var app = builder.Build();
@@ -106,7 +107,7 @@ public class CliBackchannelTests(ITestOutputHelper outputHelper)
         // This assertion is a little absurd, but the apphsot pinging the CLI
         // after the test starts is an invaraint I can assert on :)
         var pingTimestamp = await cliRpcTarget.PingAsyncChannel.Reader.ReadAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(10));
-        Assert.True(pingTimestamp > testStartedTimestamp);
+        Assert.IsTrue(pingTimestamp > testStartedTimestamp);
     
         await app.StopAsync().WaitAsync(TimeSpan.FromSeconds(10));
     }

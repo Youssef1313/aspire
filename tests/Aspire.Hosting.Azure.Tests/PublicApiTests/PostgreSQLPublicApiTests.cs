@@ -3,13 +3,13 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests.PublicApiTests;
 
+[TestClass]
 public class PostgreSQLPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     [Obsolete($"This method is obsolete and will be removed in a future version. Use AddAzurePostgresFlexibleServer instead to add an Azure PostgreSQL Flexible Server resource.")]
 
     public void PublishAsAzurePostgresFlexibleServerShouldThrowWhenBuilderIsNull()
@@ -22,10 +22,10 @@ public class PostgreSQLPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete($"This method is obsolete and will be removed in a future version. Use AddAzurePostgresFlexibleServer instead to add an Azure PostgreSQL Flexible Server resource.")]
     public void AsAzurePostgresFlexibleServerShouldThrowWhenBuilderIsNull()
     {
@@ -37,10 +37,10 @@ public class PostgreSQLPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzurePostgresFlexibleServerShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -49,12 +49,12 @@ public class PostgreSQLPublicApiTests
         var action = () => builder.AddAzurePostgresFlexibleServer(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddAzurePostgresFlexibleServerShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -65,10 +65,10 @@ public class PostgreSQLPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddDatabaseShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzurePostgresFlexibleServerResource> builder = null!;
@@ -77,12 +77,12 @@ public class PostgreSQLPublicApiTests
         var action = () => builder.AddDatabase(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddDatabaseShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -94,10 +94,10 @@ public class PostgreSQLPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void RunAsContainerShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzurePostgresFlexibleServerResource> builder = null!;
@@ -105,10 +105,10 @@ public class PostgreSQLPublicApiTests
         var action = () => builder.RunAsContainer();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPasswordAuthenticationShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzurePostgresFlexibleServerResource> builder = null!;
@@ -116,10 +116,10 @@ public class PostgreSQLPublicApiTests
         var action = () => builder.WithPasswordAuthentication();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete($"This class is obsolete and will be removed in a future version. Use AddAzurePostgresFlexibleServer instead to add an Azure Postgres Flexible Server resource.")]
     public void CtorAzurePostgresResourceShouldThrowWhenInnerResourceIsNull()
     {
@@ -129,10 +129,10 @@ public class PostgreSQLPublicApiTests
         var action = () => new AzurePostgresResource(innerResource, configureInfrastructure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(innerResource), exception.ParamName);
+        Assert.AreEqual(nameof(innerResource), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete($"This class is obsolete and will be removed in a future version. Use AddAzurePostgresFlexibleServer instead to add an Azure Postgres Flexible Server resource.")]
     public void CtorAzurePostgresResourceShouldThrowWhenConfigureInfrastructureIsNull()
     {
@@ -144,12 +144,12 @@ public class PostgreSQLPublicApiTests
         var action = () => new AzurePostgresResource(innerResource, configureInfrastructure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureInfrastructure), exception.ParamName);
+        Assert.AreEqual(nameof(configureInfrastructure), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzurePostgresFlexibleServerDatabaseResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
@@ -161,12 +161,12 @@ public class PostgreSQLPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzurePostgresFlexibleServerDatabaseResourceShouldThrowWhenDatabaseNameIsNullOrEmpty(bool isNull)
     {
         const string name = "postgres";
@@ -178,10 +178,10 @@ public class PostgreSQLPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(databaseName), exception.ParamName);
+        Assert.AreEqual(nameof(databaseName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzurePostgresFlexibleServerDatabaseResourceShouldThrowWhenPostgresParentResourceIsNull()
     {
         const string name = "postgres";
@@ -191,12 +191,12 @@ public class PostgreSQLPublicApiTests
         var action = () => new AzurePostgresFlexibleServerDatabaseResource(name, databaseName, postgresParentResource);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(postgresParentResource), exception.ParamName);
+        Assert.AreEqual(nameof(postgresParentResource), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzurePostgresFlexibleServerResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
@@ -207,10 +207,10 @@ public class PostgreSQLPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzurePostgresFlexibleServerResourceShouldThrowWhenConfigureInfrastructureIsNull()
     {
         const string name = "postgres";
@@ -219,6 +219,6 @@ public class PostgreSQLPublicApiTests
         var action = () => new AzurePostgresFlexibleServerResource(name, configureInfrastructure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureInfrastructure), exception.ParamName);
+        Assert.AreEqual(nameof(configureInfrastructure), exception.ParamName);
     }
 }

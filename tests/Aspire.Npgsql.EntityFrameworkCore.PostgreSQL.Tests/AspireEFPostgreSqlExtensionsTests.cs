@@ -10,10 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
-using Xunit;
 
 namespace Aspire.Npgsql.EntityFrameworkCore.PostgreSQL.Tests;
 
+[TestClass]
 public class AspireEFPostgreSqlExtensionsTests
 {
     private const string ConnectionString = "Host=localhost;Database=test;Username=postgres";
@@ -25,7 +25,7 @@ public class AspireEFPostgreSqlExtensionsTests
         builder.EnableServiceProviderCaching(false);
     }
 
-    [Fact]
+    [TestMethod]
     public void ReadsFromConnectionStringsCorrectly()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -38,10 +38,10 @@ public class AspireEFPostgreSqlExtensionsTests
         using var host = builder.Build();
         var context = host.Services.GetRequiredService<TestDbContext>();
 
-        Assert.Equal(ConnectionString, context.Database.GetDbConnection().ConnectionString);
+        Assert.AreEqual(ConnectionString, context.Database.GetDbConnection().ConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void ConnectionStringCanBeSetInCode()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -57,12 +57,12 @@ public class AspireEFPostgreSqlExtensionsTests
         var context = host.Services.GetRequiredService<TestDbContext>();
 
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
         // the connection string from config should not be used since code set it explicitly
         Assert.DoesNotContain("unused", actualConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void ConnectionNameWinsOverConfigSection()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -77,12 +77,12 @@ public class AspireEFPostgreSqlExtensionsTests
         var context = host.Services.GetRequiredService<TestDbContext>();
 
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
         // the connection string from config should not be used since it was found in ConnectionStrings
         Assert.DoesNotContain("unused", actualConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddNpgsqlCanConfigureDbContextOptions()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -106,25 +106,25 @@ public class AspireEFPostgreSqlExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<NpgsqlOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout was respected
-        Assert.Equal(123, extension.CommandTimeout);
+        Assert.AreEqual(123, extension.CommandTimeout);
 
         // ensure the connection string from config was respected
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
 
         // ensure the retry strategy is enabled and set to its default value
-        Assert.NotNull(extension.ExecutionStrategyFactory);
+        Assert.IsNotNull(extension.ExecutionStrategyFactory);
         var executionStrategy = extension.ExecutionStrategyFactory(new ExecutionStrategyDependencies(new CurrentDbContext(context), context.Options, null!));
         var retryStrategy = Assert.IsType<NpgsqlRetryingExecutionStrategy>(executionStrategy);
-        Assert.Equal(new WorkaroundToReadProtectedField(context).MaxRetryCount, retryStrategy.MaxRetryCount);
+        Assert.AreEqual(new WorkaroundToReadProtectedField(context).MaxRetryCount, retryStrategy.MaxRetryCount);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Fact]
+    [TestMethod]
     public void AddNpgsqlCanConfigureDbContextOptionsWithoutRetry()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -148,24 +148,24 @@ public class AspireEFPostgreSqlExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<NpgsqlOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout was respected
-        Assert.Equal(123, extension.CommandTimeout);
+        Assert.AreEqual(123, extension.CommandTimeout);
 
         // ensure the connection string from config was respected
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
 
         // ensure no retry strategy was registered
-        Assert.Null(extension.ExecutionStrategyFactory);
+        Assert.IsNull(extension.ExecutionStrategyFactory);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CanConfigureCommandTimeout(bool useSettings)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -189,17 +189,17 @@ public class AspireEFPostgreSqlExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<NpgsqlOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout was respected
-        Assert.Equal(123, extension.CommandTimeout);
+        Assert.AreEqual(123, extension.CommandTimeout);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CommandTimeoutFromBuilderWinsOverOthers(bool useSettings)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -223,10 +223,10 @@ public class AspireEFPostgreSqlExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<NpgsqlOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout was respected
-        Assert.Equal(123, extension.CommandTimeout);
+        Assert.AreEqual(123, extension.CommandTimeout);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
@@ -234,7 +234,7 @@ public class AspireEFPostgreSqlExtensionsTests
     /// <summary>
     /// Verifies that two different DbContexts can be registered with different connection strings.
     /// </summary>
-    [Fact]
+    [TestMethod]
     public void CanHave2DbContexts()
     {
         const string connectionString2 = "Host=localhost2;Database=test2;Username=postgres2";
@@ -253,15 +253,15 @@ public class AspireEFPostgreSqlExtensionsTests
         var context2 = host.Services.GetRequiredService<TestDbContext2>();
 
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
 
         actualConnectionString = context2.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(connectionString2, actualConnectionString);
+        Assert.AreEqual(connectionString2, actualConnectionString);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ThrowsWhenDbContextIsRegisteredBeforeAspireComponent(bool useServiceType)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = Environments.Development });
@@ -279,12 +279,12 @@ public class AspireEFPostgreSqlExtensionsTests
         }
 
         var exception = Assert.Throws<InvalidOperationException>(() => builder.AddNpgsqlDbContext<TestDbContext>("npgsql"));
-        Assert.Equal("DbContext<TestDbContext> is already registered. Please ensure 'services.AddDbContext<TestDbContext>()' is not used when calling 'AddNpgsqlDbContext()' or use the corresponding 'Enrich' method.", exception.Message);
+        Assert.AreEqual("DbContext<TestDbContext> is already registered. Please ensure 'services.AddDbContext<TestDbContext>()' is not used when calling 'AddNpgsqlDbContext()' or use the corresponding 'Enrich' method.", exception.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void DoesntThrowWhenDbContextIsRegisteredBeforeAspireComponentProduction(bool useServiceType)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = Environments.Production });
@@ -303,10 +303,10 @@ public class AspireEFPostgreSqlExtensionsTests
 
         var exception = Record.Exception(() => builder.AddNpgsqlDbContext<TestDbContext>("npgsql"));
 
-        Assert.Null(exception);
+        Assert.IsNull(exception);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddNpgsqlDbContext_WithConnectionNameAndSettings_AppliesConnectionSpecificSettings()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -329,13 +329,13 @@ public class AspireEFPostgreSqlExtensionsTests
             capturedSettings = settings;
         });
 
-        Assert.NotNull(capturedSettings);
-        Assert.Equal(60, capturedSettings.CommandTimeout);
-        Assert.True(capturedSettings.DisableRetry);
-        Assert.True(capturedSettings.DisableHealthChecks);
+        Assert.IsNotNull(capturedSettings);
+        Assert.AreEqual(60, capturedSettings.CommandTimeout);
+        Assert.IsTrue(capturedSettings.DisableRetry);
+        Assert.IsTrue(capturedSettings.DisableHealthChecks);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddNpgsqlDbContext_WithConnectionSpecificAndContextSpecificSettings_PrefersContextSpecific()
     {
         // Arrange
@@ -358,8 +358,8 @@ public class AspireEFPostgreSqlExtensionsTests
             capturedSettings = settings;
         });
 
-        Assert.NotNull(capturedSettings);
-        Assert.Equal(120, capturedSettings.CommandTimeout);
+        Assert.IsNotNull(capturedSettings);
+        Assert.AreEqual(120, capturedSettings.CommandTimeout);
     }
 
     public class TestDbContext2 : DbContext

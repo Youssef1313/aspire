@@ -35,10 +35,10 @@ public partial class AspireProject : IAsyncDisposable
     public TaskCompletionSource? AppExited { get; private set; }
     public bool IsRunning => AppHostProcess is not null && !AppHostProcess.TryGetHasExited();
 
-    private readonly ITestOutputHelper _testOutput;
+    private readonly TestContext _testOutput;
     private readonly BuildEnvironment _buildEnv;
 
-    public AspireProject(string id, string baseDir, ITestOutputHelper testOutput, BuildEnvironment buildEnv, TestTargetFramework? tfm = default)
+    public AspireProject(string id, string baseDir, TestContext testOutput, BuildEnvironment buildEnv, TestTargetFramework? tfm = default)
     {
         Id = id;
         RootDir = baseDir;
@@ -71,7 +71,7 @@ public partial class AspireProject : IAsyncDisposable
     public static async Task<AspireProject> CreateNewTemplateProjectAsync(
         string id,
         string template,
-        ITestOutputHelper testOutput,
+        TestContext testOutput,
         BuildEnvironment buildEnvironment,
         string extraArgs = "",
         TestTargetFramework? targetFramework = default,
@@ -356,7 +356,7 @@ public partial class AspireProject : IAsyncDisposable
         return WaitForDashboardToBeAvailableAsync(DashboardUrl, _testOutput, cancellationToken);
     }
 
-    public static async Task WaitForDashboardToBeAvailableAsync(string dashboardUrl, ITestOutputHelper testOutput, CancellationToken token = default)
+    public static async Task WaitForDashboardToBeAvailableAsync(string dashboardUrl, TestContext testOutput, CancellationToken token = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(dashboardUrl, nameof(dashboardUrl));
 
@@ -394,7 +394,7 @@ public partial class AspireProject : IAsyncDisposable
         await StopAppHostAsync().ConfigureAwait(false);
     }
 
-    public async Task DumpDockerInfoAsync(ITestOutputHelper? testOutputArg = null)
+    public async Task DumpDockerInfoAsync(TestContext? testOutputArg = null)
     {
         if (!RequiresDockerAttribute.IsSupported)
         {
@@ -411,7 +411,7 @@ public partial class AspireProject : IAsyncDisposable
         testOutput.WriteLine("--------------------------- Docker info (end) ---------------------------");
     }
 
-    public async Task DumpComponentLogsAsync(string component, ITestOutputHelper? testOutputArg = null)
+    public async Task DumpComponentLogsAsync(string component, TestContext? testOutputArg = null)
     {
         if (!RequiresDockerAttribute.IsSupported)
         {

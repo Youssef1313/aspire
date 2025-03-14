@@ -3,7 +3,6 @@
 
 using System.Globalization;
 using System.Reflection;
-using Xunit.Sdk;
 
 namespace Aspire.Dashboard.Components.Tests;
 

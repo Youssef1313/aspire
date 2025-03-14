@@ -1,29 +1,29 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 
 namespace Aspire.Npgsql.EntityFrameworkCore.PostgreSQL.Tests;
 
+[TestClass]
 public class ConfigurationTests
 {
-    [Fact]
+    [TestMethod]
     public void ConnectionStringIsNullByDefault()
-        => Assert.Null(new NpgsqlEntityFrameworkCorePostgreSQLSettings().ConnectionString);
+        => Assert.IsNull(new NpgsqlEntityFrameworkCorePostgreSQLSettings().ConnectionString);
 
-    [Fact]
+    [TestMethod]
     public void HealthCheckIsEnabledByDefault()
-        => Assert.False(new NpgsqlEntityFrameworkCorePostgreSQLSettings().DisableHealthChecks);
+        => Assert.IsFalse(new NpgsqlEntityFrameworkCorePostgreSQLSettings().DisableHealthChecks);
 
-    [Fact]
+    [TestMethod]
     public void TracingIsEnabledByDefault()
-        => Assert.False(new NpgsqlEntityFrameworkCorePostgreSQLSettings().DisableTracing);
+        => Assert.IsFalse(new NpgsqlEntityFrameworkCorePostgreSQLSettings().DisableTracing);
 
-    [Fact]
+    [TestMethod]
     public void MetricsAreEnabledByDefault()
-        => Assert.False(new NpgsqlEntityFrameworkCorePostgreSQLSettings().DisableMetrics);
+        => Assert.IsFalse(new NpgsqlEntityFrameworkCorePostgreSQLSettings().DisableMetrics);
 
-    [Fact]
+    [TestMethod]
     public void RetriesAreEnabledByDefault()
-        => Assert.False(new NpgsqlEntityFrameworkCorePostgreSQLSettings().DisableRetry);
+        => Assert.IsFalse(new NpgsqlEntityFrameworkCorePostgreSQLSettings().DisableRetry);
 }

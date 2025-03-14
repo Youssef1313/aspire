@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using RabbitMQ.Client;
 using Testcontainers.RabbitMq;
-using Xunit;
 
 #if RABBITMQ_V6
 using RabbitMQ.Client.Logging;
@@ -21,6 +20,7 @@ using System.Reflection;
 
 namespace Aspire.RabbitMQ.Client.Tests;
 
+[TestClass]
 public class AspireRabbitMQLoggingTests
 {
     /// <summary>
@@ -29,7 +29,7 @@ public class AspireRabbitMQLoggingTests
     /// The easiest way to ensure a log is written is to start the RabbitMQ container, establish the connection,
     /// and then stop the container. This will cause the RabbitMQ client to log an error message.
     /// </summary>
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task EndToEndLoggingTest()
     {
@@ -67,13 +67,13 @@ public class AspireRabbitMQLoggingTests
         await tsc.Task.WaitAsync(TimeSpan.FromMinutes(1));
 
         var logs = logger.Logs.ToArray();
-        Assert.True(logs.Length >= 2, "Should be at least 2 logs written.");
+        Assert.IsTrue(logs.Length >= 2, "Should be at least 2 logs written.");
 
         Assert.Contains(logs, l => l.Level == LogLevel.Information && l.Message == "Performing automatic recovery");
         Assert.Contains(logs, l => l.Level == LogLevel.Error && l.Message == "Connection recovery exception.");
     }
 
-    [Fact]
+    [TestMethod]
     public void TestInfoAndWarn()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -89,20 +89,20 @@ public class AspireRabbitMQLoggingTests
         LogInfo(message);
 
         var logs = logger.Logs.ToArray();
-        Assert.Single(logs);
-        Assert.Equal(LogLevel.Information, logs[0].Level);
-        Assert.Equal(message, logs[0].Message);
+        Assert.ContainsSingle(logs);
+        Assert.AreEqual(LogLevel.Information, logs[0].Level);
+        Assert.AreEqual(message, logs[0].Message);
 
         var warningMessage = "This is a warning message.";
         LogWarn(warningMessage);
 
         logs = logger.Logs.ToArray();
-        Assert.Equal(2, logs.Length);
-        Assert.Equal(LogLevel.Warning, logs[1].Level);
-        Assert.Equal(warningMessage, logs[1].Message);
+        Assert.AreEqual(2, logs.Length);
+        Assert.AreEqual(LogLevel.Warning, logs[1].Level);
+        Assert.AreEqual(warningMessage, logs[1].Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void TestExceptionWithoutInnerException()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -125,29 +125,29 @@ public class AspireRabbitMQLoggingTests
             testException = ex;
         }
 
-        Assert.NotNull(testException);
+        Assert.IsNotNull(testException);
         var logMessage = "This is an error message.";
         LogError(logMessage, testException);
 
         var logs = logger.Logs.ToArray();
-        Assert.Single(logs);
-        Assert.Equal(LogLevel.Error, logs[0].Level);
-        Assert.Equal(logMessage, logs[0].Message);
+        Assert.ContainsSingle(logs);
+        Assert.AreEqual(LogLevel.Error, logs[0].Level);
+        Assert.AreEqual(logMessage, logs[0].Message);
 
         var errorEvent = Assert.IsAssignableFrom<IReadOnlyList<KeyValuePair<string, object?>>>(logs[0].State);
-        Assert.Equal(3, errorEvent.Count);
+        Assert.AreEqual(3, errorEvent.Count);
 
-        Assert.Equal("exception.type", errorEvent[0].Key);
-        Assert.Equal("System.InvalidOperationException", errorEvent[0].Value);
+        Assert.AreEqual("exception.type", errorEvent[0].Key);
+        Assert.AreEqual("System.InvalidOperationException", errorEvent[0].Value);
 
-        Assert.Equal("exception.message", errorEvent[1].Key);
-        Assert.Equal(exceptionMessage, errorEvent[1].Value);
+        Assert.AreEqual("exception.message", errorEvent[1].Key);
+        Assert.AreEqual(exceptionMessage, errorEvent[1].Value);
 
-        Assert.Equal("exception.stacktrace", errorEvent[2].Key);
+        Assert.AreEqual("exception.stacktrace", errorEvent[2].Key);
         Assert.Contains("AspireRabbitMQLoggingTests.TestException", errorEvent[2].Value?.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void TestExceptionWithInnerException()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -171,29 +171,29 @@ public class AspireRabbitMQLoggingTests
             testException = ex;
         }
 
-        Assert.NotNull(testException);
+        Assert.IsNotNull(testException);
         var logMessage = "This is an error message.";
         LogError(logMessage, testException);
 
         var logs = logger.Logs.ToArray();
-        Assert.Single(logs);
-        Assert.Equal(LogLevel.Error, logs[0].Level);
-        Assert.Equal(logMessage, logs[0].Message);
+        Assert.ContainsSingle(logs);
+        Assert.AreEqual(LogLevel.Error, logs[0].Level);
+        Assert.AreEqual(logMessage, logs[0].Message);
 
         var errorEvent = Assert.IsAssignableFrom<IReadOnlyList<KeyValuePair<string, object?>>>(logs[0].State);
-        Assert.Equal(4, errorEvent.Count);
+        Assert.AreEqual(4, errorEvent.Count);
 
-        Assert.Equal("exception.type", errorEvent[0].Key);
-        Assert.Equal("System.InvalidOperationException", errorEvent[0].Value);
+        Assert.AreEqual("exception.type", errorEvent[0].Key);
+        Assert.AreEqual("System.InvalidOperationException", errorEvent[0].Value);
 
-        Assert.Equal("exception.message", errorEvent[1].Key);
-        Assert.Equal(exceptionMessage, errorEvent[1].Value);
+        Assert.AreEqual("exception.message", errorEvent[1].Key);
+        Assert.AreEqual(exceptionMessage, errorEvent[1].Value);
 
-        Assert.Equal("exception.stacktrace", errorEvent[2].Key);
+        Assert.AreEqual("exception.stacktrace", errorEvent[2].Key);
         Assert.Contains("AspireRabbitMQLoggingTests.TestException", errorEvent[2].Value?.ToString());
 
-        Assert.Equal("exception.innerexception", errorEvent[3].Key);
-        Assert.Equal($"{innerException.GetType()}: {innerException.Message}", errorEvent[3].Value?.ToString());
+        Assert.AreEqual("exception.innerexception", errorEvent[3].Key);
+        Assert.AreEqual($"{innerException.GetType()}: {innerException.Message}", errorEvent[3].Value?.ToString());
     }
 
 #if !RABBITMQ_V6

@@ -4,13 +4,13 @@
 using System.Text.Json.Nodes;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests.PublicApiTests;
 
+[TestClass]
 public class ServiceBusPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void CtorAzureServiceBusEmulatorResourceShouldThrowWhenInnerResourceIsNull()
     {
         AzureServiceBusResource innerResource = null!;
@@ -18,10 +18,10 @@ public class ServiceBusPublicApiTests
         var action = () => new AzureServiceBusEmulatorResource(innerResource);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(innerResource), exception.ParamName);
+        Assert.AreEqual(nameof(innerResource), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureServiceBusShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -30,12 +30,12 @@ public class ServiceBusPublicApiTests
         var action = () => builder.AddAzureServiceBus(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddAzureServiceBusShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -46,10 +46,10 @@ public class ServiceBusPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete($"This method is obsolete because it has the wrong return type and will be removed in a future version. Use AddServiceBusQueue instead to add an Azure Service Bus Queue.")]
     public void AddQueueShouldThrowWhenBuilderIsNull()
     {
@@ -59,12 +59,12 @@ public class ServiceBusPublicApiTests
         var action = () => builder.AddQueue(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     [Obsolete($"This method is obsolete because it has the wrong return type and will be removed in a future version. Use AddServiceBusQueue instead to add an Azure Service Bus Queue.")]
     public void AddQueueShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
@@ -77,10 +77,10 @@ public class ServiceBusPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddServiceBusQueueShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureServiceBusResource> builder = null!;
@@ -89,12 +89,12 @@ public class ServiceBusPublicApiTests
         var action = () => builder.AddServiceBusQueue(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddServiceBusQueueShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -106,10 +106,10 @@ public class ServiceBusPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPropertiesShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureServiceBusQueueResource> builder = null!;
@@ -118,10 +118,10 @@ public class ServiceBusPublicApiTests
         var action = () => builder.WithProperties(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPropertiesShouldThrowWhenConfigureIsNull()
     {
         using var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -131,10 +131,10 @@ public class ServiceBusPublicApiTests
         var action = () => builder.WithProperties(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configure), exception.ParamName);
+        Assert.AreEqual(nameof(configure), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddServiceBusTopicShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureServiceBusResource> builder = null!;
@@ -143,12 +143,12 @@ public class ServiceBusPublicApiTests
         var action = () => builder.AddServiceBusTopic(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddServiceBusTopicShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -160,10 +160,10 @@ public class ServiceBusPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPropertiesTopicShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureServiceBusTopicResource> builder = null!;
@@ -172,10 +172,10 @@ public class ServiceBusPublicApiTests
         var action = () => builder.WithProperties(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPropertiesTopicShouldThrowWhenConfigureIsNull()
     {
         using var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -185,10 +185,10 @@ public class ServiceBusPublicApiTests
         var action = () => builder.WithProperties(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configure), exception.ParamName);
+        Assert.AreEqual(nameof(configure), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddServiceBusSubscriptionShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureServiceBusTopicResource> builder = null!;
@@ -197,12 +197,12 @@ public class ServiceBusPublicApiTests
         var action = () => builder.AddServiceBusSubscription(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddServiceBusSubscriptionShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -215,10 +215,10 @@ public class ServiceBusPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPropertiesSubscriptionShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureServiceBusSubscriptionResource> builder = null!;
@@ -227,10 +227,10 @@ public class ServiceBusPublicApiTests
         var action = () => builder.WithProperties(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPropertiesSubscriptionShouldThrowWhenConfigureIsNull()
     {
         using var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -242,10 +242,10 @@ public class ServiceBusPublicApiTests
         var action = () => builder.WithProperties(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configure), exception.ParamName);
+        Assert.AreEqual(nameof(configure), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void RunAsEmulatorShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureServiceBusResource> builder = null!;
@@ -253,10 +253,10 @@ public class ServiceBusPublicApiTests
         var action = () => builder.RunAsEmulator();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithConfigurationFileShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureServiceBusEmulatorResource> builder = null!;
@@ -265,12 +265,12 @@ public class ServiceBusPublicApiTests
         var action = () => builder.WithConfigurationFile(path);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void WithConfigurationFileShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -282,10 +282,10 @@ public class ServiceBusPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(path), exception.ParamName);
+        Assert.AreEqual(nameof(path), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithConfigurationShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureServiceBusEmulatorResource> builder = null!;
@@ -294,10 +294,10 @@ public class ServiceBusPublicApiTests
         var action = () => builder.WithConfiguration(configJson);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithConfigurationShouldThrowWhenConfigJsonIsNull()
     {
         using var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -307,10 +307,10 @@ public class ServiceBusPublicApiTests
         var action = () => builder.RunAsEmulator(configure => configure.WithConfiguration(configJson));
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configJson), exception.ParamName);
+        Assert.AreEqual(nameof(configJson), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithHostPortShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureServiceBusEmulatorResource> builder = null!;
@@ -319,6 +319,6 @@ public class ServiceBusPublicApiTests
         var action = () => builder.WithHostPort(port);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 }

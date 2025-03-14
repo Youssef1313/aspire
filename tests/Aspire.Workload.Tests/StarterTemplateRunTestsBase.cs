@@ -3,7 +3,6 @@
 
 using Microsoft.Playwright;
 using static Microsoft.Playwright.Assertions;
-using Xunit;
 using Xunit.Abstractions;
 using Aspire.Hosting.Redis;
 using System.Net.Http.Json;
@@ -16,13 +15,13 @@ public abstract class StarterTemplateRunTestsBase<T> : WorkloadTestsBase, IClass
     protected bool HasRedisCache;
     protected virtual int DashboardResourcesWaitTimeoutSecs => 120;
 
-    public StarterTemplateRunTestsBase(T fixture, ITestOutputHelper testOutput)
+    public StarterTemplateRunTestsBase(T fixture, TestContext testOutput)
         : base(testOutput)
     {
         _testFixture = fixture;
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4623", typeof(PlaywrightProvider), nameof(PlaywrightProvider.DoesNotHavePlaywrightSupport))]
     public async Task ResourcesShowUpOnDashboard()
     {
@@ -33,9 +32,9 @@ public abstract class StarterTemplateRunTestsBase<T> : WorkloadTestsBase, IClass
             timeoutSecs: DashboardResourcesWaitTimeoutSecs);
     }
 
-    [Theory]
-    [InlineData("http://")]
-    [InlineData("https://")]
+    [TestMethod]
+    [DataRow("http://")]
+    [DataRow("https://")]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4623", typeof(PlaywrightProvider), nameof(PlaywrightProvider.DoesNotHavePlaywrightSupport))]
     public async Task WebFrontendWorks(string urlPrefix)
     {
@@ -50,9 +49,9 @@ public abstract class StarterTemplateRunTestsBase<T> : WorkloadTestsBase, IClass
         await CheckWebFrontendWorksAsync(context, url, _testOutput, _testFixture.Project.LogPath, hasRedisCache: HasRedisCache);
     }
 
-    [Theory]
-    [InlineData("http://")]
-    [InlineData("https://")]
+    [TestMethod]
+    [DataRow("http://")]
+    [DataRow("https://")]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4623", typeof(PlaywrightProvider), nameof(PlaywrightProvider.DoesNotHavePlaywrightSupport))]
     public async Task ApiServiceWorks(string urlPrefix)
     {
@@ -67,18 +66,18 @@ public abstract class StarterTemplateRunTestsBase<T> : WorkloadTestsBase, IClass
         await CheckApiServiceWorksAsync(url, _testOutput, _testFixture.Project.LogPath);
     }
 
-    public static async Task CheckApiServiceWorksAsync(string url, ITestOutputHelper testOutput, string logPath)
+    public static async Task CheckApiServiceWorksAsync(string url, TestContext testOutput, string logPath)
     {
         var uri = new UriBuilder(url) { Path = "weatherforecast" }.Uri;
 
         using var httpClient = new HttpClient();
         var response = await httpClient.GetFromJsonAsync<WeatherForecast[]>(uri);
 
-        Assert.NotNull(response);
-        Assert.Equal(5, response.Length);
+        Assert.IsNotNull(response);
+        Assert.AreEqual(5, response.Length);
     }
 
-    public static async Task CheckWebFrontendWorksAsync(IBrowserContext context, string url, ITestOutputHelper testOutput, string logPath, bool hasRedisCache = false)
+    public static async Task CheckWebFrontendWorksAsync(IBrowserContext context, string url, TestContext testOutput, string logPath, bool hasRedisCache = false)
     {
         var page = await context.NewPageWithLoggingAsync(testOutput);
 
@@ -102,7 +101,7 @@ public abstract class StarterTemplateRunTestsBase<T> : WorkloadTestsBase, IClass
                 await page.ReloadAsync(new PageReloadOptions { WaitUntil = WaitUntilState.Load });
 
                 var secondLoadText = string.Join(',', (await GetAndValidateCellTexts(tableLoc)).SelectMany(r => r));
-                Assert.NotEqual(firstLoadText, secondLoadText);
+                Assert.AreNotEqual(firstLoadText, secondLoadText);
             }
         }
         catch (Exception ex)
@@ -128,10 +127,10 @@ public abstract class StarterTemplateRunTestsBase<T> : WorkloadTestsBase, IClass
 
             foreach (var row in cellTexts)
             {
-                Assert.Collection(row,
-                    r => Assert.True(DateTime.TryParse(r, out _)),
-                    r => Assert.True(int.TryParse(r, out var actualTempC) && actualTempC >= -20 && actualTempC <= 55),
-                    r => Assert.True(int.TryParse(r, out var actualTempF) && actualTempF >= -5 && actualTempF <= 133),
+                Assert.That.Collection(row,
+                    r => Assert.IsTrue(DateTime.TryParse(r, out _)),
+                    r => Assert.IsTrue(int.TryParse(r, out var actualTempC) && actualTempC >= -20 && actualTempC <= 55),
+                    r => Assert.IsTrue(int.TryParse(r, out var actualTempF) && actualTempF >= -5 && actualTempF <= 133),
                     r => Assert.Contains(r, new HashSet<string> { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" }));
             }
 

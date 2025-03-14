@@ -3,13 +3,13 @@
 
 using System.Runtime.CompilerServices;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Tests.Utils;
 
+[TestClass]
 public class PeriodicRestartAsyncEnumerableTests
 {
-    [Fact]
+    [TestMethod]
     public async Task CancellingMainTokenCancelsEnumerable()
     {
         using var cts = new CancellationTokenSource();
@@ -33,7 +33,7 @@ public class PeriodicRestartAsyncEnumerableTests
     private static int s_totalEnumerablesRun;
     private static int s_activeRunningEnumerables;
 
-    [Fact]
+    [TestMethod]
     public async Task EnumerableIsRecreatedPeriodically()
     {
         using var cts = new CancellationTokenSource();
@@ -52,8 +52,8 @@ public class PeriodicRestartAsyncEnumerableTests
             }
         });
 
-        Assert.True(s_totalEnumerablesRun > 1, "expected additional iteration runs");
-        Assert.True(s_activeRunningEnumerables == 0, "expected all enumerables to be ended after cancellation");
+        Assert.IsTrue(s_totalEnumerablesRun > 1, "expected additional iteration runs");
+        Assert.IsTrue(s_activeRunningEnumerables == 0, "expected all enumerables to be ended after cancellation");
     }
 
     static async IAsyncEnumerable<int> CountingAsyncEnumerable(int start, TimeSpan delay, [EnumeratorCancellation] CancellationToken cancellationToken)

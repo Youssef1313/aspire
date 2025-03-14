@@ -5,17 +5,17 @@ using Azure.Storage.Queues;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Storage.Queues.Tests;
 
+[TestClass]
 public class AspireQueueStorageExtensionsTests
 {
     private const string ConnectionString = "AccountName=aspirestoragetests;AccountKey=fake";
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -37,12 +37,12 @@ public class AspireQueueStorageExtensionsTests
             host.Services.GetRequiredKeyedService<QueueServiceClient>("queue") :
             host.Services.GetRequiredService<QueueServiceClient>();
 
-        Assert.Equal("aspirestoragetests", client.AccountName);
+        Assert.AreEqual("aspirestoragetests", client.AccountName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -64,12 +64,12 @@ public class AspireQueueStorageExtensionsTests
             host.Services.GetRequiredKeyedService<QueueServiceClient>("queue") :
             host.Services.GetRequiredService<QueueServiceClient>();
 
-        Assert.Equal("aspirestoragetests", client.AccountName);
+        Assert.AreEqual("aspirestoragetests", client.AccountName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -94,12 +94,12 @@ public class AspireQueueStorageExtensionsTests
             host.Services.GetRequiredKeyedService<QueueServiceClient>("queue") :
             host.Services.GetRequiredService<QueueServiceClient>();
 
-        Assert.Equal("aspirestoragetests", client.AccountName);
+        Assert.AreEqual("aspirestoragetests", client.AccountName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ServiceUriWorksInConnectionStrings(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -122,10 +122,10 @@ public class AspireQueueStorageExtensionsTests
             host.Services.GetRequiredKeyedService<QueueServiceClient>("queue") :
             host.Services.GetRequiredService<QueueServiceClient>();
 
-        Assert.Equal("aspirestoragetests", client.AccountName);
+        Assert.AreEqual("aspirestoragetests", client.AccountName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -146,12 +146,12 @@ public class AspireQueueStorageExtensionsTests
         var client2 = host.Services.GetRequiredKeyedService<QueueServiceClient>("queue2");
         var client3 = host.Services.GetRequiredKeyedService<QueueServiceClient>("queue3");
 
-        //Assert.NotSame(client1, client2);
-        //Assert.NotSame(client1, client3);
-        Assert.NotSame(client2, client3);
+        //Assert.AreNotSame(client1, client2);
+        //Assert.AreNotSame(client1, client3);
+        Assert.AreNotSame(client2, client3);
 
-        //Assert.Equal("aspirestoragetests", client1.AccountName);
-        Assert.Equal("aspirestoragetests2", client2.AccountName);
-        Assert.Equal("aspirestoragetests3", client3.AccountName);
+        //Assert.AreEqual("aspirestoragetests", client1.AccountName);
+        Assert.AreEqual("aspirestoragetests2", client2.AccountName);
+        Assert.AreEqual("aspirestoragetests3", client3.AccountName);
     }
 }

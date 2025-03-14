@@ -2,19 +2,19 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Hosting.ApplicationModel;
-using Xunit;
 using static Microsoft.CodeAnalysis.Testing.DiagnosticResult;
 
 namespace Aspire.Hosting.Analyzers.Tests;
 
+[TestClass]
 public class CombinationsAnalyzerTests
 {
-    [Theory]
+    [TestMethod]
     [ClassData(typeof(TestData.InvalidModelNames))]
     public async Task MethodWithBothResourceAndEndpointNameParametersInvalid(string modelName)
     {
-        Assert.False(ModelName.TryValidateName("Resource", $"{modelName}-resource", out var message1));
-        Assert.False(ModelName.TryValidateName("Endpoint", $"{modelName}-endpoint", out var message2));
+        Assert.IsFalse(ModelName.TryValidateName("Resource", $"{modelName}-resource", out var message1));
+        Assert.IsFalse(ModelName.TryValidateName("Endpoint", $"{modelName}-endpoint", out var message2));
 
         var diagnostic = AppHostAnalyzer.Diagnostics.s_modelNameMustBeValid;
 
@@ -44,12 +44,12 @@ public class CombinationsAnalyzerTests
         await test.RunAsync();
     }
 
-    [Theory]
+    [TestMethod]
     [ClassData(typeof(TestData.InvalidModelNames))]
     public async Task AnalyzerIsResilientToParameterWithMutlipleModelNameAttributes(string modelName)
     {
-        Assert.False(ModelName.TryValidateName("Resource", $"{modelName}", out var message1));
-        Assert.False(ModelName.TryValidateName("Endpoint", $"{modelName}", out var message2));
+        Assert.IsFalse(ModelName.TryValidateName("Resource", $"{modelName}", out var message1));
+        Assert.IsFalse(ModelName.TryValidateName("Endpoint", $"{modelName}", out var message2));
 
         var diagnostic = AppHostAnalyzer.Diagnostics.s_modelNameMustBeValid;
 

@@ -3,15 +3,15 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests.PublicApiTests;
 
+[TestClass]
 public class ApplicationInsightsPublicApiTests
 {
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(1)]
     public void AddAzureApplicationInsightsShouldThrowWhenBuilderIsNull(int overrideIndex)
     {
         IDistributedApplicationBuilder builder = null!;
@@ -26,14 +26,14 @@ public class ApplicationInsightsPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0, false)]
-    [InlineData(0, true)]
-    [InlineData(1, false)]
-    [InlineData(1, true)]
+    [TestMethod]
+    [DataRow(0, false)]
+    [DataRow(0, true)]
+    [DataRow(1, false)]
+    [DataRow(1, true)]
     public void AddAzureApplicationInsightsShouldThrowWhenNameIsNullOrEmpty(int overrideIndex, bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -50,12 +50,12 @@ public class ApplicationInsightsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureApplicationInsightsResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
@@ -66,10 +66,10 @@ public class ApplicationInsightsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureApplicationInsightsResourceShouldThrowWhenConfigureInfrastructureIsNull()
     {
         const string name = "insights";
@@ -78,6 +78,6 @@ public class ApplicationInsightsPublicApiTests
         var action = () => new AzureApplicationInsightsResource(name, configureInfrastructure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureInfrastructure), exception.ParamName);
+        Assert.AreEqual(nameof(configureInfrastructure), exception.ParamName);
     }
 }

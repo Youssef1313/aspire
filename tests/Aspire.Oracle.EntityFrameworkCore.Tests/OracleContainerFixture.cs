@@ -4,7 +4,6 @@
 using Aspire.Components.Common.Tests;
 using DotNet.Testcontainers.Builders;
 using Testcontainers.Oracle;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Oracle.EntityFrameworkCore.Tests;

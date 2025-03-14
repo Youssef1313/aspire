@@ -3,15 +3,15 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests.PublicApiTests;
 
+[TestClass]
 public class CognitiveServicesPublicApiTests
 {
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureOpenAIDeploymentShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
@@ -23,12 +23,12 @@ public class CognitiveServicesPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureOpenAIDeploymentShouldThrowWhenModelNameIsNullOrEmpty(bool isNull)
     {
         const string name = "open-ai";
@@ -40,12 +40,12 @@ public class CognitiveServicesPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(modelName), exception.ParamName);
+        Assert.AreEqual(nameof(modelName), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureOpenAIDeploymentShouldThrowWhenModelVersionIsNullOrEmpty(bool isNull)
     {
         const string name = "open-ai";
@@ -57,10 +57,10 @@ public class CognitiveServicesPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(modelVersion), exception.ParamName);
+        Assert.AreEqual(nameof(modelVersion), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureOpenAIShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -69,12 +69,12 @@ public class CognitiveServicesPublicApiTests
         var action = () => builder.AddAzureOpenAI(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddAzureOpenAIShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -85,10 +85,10 @@ public class CognitiveServicesPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddDeploymentShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureOpenAIResource> builder = null!;
@@ -97,10 +97,10 @@ public class CognitiveServicesPublicApiTests
         var action = () => builder.AddDeployment(deployment);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddDeploymentShouldThrowWhenDeploymentIsNull()
     {
         using var testBuilder = TestDistributedApplicationBuilder.Create();
@@ -110,6 +110,6 @@ public class CognitiveServicesPublicApiTests
         var action = () => builder.AddDeployment(deployment);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(deployment), exception.ParamName);
+        Assert.AreEqual(nameof(deployment), exception.ParamName);
     }
 }

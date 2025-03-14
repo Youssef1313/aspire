@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.NodeJs.Tests;
 
+[TestClass]
 public class AddNodeAppTests
 {
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -41,7 +41,7 @@ public class AddNodeAppTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
 
         var npmApp = builder.AddNpmApp("npmapp", workingDirectory)
             .WithHttpEndpoint(port: 5032, env: "PORT");
@@ -71,6 +71,6 @@ public class AddNodeAppTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 }

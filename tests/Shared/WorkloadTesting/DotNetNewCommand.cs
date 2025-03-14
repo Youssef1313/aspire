@@ -10,7 +10,7 @@ public class DotNetNewCommand : DotNetCommand
     private readonly string _customHive;
 
     public DotNetNewCommand(
-        ITestOutputHelper _testOutput,
+        TestContext _testOutput,
         bool useDefaultArgs = true,
         BuildEnvironment? buildEnv = null,
         string? hiveDirectory = null,

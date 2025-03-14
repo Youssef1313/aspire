@@ -12,7 +12,7 @@ public class ToolCommand : IDisposable
     private readonly string _label;
     private TimeSpan? _timeout;
     private readonly string _msgPrefix;
-    protected ITestOutputHelper _testOutput;
+    protected TestContext _testOutput;
 
     protected string _command;
 
@@ -26,7 +26,7 @@ public class ToolCommand : IDisposable
 
     public string? WorkingDirectory { get; set; }
 
-    public ToolCommand(string command, ITestOutputHelper testOutput, string label="")
+    public ToolCommand(string command, TestContext testOutput, string label="")
     {
         _command = command;
         _testOutput = testOutput;

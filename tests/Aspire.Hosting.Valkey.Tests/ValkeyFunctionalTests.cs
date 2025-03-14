@@ -10,18 +10,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Valkey.Tests;
 
-public class ValkeyFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class ValkeyFunctionalTests(TestContext testContext)
 {
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyValkeyResource()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testContext);
 
         var valkey = builder.AddValkey("valkey");
 
@@ -52,12 +52,12 @@ public class ValkeyFunctionalTests(ITestOutputHelper testOutputHelper)
 
         var value = await db.StringGetAsync("key");
 
-        Assert.Equal("value", value);
+        Assert.AreEqual("value", value);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
@@ -66,7 +66,7 @@ public class ValkeyFunctionalTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testContext);
             var valkey1 = builder1.AddValkey("valkey");
 
             if (useVolume)
@@ -125,7 +125,7 @@ public class ValkeyFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testContext);
             var valkey2 = builder2.AddValkey("valkey");
 
             if (useVolume)
@@ -163,7 +163,7 @@ public class ValkeyFunctionalTests(ITestOutputHelper testOutputHelper)
 
                         var value = await db.StringGetAsync("key");
 
-                        Assert.Equal("value", value);
+                        Assert.AreEqual("value", value);
                     }
                 }
                 finally
@@ -194,12 +194,12 @@ public class ValkeyFunctionalTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWaitForOnValkeyBlocksDependentResources()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>

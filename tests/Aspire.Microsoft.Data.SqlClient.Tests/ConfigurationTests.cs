@@ -1,21 +1,21 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 
 namespace Aspire.Microsoft.Data.SqlClient.Tests;
 
+[TestClass]
 public class ConfigurationTests
 {
-    [Fact]
+    [TestMethod]
     public void ConnectionStringIsNullByDefault()
-        => Assert.Null(new MicrosoftDataSqlClientSettings().ConnectionString);
+        => Assert.IsNull(new MicrosoftDataSqlClientSettings().ConnectionString);
 
-    [Fact]
+    [TestMethod]
     public void HealthCheckIsEnabledByDefault()
-        => Assert.False(new MicrosoftDataSqlClientSettings().DisableHealthChecks);
+        => Assert.IsFalse(new MicrosoftDataSqlClientSettings().DisableHealthChecks);
 
-    [Fact]
+    [TestMethod]
     public void TracingIsEnabledByDefault()
-        => Assert.False(new MicrosoftDataSqlClientSettings().DisableTracing);
+        => Assert.IsFalse(new MicrosoftDataSqlClientSettings().DisableTracing);
 }

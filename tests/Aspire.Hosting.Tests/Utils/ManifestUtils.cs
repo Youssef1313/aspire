@@ -4,7 +4,6 @@
 using Aspire.Hosting.Publishing;
 using System.Text.Json.Nodes;
 using System.Text.Json;
-using Xunit;
 
 namespace Aspire.Hosting.Utils;
 
@@ -13,7 +12,7 @@ public sealed class ManifestUtils
     public static async Task<JsonNode> GetManifest(IResource resource, string? manifestDirectory = null)
     {
         var node = await GetManifestOrNull(resource, manifestDirectory);
-        Assert.NotNull(node);
+        Assert.IsNotNull(node);
         return node;
     }
 
@@ -31,7 +30,7 @@ public sealed class ManifestUtils
         writer.Flush();
         ms.Position = 0;
         var obj = JsonNode.Parse(ms);
-        Assert.NotNull(obj);
+        Assert.IsNotNull(obj);
         var resourceNode = obj[resource.Name];
         return resourceNode;
     }
@@ -53,9 +52,9 @@ public sealed class ManifestUtils
             writer.Flush();
             ms.Position = 0;
             var obj = JsonNode.Parse(ms);
-            Assert.NotNull(obj);
+            Assert.IsNotNull(obj);
             var resourceNode = obj[r.Name];
-            Assert.NotNull(resourceNode);
+            Assert.IsNotNull(resourceNode);
             results.Add(resourceNode);
 
             ms.Position = 0;

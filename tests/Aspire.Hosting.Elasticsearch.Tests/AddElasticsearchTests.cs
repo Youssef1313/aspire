@@ -7,12 +7,13 @@ using Aspire.Hosting.Elasticsearch;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Tests.Elasticsearch;
+
+[TestClass]
 public class AddElasticsearchTests
 {
-    [Fact]
+    [TestMethod]
     public async Task AddElasticsearchContainerWithDefaultsAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -23,56 +24,56 @@ public class AddElasticsearchTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<ElasticsearchResource>());
-        Assert.Equal("elasticsearch", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<ElasticsearchResource>());
+        Assert.AreEqual("elasticsearch", containerResource.Name);
 
         var endpoints = containerResource.Annotations.OfType<EndpointAnnotation>();
-        Assert.Equal(2, endpoints.Count());
+        Assert.AreEqual(2, endpoints.Count());
 
-        var primaryEndpoint = Assert.Single(endpoints, e => e.Name == "http");
-        Assert.Equal(9200, primaryEndpoint.TargetPort);
-        Assert.False(primaryEndpoint.IsExternal);
-        Assert.Equal("http", primaryEndpoint.Name);
-        Assert.Null(primaryEndpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, primaryEndpoint.Protocol);
-        Assert.Equal("http", primaryEndpoint.Transport);
-        Assert.Equal("http", primaryEndpoint.UriScheme);
+        var primaryEndpoint = Assert.ContainsSingle(endpoints, e => e.Name == "http");
+        Assert.AreEqual(9200, primaryEndpoint.TargetPort);
+        Assert.IsFalse(primaryEndpoint.IsExternal);
+        Assert.AreEqual("http", primaryEndpoint.Name);
+        Assert.IsNull(primaryEndpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, primaryEndpoint.Protocol);
+        Assert.AreEqual("http", primaryEndpoint.Transport);
+        Assert.AreEqual("http", primaryEndpoint.UriScheme);
 
-        var internalEndpoint = Assert.Single(endpoints, e => e.Name == "internal");
-        Assert.Equal(9300, internalEndpoint.TargetPort);
-        Assert.False(internalEndpoint.IsExternal);
-        Assert.Equal("internal", internalEndpoint.Name);
-        Assert.Null(internalEndpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, internalEndpoint.Protocol);
-        Assert.Equal("tcp", internalEndpoint.Transport);
-        Assert.Equal("tcp", internalEndpoint.UriScheme);
+        var internalEndpoint = Assert.ContainsSingle(endpoints, e => e.Name == "internal");
+        Assert.AreEqual(9300, internalEndpoint.TargetPort);
+        Assert.IsFalse(internalEndpoint.IsExternal);
+        Assert.AreEqual("internal", internalEndpoint.Name);
+        Assert.IsNull(internalEndpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, internalEndpoint.Protocol);
+        Assert.AreEqual("tcp", internalEndpoint.Transport);
+        Assert.AreEqual("tcp", internalEndpoint.UriScheme);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(ElasticsearchContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(ElasticsearchContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(ElasticsearchContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(ElasticsearchContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(ElasticsearchContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(ElasticsearchContainerImageTags.Registry, containerAnnotation.Registry);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("discovery.type", env.Key);
-                Assert.Equal("single-node", env.Value);
+                Assert.AreEqual("discovery.type", env.Key);
+                Assert.AreEqual("single-node", env.Value);
             },
             env =>
             {
-                Assert.Equal("xpack.security.enabled", env.Key);
-                Assert.Equal("true", env.Value);
+                Assert.AreEqual("xpack.security.enabled", env.Key);
+                Assert.AreEqual("true", env.Value);
             },
             env =>
             {
-                Assert.Equal("ELASTIC_PASSWORD", env.Key);
-                Assert.False(string.IsNullOrEmpty(env.Value));
+                Assert.AreEqual("ELASTIC_PASSWORD", env.Key);
+                Assert.IsFalse(string.IsNullOrEmpty(env.Value));
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddElasticsearchContainerAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -84,56 +85,56 @@ public class AddElasticsearchTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<ElasticsearchResource>());
-        Assert.Equal("elasticsearch", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<ElasticsearchResource>());
+        Assert.AreEqual("elasticsearch", containerResource.Name);
 
         var endpoints = containerResource.Annotations.OfType<EndpointAnnotation>();
-        Assert.Equal(2, endpoints.Count());
+        Assert.AreEqual(2, endpoints.Count());
 
-        var primaryEndpoint = Assert.Single(endpoints, e => e.Name == "http");
-        Assert.Equal(9200, primaryEndpoint.TargetPort);
-        Assert.False(primaryEndpoint.IsExternal);
-        Assert.Equal("http", primaryEndpoint.Name);
-        Assert.Null(primaryEndpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, primaryEndpoint.Protocol);
-        Assert.Equal("http", primaryEndpoint.Transport);
-        Assert.Equal("http", primaryEndpoint.UriScheme);
+        var primaryEndpoint = Assert.ContainsSingle(endpoints, e => e.Name == "http");
+        Assert.AreEqual(9200, primaryEndpoint.TargetPort);
+        Assert.IsFalse(primaryEndpoint.IsExternal);
+        Assert.AreEqual("http", primaryEndpoint.Name);
+        Assert.IsNull(primaryEndpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, primaryEndpoint.Protocol);
+        Assert.AreEqual("http", primaryEndpoint.Transport);
+        Assert.AreEqual("http", primaryEndpoint.UriScheme);
 
-        var internalEndpoint = Assert.Single(endpoints, e => e.Name == "internal");
-        Assert.Equal(9300, internalEndpoint.TargetPort);
-        Assert.False(internalEndpoint.IsExternal);
-        Assert.Equal("internal", internalEndpoint.Name);
-        Assert.Null(internalEndpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, internalEndpoint.Protocol);
-        Assert.Equal("tcp", internalEndpoint.Transport);
-        Assert.Equal("tcp", internalEndpoint.UriScheme);
+        var internalEndpoint = Assert.ContainsSingle(endpoints, e => e.Name == "internal");
+        Assert.AreEqual(9300, internalEndpoint.TargetPort);
+        Assert.IsFalse(internalEndpoint.IsExternal);
+        Assert.AreEqual("internal", internalEndpoint.Name);
+        Assert.IsNull(internalEndpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, internalEndpoint.Protocol);
+        Assert.AreEqual("tcp", internalEndpoint.Transport);
+        Assert.AreEqual("tcp", internalEndpoint.UriScheme);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(ElasticsearchContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(ElasticsearchContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(ElasticsearchContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(ElasticsearchContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(ElasticsearchContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(ElasticsearchContainerImageTags.Registry, containerAnnotation.Registry);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("discovery.type", env.Key);
-                Assert.Equal("single-node", env.Value);
+                Assert.AreEqual("discovery.type", env.Key);
+                Assert.AreEqual("single-node", env.Value);
             },
             env =>
             {
-                Assert.Equal("xpack.security.enabled", env.Key);
-                Assert.Equal("true", env.Value);
+                Assert.AreEqual("xpack.security.enabled", env.Key);
+                Assert.AreEqual("true", env.Value);
             },
             env =>
             {
-                Assert.Equal("ELASTIC_PASSWORD", env.Key);
-                Assert.Equal("pass", env.Value);
+                Assert.AreEqual("ELASTIC_PASSWORD", env.Key);
+                Assert.AreEqual("pass", env.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ElasticsearchCreatesConnectionString()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -145,14 +146,14 @@ public class AddElasticsearchTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<ElasticsearchResource>()) as IResourceWithConnectionString;
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<ElasticsearchResource>()) as IResourceWithConnectionString;
         var connectionString = await connectionStringResource.GetConnectionStringAsync();
 
-        Assert.Equal($"http://elastic:{elasticsearch.Resource.PasswordParameter.Value}@localhost:27020", connectionString);
-        Assert.Equal("http://elastic:{elasticsearch-password.value}@{elasticsearch.bindings.http.host}:{elasticsearch.bindings.http.port}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual($"http://elastic:{elasticsearch.Resource.PasswordParameter.Value}@localhost:27020", connectionString);
+        Assert.AreEqual("http://elastic:{elasticsearch-password.value}@{elasticsearch.bindings.http.host}:{elasticsearch.bindings.http.port}", connectionStringResource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithDefaultsAddsAnnotationMetadata()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
@@ -187,10 +188,10 @@ public class AddElasticsearchTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithDataVolumeAddsAnnotationMetadata()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
@@ -233,6 +234,6 @@ public class AddElasticsearchTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 }

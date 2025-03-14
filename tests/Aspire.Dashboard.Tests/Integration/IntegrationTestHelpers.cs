@@ -15,7 +15,6 @@ using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
-using Xunit.Abstractions;
 
 namespace Aspire.Dashboard.Tests.Integration;
 
@@ -23,11 +22,11 @@ public static class IntegrationTestHelpers
 {
     private static readonly X509Certificate2 s_testCertificate = TestCertificateLoader.GetTestCertificate();
 
-    public static ILoggerFactory CreateLoggerFactory(ITestOutputHelper testOutputHelper, ITestSink? testSink = null)
+    public static ILoggerFactory CreateLoggerFactory(TestContext testContext, ITestSink? testSink = null)
     {
         return LoggerFactory.Create(builder =>
         {
-            builder.AddXunit(testOutputHelper, LogLevel.Trace, DateTimeOffset.UtcNow);
+            builder.AddMSTest(testContext, LogLevel.Trace, DateTimeOffset.UtcNow);
             builder.SetMinimumLevel(LogLevel.Trace);
             if (testSink != null)
             {
@@ -37,13 +36,13 @@ public static class IntegrationTestHelpers
     }
 
     public static DashboardWebApplication CreateDashboardWebApplication(
-        ITestOutputHelper testOutputHelper,
+        TestContext testContext,
         Action<Dictionary<string, string?>>? additionalConfiguration = null,
         Action<WebApplicationBuilder>? preConfigureBuilder = null,
         bool? clearLogFilterRules = null,
         ITestSink? testSink = null)
     {
-        var loggerFactory = CreateLoggerFactory(testOutputHelper, testSink);
+        var loggerFactory = CreateLoggerFactory(testContext, testSink);
 
         return CreateDashboardWebApplication(loggerFactory, additionalConfiguration, preConfigureBuilder, clearLogFilterRules);
     }
@@ -135,14 +134,14 @@ public static class IntegrationTestHelpers
 
     public static GrpcChannel CreateGrpcChannel(
         string address,
-        ITestOutputHelper testOutputHelper,
+        TestContext testContext,
         Action<X509Certificate2?>? validationCallback = null,
         int? retryCount = null,
         X509CertificateCollection? clientCertificates = null)
     {
         var loggerFactory = LoggerFactory.Create(builder =>
         {
-            builder.AddXunit(testOutputHelper);
+            builder.AddMSTest(testContext);
             builder.SetMinimumLevel(LogLevel.Trace);
         });
 

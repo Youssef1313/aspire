@@ -7,13 +7,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.Metrics.Testing;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Confluent.Kafka.Tests;
 
+[TestClass]
 public class Aspire8MetricsTests
 {
-    [Theory]
+    [TestMethod]
     [ClassData(typeof(GetExposesStatisticsAsCountersAndGaugeInitializeCountersTestVariations))]
     public async Task ExposesStatisticsAsCountersAndGauge_InitializeCounters(TestVariationData variation)
     {
@@ -75,60 +75,60 @@ public class Aspire8MetricsTests
         collectorProducerQueueMessageCount.RecordObservableInstruments();
         collectorProducerQueueSize.RecordObservableInstruments();
 
-        Assert.Equal(100, collectorProducerQueueMessageCount.LastMeasurement!.Value);
+        Assert.AreEqual(100, collectorProducerQueueMessageCount.LastMeasurement!.Value);
         Assert.Contains(collectorProducerQueueMessageCount.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorProducerQueueMessageCount.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
 
-        Assert.Equal(100, collectorConsumerQueueMessageCount.LastMeasurement!.Value);
+        Assert.AreEqual(100, collectorConsumerQueueMessageCount.LastMeasurement!.Value);
         Assert.Contains(collectorConsumerQueueMessageCount.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorConsumerQueueMessageCount.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
 
-        Assert.Equal(1638400, collectorProducerQueueSize.LastMeasurement!.Value);
+        Assert.AreEqual(1638400, collectorProducerQueueSize.LastMeasurement!.Value);
         Assert.Contains(collectorProducerQueueSize.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorProducerQueueSize.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
 
-        Assert.Equal(5, collectorNetworkTx.LastMeasurement!.Value);
+        Assert.AreEqual(5, collectorNetworkTx.LastMeasurement!.Value);
         Assert.Contains(collectorNetworkTx.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorNetworkTx.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorNetworkTx.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(1638400, collectorNetworkTransmitted.LastMeasurement!.Value);
+        Assert.AreEqual(1638400, collectorNetworkTransmitted.LastMeasurement!.Value);
         Assert.Contains(collectorNetworkTransmitted.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorNetworkTransmitted.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorNetworkTransmitted.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(5, collectorNetworkRx.LastMeasurement!.Value);
+        Assert.AreEqual(5, collectorNetworkRx.LastMeasurement!.Value);
         Assert.Contains(collectorNetworkRx.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorNetworkRx.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorNetworkRx.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(1638400, collectorNetworkReceived.LastMeasurement!.Value);
+        Assert.AreEqual(1638400, collectorNetworkReceived.LastMeasurement!.Value);
         Assert.Contains(collectorNetworkReceived.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorNetworkReceived.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorNetworkReceived.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(5, collectorMessageTx.LastMeasurement!.Value);
+        Assert.AreEqual(5, collectorMessageTx.LastMeasurement!.Value);
         Assert.Contains(collectorMessageTx.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorMessageTx.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorMessageTx.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(1638400, collectorMessageTransmitted.LastMeasurement!.Value);
+        Assert.AreEqual(1638400, collectorMessageTransmitted.LastMeasurement!.Value);
         Assert.Contains(collectorMessageTransmitted.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorMessageTransmitted.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorMessageTransmitted.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(5, collectorMessageRx.LastMeasurement!.Value);
+        Assert.AreEqual(5, collectorMessageRx.LastMeasurement!.Value);
         Assert.Contains(collectorMessageRx.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorMessageRx.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorMessageRx.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(1638400, collectorMessageReceived.LastMeasurement!.Value);
+        Assert.AreEqual(1638400, collectorMessageReceived.LastMeasurement!.Value);
         Assert.Contains(collectorMessageReceived.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorMessageReceived.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorMessageReceived.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
     }
 
-    [Theory]
+    [TestMethod]
     [ClassData(typeof(GetExposesStatisticsAsCountersAndGaugeAggregateCountersByNameTestVariations))]
     public async Task ExposesStatisticsAsCountersAndGauge_AggregateCountersByName(TestVariationData variation)
     {
@@ -190,54 +190,54 @@ public class Aspire8MetricsTests
         collectorProducerQueueMessageCount.RecordObservableInstruments();
         collectorProducerQueueSize.RecordObservableInstruments();
 
-        Assert.Equal(200, collectorProducerQueueMessageCount.LastMeasurement!.Value);
+        Assert.AreEqual(200, collectorProducerQueueMessageCount.LastMeasurement!.Value);
         Assert.Contains(collectorProducerQueueMessageCount.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorProducerQueueMessageCount.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
 
-        Assert.Equal(200, collectorConsumerQueueMessageCount.LastMeasurement!.Value);
+        Assert.AreEqual(200, collectorConsumerQueueMessageCount.LastMeasurement!.Value);
         Assert.Contains(collectorConsumerQueueMessageCount.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorConsumerQueueMessageCount.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
 
-        Assert.Equal(3276800, collectorProducerQueueSize.LastMeasurement!.Value);
+        Assert.AreEqual(3276800, collectorProducerQueueSize.LastMeasurement!.Value);
         Assert.Contains(collectorProducerQueueSize.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorProducerQueueSize.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
 
-        Assert.Equal(5, collectorNetworkTx.LastMeasurement!.Value);
+        Assert.AreEqual(5, collectorNetworkTx.LastMeasurement!.Value);
         Assert.Contains(collectorNetworkTx.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorNetworkTx.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorNetworkTx.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(1638400, collectorNetworkTransmitted.LastMeasurement!.Value);
+        Assert.AreEqual(1638400, collectorNetworkTransmitted.LastMeasurement!.Value);
         Assert.Contains(collectorNetworkTransmitted.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorNetworkTransmitted.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorNetworkTransmitted.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(5, collectorNetworkRx.LastMeasurement!.Value);
+        Assert.AreEqual(5, collectorNetworkRx.LastMeasurement!.Value);
         Assert.Contains(collectorNetworkRx.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorNetworkRx.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorNetworkRx.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(1638400, collectorNetworkReceived.LastMeasurement!.Value);
+        Assert.AreEqual(1638400, collectorNetworkReceived.LastMeasurement!.Value);
         Assert.Contains(collectorNetworkReceived.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorNetworkReceived.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorNetworkReceived.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(5, collectorMessageTx.LastMeasurement!.Value);
+        Assert.AreEqual(5, collectorMessageTx.LastMeasurement!.Value);
         Assert.Contains(collectorMessageTx.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorMessageTx.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorMessageTx.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(1638400, collectorMessageTransmitted.LastMeasurement!.Value);
+        Assert.AreEqual(1638400, collectorMessageTransmitted.LastMeasurement!.Value);
         Assert.Contains(collectorMessageTransmitted.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorMessageTransmitted.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorMessageTransmitted.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(5, collectorMessageRx.LastMeasurement!.Value);
+        Assert.AreEqual(5, collectorMessageRx.LastMeasurement!.Value);
         Assert.Contains(collectorMessageRx.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorMessageRx.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorMessageRx.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");
 
-        Assert.Equal(1638400, collectorMessageReceived.LastMeasurement!.Value);
+        Assert.AreEqual(1638400, collectorMessageReceived.LastMeasurement!.Value);
         Assert.Contains(collectorMessageReceived.LastMeasurement!.Tags, t => t.Key == "messaging.client_id" && t.Value!.ToString() == "rdkafka");
         Assert.Contains(collectorMessageReceived.LastMeasurement!.Tags, t => t.Key == "name" && t.Value!.ToString() == "rdkafka#producer-1");
         Assert.Contains(collectorMessageReceived.LastMeasurement!.Tags, t => t.Key == "type" && t.Value!.ToString() == "producer");

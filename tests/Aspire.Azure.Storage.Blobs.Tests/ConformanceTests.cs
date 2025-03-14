@@ -8,10 +8,10 @@ using Microsoft.DotNet.RemoteExecutor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Storage.Blobs.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<BlobServiceClient, AzureStorageBlobsSettings>
 {
     // Authentication method: Azure AD User Account
@@ -111,11 +111,11 @@ public class ConformanceTests : ConformanceTests<BlobServiceClient, AzureStorage
         service.DeleteBlobContainer(containerName);
     }
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: null)).Dispose();
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource_Keyed()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: "key")).Dispose();
 

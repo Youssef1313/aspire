@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Threading.Channels;
-using Aspire.Components.Common.Tests;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Cli;
 using Aspire.Hosting.Utils;
@@ -10,14 +9,15 @@ using Microsoft.DotNet.RemoteExecutor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Time.Testing;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Cli.Tests;
 
-public class CliOrphanDetectorTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class CliOrphanDetectorTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     public async Task CliOrphanDetectorCompletesWhenNoPidEnvironmentVariablePresent()
     {
         var configuration = new ConfigurationBuilder().Build();
@@ -31,7 +31,7 @@ public class CliOrphanDetectorTests(ITestOutputHelper testOutputHelper)
         await detector.StartAsync(CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(5));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CliOrphanDetectorCallsStopIfEnvironmentVariablePresentAndProcessNotRunning()
     {
         var configuration = new ConfigurationBuilder()
@@ -48,10 +48,10 @@ public class CliOrphanDetectorTests(ITestOutputHelper testOutputHelper)
         // environment variable present that indicates that it is hitched to
         // .NET Aspire lifetime.
         await detector.StartAsync(CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(5));
-        Assert.True(await stopSignalChannel.Reader.WaitToReadAsync());
+        Assert.IsTrue(await stopSignalChannel.Reader.WaitToReadAsync());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CliOrphanDetectorAfterTheProcessWasRunningForAWhileThenStops()
     {
         var configuration = new ConfigurationBuilder()
@@ -67,7 +67,7 @@ public class CliOrphanDetectorTests(ITestOutputHelper testOutputHelper)
         
         var processRunningCallCounter = 0;
         detector.IsProcessRunning = pid => {
-            Assert.True(processRunningChannel.Writer.TryWrite(++processRunningCallCounter));
+            Assert.IsTrue(processRunningChannel.Writer.TryWrite(++processRunningCallCounter));
             return processRunningCallCounter < 5;
         };
 
@@ -75,26 +75,26 @@ public class CliOrphanDetectorTests(ITestOutputHelper testOutputHelper)
 
         await detector.StartAsync(CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(5));
 
-        Assert.True(await processRunningChannel.Reader.WaitToReadAsync());
+        Assert.IsTrue(await processRunningChannel.Reader.WaitToReadAsync());
         fakeTimeProvider.Advance(TimeSpan.FromSeconds(1));
 
-        Assert.True(await processRunningChannel.Reader.WaitToReadAsync());
+        Assert.IsTrue(await processRunningChannel.Reader.WaitToReadAsync());
         fakeTimeProvider.Advance(TimeSpan.FromSeconds(1));
 
-        Assert.True(await processRunningChannel.Reader.WaitToReadAsync());
+        Assert.IsTrue(await processRunningChannel.Reader.WaitToReadAsync());
         fakeTimeProvider.Advance(TimeSpan.FromSeconds(1));
 
-        Assert.True(await processRunningChannel.Reader.WaitToReadAsync());
+        Assert.IsTrue(await processRunningChannel.Reader.WaitToReadAsync());
         fakeTimeProvider.Advance(TimeSpan.FromSeconds(1));
 
-        Assert.True(await processRunningChannel.Reader.WaitToReadAsync());
-        Assert.Equal(5, processRunningCallCounter);
+        Assert.IsTrue(await processRunningChannel.Reader.WaitToReadAsync());
+        Assert.AreEqual(5, processRunningCallCounter);
 
-        Assert.True(await stopSignalChannel.Reader.WaitToReadAsync());
+        Assert.IsTrue(await stopSignalChannel.Reader.WaitToReadAsync());
     }
 
-    [Fact]
-    [ActiveIssue("https://github.com/dotnet/aspire/issues/7920", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnGithubActions), nameof(PlatformDetection.IsWindows))]
+    [TestMethod]
+    // [ActiveIssue("https://github.com/dotnet/aspire/issues/7920", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnGithubActions), nameof(PlatformDetection.IsWindows))]
     public async Task AppHostExitsWhenCliProcessPidDies()
     {
         using var fakeCliProcess = RemoteExecutor.Invoke(
@@ -102,7 +102,7 @@ public class CliOrphanDetectorTests(ITestOutputHelper testOutputHelper)
             new RemoteInvokeOptions { CheckExitCode = false }
             );
             
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(TestContext);
         builder.Configuration["ASPIRE_CLI_PID"] = fakeCliProcess.Process.Id.ToString();
         
         var resourcesCreatedTcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);

@@ -3,15 +3,15 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests.PublicApiTests;
 
+[TestClass]
 public class RedisPublicApiTests
 {
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureRedisCacheResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
@@ -22,10 +22,10 @@ public class RedisPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureRedisCacheResourceShouldThrowWhenConfigureInfrastructureIsNull()
     {
         const string name = "redis";
@@ -34,10 +34,10 @@ public class RedisPublicApiTests
         var action = () => new AzureRedisCacheResource(name, configureInfrastructure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureInfrastructure), exception.ParamName);
+        Assert.AreEqual(nameof(configureInfrastructure), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete($"This method is obsolete and will be removed in a future version. Use AddAzureRedis instead to add an Azure Cache for Redis resource.")]
     public void PublishAsAzureRedisShouldThrowWhenBuilderIsNull()
     {
@@ -49,10 +49,10 @@ public class RedisPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete($"This method is obsolete and will be removed in a future version. Use AddAzureRedis instead to add an Azure Cache for Redis resource.")]
     public void AsAzureRedisShouldThrowWhenBuilderIsNull()
     {
@@ -64,10 +64,10 @@ public class RedisPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureRedisShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -76,12 +76,12 @@ public class RedisPublicApiTests
         var action = () => builder.AddAzureRedis(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddAzureRedisShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -92,10 +92,10 @@ public class RedisPublicApiTests
         var exception = isNull
            ? Assert.Throws<ArgumentNullException>(action)
            : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void RunAsContainerShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureRedisCacheResource> builder = null!;
@@ -103,10 +103,10 @@ public class RedisPublicApiTests
         var action = () => builder.RunAsContainer();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithAccessKeyAuthenticationShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureRedisCacheResource> builder = null!;
@@ -117,10 +117,10 @@ public class RedisPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete($"This class is obsolete and will be removed in a future version. Use {nameof(AzureRedisExtensions.AddAzureRedis)} instead to add an Azure Cache for Redis resource.")]
     public void CtorAzureRedisResourceShouldThrowWhenInnerResourceIsNull()
     {
@@ -130,10 +130,10 @@ public class RedisPublicApiTests
         var action = () => new AzureRedisResource(innerResource, configureInfrastructure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(innerResource), exception.ParamName);
+        Assert.AreEqual(nameof(innerResource), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete($"This class is obsolete and will be removed in a future version. Use {nameof(AzureRedisExtensions.AddAzureRedis)} instead to add an Azure Cache for Redis resource.")]
     public void CtorAzureRedisResourceShouldThrowWhenConfigureInfrastructureIsNull()
     {
@@ -143,6 +143,6 @@ public class RedisPublicApiTests
         var action = () => new AzureRedisResource(innerResource, configureInfrastructure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureInfrastructure), exception.ParamName);
+        Assert.AreEqual(nameof(configureInfrastructure), exception.ParamName);
     }
 }

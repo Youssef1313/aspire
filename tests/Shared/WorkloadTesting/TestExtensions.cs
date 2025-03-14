@@ -11,7 +11,7 @@ namespace Aspire.Workload.Tests;
 
 public static class TestExtensions
 {
-    public static async Task<IPage> NewPageWithLoggingAsync(this IBrowserContext context, ITestOutputHelper testOutput)
+    public static async Task<IPage> NewPageWithLoggingAsync(this IBrowserContext context, TestContext testOutput)
     {
         var page = await context.NewPageAsync();
         page.Console += (_, e) => testOutput.WriteLine($"[browser-console] {e.Text}");

@@ -16,18 +16,19 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
 using Polly;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.PostgreSQL.Tests;
 
-public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class PostgresFunctionalTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWaitForOnPostgresServerBlocksDependentResources()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         // We use the following check added to the Postgres resource to block
         // dependent reosurces from starting. This means we'll have two checks
@@ -71,15 +72,15 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync().DefaultTimeout(TestConstants.LongTimeoutTimeSpan);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyPgAdminResource()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         IResourceBuilder<PgAdminContainerResource>? adminBuilder = null;
         var redis = builder.AddPostgres("postgres").WithPgAdmin(c => adminBuilder = c);
-        Assert.NotNull(adminBuilder);
+        Assert.IsNotNull(adminBuilder);
 
         using var app = builder.Build();
 
@@ -91,10 +92,10 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
 
         var path = $"/";
         var response = await client.GetAsync(path);
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyPostgresResource()
     {
@@ -103,7 +104,7 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
             .AddRetry(new() { MaxRetryAttempts = 10, Delay = TimeSpan.FromSeconds(1), ShouldHandle = new PredicateBuilder().Handle<NpgsqlException>() })
             .Build();
 
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var postgresDbName = "db1";
 
@@ -136,15 +137,15 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
             command.CommandText = $"SELECT 1";
             var results = await command.ExecuteReaderAsync(token);
 
-            Assert.True(results.HasRows);
+            Assert.IsTrue(results.HasRows);
         }, cts.Token);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWithPgWeb()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         IResourceBuilder<PgWebContainerResource>? pgWebBuilder = null;
         var dbName = "postgres";
@@ -156,7 +157,7 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
             pgWebBuilder = c;
         });
 
-        Assert.NotNull(pgWebBuilder);
+        Assert.IsNotNull(pgWebBuilder);
 
         using var app = builder.Build();
 
@@ -176,14 +177,14 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
         var response = await client.PostAsync("/api/connect", httpContent);
         var d = await response.Content.ReadAsStringAsync();
 
-        testOutputHelper.WriteLine("RESPONSE: \r\n" + d);
+        TestContext.WriteLine("RESPONSE: \r\n" + d);
 
         response.EnsureSuccessStatusCode();
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
@@ -199,7 +200,7 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
             var username = "postgres";
             var password = "p@ssw0rd1";
@@ -261,7 +262,7 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
 
                             var results = await command.ExecuteReaderAsync(token);
 
-                            Assert.True(results.HasRows);
+                            Assert.IsTrue(results.HasRows);
                         }, cts.Token);
                     }
                 }
@@ -272,7 +273,7 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             usernameParameter = builder2.AddParameter("user", username);
             passwordParameter = builder2.AddParameter("pwd", password, secret: true);
 
@@ -318,9 +319,9 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
                             command.CommandText = $"SELECT * FROM cars;";
                             var results = await command.ExecuteReaderAsync(token);
 
-                            Assert.True(await results.ReadAsync(token));
-                            Assert.Equal("BatMobile", results.GetString("brand"));
-                            Assert.False(await results.ReadAsync(token));
+                            Assert.IsTrue(await results.ReadAsync(token));
+                            Assert.AreEqual("BatMobile", results.GetString("brand"));
+                            Assert.IsFalse(await results.ReadAsync(token));
                         }, cts.Token);
                     }
                 }
@@ -353,7 +354,7 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWithInitBindMount()
     {
@@ -375,7 +376,7 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
                 INSERT INTO cars (brand) VALUES ('BatMobile');
             """);
 
-            using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
             var postgresDbName = "db1";
 
@@ -406,7 +407,7 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
             {
                 using var connection = host.Services.GetRequiredService<NpgsqlConnection>();
                 await connection.OpenAsync(token);
-                Assert.Equal(ConnectionState.Open, connection.State);
+                Assert.AreEqual(ConnectionState.Open, connection.State);
             }, cts.Token);
 
             await pipeline.ExecuteAsync(async token =>
@@ -418,9 +419,9 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
                 command.CommandText = $"SELECT * FROM cars;";
                 var results = await command.ExecuteReaderAsync(token);
 
-                Assert.True(await results.ReadAsync(token));
-                Assert.Equal("BatMobile", results.GetString("brand"));
-                Assert.False(await results.ReadAsync(token));
+                Assert.IsTrue(await results.ReadAsync(token));
+                Assert.AreEqual("BatMobile", results.GetString("brand"));
+                Assert.IsFalse(await results.ReadAsync(token));
             }, cts.Token);
         }
         finally
@@ -436,7 +437,7 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task Postgres_WithPersistentLifetime_ReusesContainers()
     {
@@ -450,7 +451,7 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
 
         Assert.All(before, Assert.NotNull);
         Assert.All(after, Assert.NotNull);
-        Assert.Equal(before, after);
+        Assert.AreEqual(before, after);
 
         try
         {
@@ -463,7 +464,7 @@ public class PostgresFunctionalTests(ITestOutputHelper testOutputHelper)
 
         async Task<string?[]> RunContainersAsync()
         {
-            using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper)
+            using var builder = TestDistributedApplicationBuilder.Create(TestContext)
                 .WithTempAspireStore(aspireStorePath)
                 .WithResourceCleanUp(false);
 

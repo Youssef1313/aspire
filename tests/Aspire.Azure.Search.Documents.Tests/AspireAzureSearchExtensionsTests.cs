@@ -5,18 +5,18 @@ using Azure.Search.Documents.Indexes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Search.Documents.Tests;
 
+[TestClass]
 public class AspireAzureSearchExtensionsTests
 {
     private const string SearchEndpoint = "https://aspireazuresearchtests.search.windows.net/";
     private const string ConnectionString = $"Endpoint={SearchEndpoint};Key=fake";
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -38,13 +38,13 @@ public class AspireAzureSearchExtensionsTests
             host.Services.GetRequiredKeyedService<SearchIndexClient>("search") :
             host.Services.GetRequiredService<SearchIndexClient>();
 
-        Assert.NotNull(client);
-        Assert.Equal(new Uri(SearchEndpoint), client.Endpoint);
+        Assert.IsNotNull(client);
+        Assert.AreEqual(new Uri(SearchEndpoint), client.Endpoint);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var searchEndpoint = new Uri("https://aspireazuresearchtests.search.windows.net/");
@@ -65,11 +65,11 @@ public class AspireAzureSearchExtensionsTests
             host.Services.GetRequiredKeyedService<SearchIndexClient>("search") :
             host.Services.GetRequiredService<SearchIndexClient>();
 
-        Assert.NotNull(client);
-        Assert.Equal(new Uri(SearchEndpoint), client.Endpoint);
+        Assert.IsNotNull(client);
+        Assert.AreEqual(new Uri(SearchEndpoint), client.Endpoint);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -90,12 +90,12 @@ public class AspireAzureSearchExtensionsTests
         var client2 = host.Services.GetRequiredKeyedService<SearchIndexClient>("search2");
         var client3 = host.Services.GetRequiredKeyedService<SearchIndexClient>("search3");
 
-        //Assert.NotSame(client1, client2);
-        //Assert.NotSame(client1, client3);
-        Assert.NotSame(client2, client3);
+        //Assert.AreNotSame(client1, client2);
+        //Assert.AreNotSame(client1, client3);
+        Assert.AreNotSame(client2, client3);
 
-        //Assert.Equal(new Uri(SearchEndpoint), client1.Endpoint);
-        Assert.Equal(new Uri("https://aspireazuresearchtests2.search.windows.net/"), client2.Endpoint);
-        Assert.Equal(new Uri("https://aspireazuresearchtests3.search.windows.net/"), client3.Endpoint);
+        //Assert.AreEqual(new Uri(SearchEndpoint), client1.Endpoint);
+        Assert.AreEqual(new Uri("https://aspireazuresearchtests2.search.windows.net/"), client2.Endpoint);
+        Assert.AreEqual(new Uri("https://aspireazuresearchtests3.search.windows.net/"), client3.Endpoint);
     }
 }

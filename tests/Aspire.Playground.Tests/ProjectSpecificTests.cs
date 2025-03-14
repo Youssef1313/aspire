@@ -6,15 +6,15 @@ using Aspire.Hosting.Tests.Utils;
 using Aspire.Components.Common.Tests;
 using SamplesIntegrationTests;
 using SamplesIntegrationTests.Infrastructure;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Playground.Tests;
 
 [RequiresDocker]
-public class ProjectSpecificTests(ITestOutputHelper _testOutput)
+[TestClass]
+public class ProjectSpecificTests(TestContext _testOutput)
 {
-    [Fact]
+    [TestMethod]
     public async Task WithDockerfileTest()
     {
         var appHost = await DistributedApplicationTestFactory.CreateAsync(typeof(Projects.WithDockerfile_AppHost), _testOutput);
@@ -30,7 +30,7 @@ public class ProjectSpecificTests(ITestOutputHelper _testOutput)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/6867")]
     public async Task KafkaTest()
     {
@@ -55,7 +55,7 @@ public class ProjectSpecificTests(ITestOutputHelper _testOutput)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [RequiresTools(["func"])]
     public async Task AzureFunctionsTest()

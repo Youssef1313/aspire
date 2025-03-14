@@ -3,13 +3,13 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Microsoft.EntityFrameworkCore.Cosmos.Tests;
 
+[TestClass]
 public class MicrosoftEntityFrameworkCoreCosmosPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddCosmosDbContextShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -19,12 +19,12 @@ public class MicrosoftEntityFrameworkCoreCosmosPublicApiTests
         var action = () => builder.AddCosmosDbContext<DbContext>(connectionName, databaseName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddCosmosDbContextShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -36,12 +36,12 @@ public class MicrosoftEntityFrameworkCoreCosmosPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddCosmosDbContextShouldThrowWhenDatabaseNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -53,10 +53,10 @@ public class MicrosoftEntityFrameworkCoreCosmosPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(databaseName), exception.ParamName);
+        Assert.AreEqual(nameof(databaseName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void EnrichCosmosDbContextShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -64,6 +64,6 @@ public class MicrosoftEntityFrameworkCoreCosmosPublicApiTests
         var action = () => builder.EnrichCosmosDbContext<DbContext>();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 }

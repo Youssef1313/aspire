@@ -10,14 +10,14 @@ using Bunit;
 using Google.Protobuf.Collections;
 using Microsoft.Extensions.Logging.Abstractions;
 using OpenTelemetry.Proto.Common.V1;
-using Xunit;
 
 namespace Aspire.Dashboard.Components.Tests.Controls;
 
 [UseCulture("en-US")]
-public class StructuredLogDetailsTests : TestContext
+[TestClass]
+public class StructuredLogDetailsTests : Bunit.TestContext
 {
-    [Fact]
+    [TestMethod]
     public void Render_ManyDuplicateAttributes_NoDuplicateKeys()
     {
         // Arrange

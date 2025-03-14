@@ -12,17 +12,18 @@ using Microsoft.Extensions.Hosting;
 using Polly;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Qdrant.Tests;
 
-public class QdrantFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class QdrantFunctionalTests
 {
+    public TestContext TestContext { get; set; }
+
     private const string CollectionName = "test_collection";
     private static readonly float[] s_testVector = { 0.10022575f, -0.23998135f };
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyQdrantResource()
     {
@@ -31,7 +32,7 @@ public class QdrantFunctionalTests(ITestOutputHelper testOutputHelper)
             .AddRetry(new() { MaxRetryAttempts = 10, Delay = TimeSpan.FromSeconds(1), ShouldHandle = new PredicateBuilder().Handle<RpcException>() })
             .Build();
 
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var qdrant = builder.AddQdrant("qdrant");
 
@@ -59,8 +60,8 @@ public class QdrantFunctionalTests(ITestOutputHelper testOutputHelper)
             await CreateTestDataAsync(qdrantClient, token);
 
             var results = await qdrantClient.SearchAsync(CollectionName, s_testVector, limit: 1, cancellationToken: token);
-            Assert.Collection(results,
-                r => Assert.Equal("Test", r.Payload["title"].StringValue));
+            Assert.That.Collection(results,
+                r => Assert.AreEqual("Test", r.Payload["title"].StringValue));
         }, cts.Token);
     }
 
@@ -81,12 +82,12 @@ public class QdrantFunctionalTests(ITestOutputHelper testOutputHelper)
             }
         };
         var updateResult = await qdrantClient.UpsertAsync(CollectionName, data, cancellationToken: cancellationToken);
-        Assert.Equal(UpdateStatus.Completed, updateResult.Status);
+        Assert.AreEqual(UpdateStatus.Completed, updateResult.Status);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
@@ -100,7 +101,7 @@ public class QdrantFunctionalTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var qdrant1 = builder1.AddQdrant("qdrant");
 
             if (useVolume)
@@ -152,7 +153,7 @@ public class QdrantFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var qdrant2 = builder2.AddQdrant("qdrant");
 
             if (useVolume)
@@ -187,8 +188,8 @@ public class QdrantFunctionalTests(ITestOutputHelper testOutputHelper)
                             var qdrantClient = host.Services.GetRequiredService<QdrantClient>();
 
                             var results = await qdrantClient.SearchAsync(CollectionName, s_testVector, limit: 1, cancellationToken: token);
-                            Assert.Collection(results,
-                                r => Assert.Equal("Test", r.Payload["title"].StringValue));
+                            Assert.That.Collection(results,
+                                r => Assert.AreEqual("Test", r.Payload["title"].StringValue));
                         }, cts.Token);
                     }
                 }
@@ -220,12 +221,12 @@ public class QdrantFunctionalTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWaitForOnQdrantBlocksDependentResources()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>

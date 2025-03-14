@@ -11,16 +11,16 @@ using Bunit;
 using Microsoft.Extensions.Logging.Abstractions;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Metrics.V1;
-using Xunit;
 
 namespace Aspire.Dashboard.Components.Tests.Controls;
 
 [UseCulture("en-US")]
-public class PlotlyChartTests : TestContext
+[TestClass]
+public class PlotlyChartTests : Bunit.TestContext
 {
     private static string GetContainerHtml(string divId) => $"""<div id="{divId}" class="plotly-chart-container"></div>""";
 
-    [Fact]
+    [TestMethod]
     public void Render_NoInstrument_NoPlotlyInvocations()
     {
         // Arrange
@@ -38,15 +38,15 @@ public class PlotlyChartTests : TestContext
         // Assert
         cut.MarkupMatches(GetContainerHtml(cut.Instance.ChartDivId));
 
-        Assert.Collection(JSInterop.Invocations,
+        Assert.That.Collection(JSInterop.Invocations,
             i =>
             {
-                Assert.Equal("import", i.Identifier);
-                Assert.Equal("/js/app-metrics.js", i.Arguments[0]);
+                Assert.AreEqual("import", i.Identifier);
+                Assert.AreEqual("/js/app-metrics.js", i.Arguments[0]);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Render_HasInstrument_InitializeChartInvocation()
     {
         // Arrange
@@ -93,20 +93,20 @@ public class PlotlyChartTests : TestContext
         // Assert
         cut.MarkupMatches(GetContainerHtml(cut.Instance.ChartDivId));
 
-        Assert.Collection(JSInterop.Invocations,
+        Assert.That.Collection(JSInterop.Invocations,
             i =>
             {
-                Assert.Equal("import", i.Identifier);
-                Assert.Equal("/js/app-metrics.js", i.Arguments[0]);
+                Assert.AreEqual("import", i.Identifier);
+                Assert.AreEqual("/js/app-metrics.js", i.Arguments[0]);
             },
             i =>
             {
-                Assert.Equal("initializeChart", i.Identifier);
-                Assert.Equal(cut.Instance.ChartDivId, i.Arguments[0]);
-                Assert.Collection((IEnumerable<PlotlyTrace>)i.Arguments[1]!, trace =>
+                Assert.AreEqual("initializeChart", i.Identifier);
+                Assert.AreEqual(cut.Instance.ChartDivId, i.Arguments[0]);
+                Assert.That.Collection((IEnumerable<PlotlyTrace>)i.Arguments[1]!, trace =>
                 {
-                    Assert.Equal("Unit-&lt;b&gt;Bold&lt;/b&gt;", trace.Name);
-                    Assert.Equal("<b>Name-&lt;b&gt;Bold&lt;/b&gt;</b><br />Unit-&lt;b&gt;Bold&lt;/b&gt;: 1<br />Time: 12:59:57 AM", trace.Tooltips[0], ignoreWhiteSpaceDifferences: true);
+                    Assert.AreEqual("Unit-&lt;b&gt;Bold&lt;/b&gt;", trace.Name);
+                    Assert.AreEqual("<b>Name-&lt;b&gt;Bold&lt;/b&gt;</b><br />Unit-&lt;b&gt;Bold&lt;/b&gt;: 1<br />Time: 12:59:57 AM", trace.Tooltips[0], ignoreWhiteSpaceDifferences: true);
                 });
             });
     }

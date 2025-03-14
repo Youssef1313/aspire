@@ -6,18 +6,19 @@ using System.Text.Json;
 using Aspire.Components.Common.Tests;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Seq.Tests;
 
-public class SeqFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class SeqFunctionalTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifySeqResource()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var seq = builder.AddSeq("seq");
 
@@ -29,7 +30,7 @@ public class SeqFunctionalTests(ITestOutputHelper testOutputHelper)
 
         var seqUrl = await seq.Resource.ConnectionStringExpression.GetValueAsync(default);
 
-        Assert.NotNull(seqUrl);
+        Assert.IsNotNull(seqUrl);
 
         var client = CreateClient(seqUrl);
 
@@ -60,16 +61,16 @@ public class SeqFunctionalTests(ITestOutputHelper testOutputHelper)
 
         var jsonDocument = JsonDocument.Parse(reponseContent);
         var doc = jsonDocument.RootElement.EnumerateArray().FirstOrDefault();
-        Assert.Equal("Information", doc.GetProperty("Level").GetString());
+        Assert.AreEqual("Information", doc.GetProperty("Level").GetString());
 
         var property = doc.GetProperty("Properties").EnumerateArray().FirstOrDefault();
-        Assert.Equal("Username", property.GetProperty("Name").GetString());
-        Assert.Equal("johndoe", property.GetProperty("Value").GetString());
+        Assert.AreEqual("Username", property.GetProperty("Name").GetString());
+        Assert.AreEqual("johndoe", property.GetProperty("Value").GetString());
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     [RequiresDocker]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
@@ -78,7 +79,7 @@ public class SeqFunctionalTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var seq1 = builder1.AddSeq("seq1");
 
             if (useVolume)
@@ -106,7 +107,7 @@ public class SeqFunctionalTests(ITestOutputHelper testOutputHelper)
                 {
                     var seqUrl = await seq1.Resource.ConnectionStringExpression.GetValueAsync(default);
 
-                    Assert.NotNull(seqUrl);
+                    Assert.IsNotNull(seqUrl);
 
                     var client = CreateClient(seqUrl);
 
@@ -119,7 +120,7 @@ public class SeqFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
             var seq2 = builder2.AddSeq("seq2");
 
@@ -142,7 +143,7 @@ public class SeqFunctionalTests(ITestOutputHelper testOutputHelper)
                 {
                     var seqUrl = await seq2.Resource.ConnectionStringExpression.GetValueAsync(default);
 
-                    Assert.NotNull(seqUrl);
+                    Assert.IsNotNull(seqUrl);
 
                     var client = CreateClient(seqUrl);
 

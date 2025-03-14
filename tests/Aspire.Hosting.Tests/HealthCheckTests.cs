@@ -8,14 +8,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Tests;
 
-public class HealthCheckTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class HealthCheckTests(TestContext testContext)
 {
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task WithHttpHealthCheckThrowsIfReferencingEndpointThatIsNotHttpScheme()
     {
@@ -31,13 +31,13 @@ public class HealthCheckTests(ITestOutputHelper testOutputHelper)
             await app.StartAsync();
         }).DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout);
 
-        Assert.Equal(
+        Assert.AreEqual(
             "The endpoint 'nonhttp' on resource 'resource' was not using the 'http' scheme.",
             ex.Message
             );
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task WithHttpsHealthCheckThrowsIfReferencingEndpointThatIsNotHttpsScheme()
     {
@@ -53,17 +53,17 @@ public class HealthCheckTests(ITestOutputHelper testOutputHelper)
             await app.StartAsync();
         }).DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout);
 
-        Assert.Equal(
+        Assert.AreEqual(
             "The endpoint 'nonhttp' on resource 'resource' was not using the 'https' scheme.",
             ex.Message
             );
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWithHttpHealthCheckBlocksDependentResources()
     {
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>
@@ -100,13 +100,13 @@ public class HealthCheckTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task BuildThrowsOnMissingHealthCheckRegistration()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
 
         builder.Services.AddLogging(b => {
-            b.AddXunit(testOutputHelper);
+            b.AddMSTest(testContext);
             b.AddFakeLogging();
         });
 
@@ -119,7 +119,7 @@ public class HealthCheckTests(ITestOutputHelper testOutputHelper)
             await app.StartAsync();
         }).DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout);
 
-        Assert.Equal("A health check registration is missing. Check logs for more details.", ex.Message);
+        Assert.AreEqual("A health check registration is missing. Check logs for more details.", ex.Message);
 
         var collector = app.Services.GetFakeLogCollector();
         var logs = collector.GetSnapshot();

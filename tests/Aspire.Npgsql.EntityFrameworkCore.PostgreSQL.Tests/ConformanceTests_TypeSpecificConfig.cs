@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Aspire.Npgsql.EntityFrameworkCore.PostgreSQL.Tests;
 
+[TestClass]
 public class ConformanceTests_TypeSpecificConfig : ConformanceTests
 {
     public ConformanceTests_TypeSpecificConfig(PostgreSQLContainerFixture containerFixture) : base(containerFixture)

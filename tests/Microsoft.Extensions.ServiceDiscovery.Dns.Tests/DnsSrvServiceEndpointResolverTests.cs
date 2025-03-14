@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ServiceDiscovery.Internal;
-using Xunit;
 
 namespace Microsoft.Extensions.ServiceDiscovery.Dns.Tests;
 
@@ -72,7 +71,7 @@ public class DnsSrvServiceEndpointResolverTests
         public DnsQuerySettings? Settings { get; set; }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_DnsSrv()
     {
         var dnsClientMock = new FakeDnsClient
@@ -108,23 +107,23 @@ public class DnsSrvServiceEndpointResolverTests
         ServiceEndpointWatcher watcher;
         await using ((watcher = watcherFactory.CreateWatcher("http://basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            Assert.Equal(3, initialResult.EndpointSource.Endpoints.Count);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            Assert.AreEqual(3, initialResult.EndpointSource.Endpoints.Count);
             var eps = initialResult.EndpointSource.Endpoints;
-            Assert.Equal(new IPEndPoint(IPAddress.Parse("10.10.10.10"), 8888), eps[0].EndPoint);
-            Assert.Equal(new IPEndPoint(IPAddress.IPv6Loopback, 9999), eps[1].EndPoint);
-            Assert.Equal(new DnsEndPoint("remotehost", 7777), eps[2].EndPoint);
+            Assert.AreEqual(new IPEndPoint(IPAddress.Parse("10.10.10.10"), 8888), eps[0].EndPoint);
+            Assert.AreEqual(new IPEndPoint(IPAddress.IPv6Loopback, 9999), eps[1].EndPoint);
+            Assert.AreEqual(new DnsEndPoint("remotehost", 7777), eps[2].EndPoint);
 
             Assert.All(initialResult.EndpointSource.Endpoints, ep =>
             {
                 var hostNameFeature = ep.Features.Get<IHostNameFeature>();
-                Assert.Null(hostNameFeature);
+                Assert.IsNull(hostNameFeature);
             });
         }
     }
@@ -132,9 +131,9 @@ public class DnsSrvServiceEndpointResolverTests
     /// <summary>
     /// Tests that when there are multiple resolvers registered, they are consulted in registration order and each provider only adds endpoints if the providers before it did not.
     /// </summary>
-    [InlineData(true)]
-    [InlineData(false)]
-    [Theory]
+    [DataRow(true)]
+    [DataRow(false)]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_DnsSrv_MultipleProviders_PreventMixing(bool dnsFirst)
     {
         var dnsClientMock = new FakeDnsClient
@@ -195,42 +194,42 @@ public class DnsSrvServiceEndpointResolverTests
         ServiceEndpointWatcher watcher;
         await using ((watcher = watcherFactory.CreateWatcher("http://basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.Null(initialResult.Exception);
-            Assert.True(initialResult.ResolvedSuccessfully);
+            Assert.IsNotNull(initialResult);
+            Assert.IsNull(initialResult.Exception);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
 
             if (dnsFirst)
             {
                 // We expect only the results from the DNS provider.
-                Assert.Equal(3, initialResult.EndpointSource.Endpoints.Count);
+                Assert.AreEqual(3, initialResult.EndpointSource.Endpoints.Count);
                 var eps = initialResult.EndpointSource.Endpoints;
-                Assert.Equal(new IPEndPoint(IPAddress.Parse("10.10.10.10"), 8888), eps[0].EndPoint);
-                Assert.Equal(new IPEndPoint(IPAddress.IPv6Loopback, 9999), eps[1].EndPoint);
-                Assert.Equal(new DnsEndPoint("remotehost", 7777), eps[2].EndPoint);
+                Assert.AreEqual(new IPEndPoint(IPAddress.Parse("10.10.10.10"), 8888), eps[0].EndPoint);
+                Assert.AreEqual(new IPEndPoint(IPAddress.IPv6Loopback, 9999), eps[1].EndPoint);
+                Assert.AreEqual(new DnsEndPoint("remotehost", 7777), eps[2].EndPoint);
 
                 Assert.All(initialResult.EndpointSource.Endpoints, ep =>
                 {
                     var hostNameFeature = ep.Features.Get<IHostNameFeature>();
-                    Assert.NotNull(hostNameFeature);
-                    Assert.Equal("basket", hostNameFeature.HostName);
+                    Assert.IsNotNull(hostNameFeature);
+                    Assert.AreEqual("basket", hostNameFeature.HostName);
                 });
             }
             else
             {
                 // We expect only the results from the Configuration provider.
-                Assert.Equal(2, initialResult.EndpointSource.Endpoints.Count);
-                Assert.Equal(new DnsEndPoint("localhost", 8080), initialResult.EndpointSource.Endpoints[0].EndPoint);
-                Assert.Equal(new DnsEndPoint("remotehost", 9090), initialResult.EndpointSource.Endpoints[1].EndPoint);
+                Assert.AreEqual(2, initialResult.EndpointSource.Endpoints.Count);
+                Assert.AreEqual(new DnsEndPoint("localhost", 8080), initialResult.EndpointSource.Endpoints[0].EndPoint);
+                Assert.AreEqual(new DnsEndPoint("remotehost", 9090), initialResult.EndpointSource.Endpoints[1].EndPoint);
 
                 Assert.All(initialResult.EndpointSource.Endpoints, ep =>
                 {
                     var hostNameFeature = ep.Features.Get<IHostNameFeature>();
-                    Assert.Null(hostNameFeature);
+                    Assert.IsNull(hostNameFeature);
                 });
             }
         }

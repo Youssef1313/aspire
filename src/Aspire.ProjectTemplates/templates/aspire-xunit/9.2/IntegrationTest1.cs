@@ -26,7 +26,7 @@ public class IntegrationTest1
     //         // Override the logging filters from the app's configuration
     //         logging.AddFilter(appHost.Environment.ApplicationName, LogLevel.Debug);
     //         logging.AddFilter("Aspire.", LogLevel.Debug);
-    //         // To output logs to the xUnit.net ITestOutputHelper, consider adding a package from https://www.nuget.org/packages?q=xunit+logging
+    //         // To output logs to the xUnit.net TestContext, consider adding a package from https://www.nuget.org/packages?q=xunit+logging
     //     });
     //     appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
     //     {

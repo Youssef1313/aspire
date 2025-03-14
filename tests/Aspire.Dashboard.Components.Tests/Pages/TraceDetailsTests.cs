@@ -20,17 +20,17 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.FluentUI.AspNetCore.Components;
 using OpenTelemetry.Proto.Trace.V1;
-using Xunit;
 using static Aspire.Tests.Shared.Telemetry.TelemetryTestHelpers;
 
 namespace Aspire.Dashboard.Components.Tests.Pages;
 
 [UseCulture("en-US")]
-public partial class TraceDetailsTests : TestContext
+[TestClass]
+public partial class TraceDetailsTests : Bunit.TestContext
 {
     private static readonly DateTime s_testTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-    [Fact]
+    [TestMethod]
     public void Render_HasTrace_SubscriptionRemovedOnDispose()
     {
         // Arrange
@@ -71,17 +71,17 @@ public partial class TraceDetailsTests : TestContext
         });
 
         // Assert
-        Assert.Collection(telemetryRepository.TracesSubscriptions, t =>
+        Assert.That.Collection(telemetryRepository.TracesSubscriptions, t =>
         {
-            Assert.Equal(nameof(TelemetryRepository.OnNewTraces), t.Name);
+            Assert.AreEqual(nameof(TelemetryRepository.OnNewTraces), t.Name);
         });
 
         DisposeComponents();
 
-        Assert.Empty(telemetryRepository.TracesSubscriptions);
+        Assert.IsEmpty(telemetryRepository.TracesSubscriptions);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Render_ChangeTrace_RowsRendered()
     {
         // Arrange

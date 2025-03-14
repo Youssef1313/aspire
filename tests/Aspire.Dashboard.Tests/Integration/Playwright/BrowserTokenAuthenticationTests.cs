@@ -8,11 +8,11 @@ using Aspire.Hosting;
 using Aspire.Workload.Tests;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Playwright;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.Integration.Playwright;
 
 [ActiveIssue("https://github.com/dotnet/aspire/issues/4921", typeof(PlaywrightProvider), nameof(PlaywrightProvider.DoesNotHavePlaywrightSupport))]
+[TestClass]
 public class BrowserTokenAuthenticationTests : PlaywrightTestsBase<BrowserTokenAuthenticationTests.BrowserTokenDashboardServerFixture>
 {
     public class BrowserTokenDashboardServerFixture : DashboardServerFixture
@@ -29,7 +29,7 @@ public class BrowserTokenAuthenticationTests : PlaywrightTestsBase<BrowserTokenA
     {
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/7921", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnGithubActions), nameof(PlatformDetection.IsWindows))]
     public async Task BrowserToken_LoginPage_Success_RedirectToResources()
     {
@@ -40,7 +40,7 @@ public class BrowserTokenAuthenticationTests : PlaywrightTestsBase<BrowserTokenA
             var response = await page.GotoAsync("/").DefaultTimeout();
             var uri = new Uri(response!.Url);
 
-            Assert.Equal("/login?returnUrl=%2F", uri.PathAndQuery);
+            Assert.AreEqual("/login?returnUrl=%2F", uri.PathAndQuery);
 
             var tokenTextBox = page.GetByRole(AriaRole.Textbox);
             await tokenTextBox.FillAsync("VALID_TOKEN").DefaultTimeout();
@@ -66,7 +66,7 @@ public class BrowserTokenAuthenticationTests : PlaywrightTestsBase<BrowserTokenA
             var response = await page.GotoAsync("/").DefaultTimeout();
             var uri = new Uri(response!.Url);
 
-            Assert.Equal("/login?returnUrl=%2F", uri.PathAndQuery);
+            Assert.AreEqual("/login?returnUrl=%2F", uri.PathAndQuery);
 
             var tokenTextBox = page.GetByRole(AriaRole.Textbox);
             await tokenTextBox.FillAsync("INVALID_TOKEN").DefaultTimeout();
@@ -84,7 +84,7 @@ public class BrowserTokenAuthenticationTests : PlaywrightTestsBase<BrowserTokenA
         });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task BrowserToken_QueryStringToken_Success_RestrictToResources()
     {
         // Arrange
@@ -101,7 +101,7 @@ public class BrowserTokenAuthenticationTests : PlaywrightTestsBase<BrowserTokenA
         });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task BrowserToken_QueryStringToken_Failure_DisplayLoginPage()
     {
         // Arrange
@@ -114,7 +114,7 @@ public class BrowserTokenAuthenticationTests : PlaywrightTestsBase<BrowserTokenA
             var name = await submitButton.GetAttributeAsync("name").DefaultTimeout();
 
             // Assert
-            Assert.Equal("submit-token", name);
+            Assert.AreEqual("submit-token", name);
         });
     }
 }

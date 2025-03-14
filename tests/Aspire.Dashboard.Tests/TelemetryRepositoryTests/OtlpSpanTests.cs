@@ -5,15 +5,15 @@ using Aspire.Dashboard.Model.Otlp;
 using Aspire.Dashboard.Otlp.Model;
 using Aspire.Tests.Shared.Telemetry;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.TelemetryRepositoryTests;
 
+[TestClass]
 public class OtlpSpanTests
 {
     private static readonly DateTime s_testTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-    [Fact]
+    [TestMethod]
     public void AllProperties()
     {
         // Arrange
@@ -29,36 +29,36 @@ public class OtlpSpanTests
         var properties = span.AllProperties();
 
         // Assert
-        Assert.Collection(properties,
+        Assert.That.Collection(properties,
             a =>
             {
-                Assert.Equal("trace.spanid", a.Key);
-                Assert.Equal("abc", a.Value);
+                Assert.AreEqual("trace.spanid", a.Key);
+                Assert.AreEqual("abc", a.Value);
             },
             a =>
             {
-                Assert.Equal("trace.name", a.Key);
-                Assert.Equal("Test", a.Value);
+                Assert.AreEqual("trace.name", a.Key);
+                Assert.AreEqual("Test", a.Value);
             },
             a =>
             {
-                Assert.Equal("trace.kind", a.Key);
-                Assert.Equal("Unspecified", a.Value);
+                Assert.AreEqual("trace.kind", a.Key);
+                Assert.AreEqual("Unspecified", a.Value);
             },
             a =>
             {
-                Assert.Equal("trace.status", a.Key);
-                Assert.Equal("Ok", a.Value);
+                Assert.AreEqual("trace.status", a.Key);
+                Assert.AreEqual("Ok", a.Value);
             },
             a =>
             {
-                Assert.Equal("trace.statusmessage", a.Key);
-                Assert.Equal("Status message!", a.Value);
+                Assert.AreEqual("trace.statusmessage", a.Key);
+                Assert.AreEqual("Status message!", a.Value);
             },
             a =>
             {
-                Assert.Equal("unknown-trace.statusmessage", a.Key);
-                Assert.Equal("value", a.Value);
+                Assert.AreEqual("unknown-trace.statusmessage", a.Key);
+                Assert.AreEqual("value", a.Value);
             });
     }
 }

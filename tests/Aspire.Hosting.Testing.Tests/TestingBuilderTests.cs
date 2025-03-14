@@ -11,25 +11,25 @@ using Aspire.TestProject;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Testing.Tests;
 
-public class TestingBuilderTests(ITestOutputHelper output)
+[TestClass]
+public class TestingBuilderTests(TestContext output)
 {
     private static readonly TimeSpan s_appAliveCheckTimeout = TimeSpan.FromMinutes(1);
 
-    [Fact]
+    [TestMethod]
     public void TestingBuilderHasAllPropertiesFromRealBuilder()
     {
         var realBuilderProperties = typeof(IDistributedApplicationBuilder).GetProperties().Select(p => p.Name).ToList();
         var testBuilderProperties = typeof(IDistributedApplicationTestingBuilder).GetProperties().Select(p => p.Name).ToList();
         var missingProperties = realBuilderProperties.Except(testBuilderProperties).ToList();
-        Assert.Empty(missingProperties);
+        Assert.IsEmpty(missingProperties);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task CanLoadFromDirectoryOutsideOfAppContextBaseDirectory()
     {
@@ -48,7 +48,7 @@ public class TestingBuilderTests(ITestOutputHelper output)
             "TestProject.AppHost.dll",
             SearchOption.AllDirectories).FirstOrDefault();
 
-        Assert.True(File.Exists(testProjectAssemblyPath), $"TestProject.AppHost.dll not found at {testProjectAssemblyPath}.");
+        Assert.IsTrue(File.Exists(testProjectAssemblyPath), $"TestProject.AppHost.dll not found at {testProjectAssemblyPath}.");
 
         var appHostAssembly = Assembly.LoadFrom(Path.Combine(AppContext.BaseDirectory, testProjectAssemblyPath));
         var appHostType = appHostAssembly.GetTypes().FirstOrDefault(t => t.Name.EndsWith("_AppHost"))
@@ -63,21 +63,21 @@ public class TestingBuilderTests(ITestOutputHelper output)
         // Sanity check that the app is running as expected
         // Get an endpoint from a resource
         var serviceAHttpEndpoint = app.GetEndpoint("servicea", "http");
-        Assert.NotNull(serviceAHttpEndpoint);
-        Assert.True(serviceAHttpEndpoint.Host.Length > 0);
+        Assert.IsNotNull(serviceAHttpEndpoint);
+        Assert.IsTrue(serviceAHttpEndpoint.Host.Length > 0);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ThrowsForAssemblyWithoutAnEntrypoint()
     {
         var ioe = await Assert.ThrowsAsync<InvalidOperationException>(() => DistributedApplicationTestingBuilder.CreateAsync(typeof(Microsoft.Extensions.Logging.ConsoleLoggerExtensions)));
         Assert.Contains("does not have an entry point", ioe.Message);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(false)]
-    [InlineData(true)]
+    [DataRow(false)]
+    [DataRow(true)]
     public async Task CreateAsyncWithOptions(bool genericEntryPoint)
     {
         var nonExistantRegistry = "non-existant-registry-azurecr.io";
@@ -92,7 +92,7 @@ public class TestingBuilderTests(ITestOutputHelper output)
             ? DistributedApplicationTestingBuilder.CreateAsync<Projects.TestingAppHost1_AppHost>([], configureBuilder)
             : DistributedApplicationTestingBuilder.CreateAsync(typeof(Projects.TestingAppHost1_AppHost), [], configureBuilder));
         builder.WithTestAndResourceLogging(output);
-        Assert.Equal(testEnvironmentName, builder.Environment.EnvironmentName);
+        Assert.AreEqual(testEnvironmentName, builder.Environment.EnvironmentName);
 
         await using var app = await builder.BuildAsync();
         await app.StartAsync();
@@ -101,30 +101,30 @@ public class TestingBuilderTests(ITestOutputHelper output)
         foreach (var resource in appModel.GetContainerResources())
         {
             var containerImageAnnotation = resource.Annotations.OfType<ContainerImageAnnotation>().FirstOrDefault();
-            Assert.NotNull(containerImageAnnotation);
+            Assert.IsNotNull(containerImageAnnotation);
 
-            Assert.Equal(nonExistantRegistry, containerImageAnnotation!.Registry);
+            Assert.AreEqual(nonExistantRegistry, containerImageAnnotation!.Registry);
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CanSetEnvironment()
     {
         var builder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.TestingAppHost1_AppHost>(["--environment=Testing"]);
-        Assert.Equal("Testing", builder.Environment.EnvironmentName);
+        Assert.AreEqual("Testing", builder.Environment.EnvironmentName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnvironmentDefaultsToDevelopment()
     {
         var builder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.TestingAppHost1_AppHost>();
-        Assert.Equal(Environments.Development, builder.Environment.EnvironmentName);
+        Assert.AreEqual(Environments.Development, builder.Environment.EnvironmentName);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(false)]
-    [InlineData(true)]
+    [DataRow(false)]
+    [DataRow(true)]
     public async Task HasEndPoints(bool genericEntryPoint)
     {
         var builder = await (genericEntryPoint
@@ -136,19 +136,19 @@ public class TestingBuilderTests(ITestOutputHelper output)
 
         // Get an endpoint from a resource
         var workerEndpoint = app.GetEndpoint("myworker1", "myendpoint1");
-        Assert.NotNull(workerEndpoint);
-        Assert.True(workerEndpoint.Host.Length > 0);
+        Assert.IsNotNull(workerEndpoint);
+        Assert.IsTrue(workerEndpoint.Host.Length > 0);
 
         // Get a connection string
         var connectionString = await app.GetConnectionStringAsync("cs");
-        Assert.NotNull(connectionString);
-        Assert.True(connectionString.Length > 0);
+        Assert.IsNotNull(connectionString);
+        Assert.IsTrue(connectionString.Length > 0);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(false)]
-    [InlineData(true)]
+    [DataRow(false)]
+    [DataRow(true)]
     public async Task CanGetResources(bool genericEntryPoint)
     {
         var builder = await (genericEntryPoint
@@ -163,10 +163,10 @@ public class TestingBuilderTests(ITestOutputHelper output)
         Assert.Contains(appModel.GetProjectResources(), p => p.Name == "myworker1");
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(false)]
-    [InlineData(true)]
+    [DataRow(false)]
+    [DataRow(true)]
     public async Task HttpClientGetTest(bool genericEntryPoint)
     {
         var builder = await (genericEntryPoint
@@ -184,14 +184,14 @@ public class TestingBuilderTests(ITestOutputHelper output)
             opts.TotalRequestTimeout.Timeout = s_appAliveCheckTimeout;
         });
         var result1 = await httpClient.GetFromJsonAsync<WeatherForecast[]>("/weatherforecast");
-        Assert.NotNull(result1);
-        Assert.True(result1.Length > 0);
+        Assert.IsNotNull(result1);
+        Assert.IsTrue(result1.Length > 0);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(false)]
-    [InlineData(true)]
+    [DataRow(false)]
+    [DataRow(true)]
     public async Task GetHttpClientBeforeStart(bool genericEntryPoint)
     {
         var builder = await (genericEntryPoint
@@ -205,12 +205,12 @@ public class TestingBuilderTests(ITestOutputHelper output)
     /// <summary>
     /// Tests that arguments propagate into the application host.
     /// </summary>
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [DataRow(false, false)]
+    [DataRow(false, true)]
+    [DataRow(true, false)]
+    [DataRow(true, true)]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/7930", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnGithubActions), nameof(PlatformDetection.IsWindows))]
     public async Task ArgsPropagateToAppHostConfiguration(bool genericEntryPoint, bool directArgs)
     {
@@ -244,17 +244,17 @@ public class TestingBuilderTests(ITestOutputHelper output)
             opts.TotalRequestTimeout.Timeout = s_appAliveCheckTimeout;
         });
         var appHostArg = await httpClient.GetStringAsync("/get-app-host-arg");
-        Assert.NotNull(appHostArg);
-        Assert.Equal("42", appHostArg);
+        Assert.IsNotNull(appHostArg);
+        Assert.AreEqual("42", appHostArg);
     }
 
     /// <summary>
     /// Tests that arguments propagate into the application host.
     /// </summary>
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(true)]
-    [InlineData(false)]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task ArgsPropagateToAppHostConfigurationAdHocBuilder(bool directArgs)
     {
         IDistributedApplicationTestingBuilder builder;
@@ -282,20 +282,20 @@ public class TestingBuilderTests(ITestOutputHelper output)
             opts.TotalRequestTimeout.Timeout = s_appAliveCheckTimeout;
         });
         var appHostArg = await httpClient.GetStringAsync("/get-app-host-arg");
-        Assert.NotNull(appHostArg);
-        Assert.Equal("42", appHostArg);
+        Assert.IsNotNull(appHostArg);
+        Assert.AreEqual("42", appHostArg);
     }
 
     /// <summary>
     /// Tests that setting the launch profile works and results in environment variables from the launch profile
     /// populating in configuration.
     /// </summary>
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData("http", false)]
-    [InlineData("http", true)]
-    [InlineData("https", false)]
-    [InlineData("https", true)]
+    [DataRow("http", false)]
+    [DataRow("http", true)]
+    [DataRow("https", false)]
+    [DataRow("https", true)]
     public async Task CanOverrideLaunchProfileViaArgs(string launchProfileName, bool directArgs)
     {
         var arg = $"DOTNET_LAUNCH_PROFILE={launchProfileName}";
@@ -325,25 +325,25 @@ public class TestingBuilderTests(ITestOutputHelper output)
             opts.TotalRequestTimeout.Timeout = s_appAliveCheckTimeout;
         });
         var appHostArg = await httpClient.GetStringAsync("/get-launch-profile-var");
-        Assert.NotNull(appHostArg);
-        Assert.Equal($"it-is-{launchProfileName}", appHostArg);
+        Assert.IsNotNull(appHostArg);
+        Assert.AreEqual($"it-is-{launchProfileName}", appHostArg);
 
         // Check that, aside from the launch profile, the app host loaded environment settings from its launch profile
         var appHostLaunchProfileVar = await httpClient.GetStringAsync("/get-launch-profile-var-from-app-host");
-        Assert.NotNull(appHostLaunchProfileVar);
-        Assert.Equal($"app-host-is-{launchProfileName}", appHostLaunchProfileVar);
+        Assert.IsNotNull(appHostLaunchProfileVar);
+        Assert.AreEqual($"app-host-is-{launchProfileName}", appHostLaunchProfileVar);
     }
 
     /// <summary>
     /// Tests that setting the launch profile works and results in environment variables from the launch profile
     /// populating in configuration.
     /// </summary>
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData("http", false)]
-    [InlineData("http", true)]
-    [InlineData("https", false)]
-    [InlineData("https", true)]
+    [DataRow("http", false)]
+    [DataRow("http", true)]
+    [DataRow("https", false)]
+    [DataRow("https", true)]
     public async Task CanOverrideLaunchProfileViaArgsAdHocBuilder(string launchProfileName, bool directArgs)
     {
         var arg = $"DOTNET_LAUNCH_PROFILE={launchProfileName}";
@@ -375,19 +375,19 @@ public class TestingBuilderTests(ITestOutputHelper output)
             opts.TotalRequestTimeout.Timeout = s_appAliveCheckTimeout;
         });
         var appHostArg = await httpClient.GetStringAsync("/get-launch-profile-var");
-        Assert.NotNull(appHostArg);
-        Assert.Equal($"it-is-{launchProfileName}", appHostArg);
+        Assert.IsNotNull(appHostArg);
+        Assert.AreEqual($"it-is-{launchProfileName}", appHostArg);
 
         // Check that, aside from the launch profile, the app host loaded environment settings from its launch profile
         var appHostLaunchProfileVar = await httpClient.GetStringAsync("/get-launch-profile-var-from-app-host");
-        Assert.NotNull(appHostLaunchProfileVar);
-        Assert.Equal($"app-host-is-{launchProfileName}", appHostLaunchProfileVar);
+        Assert.IsNotNull(appHostLaunchProfileVar);
+        Assert.AreEqual($"app-host-is-{launchProfileName}", appHostLaunchProfileVar);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(false)]
-    [InlineData(true)]
+    [DataRow(false)]
+    [DataRow(true)]
     public async Task SetsCorrectContentRoot(bool genericEntryPoint)
     {
         var builder = await (genericEntryPoint
@@ -400,10 +400,10 @@ public class TestingBuilderTests(ITestOutputHelper output)
         Assert.Contains("TestingAppHost1", hostEnvironment.ContentRootPath);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(false)]
-    [InlineData(true)]
+    [DataRow(false)]
+    [DataRow(true)]
     public async Task SelectsFirstLaunchProfile(bool genericEntryPoint)
     {
         var builder = await (genericEntryPoint
@@ -414,7 +414,7 @@ public class TestingBuilderTests(ITestOutputHelper output)
         await app.StartAsync();
         var config = app.Services.GetRequiredService<IConfiguration>();
         var profileName = config["DOTNET_LAUNCH_PROFILE"];
-        Assert.Equal("https", profileName);
+        Assert.AreEqual("https", profileName);
 
         // Wait for the application to be ready
         await app.WaitForTextAsync("Application started.").WaitAsync(TimeSpan.FromMinutes(1));
@@ -425,21 +425,21 @@ public class TestingBuilderTests(ITestOutputHelper output)
             opts.TotalRequestTimeout.Timeout = s_appAliveCheckTimeout;
         });
         var result = await httpClient.GetFromJsonAsync<WeatherForecast[]>("/weatherforecast");
-        Assert.NotNull(result);
-        Assert.True(result.Length > 0);
+        Assert.IsNotNull(result);
+        Assert.IsTrue(result.Length > 0);
     }
 
     // Tests that DistributedApplicationTestingBuilder throws exceptions at the right times when the app crashes.
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(true, "before-build")]
-    [InlineData(true, "after-build")]
-    [InlineData(true, "after-start")]
-    [InlineData(true, "after-shutdown")]
-    [InlineData(false, "before-build")]
-    [InlineData(false, "after-build")]
-    [InlineData(false, "after-start")]
-    [InlineData(false, "after-shutdown")]
+    [DataRow(true, "before-build")]
+    [DataRow(true, "after-build")]
+    [DataRow(true, "after-start")]
+    [DataRow(true, "after-shutdown")]
+    [DataRow(false, "before-build")]
+    [DataRow(false, "after-build")]
+    [DataRow(false, "after-start")]
+    [DataRow(false, "after-shutdown")]
     public async Task CrashTests(bool genericEntryPoint, string crashArg)
     {
         var timeout = TimeSpan.FromMinutes(5);
@@ -483,7 +483,7 @@ public class TestingBuilderTests(ITestOutputHelper output)
     /// <summary>
     /// Checks that DisposeAsync does not throw an exception when the application is disposed with a still on-going StartAsync call.
     /// </summary>
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task StartAsyncAbandonedAfterCrash()
     {
@@ -504,7 +504,7 @@ public class TestingBuilderTests(ITestOutputHelper output)
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task StartAsyncAbandonedAfterHang()
     {
@@ -536,7 +536,7 @@ public class TestingBuilderTests(ITestOutputHelper output)
             }
             finally
             {
-                Assert.NotNull(app);
+                Assert.IsNotNull(app);
                 try
                 {
                     await app.DisposeAsync().AsTask().WaitAsync(cts.Token);
@@ -551,7 +551,7 @@ public class TestingBuilderTests(ITestOutputHelper output)
         }
         catch (Exception ex)
         {
-            Assert.False(cts.IsCancellationRequested);
+            Assert.IsFalse(cts.IsCancellationRequested);
             Assert.IsType<TimeoutException>(ex);
         }
     }

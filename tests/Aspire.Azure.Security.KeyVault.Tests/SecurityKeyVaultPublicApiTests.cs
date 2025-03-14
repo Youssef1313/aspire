@@ -3,13 +3,13 @@
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Security.KeyVault.Tests;
 
+[TestClass]
 public class SecurityKeyVaultPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddAzureKeyVaultClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -18,12 +18,12 @@ public class SecurityKeyVaultPublicApiTests
         var action = () => builder.AddAzureKeyVaultClient(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddAzureKeyVaultClientShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -34,10 +34,10 @@ public class SecurityKeyVaultPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeyedAzureKeyVaultClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -46,12 +46,12 @@ public class SecurityKeyVaultPublicApiTests
         var action = () => builder.AddKeyedAzureKeyVaultClient(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddKeyedAzureKeyVaultClientShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -62,10 +62,10 @@ public class SecurityKeyVaultPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureKeyVaultSecretsShouldThrowWhenConfigurationManagerIsNull()
     {
         IConfigurationManager configurationManager = null!;
@@ -74,12 +74,12 @@ public class SecurityKeyVaultPublicApiTests
         var action = () => configurationManager.AddAzureKeyVaultSecrets(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configurationManager), exception.ParamName);
+        Assert.AreEqual(nameof(configurationManager), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddAzureKeyVaultSecretsShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var configurationManager = new ConfigurationManager();
@@ -90,6 +90,6 @@ public class SecurityKeyVaultPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 }

@@ -4,13 +4,13 @@
 using Aspire.Hosting.Tests.Utils;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.Logging;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class ResourceLoggerServiceTests
 {
-    [Fact]
+    [TestMethod]
     public async Task AddingResourceLoggerAnnotationAllowsLogging()
     {
         var testResource = new TestResource("myResource");
@@ -32,11 +32,11 @@ public class ResourceLoggerServiceTests
         // Wait for logs to be read
         var allLogs = await logsLoop.DefaultTimeout();
 
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, world!", allLogs[0].Content);
-        Assert.False(allLogs[0].IsErrorMessage);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, world!", allLogs[0].Content);
+        Assert.IsFalse(allLogs[0].IsErrorMessage);
 
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, error!", allLogs[1].Content);
-        Assert.True(allLogs[1].IsErrorMessage);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, error!", allLogs[1].Content);
+        Assert.IsTrue(allLogs[1].IsErrorMessage);
 
         // New sub should get the previous logs
         subsLoop = WatchForSubscribers(service);
@@ -45,15 +45,15 @@ public class ResourceLoggerServiceTests
         await subsLoop.DefaultTimeout();
         allLogs = await logsLoop.DefaultTimeout();
 
-        Assert.Equal(2, allLogs.Count);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, world!", allLogs[0].Content);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, error!", allLogs[1].Content);
+        Assert.AreEqual(2, allLogs.Count);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, world!", allLogs[0].Content);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, error!", allLogs[1].Content);
 
         await logsEnumerator1.DisposeAsync().DefaultTimeout();
         await logsEnumerator2.DisposeAsync().DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task StreamingLogsCancelledAfterComplete()
     {
         var testResource = new TestResource("myResource");
@@ -76,23 +76,23 @@ public class ResourceLoggerServiceTests
         // Wait for logs to be read
         var allLogs = await logsLoop.DefaultTimeout();
 
-        Assert.Collection(allLogs,
-            l => Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, world!", l.Content),
-            l => Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, error!", l.Content));
+        Assert.That.Collection(allLogs,
+            l => Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, world!", l.Content),
+            l => Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, error!", l.Content));
 
         // The backlog should be cleared once there are no subscribers.
-        Assert.Empty(service.GetResourceLoggerState(testResource.Name).GetBacklogSnapshot());
+        Assert.IsEmpty(service.GetResourceLoggerState(testResource.Name).GetBacklogSnapshot());
 
         // New sub should replay logs again.
         logsLoop = ConsoleLoggingTestHelpers.WatchForLogsAsync(service, 100, testResource);
         allLogs = await logsLoop.DefaultTimeout();
 
-        Assert.Collection(allLogs,
-            l => Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, world!", l.Content),
-            l => Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, error!", l.Content));
+        Assert.That.Collection(allLogs,
+            l => Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, world!", l.Content),
+            l => Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, error!", l.Content));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SecondSubscriberGetsBacklog()
     {
         var testResource = new TestResource("myResource");
@@ -113,11 +113,11 @@ public class ResourceLoggerServiceTests
         // Wait for logs to be read
         var allLogs = await logsLoop.DefaultTimeout();
 
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, world!", allLogs[0].Content);
-        Assert.False(allLogs[0].IsErrorMessage);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, world!", allLogs[0].Content);
+        Assert.IsFalse(allLogs[0].IsErrorMessage);
 
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, error!", allLogs[1].Content);
-        Assert.True(allLogs[1].IsErrorMessage);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, error!", allLogs[1].Content);
+        Assert.IsTrue(allLogs[1].IsErrorMessage);
 
         // New sub should get the previous logs (backlog)
         subsLoop = WatchForSubscribers(service);
@@ -126,9 +126,9 @@ public class ResourceLoggerServiceTests
         await subsLoop.DefaultTimeout();
         allLogs = await logsLoop.DefaultTimeout();
 
-        Assert.Equal(2, allLogs.Count);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, world!", allLogs[0].Content);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, error!", allLogs[1].Content);
+        Assert.AreEqual(2, allLogs.Count);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, world!", allLogs[0].Content);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, error!", allLogs[1].Content);
 
         // Clear the backlog and ensure new subs only get new logs
         service.ClearBacklog(testResource.Name);
@@ -141,11 +141,11 @@ public class ResourceLoggerServiceTests
         allLogs = await logsLoop.DefaultTimeout();
 
         // The backlog should be cleared so only new logs are received
-        Assert.Single(allLogs);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z The third log", allLogs[0].Content);
+        Assert.ContainsSingle(allLogs);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z The third log", allLogs[0].Content);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task InMemoryLogsPreservedBetweenWatches()
     {
         var testResource = new TestResource("myResource");
@@ -165,8 +165,8 @@ public class ResourceLoggerServiceTests
         // Read before watching log
         var allLogs = await logsLoop.DefaultTimeout();
 
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Before watching!", allLogs[0].Content);
-        Assert.False(allLogs[0].IsErrorMessage);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Before watching!", allLogs[0].Content);
+        Assert.IsFalse(allLogs[0].IsErrorMessage);
 
         // Log while watching
         logger.LogInformation("While watching!");
@@ -174,8 +174,8 @@ public class ResourceLoggerServiceTests
         logsLoop = ConsoleLoggingTestHelpers.WatchForLogsAsync(logsEnumerator1, 1);
         allLogs = await logsLoop.DefaultTimeout();
 
-        Assert.Equal("2000-12-29T20:59:59.0000000Z While watching!", allLogs[0].Content);
-        Assert.False(allLogs[0].IsErrorMessage);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z While watching!", allLogs[0].Content);
+        Assert.IsFalse(allLogs[0].IsErrorMessage);
 
         // New sub should get the previous logs (backlog)
         subsLoop = WatchForSubscribers(service);
@@ -184,9 +184,9 @@ public class ResourceLoggerServiceTests
         await subsLoop.DefaultTimeout();
         allLogs = await logsLoop.DefaultTimeout();
 
-        Assert.Equal(2, allLogs.Count);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Before watching!", allLogs[0].Content);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z While watching!", allLogs[1].Content);
+        Assert.AreEqual(2, allLogs.Count);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Before watching!", allLogs[0].Content);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z While watching!", allLogs[1].Content);
 
         await logsEnumerator1.DisposeAsync().DefaultTimeout();
         await logsEnumerator2.DisposeAsync().DefaultTimeout();
@@ -194,7 +194,7 @@ public class ResourceLoggerServiceTests
         logger.LogInformation("After watching!");
 
         // The backlog should be cleared once there are no subscribers.
-        Assert.Empty(service.GetResourceLoggerState(testResource.Name).GetBacklogSnapshot());
+        Assert.IsEmpty(service.GetResourceLoggerState(testResource.Name).GetBacklogSnapshot());
 
         subsLoop = WatchForSubscribers(service);
         var logsEnumerator3 = service.WatchAsync(testResource).GetAsyncEnumerator();
@@ -203,14 +203,14 @@ public class ResourceLoggerServiceTests
         logger.LogInformation("While watching again!");
         allLogs = await logsLoop.DefaultTimeout();
 
-        Assert.Equal(4, allLogs.Count);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Before watching!", allLogs[0].Content);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z While watching!", allLogs[1].Content);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z After watching!", allLogs[2].Content);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z While watching again!", allLogs[3].Content);
+        Assert.AreEqual(4, allLogs.Count);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Before watching!", allLogs[0].Content);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z While watching!", allLogs[1].Content);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z After watching!", allLogs[2].Content);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z While watching again!", allLogs[3].Content);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task MultipleInstancesLogsToAll()
     {
         var testResource = new TestResource("myResource");
@@ -231,22 +231,22 @@ public class ResourceLoggerServiceTests
         logger.LogInformation("Hello, world!");
         logger.LogError("Hello, error!");
 
-        Assert.True(service.Loggers.ContainsKey("instance0"));
-        Assert.True(service.Loggers.ContainsKey("instance1"));
+        Assert.IsTrue(service.Loggers.ContainsKey("instance0"));
+        Assert.IsTrue(service.Loggers.ContainsKey("instance1"));
 
         // Wait for logs to be read
         var allLogs = await logsLoop.DefaultTimeout();
 
         var sortedLogs = allLogs.OrderBy(l => l.LineNumber).ToList();
 
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, world!", sortedLogs[0].Content);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, world!", sortedLogs[1].Content);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, error!", sortedLogs[2].Content);
-        Assert.Equal("2000-12-29T20:59:59.0000000Z Hello, error!", sortedLogs[3].Content);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, world!", sortedLogs[0].Content);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, world!", sortedLogs[1].Content);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, error!", sortedLogs[2].Content);
+        Assert.AreEqual("2000-12-29T20:59:59.0000000Z Hello, error!", sortedLogs[3].Content);
 
         service.Complete(testResource);
 
-        Assert.False(await logsEnumerator.MoveNextAsync().DefaultTimeout());
+        Assert.IsFalse(await logsEnumerator.MoveNextAsync().DefaultTimeout());
 
         await logsEnumerator.DisposeAsync().DefaultTimeout();
     }

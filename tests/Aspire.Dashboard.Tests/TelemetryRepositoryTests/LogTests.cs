@@ -11,24 +11,23 @@ using Google.Protobuf.Collections;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Proto.Logs.V1;
-using Xunit;
-using Xunit.Abstractions;
 using static Aspire.Tests.Shared.Telemetry.TelemetryTestHelpers;
 
 namespace Aspire.Dashboard.Tests.TelemetryRepositoryTests;
 
+[TestClass]
 public class LogTests
 {
     private static readonly DateTime s_testTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly TestContext _testContext;
 
-    public LogTests(ITestOutputHelper testOutputHelper)
+    public LogTests(TestContext testContext)
     {
-        _testOutputHelper = testOutputHelper;
+        _testContext = testContext;
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogs()
     {
         // Arrange
@@ -53,14 +52,14 @@ public class LogTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var applications = repository.GetApplications();
-        Assert.Collection(applications,
+        Assert.That.Collection(applications,
             app =>
             {
-                Assert.Equal("TestService", app.ApplicationName);
-                Assert.Equal("TestId", app.InstanceId);
+                Assert.AreEqual("TestService", app.ApplicationName);
+                Assert.AreEqual("TestId", app.InstanceId);
             });
 
         var logs = repository.GetLogs(new GetLogsContext
@@ -70,28 +69,28 @@ public class LogTests
             Count = 10,
             Filters = []
         });
-        Assert.Collection(logs.Items,
+        Assert.That.Collection(logs.Items,
             app =>
             {
-                Assert.Equal("546573745370616e4964", app.SpanId);
-                Assert.Equal("5465737454726163654964", app.TraceId);
-                Assert.Equal("Test {Log}", app.OriginalFormat);
-                Assert.Equal("Test Value!", app.Message);
-                Assert.Equal("TestLogger", app.Scope.ScopeName);
-                Assert.Collection(app.Attributes,
+                Assert.AreEqual("546573745370616e4964", app.SpanId);
+                Assert.AreEqual("5465737454726163654964", app.TraceId);
+                Assert.AreEqual("Test {Log}", app.OriginalFormat);
+                Assert.AreEqual("Test Value!", app.Message);
+                Assert.AreEqual("TestLogger", app.Scope.ScopeName);
+                Assert.That.Collection(app.Attributes,
                     p =>
                     {
-                        Assert.Equal("Log", p.Key);
-                        Assert.Equal("Value!", p.Value);
+                        Assert.AreEqual("Log", p.Key);
+                        Assert.AreEqual("Value!", p.Value);
                     });
             });
 
         var propertyKeys = repository.GetLogPropertyKeys(applications[0].ApplicationKey)!;
-        Assert.Collection(propertyKeys,
-            s => Assert.Equal("Log", s));
+        Assert.That.Collection(propertyKeys,
+            s => Assert.AreEqual("Log", s));
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogs_NoBody_EmptyMessage()
     {
         // Arrange
@@ -116,7 +115,7 @@ public class LogTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var logs = repository.GetLogs(new GetLogsContext
         {
@@ -125,14 +124,14 @@ public class LogTests
             Count = 10,
             Filters = []
         });
-        Assert.Collection(logs.Items,
+        Assert.That.Collection(logs.Items,
             app =>
             {
-                Assert.Equal("", app.Message);
+                Assert.AreEqual("", app.Message);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogs_MultipleOutOfOrder()
     {
         // Arrange
@@ -168,7 +167,7 @@ public class LogTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var logs = repository.GetLogs(new GetLogsContext
         {
@@ -177,24 +176,24 @@ public class LogTests
             Count = 10,
             Filters = []
         });
-        Assert.Collection(logs.Items,
+        Assert.That.Collection(logs.Items,
             l =>
             {
-                Assert.Equal("1", l.Message);
-                Assert.Equal("", l.Scope.ScopeName);
+                Assert.AreEqual("1", l.Message);
+                Assert.AreEqual("", l.Scope.ScopeName);
             },
-            l => Assert.Equal("2", l.Message),
-            l => Assert.Equal("3", l.Message),
-            l => Assert.Equal("4", l.Message),
-            l => Assert.Equal("5", l.Message),
-            l => Assert.Equal("6", l.Message),
-            l => Assert.Equal("7", l.Message),
-            l => Assert.Equal("8", l.Message),
-            l => Assert.Equal("9", l.Message),
-            l => Assert.Equal("10", l.Message));
+            l => Assert.AreEqual("2", l.Message),
+            l => Assert.AreEqual("3", l.Message),
+            l => Assert.AreEqual("4", l.Message),
+            l => Assert.AreEqual("5", l.Message),
+            l => Assert.AreEqual("6", l.Message),
+            l => Assert.AreEqual("7", l.Message),
+            l => Assert.AreEqual("8", l.Message),
+            l => Assert.AreEqual("9", l.Message),
+            l => Assert.AreEqual("10", l.Message));
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogs_Error_UnviewedCount()
     {
         // Arrange
@@ -242,34 +241,34 @@ public class LogTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var unviewedCounts1 = repository.GetApplicationUnviewedErrorLogsCount();
 
-        Assert.True(unviewedCounts1.TryGetValue(new ApplicationKey("TestService", "1"), out var unviewedCount1));
-        Assert.Equal(2, unviewedCount1);
+        Assert.IsTrue(unviewedCounts1.TryGetValue(new ApplicationKey("TestService", "1"), out var unviewedCount1));
+        Assert.AreEqual(2, unviewedCount1);
 
-        Assert.True(unviewedCounts1.TryGetValue(new ApplicationKey("TestService", "2"), out var unviewedCount2));
-        Assert.Equal(1, unviewedCount2);
+        Assert.IsTrue(unviewedCounts1.TryGetValue(new ApplicationKey("TestService", "2"), out var unviewedCount2));
+        Assert.AreEqual(1, unviewedCount2);
 
         repository.MarkViewedErrorLogs(new ApplicationKey("TestService", "1"));
 
         var unviewedCounts2 = repository.GetApplicationUnviewedErrorLogsCount();
 
-        Assert.False(unviewedCounts2.TryGetValue(new ApplicationKey("TestService", "1"), out _));
+        Assert.IsFalse(unviewedCounts2.TryGetValue(new ApplicationKey("TestService", "1"), out _));
 
-        Assert.True(unviewedCounts2.TryGetValue(new ApplicationKey("TestService", "2"), out unviewedCount2));
-        Assert.Equal(1, unviewedCount2);
+        Assert.IsTrue(unviewedCounts2.TryGetValue(new ApplicationKey("TestService", "2"), out unviewedCount2));
+        Assert.AreEqual(1, unviewedCount2);
 
         repository.MarkViewedErrorLogs(null);
 
         var unviewedCounts3 = repository.GetApplicationUnviewedErrorLogsCount();
 
-        Assert.False(unviewedCounts3.TryGetValue(new ApplicationKey("TestService", "1"), out _));
-        Assert.False(unviewedCounts3.TryGetValue(new ApplicationKey("TestService", "2"), out _));
+        Assert.IsFalse(unviewedCounts3.TryGetValue(new ApplicationKey("TestService", "1"), out _));
+        Assert.IsFalse(unviewedCounts3.TryGetValue(new ApplicationKey("TestService", "2"), out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogs_Error_UnviewedCount_WithReadSubscriptionAll()
     {
         // Arrange
@@ -313,15 +312,15 @@ public class LogTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var unviewedCounts = repository.GetApplicationUnviewedErrorLogsCount();
 
-        Assert.False(unviewedCounts.TryGetValue(new ApplicationKey("TestService", "1"), out _));
-        Assert.False(unviewedCounts.TryGetValue(new ApplicationKey("TestService", "2"), out _));
+        Assert.IsFalse(unviewedCounts.TryGetValue(new ApplicationKey("TestService", "1"), out _));
+        Assert.IsFalse(unviewedCounts.TryGetValue(new ApplicationKey("TestService", "2"), out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogs_Error_UnviewedCount_WithReadSubscriptionOneApp()
     {
         // Arrange
@@ -365,16 +364,16 @@ public class LogTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var unviewedCounts = repository.GetApplicationUnviewedErrorLogsCount();
 
-        Assert.False(unviewedCounts.TryGetValue(new ApplicationKey("TestService", "1"), out _));
-        Assert.True(unviewedCounts.TryGetValue(new ApplicationKey("TestService", "2"), out var unviewedCount));
-        Assert.Equal(1, unviewedCount);
+        Assert.IsFalse(unviewedCounts.TryGetValue(new ApplicationKey("TestService", "1"), out _));
+        Assert.IsTrue(unviewedCounts.TryGetValue(new ApplicationKey("TestService", "2"), out var unviewedCount));
+        Assert.AreEqual(1, unviewedCount);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogs_Error_UnviewedCount_WithNonReadSubscription()
     {
         // Arrange
@@ -403,15 +402,15 @@ public class LogTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var unviewedCounts = repository.GetApplicationUnviewedErrorLogsCount();
 
-        Assert.True(unviewedCounts.TryGetValue(new ApplicationKey("TestService", "1"), out var unviewedCount));
-        Assert.Equal(1, unviewedCount);
+        Assert.IsTrue(unviewedCounts.TryGetValue(new ApplicationKey("TestService", "1"), out var unviewedCount));
+        Assert.AreEqual(1, unviewedCount);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetLogs_UnknownApplication()
     {
         // Arrange
@@ -427,10 +426,10 @@ public class LogTests
         });
 
         // Assert
-        Assert.Empty(logs.Items);
+        Assert.IsEmpty(logs.Items);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetLogPropertyKeys_UnknownApplication()
     {
         // Arrange
@@ -440,10 +439,10 @@ public class LogTests
         var propertyKeys = repository.GetLogPropertyKeys(new ApplicationKey("TestService", "UnknownApplication"));
 
         // Assert
-        Assert.Empty(propertyKeys);
+        Assert.IsEmpty(propertyKeys);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Subscriptions_AddLog()
     {
         // Arrange
@@ -475,15 +474,15 @@ public class LogTests
         });
 
         // Assert 1
-        Assert.Equal(0, addContext1.FailureCount);
+        Assert.AreEqual(0, addContext1.FailureCount);
         await newApplicationsTcs.Task.DefaultTimeout();
 
         var applications = repository.GetApplications();
-        Assert.Collection(applications,
+        Assert.That.Collection(applications,
             app =>
             {
-                Assert.Equal("TestService", app.ApplicationName);
-                Assert.Equal("TestId", app.InstanceId);
+                Assert.AreEqual("TestService", app.ApplicationName);
+                Assert.AreEqual("TestId", app.InstanceId);
             });
 
         // Act 2
@@ -514,7 +513,7 @@ public class LogTests
         await newLogsTcs.Task.DefaultTimeout();
 
         // Assert 2
-        Assert.Equal(0, addContext2.FailureCount);
+        Assert.AreEqual(0, addContext2.FailureCount);
 
         var logs = repository.GetLogs(new GetLogsContext
         {
@@ -523,11 +522,11 @@ public class LogTests
             Count = 1,
             Filters = []
         })!;
-        Assert.Single(logs.Items);
-        Assert.Equal(2, logs.TotalItemCount);
+        Assert.ContainsSingle(logs.Items);
+        Assert.AreEqual(2, logs.TotalItemCount);
     }
 
-    [Fact]
+    [TestMethod]
     public void Unsubscribe()
     {
         // Arrange
@@ -560,11 +559,11 @@ public class LogTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
-        Assert.False(onNewApplicationsCalled, "Callback shouldn't have been called because subscription was disposed.");
+        Assert.AreEqual(0, addContext.FailureCount);
+        Assert.IsFalse(onNewApplicationsCalled, "Callback shouldn't have been called because subscription was disposed.");
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Subscription_RaisedFromDifferentContext_InitialContextPreserved()
     {
         // Arrange
@@ -609,10 +608,10 @@ public class LogTests
 
         // Assert
         var callbackValue = await tcs.Task.DefaultTimeout();
-        Assert.Equal("CustomValue", callbackValue);
+        Assert.AreEqual("CustomValue", callbackValue);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogs_AttributeLimits_LimitsApplied()
     {
         // Arrange
@@ -648,14 +647,14 @@ public class LogTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var applications = repository.GetApplications();
-        Assert.Collection(applications,
+        Assert.That.Collection(applications,
             app =>
             {
-                Assert.Equal("TestService", app.ApplicationName);
-                Assert.Equal("TestId", app.InstanceId);
+                Assert.AreEqual("TestService", app.ApplicationName);
+                Assert.AreEqual("TestId", app.InstanceId);
             });
 
         var logs = repository.GetLogs(new GetLogsContext
@@ -665,46 +664,46 @@ public class LogTests
             Count = 10,
             Filters = []
         });
-        Assert.Collection(logs.Items,
+        Assert.That.Collection(logs.Items,
             app =>
             {
-                Assert.Equal("Test {Log}", app.OriginalFormat);
-                Assert.Equal("0123456789012345", app.Message);
-                Assert.Collection(app.Attributes,
+                Assert.AreEqual("Test {Log}", app.OriginalFormat);
+                Assert.AreEqual("0123456789012345", app.Message);
+                Assert.That.Collection(app.Attributes,
                     p =>
                     {
-                        Assert.Equal("Key0", p.Key);
-                        Assert.Equal("01234", p.Value);
+                        Assert.AreEqual("Key0", p.Key);
+                        Assert.AreEqual("01234", p.Value);
                     },
                     p =>
                     {
-                        Assert.Equal("Key1", p.Key);
-                        Assert.Equal("0123456789", p.Value);
+                        Assert.AreEqual("Key1", p.Key);
+                        Assert.AreEqual("0123456789", p.Value);
                     },
                     p =>
                     {
-                        Assert.Equal("Key2", p.Key);
-                        Assert.Equal("012345678901234", p.Value);
+                        Assert.AreEqual("Key2", p.Key);
+                        Assert.AreEqual("012345678901234", p.Value);
                     },
                     p =>
                     {
-                        Assert.Equal("Key3", p.Key);
-                        Assert.Equal("0123456789012345", p.Value);
+                        Assert.AreEqual("Key3", p.Key);
+                        Assert.AreEqual("0123456789012345", p.Value);
                     },
                     p =>
                     {
-                        Assert.Equal("Key4", p.Key);
-                        Assert.Equal("0123456789012345", p.Value);
+                        Assert.AreEqual("Key4", p.Key);
+                        Assert.AreEqual("0123456789012345", p.Value);
                     });
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Subscription_MultipleUpdates_MinExecuteIntervalApplied()
     {
         // Arrange
         var minExecuteInterval = TimeSpan.FromMilliseconds(500);
-        var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(_testOutputHelper);
+        var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(_testContext);
         var logger = loggerFactory.CreateLogger(nameof(LogTests));
         var repository = CreateRepository(subscriptionMinExecuteInterval: minExecuteInterval, loggerFactory: loggerFactory);
         var stopwatch = new Stopwatch();
@@ -747,7 +746,7 @@ public class LogTests
 
         // Assert
         var read1 = await resultChannel.Reader.ReadAsync().DefaultTimeout();
-        Assert.Equal(1, read1);
+        Assert.AreEqual(1, read1);
         logger.LogInformation("Received log 1 callback");
 
         logger.LogInformation("Writing log 2");
@@ -768,7 +767,7 @@ public class LogTests
         });
 
         var read2 = await resultChannel.Reader.ReadAsync().DefaultTimeout();
-        Assert.Equal(2, read2);
+        Assert.AreEqual(2, read2);
         logger.LogInformation("Received log 2 callback");
 
         var elapsed = stopwatch.Elapsed;
@@ -776,7 +775,7 @@ public class LogTests
         CustomAssert.AssertExceedsMinInterval(elapsed, minExecuteInterval);
     }
 
-    [Fact]
+    [TestMethod]
     public void FilterLogs_With_Message_Returns_CorrectLog()
     {
         // Arrange
@@ -806,7 +805,7 @@ public class LogTests
         var applicationKey = repository.GetApplications().First().ApplicationKey;
 
         // Assert
-        Assert.Empty(repository.GetLogs(new GetLogsContext
+        Assert.IsEmpty(repository.GetLogs(new GetLogsContext
         {
             ApplicationKey = applicationKey,
             StartIndex = 0,
@@ -814,7 +813,7 @@ public class LogTests
             Filters = [new TelemetryFilter { Condition = FilterCondition.Contains, Field = nameof(OtlpLogEntry.Message), Value = "does_not_contain" }]
         }).Items);
 
-        Assert.Single(repository.GetLogs(new GetLogsContext
+        Assert.ContainsSingle(repository.GetLogs(new GetLogsContext
         {
             ApplicationKey = applicationKey,
             StartIndex = 0,
@@ -823,7 +822,7 @@ public class LogTests
         }).Items);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogs_MultipleResources_SameInstanceId_CreateMultipleResources()
     {
         // Arrange
@@ -860,19 +859,19 @@ public class LogTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var applications = repository.GetApplications();
-        Assert.Collection(applications,
+        Assert.That.Collection(applications,
             app =>
             {
-                Assert.Equal("App1", app.ApplicationName);
-                Assert.Equal("computer-name", app.InstanceId);
+                Assert.AreEqual("App1", app.ApplicationName);
+                Assert.AreEqual("computer-name", app.InstanceId);
             },
             app =>
             {
-                Assert.Equal("App2", app.ApplicationName);
-                Assert.Equal("computer-name", app.InstanceId);
+                Assert.AreEqual("App2", app.ApplicationName);
+                Assert.AreEqual("computer-name", app.InstanceId);
             });
 
         var logs1 = repository.GetLogs(new GetLogsContext
@@ -882,19 +881,19 @@ public class LogTests
             Count = 10,
             Filters = []
         });
-        Assert.Collection(logs1.Items,
+        Assert.That.Collection(logs1.Items,
             app =>
             {
-                Assert.Equal("546573745370616e4964", app.SpanId);
-                Assert.Equal("5465737454726163654964", app.TraceId);
-                Assert.Equal("Test {Log}", app.OriginalFormat);
-                Assert.Equal("Test Value!", app.Message);
-                Assert.Equal("TestLogger", app.Scope.ScopeName);
-                Assert.Collection(app.Attributes,
+                Assert.AreEqual("546573745370616e4964", app.SpanId);
+                Assert.AreEqual("5465737454726163654964", app.TraceId);
+                Assert.AreEqual("Test {Log}", app.OriginalFormat);
+                Assert.AreEqual("Test Value!", app.Message);
+                Assert.AreEqual("TestLogger", app.Scope.ScopeName);
+                Assert.That.Collection(app.Attributes,
                     p =>
                     {
-                        Assert.Equal("Log", p.Key);
-                        Assert.Equal("Value!", p.Value);
+                        Assert.AreEqual("Log", p.Key);
+                        Assert.AreEqual("Value!", p.Value);
                     });
             });
 
@@ -905,24 +904,24 @@ public class LogTests
             Count = 10,
             Filters = []
         });
-        Assert.Collection(logs2.Items,
+        Assert.That.Collection(logs2.Items,
             app =>
             {
-                Assert.Equal("546573745370616e4964", app.SpanId);
-                Assert.Equal("5465737454726163654964", app.TraceId);
-                Assert.Equal("Test {Log}", app.OriginalFormat);
-                Assert.Equal("Test Value!", app.Message);
-                Assert.Equal("TestLogger", app.Scope.ScopeName);
-                Assert.Collection(app.Attributes,
+                Assert.AreEqual("546573745370616e4964", app.SpanId);
+                Assert.AreEqual("5465737454726163654964", app.TraceId);
+                Assert.AreEqual("Test {Log}", app.OriginalFormat);
+                Assert.AreEqual("Test Value!", app.Message);
+                Assert.AreEqual("TestLogger", app.Scope.ScopeName);
+                Assert.That.Collection(app.Attributes,
                     p =>
                     {
-                        Assert.Equal("Log", p.Key);
-                        Assert.Equal("Value!", p.Value);
+                        Assert.AreEqual("Log", p.Key);
+                        Assert.AreEqual("Value!", p.Value);
                     });
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetLogs_MultipleInstances()
     {
         // Arrange
@@ -971,7 +970,7 @@ public class LogTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var appKey = new ApplicationKey("app1", InstanceId: null);
         var logs = repository.GetLogs(new GetLogsContext
@@ -981,37 +980,37 @@ public class LogTests
             Count = 10,
             Filters = []
         });
-        Assert.Collection(logs.Items,
+        Assert.That.Collection(logs.Items,
             app =>
             {
-                Assert.Equal("message-1", app.Message);
-                Assert.Equal("TestLogger", app.Scope.ScopeName);
-                Assert.Collection(app.Attributes,
+                Assert.AreEqual("message-1", app.Message);
+                Assert.AreEqual("TestLogger", app.Scope.ScopeName);
+                Assert.That.Collection(app.Attributes,
                     p =>
                     {
-                        Assert.Equal("key-1", p.Key);
-                        Assert.Equal("value-1", p.Value);
+                        Assert.AreEqual("key-1", p.Key);
+                        Assert.AreEqual("value-1", p.Value);
                     });
             },
             app =>
             {
-                Assert.Equal("message-2", app.Message);
-                Assert.Equal("TestLogger", app.Scope.ScopeName);
-                Assert.Collection(app.Attributes,
+                Assert.AreEqual("message-2", app.Message);
+                Assert.AreEqual("TestLogger", app.Scope.ScopeName);
+                Assert.That.Collection(app.Attributes,
                     p =>
                     {
-                        Assert.Equal("key-2", p.Key);
-                        Assert.Equal("value-2", p.Value);
+                        Assert.AreEqual("key-2", p.Key);
+                        Assert.AreEqual("value-2", p.Value);
                     });
             });
 
         var propertyKeys = repository.GetLogPropertyKeys(appKey)!;
-        Assert.Collection(propertyKeys,
-            s => Assert.Equal("key-1", s),
-            s => Assert.Equal("key-2", s));
+        Assert.That.Collection(propertyKeys,
+            s => Assert.AreEqual("key-1", s),
+            s => Assert.AreEqual("key-2", s));
     }
 
-    [Fact]
+    [TestMethod]
     public void RemoveLogs_All()
     {
         // Arrange
@@ -1062,7 +1061,7 @@ public class LogTests
         repository.ClearStructuredLogs();
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var logs = repository.GetLogs(new GetLogsContext
         {
@@ -1071,12 +1070,12 @@ public class LogTests
             Count = 10,
             Filters = []
         });
-        Assert.NotNull(logs);
-        Assert.Empty(logs.Items);
-        Assert.Equal(0, logs.TotalItemCount);
+        Assert.IsNotNull(logs);
+        Assert.IsEmpty(logs.Items);
+        Assert.AreEqual(0, logs.TotalItemCount);
     }
 
-    [Fact]
+    [TestMethod]
     public void RemoveLogs_SelectedResource()
     {
         // Arrange
@@ -1127,7 +1126,7 @@ public class LogTests
         repository.ClearStructuredLogs(new ApplicationKey("app1", "123"));
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var logs = repository.GetLogs(new GetLogsContext
         {
@@ -1136,21 +1135,21 @@ public class LogTests
             Count = 10,
             Filters = []
         });
-        Assert.Equal(2, logs.TotalItemCount);
-        Assert.Collection(logs.Items,
+        Assert.AreEqual(2, logs.TotalItemCount);
+        Assert.That.Collection(logs.Items,
                     app =>
                     {
-                        Assert.Equal("message-2", app.Message);
-                        Assert.Equal("TestLogger", app.Scope.ScopeName);
+                        Assert.AreEqual("message-2", app.Message);
+                        Assert.AreEqual("TestLogger", app.Scope.ScopeName);
                     },
                     app =>
                     {
-                        Assert.Equal("message-3", app.Message);
-                        Assert.Equal("TestLogger", app.Scope.ScopeName);
+                        Assert.AreEqual("message-3", app.Message);
+                        Assert.AreEqual("TestLogger", app.Scope.ScopeName);
                     });
     }
 
-    [Fact]
+    [TestMethod]
     public void RemoveLogs_MultipleSelectedResources()
     {
         // Arrange
@@ -1201,7 +1200,7 @@ public class LogTests
         repository.ClearStructuredLogs(new ApplicationKey("app1", null));
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var logs = repository.GetLogs(new GetLogsContext
         {
@@ -1210,13 +1209,13 @@ public class LogTests
             Count = 10,
             Filters = []
         });
-        Assert.Equal(1, logs.TotalItemCount);
-        var log = Assert.Single(logs.Items);
-        Assert.Equal("message-3", log.Message);
-        Assert.Equal("TestLogger", log.Scope.ScopeName);
+        Assert.AreEqual(1, logs.TotalItemCount);
+        var log = Assert.ContainsSingle(logs.Items);
+        Assert.AreEqual("message-3", log.Message);
+        Assert.AreEqual("TestLogger", log.Scope.ScopeName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogs_ObservedUnixTimeNanos()
     {
         // Arrange
@@ -1241,7 +1240,7 @@ public class LogTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var logs = repository.GetLogs(new GetLogsContext
         {
@@ -1250,10 +1249,10 @@ public class LogTests
             Count = 10,
             Filters = []
         });
-        Assert.Collection(logs.Items,
+        Assert.That.Collection(logs.Items,
             app =>
             {
-                Assert.Equal(s_testTime.AddMinutes(1), app.TimeStamp);
+                Assert.AreEqual(s_testTime.AddMinutes(1), app.TimeStamp);
             });
     }
 }

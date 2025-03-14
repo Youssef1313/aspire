@@ -2,64 +2,64 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Python.Tests;
 
+[TestClass]
 public class PythonPublicApiTests
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorPythonAppResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
         const string executablePath = "/src/python";
         const string appDirectory = "/data/python";
 
-        var action = () => new PythonAppResource(name, executablePath, appDirectory);
+        Action action = () => new PythonAppResource(name, executablePath, appDirectory);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorPythonAppResourceShouldThrowWhenExecutablePathIsNullOrEmpty(bool isNull)
     {
         const string name = "Python";
         var executablePath = isNull ? null! : string.Empty;
         const string appDirectory = "/data/python";
 
-        var action = () => new PythonAppResource(name, executablePath, appDirectory);
+        Action action = () => new PythonAppResource(name, executablePath, appDirectory);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal("command", exception.ParamName);
+        Assert.AreEqual("command", exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorPythonAppResourceShouldThrowWhenAppDirectoryIsNullOrEmpty(bool isNull)
     {
         const string name = "Python";
         const string executablePath = "/src/python";
         var appDirectory = isNull ? null! : string.Empty;
 
-        var action = () => new PythonAppResource(name, executablePath, appDirectory);
+        Action action = () => new PythonAppResource(name, executablePath, appDirectory);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal("workingDirectory", exception.ParamName);
+        Assert.AreEqual("workingDirectory", exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddPythonAppShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -68,19 +68,19 @@ public class PythonPublicApiTests
         const string scriptPath = "scripts";
         string[] scriptArgs = ["--traces"];
 
-        var action = () => builder.AddPythonApp(
+        Action action = () => builder.AddPythonApp(
             name,
             appDirectory,
             scriptPath,
             scriptArgs);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddPythonAppShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -89,7 +89,7 @@ public class PythonPublicApiTests
         const string scriptPath = "scripts";
         string[] scriptArgs = ["--traces"];
 
-        var action = () => builder.AddPythonApp(
+        Action action = () => builder.AddPythonApp(
             name,
             appDirectory,
             scriptPath,
@@ -98,12 +98,12 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddPythonAppShouldThrowWhenAppDirectoryIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -112,7 +112,7 @@ public class PythonPublicApiTests
         const string scriptPath = "scripts";
         string[] scriptArgs = ["--traces"];
 
-        var action = () => builder.AddPythonApp(
+        Action action = () => builder.AddPythonApp(
             name,
             appDirectory,
             scriptPath,
@@ -121,12 +121,12 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(appDirectory), exception.ParamName);
+        Assert.AreEqual(nameof(appDirectory), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddPythonAppShouldThrowWhenScriptPathIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -135,7 +135,7 @@ public class PythonPublicApiTests
         var scriptPath = isNull ? null! : string.Empty;
         string[] scriptArgs = ["--traces"];
 
-        var action = () => builder.AddPythonApp(
+        Action action = () => builder.AddPythonApp(
             name,
             appDirectory,
             scriptPath,
@@ -144,10 +144,10 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(scriptPath), exception.ParamName);
+        Assert.AreEqual(nameof(scriptPath), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddPythonAppShouldThrowWhenScriptArgsIsNull()
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -156,19 +156,19 @@ public class PythonPublicApiTests
         const string scriptPath = "scripts";
         string[] scriptArgs = null!;
 
-        var action = () => builder.AddPythonApp(
+        Action action = () => builder.AddPythonApp(
             name,
             appDirectory,
             scriptPath,
             scriptArgs);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(scriptArgs), exception.ParamName);
+        Assert.AreEqual(nameof(scriptArgs), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddPythonAppShouldThrowWhenScriptArgsContainsIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -177,7 +177,7 @@ public class PythonPublicApiTests
         const string scriptPath = "scripts";
         string[] scriptArgs = ["arg", isNull ? null! : string.Empty, "arg2"];
 
-        var action = () => builder.AddPythonApp(
+        Action action = () => builder.AddPythonApp(
             name,
             appDirectory,
             scriptPath,
@@ -186,14 +186,14 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(scriptArgs), exception.ParamName);
-        Assert.Equal(isNull
+        Assert.AreEqual(nameof(scriptArgs), exception.ParamName);
+        Assert.AreEqual(isNull
             ? "Array params contains null item: [arg, , arg2] (Parameter 'scriptArgs')"
             : "Array params contains empty item: [arg, , arg2] (Parameter 'scriptArgs')",
             exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddPythonAppWithVirtualEnvironmentPathShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -203,7 +203,7 @@ public class PythonPublicApiTests
         var virtualEnvironmentPath = ".venv";
         string[] scriptArgs = ["--traces"]; ;
 
-        var action = () => builder.AddPythonApp(
+        Action action = () => builder.AddPythonApp(
             name,
             appDirectory,
             scriptPath,
@@ -211,12 +211,12 @@ public class PythonPublicApiTests
             scriptArgs);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddPythonAppWithVirtualEnvironmentPathShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -226,7 +226,7 @@ public class PythonPublicApiTests
         const string virtualEnvironmentPath = ".venv";
         string[] scriptArgs = ["--traces"]; ;
 
-        var action = () => builder.AddPythonApp(
+        Action action = () => builder.AddPythonApp(
             name,
             appDirectory,
             scriptPath,
@@ -236,12 +236,12 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddPythonAppWithVirtualEnvironmentPathShouldThrowWhenAppDirectoryIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -251,7 +251,7 @@ public class PythonPublicApiTests
         const string virtualEnvironmentPath = ".venv";
         string[] scriptArgs = ["--traces"]; ;
 
-        var action = () => builder.AddPythonApp(
+        Action action = () => builder.AddPythonApp(
             name,
             appDirectory,
             scriptPath,
@@ -261,12 +261,12 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(appDirectory), exception.ParamName);
+        Assert.AreEqual(nameof(appDirectory), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddPythonAppWithVirtualEnvironmentPathShouldThrowWhenScriptPathIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -276,7 +276,7 @@ public class PythonPublicApiTests
         const string virtualEnvironmentPath = ".venv";
         string[] scriptArgs = ["--traces"]; ;
 
-        var action = () => builder.AddPythonApp(
+        Action action = () => builder.AddPythonApp(
             name,
             appDirectory,
             scriptPath,
@@ -286,12 +286,12 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(scriptPath), exception.ParamName);
+        Assert.AreEqual(nameof(scriptPath), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddPythonAppWithVirtualEnvironmentPathShouldThrowWhenVirtualEnvironmentPathIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -301,7 +301,7 @@ public class PythonPublicApiTests
         var virtualEnvironmentPath = isNull ? null! : string.Empty;
         string[] scriptArgs = ["--traces"]; ;
 
-        var action = () => builder.AddPythonApp(
+        Action action = () => builder.AddPythonApp(
             name,
             appDirectory,
             scriptPath,
@@ -311,12 +311,12 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(virtualEnvironmentPath), exception.ParamName);
+        Assert.AreEqual(nameof(virtualEnvironmentPath), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddPythonAppWithVirtualEnvironmentPathShouldThrowWhenScriptArgsIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -326,7 +326,7 @@ public class PythonPublicApiTests
         const string virtualEnvironmentPath = ".venv";
         string[] scriptArgs = ["arg", isNull ? null! : string.Empty, "arg2"];
 
-        var action = () => builder.AddPythonApp(
+        Action action = () => builder.AddPythonApp(
             name,
             appDirectory,
             scriptPath,
@@ -336,16 +336,16 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(scriptArgs), exception.ParamName);
-        Assert.Equal(isNull
+        Assert.AreEqual(nameof(scriptArgs), exception.ParamName);
+        Assert.AreEqual(isNull
             ? "Array params contains null item: [arg, , arg2] (Parameter 'scriptArgs')"
             : "Array params contains empty item: [arg, , arg2] (Parameter 'scriptArgs')",
             exception.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [Obsolete("PythonProjectResource is deprecated. Please use PythonAppResource instead.")]
     public void CtorPythonProjectResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
@@ -353,17 +353,17 @@ public class PythonPublicApiTests
         const string executablePath = "/src/python";
         const string appDirectory = "/data/python";
 
-        var action = () => new PythonProjectResource(name, executablePath, appDirectory);
+        Action action = () => new PythonProjectResource(name, executablePath, appDirectory);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [Obsolete("PythonProjectResource is deprecated. Please use PythonAppResource instead.")]
     public void CtorPythonProjectResourceShouldThrowWhenExecutablePathIsNullOrEmpty(bool isNull)
     {
@@ -371,17 +371,17 @@ public class PythonPublicApiTests
         var executablePath = isNull ? null! : string.Empty;
         const string appDirectory = "/data/python";
 
-        var action = () => new PythonProjectResource(name, executablePath, appDirectory);
+        Action action = () => new PythonProjectResource(name, executablePath, appDirectory);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal("command", exception.ParamName);
+        Assert.AreEqual("command", exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [Obsolete("PythonProjectResource is deprecated. Please use PythonAppResource instead.")]
     public void CtorPythonProjectResourceShouldThrowWhenAppDirectoryIsNullOrEmpty(bool isNull)
     {
@@ -389,15 +389,15 @@ public class PythonPublicApiTests
         const string executablePath = "/src/python";
         var projectDirectory = isNull ? null! : string.Empty;
 
-        var action = () => new PythonProjectResource(name, executablePath, projectDirectory);
+        Action action = () => new PythonProjectResource(name, executablePath, projectDirectory);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal("workingDirectory", exception.ParamName);
+        Assert.AreEqual("workingDirectory", exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete("AddPythonProject is deprecated. Please use AddPythonApp instead.")]
     public void AddPythonProjectShouldThrowWhenBuilderIsNull()
     {
@@ -407,19 +407,19 @@ public class PythonPublicApiTests
         const string scriptPath = "scripts";
         string[] scriptArgs = ["--traces"];
 
-        var action = () => builder.AddPythonProject(
+        Action action = () => builder.AddPythonProject(
             name,
             projectDirectory,
             scriptPath,
             scriptArgs);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [Obsolete("AddPythonProject is deprecated. Please use AddPythonApp instead.")]
     public void AddPythonProjectShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
@@ -429,7 +429,7 @@ public class PythonPublicApiTests
         const string scriptPath = "scripts";
         string[] scriptArgs = ["--traces"];
 
-        var action = () => builder.AddPythonProject(
+        Action action = () => builder.AddPythonProject(
             name,
             projectDirectory,
             scriptPath,
@@ -438,12 +438,12 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [Obsolete("AddPythonProject is deprecated. Please use AddPythonApp instead.")]
     public void AddPythonProjectShouldThrowWhenAppDirectoryIsNullOrEmpty(bool isNull)
     {
@@ -453,7 +453,7 @@ public class PythonPublicApiTests
         const string scriptPath = "scripts";
         string[] scriptArgs = ["--traces"];
 
-        var action = () => builder.AddPythonProject(
+        Action action = () => builder.AddPythonProject(
             name,
             projectDirectory,
             scriptPath,
@@ -462,12 +462,12 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(projectDirectory), exception.ParamName);
+        Assert.AreEqual(nameof(projectDirectory), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [Obsolete("AddPythonProject is deprecated. Please use AddPythonApp instead.")]
     public void AddPythonProjectThrowWhenScriptPathIsNullOrEmpty(bool isNull)
     {
@@ -477,7 +477,7 @@ public class PythonPublicApiTests
         var scriptPath = isNull ? null! : string.Empty;
         string[] scriptArgs = ["--traces"];
 
-        var action = () => builder.AddPythonProject(
+        Action action = () => builder.AddPythonProject(
             name,
             projectDirectory,
             scriptPath,
@@ -486,10 +486,10 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(scriptPath), exception.ParamName);
+        Assert.AreEqual(nameof(scriptPath), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete("AddPythonProject is deprecated. Please use AddPythonApp instead.")]
     public void AddPythonProjectShouldThrowWhenScriptArgsIsNull()
     {
@@ -499,19 +499,19 @@ public class PythonPublicApiTests
         const string scriptPath = "scripts";
         string[] scriptArgs = null!;
 
-        var action = () => builder.AddPythonProject(
+        Action action = () => builder.AddPythonProject(
             name,
             projectDirectory,
             scriptPath,
             scriptArgs);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(scriptArgs), exception.ParamName);
+        Assert.AreEqual(nameof(scriptArgs), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [Obsolete("AddPythonProject is deprecated. Please use AddPythonApp instead.")]
     public void AddPythonProjectShouldThrowWhenScriptArgsContainsIsNullOrEmpty(bool isNull)
     {
@@ -521,7 +521,7 @@ public class PythonPublicApiTests
         const string scriptPath = "scripts";
         string[] scriptArgs = ["arg", isNull ? null! : string.Empty, "arg2"];
 
-        var action = () => builder.AddPythonProject(
+        Action action = () => builder.AddPythonProject(
             name,
             projectDirectory,
             scriptPath,
@@ -530,14 +530,14 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(scriptArgs), exception.ParamName);
-        Assert.Equal(isNull
+        Assert.AreEqual(nameof(scriptArgs), exception.ParamName);
+        Assert.AreEqual(isNull
             ? "Array params contains null item: [arg, , arg2] (Parameter 'scriptArgs')"
             : "Array params contains empty item: [arg, , arg2] (Parameter 'scriptArgs')",
             exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete("AddPythonProject is deprecated. Please use AddPythonApp instead.")]
     public void AddPythonProjectWithVirtualEnvironmentPathShouldThrowWhenBuilderIsNull()
     {
@@ -548,7 +548,7 @@ public class PythonPublicApiTests
         var virtualEnvironmentPath = ".venv";
         string[] scriptArgs = ["--traces"]; ;
 
-        var action = () => builder.AddPythonProject(
+        Action action = () => builder.AddPythonProject(
             name,
             projectDirectory,
             scriptPath,
@@ -556,12 +556,12 @@ public class PythonPublicApiTests
             scriptArgs);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [Obsolete("AddPythonProject is deprecated. Please use AddPythonApp instead.")]
     public void AddPythonProjectWithVirtualEnvironmentPathShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
@@ -572,7 +572,7 @@ public class PythonPublicApiTests
         const string virtualEnvironmentPath = ".venv";
         string[] scriptArgs = ["--traces"]; ;
 
-        var action = () => builder.AddPythonProject(
+        Action action = () => builder.AddPythonProject(
             name,
             projectDirectory,
             scriptPath,
@@ -582,12 +582,12 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [Obsolete("AddPythonProject is deprecated. Please use AddPythonApp instead.")]
     public void AddPythonProjectWithVirtualEnvironmentPathShouldThrowWhenAppDirectoryIsNullOrEmpty(bool isNull)
     {
@@ -598,7 +598,7 @@ public class PythonPublicApiTests
         const string virtualEnvironmentPath = ".venv";
         string[] scriptArgs = ["--traces"]; ;
 
-        var action = () => builder.AddPythonProject(
+        Action action = () => builder.AddPythonProject(
             name,
             projectDirectory,
             scriptPath,
@@ -608,12 +608,12 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(projectDirectory), exception.ParamName);
+        Assert.AreEqual(nameof(projectDirectory), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [Obsolete("AddPythonProject is deprecated. Please use AddPythonApp instead.")]
     public void AddPythonProjectpWithVirtualEnvironmentPathShouldThrowWhenScriptPathIsNullOrEmpty(bool isNull)
     {
@@ -624,7 +624,7 @@ public class PythonPublicApiTests
         const string virtualEnvironmentPath = ".venv";
         string[] scriptArgs = ["--traces"]; ;
 
-        var action = () => builder.AddPythonProject(
+        Action action = () => builder.AddPythonProject(
             name,
             projectDirectory,
             scriptPath,
@@ -634,12 +634,12 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(scriptPath), exception.ParamName);
+        Assert.AreEqual(nameof(scriptPath), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [Obsolete("AddPythonProject is deprecated. Please use AddPythonApp instead.")]
     public void AddPythonProjectWithVirtualEnvironmentPathShouldThrowWhenVirtualEnvironmentPathIsNullOrEmpty(bool isNull)
     {
@@ -650,7 +650,7 @@ public class PythonPublicApiTests
         var virtualEnvironmentPath = isNull ? null! : string.Empty;
         string[] scriptArgs = ["--traces"]; ;
 
-        var action = () => builder.AddPythonProject(
+        Action action = () => builder.AddPythonProject(
             name,
             projectDirectory,
             scriptPath,
@@ -660,12 +660,12 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(virtualEnvironmentPath), exception.ParamName);
+        Assert.AreEqual(nameof(virtualEnvironmentPath), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [Obsolete("AddPythonProject is deprecated. Please use AddPythonApp instead.")]
     public void AddPythonProjectWithVirtualEnvironmentPathShouldThrowWhenScriptArgsIsNullOrEmpty(bool isNull)
     {
@@ -676,7 +676,7 @@ public class PythonPublicApiTests
         const string virtualEnvironmentPath = ".venv";
         string[] scriptArgs = ["arg", isNull ? null! : string.Empty, "arg2"];
 
-        var action = () => builder.AddPythonProject(
+        Action action = () => builder.AddPythonProject(
             name,
             projectDirectory,
             scriptPath,
@@ -686,8 +686,8 @@ public class PythonPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(scriptArgs), exception.ParamName);
-        Assert.Equal(isNull
+        Assert.AreEqual(nameof(scriptArgs), exception.ParamName);
+        Assert.AreEqual(isNull
             ? "Array params contains null item: [arg, , arg2] (Parameter 'scriptArgs')"
             : "Array params contains empty item: [arg, , arg2] (Parameter 'scriptArgs')",
             exception.Message);

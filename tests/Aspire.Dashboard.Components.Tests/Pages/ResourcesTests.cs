@@ -9,14 +9,14 @@ using Aspire.Dashboard.Model;
 using Bunit;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FluentUI.AspNetCore.Components;
-using Xunit;
 
 namespace Aspire.Dashboard.Components.Tests.Pages;
 
 [UseCulture("en-US")]
-public partial class ResourcesTests : TestContext
+[TestClass]
+public partial class ResourcesTests : Bunit.TestContext
 {
-    [Fact]
+    [TestMethod]
     public void UpdateResources_FiltersUpdated()
     {
         // Arrange
@@ -42,23 +42,23 @@ public partial class ResourcesTests : TestContext
         });
 
         // Assert 1
-        Assert.Collection(cut.Instance.ResourceTypesToVisibility.OrderBy(kvp => kvp.Key),
+        Assert.That.Collection(cut.Instance.ResourceTypesToVisibility.OrderBy(kvp => kvp.Key),
             kvp =>
             {
-                Assert.Equal("Type1", kvp.Key);
-                Assert.True(kvp.Value);
+                Assert.AreEqual("Type1", kvp.Key);
+                Assert.IsTrue(kvp.Value);
             });
-        Assert.Collection(cut.Instance.ResourceStatesToVisibility.OrderBy(kvp => kvp.Key),
+        Assert.That.Collection(cut.Instance.ResourceStatesToVisibility.OrderBy(kvp => kvp.Key),
             kvp =>
             {
-                Assert.Equal("Running", kvp.Key);
-                Assert.True(kvp.Value);
+                Assert.AreEqual("Running", kvp.Key);
+                Assert.IsTrue(kvp.Value);
             });
-        Assert.Collection(cut.Instance.ResourceHealthStatusesToVisibility.OrderBy(kvp => kvp.Key),
+        Assert.That.Collection(cut.Instance.ResourceHealthStatusesToVisibility.OrderBy(kvp => kvp.Key),
             kvp =>
             {
-                Assert.Equal("Unhealthy", kvp.Key);
-                Assert.True(kvp.Value);
+                Assert.AreEqual("Unhealthy", kvp.Key);
+                Assert.IsTrue(kvp.Value);
             });
 
         // Act
@@ -75,37 +75,37 @@ public partial class ResourcesTests : TestContext
         cut.WaitForState(() => cut.Instance.GetFilteredResources().Count() == 2, TestConstants.WaitTimeout);
 
         // Assert 2
-        Assert.Collection(cut.Instance.ResourceTypesToVisibility.OrderBy(kvp => kvp.Key),
+        Assert.That.Collection(cut.Instance.ResourceTypesToVisibility.OrderBy(kvp => kvp.Key),
             kvp =>
             {
-                Assert.Equal("Type1", kvp.Key);
-                Assert.True(kvp.Value);
+                Assert.AreEqual("Type1", kvp.Key);
+                Assert.IsTrue(kvp.Value);
             },
             kvp =>
             {
-                Assert.Equal("Type2", kvp.Key);
-                Assert.True(kvp.Value);
+                Assert.AreEqual("Type2", kvp.Key);
+                Assert.IsTrue(kvp.Value);
             });
-        Assert.Collection(cut.Instance.ResourceStatesToVisibility.OrderBy(kvp => kvp.Key),
+        Assert.That.Collection(cut.Instance.ResourceStatesToVisibility.OrderBy(kvp => kvp.Key),
             kvp =>
             {
-                Assert.Equal("Running", kvp.Key);
-                Assert.True(kvp.Value);
+                Assert.AreEqual("Running", kvp.Key);
+                Assert.IsTrue(kvp.Value);
             });
-        Assert.Collection(cut.Instance.ResourceHealthStatusesToVisibility.OrderBy(kvp => kvp.Key),
+        Assert.That.Collection(cut.Instance.ResourceHealthStatusesToVisibility.OrderBy(kvp => kvp.Key),
             kvp =>
             {
-                Assert.Equal("Healthy", kvp.Key);
-                Assert.True(kvp.Value);
+                Assert.AreEqual("Healthy", kvp.Key);
+                Assert.IsTrue(kvp.Value);
             },
             kvp =>
             {
-                Assert.Equal("Unhealthy", kvp.Key);
-                Assert.True(kvp.Value);
+                Assert.AreEqual("Unhealthy", kvp.Key);
+                Assert.IsTrue(kvp.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void FilterResources()
     {
         // Arrange
@@ -178,13 +178,13 @@ public partial class ResourcesTests : TestContext
         });
 
         var typeSelect = filterComponents.First(f => f.Instance.Id == "resource-types");
-        Assert.Equal(types, typeSelect.Instance.Values.ToImmutableSortedDictionary() /* sort for equality comparison */ );
+        Assert.AreEqual(types, typeSelect.Instance.Values.ToImmutableSortedDictionary() /* sort for equality comparison */ );
 
         var stateSelect = filterComponents.First(f => f.Instance.Id == "resource-states");
-        Assert.Equal(states, stateSelect.Instance.Values.ToImmutableSortedDictionary() /* sort for equality comparison */);
+        Assert.AreEqual(states, stateSelect.Instance.Values.ToImmutableSortedDictionary() /* sort for equality comparison */);
 
         var healthSelect = filterComponents.First(f => f.Instance.Id == "resource-health-states");
-        Assert.Equal(healthStates, healthSelect.Instance.Values.ToImmutableSortedDictionary() /* sort for equality comparison */);
+        Assert.AreEqual(healthStates, healthSelect.Instance.Values.ToImmutableSortedDictionary() /* sort for equality comparison */);
     }
 
     private static ResourceViewModel CreateResource(string name, string type, string? state, ImmutableArray<HealthReportViewModel>? healthReports)

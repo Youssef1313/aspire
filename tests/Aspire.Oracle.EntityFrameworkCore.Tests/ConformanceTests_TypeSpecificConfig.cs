@@ -7,9 +7,10 @@ using Xunit.Abstractions;
 
 namespace Aspire.Oracle.EntityFrameworkCore.Tests;
 
+[TestClass]
 public class ConformanceTests_TypeSpecificConfig : ConformanceTests
 {
-    public ConformanceTests_TypeSpecificConfig(OracleContainerFixture containerFixture, ITestOutputHelper testOutputHelper) : base(containerFixture, testOutputHelper)
+    public ConformanceTests_TypeSpecificConfig(OracleContainerFixture containerFixture, TestContext testContext) : base(containerFixture, testContext)
     {
     }
 

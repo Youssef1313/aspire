@@ -5,17 +5,17 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Microsoft.Data.SqlClient.Tests;
 
+[TestClass]
 public class AspireSqlServerSqlClientExtensionsTests
 {
     private const string ConnectionString = "Data Source=fake;Database=master;Encrypt=True";
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -37,12 +37,12 @@ public class AspireSqlServerSqlClientExtensionsTests
             host.Services.GetRequiredKeyedService<SqlConnection>("sqlconnection") :
             host.Services.GetRequiredService<SqlConnection>();
 
-        Assert.Equal(ConnectionString, connection.ConnectionString);
+        Assert.AreEqual(ConnectionString, connection.ConnectionString);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -65,14 +65,14 @@ public class AspireSqlServerSqlClientExtensionsTests
             host.Services.GetRequiredKeyedService<SqlConnection>("sqlconnection") :
             host.Services.GetRequiredService<SqlConnection>();
 
-        Assert.Equal(ConnectionString, connection.ConnectionString);
+        Assert.AreEqual(ConnectionString, connection.ConnectionString);
         // the connection string from config should not be used since code set it explicitly
         Assert.DoesNotContain("unused", connection.ConnectionString);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -97,12 +97,12 @@ public class AspireSqlServerSqlClientExtensionsTests
             host.Services.GetRequiredKeyedService<SqlConnection>("sqlconnection") :
             host.Services.GetRequiredService<SqlConnection>();
 
-        Assert.Equal(ConnectionString, dataSource.ConnectionString);
+        Assert.AreEqual(ConnectionString, dataSource.ConnectionString);
         // the connection string from config should not be used since it was found in ConnectionStrings
         Assert.DoesNotContain("unused", dataSource.ConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -122,9 +122,9 @@ public class AspireSqlServerSqlClientExtensionsTests
         var connection2 = host.Services.GetRequiredKeyedService<SqlConnection>("sqlconnection2");
         var connection3 = host.Services.GetRequiredKeyedService<SqlConnection>("sqlconnection3");
 
-        Assert.NotSame(connection1, connection2);
-        Assert.NotSame(connection1, connection3);
-        Assert.NotSame(connection2, connection3);
+        Assert.AreNotSame(connection1, connection2);
+        Assert.AreNotSame(connection1, connection3);
+        Assert.AreNotSame(connection2, connection3);
 
         Assert.Contains("fake1", connection1.ConnectionString);
         Assert.Contains("fake2", connection2.ConnectionString);

@@ -4,15 +4,15 @@
 using System.Diagnostics.CodeAnalysis;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests.PublicApiTests;
 
+[TestClass]
 public class CosmosDBPublicApiTests
 {
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureCosmosDBContainerResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -27,12 +27,12 @@ public class CosmosDBPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureCosmosDBContainerResourceShouldThrowWhenContainerNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -47,12 +47,12 @@ public class CosmosDBPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(containerName), exception.ParamName);
+        Assert.AreEqual(nameof(containerName), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureCosmosDBContainerResourceShouldThrowWhenPartitionKeyPathIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -67,10 +67,10 @@ public class CosmosDBPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(partitionKeyPath), exception.ParamName);
+        Assert.AreEqual(nameof(partitionKeyPath), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureCosmosDBContainerResourceShouldThrowWhenParentIsNull()
     {
         const string name = "cosmos";
@@ -81,12 +81,12 @@ public class CosmosDBPublicApiTests
         var action = () => new AzureCosmosDBContainerResource(name, containerName, partitionKeyPath, parent);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(parent), exception.ParamName);
+        Assert.AreEqual(nameof(parent), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureCosmosDBDatabaseResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -99,12 +99,12 @@ public class CosmosDBPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureCosmosDBDatabaseResourceShouldThrowWhenDatabaseNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -117,10 +117,10 @@ public class CosmosDBPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(databaseName), exception.ParamName);
+        Assert.AreEqual(nameof(databaseName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureCosmosDBDatabaseResourceShouldThrowWhenParentIsNull()
     {
         const string name = "cosmos";
@@ -130,10 +130,10 @@ public class CosmosDBPublicApiTests
         var action = () => new AzureCosmosDBDatabaseResource(name, databaseName, parent);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(parent), exception.ParamName);
+        Assert.AreEqual(nameof(parent), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureCosmosDBEmulatorResourceShouldThrowWhenInnerResourceIsNull()
     {
         AzureCosmosDBResource innerResource = null!;
@@ -141,12 +141,12 @@ public class CosmosDBPublicApiTests
         var action = () => new AzureCosmosDBEmulatorResource(innerResource);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(innerResource), exception.ParamName);
+        Assert.AreEqual(nameof(innerResource), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureCosmosDBResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
@@ -157,10 +157,10 @@ public class CosmosDBPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureCosmosDBResourceShouldThrowWhenConfigureInfrastructureIsNull()
     {
         const string name = "cosmos";
@@ -169,10 +169,10 @@ public class CosmosDBPublicApiTests
         var action = () => new AzureCosmosDBResource(name, configureInfrastructure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureInfrastructure), exception.ParamName);
+        Assert.AreEqual(nameof(configureInfrastructure), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureCosmosDBShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -181,12 +181,12 @@ public class CosmosDBPublicApiTests
         var action = () => builder.AddAzureCosmosDB(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddAzureCosmosDBShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -197,10 +197,10 @@ public class CosmosDBPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void RunAsEmulatorShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureCosmosDBResource> builder = null!;
@@ -209,10 +209,10 @@ public class CosmosDBPublicApiTests
         var action = () => builder.RunAsEmulator(configureContainer);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Experimental("ASPIRECOSMOSDB001", UrlFormat = "https://aka.ms/dotnet/aspire/diagnostics#{0}")]
     public void RunAsPreviewEmulatorShouldThrowWhenBuilderIsNull()
     {
@@ -222,10 +222,10 @@ public class CosmosDBPublicApiTests
         var action = () => builder.RunAsPreviewEmulator(configureContainer);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataVolumeShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureCosmosDBEmulatorResource> builder = null!;
@@ -233,10 +233,10 @@ public class CosmosDBPublicApiTests
         var action = () => builder.WithDataVolume();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithGatewayPortShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureCosmosDBEmulatorResource> builder = null!;
@@ -245,10 +245,10 @@ public class CosmosDBPublicApiTests
         var action = () => builder.WithGatewayPort(port);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPartitionCountShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureCosmosDBEmulatorResource> builder = null!;
@@ -257,10 +257,10 @@ public class CosmosDBPublicApiTests
         var action = () => builder.WithPartitionCount(count);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete($"This method is obsolete because it has the wrong return type and will be removed in a future version. Use AddCosmosDatabase instead to add a Cosmos DB database.")]
     public void AddDatabaseShouldThrowWhenBuilderIsNull()
     {
@@ -270,12 +270,12 @@ public class CosmosDBPublicApiTests
         var action = () => builder.AddDatabase(databaseName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     [Obsolete($"This method is obsolete because it has the wrong return type and will be removed in a future version. Use AddCosmosDatabase instead to add a Cosmos DB database.")]
     public void AddDatabaseShouldThrowWhenDatabaseNameIsNullOrEmpty(bool isNull)
     {
@@ -288,10 +288,10 @@ public class CosmosDBPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(databaseName), exception.ParamName);
+        Assert.AreEqual(nameof(databaseName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddCosmosDatabaseShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureCosmosDBResource> builder = null!;
@@ -300,12 +300,12 @@ public class CosmosDBPublicApiTests
         var action = () => builder.AddCosmosDatabase(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddCosmosDatabaseShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -317,10 +317,10 @@ public class CosmosDBPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddContainerShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureCosmosDBDatabaseResource> builder = null!;
@@ -330,12 +330,12 @@ public class CosmosDBPublicApiTests
         var action = () => builder.AddContainer(name, partitionKeyPath);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddContainerShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -349,12 +349,12 @@ public class CosmosDBPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddContainerShouldThrowWhenPartitionKeyPathIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -368,10 +368,10 @@ public class CosmosDBPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(partitionKeyPath), exception.ParamName);
+        Assert.AreEqual(nameof(partitionKeyPath), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Experimental("ASPIRECOSMOSDB001", UrlFormat = "https://aka.ms/dotnet/aspire/diagnostics#{0}")]
     public void WithDataExplorerShouldThrowWhenBuilderIsNull()
     {
@@ -380,10 +380,10 @@ public class CosmosDBPublicApiTests
         var action = () => builder.WithDataExplorer();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithAccessKeyAuthenticationShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureCosmosDBResource> builder = null!;
@@ -394,6 +394,6 @@ public class CosmosDBPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 }

@@ -11,18 +11,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Polly;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Kafka.Tests;
 
-public class KafkaFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class KafkaFunctionalTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWaitForOnKafkaBlocksDependentResources()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>
@@ -55,13 +55,13 @@ public class KafkaFunctionalTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync().DefaultTimeout(TestConstants.LongTimeoutTimeSpan);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyKafkaResource()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
 
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var kafka = builder.AddKafka("kafka");
 
@@ -104,14 +104,14 @@ public class KafkaFunctionalTests(ITestOutputHelper testOutputHelper)
         {
             var result = consumer.Consume(cts.Token);
 
-            Assert.Equal($"test-key", result.Message.Key);
-            Assert.Equal($"test-value{i}", result.Message.Value);
+            Assert.AreEqual($"test-key", result.Message.Key);
+            Assert.AreEqual($"test-value{i}", result.Message.Value);
         }
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
@@ -122,7 +122,7 @@ public class KafkaFunctionalTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var kafka1 = builder1.AddKafka("kafka");
 
             if (useVolume)
@@ -196,7 +196,7 @@ public class KafkaFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var kafka2 = builder2.AddKafka("kafka");
 
             if (useVolume)
@@ -240,8 +240,8 @@ public class KafkaFunctionalTests(ITestOutputHelper testOutputHelper)
                             {
                                 var result = consumer.Consume(cts.Token);
 
-                                Assert.Equal($"test-key", result.Message.Key);
-                                Assert.Equal($"test-value{i}", result.Message.Value);
+                                Assert.AreEqual($"test-key", result.Message.Key);
+                                Assert.AreEqual($"test-value{i}", result.Message.Value);
                             }
                         });
                     }

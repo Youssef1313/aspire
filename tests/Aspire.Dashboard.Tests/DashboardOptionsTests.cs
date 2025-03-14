@@ -3,10 +3,10 @@
 
 using Aspire.Dashboard.Configuration;
 using Aspire.Hosting;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests;
 
+[TestClass]
 public sealed class DashboardOptionsTests
 {
     private static DashboardOptions GetValidOptions()
@@ -27,18 +27,18 @@ public sealed class DashboardOptionsTests
         };
     }
 
-    [Fact]
+    [TestMethod]
     public void ValidOptions_AreValid()
     {
         var result = new ValidateDashboardOptions().Validate(null, GetValidOptions());
 
-        Assert.Null(result.FailureMessage);
-        Assert.True(result.Succeeded);
+        Assert.IsNull(result.FailureMessage);
+        Assert.IsTrue(result.Succeeded);
     }
 
     #region Frontend options
 
-    [Fact]
+    [TestMethod]
     public void FrontendOptions_EmptyEndpointUrl()
     {
         var options = GetValidOptions();
@@ -46,11 +46,11 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal("One or more frontend endpoint URLs are not configured. Specify an ASPNETCORE_URLS value.", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual("One or more frontend endpoint URLs are not configured. Specify an ASPNETCORE_URLS value.", result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void FrontendOptions_InvalidUrl()
     {
         var options = GetValidOptions();
@@ -58,11 +58,11 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal("Failed to parse frontend endpoint URLs 'invalid'.", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual("Failed to parse frontend endpoint URLs 'invalid'.", result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void FrontendOptions_ValidAndInvalidUrl()
     {
         var options = GetValidOptions();
@@ -70,13 +70,13 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal("Failed to parse frontend endpoint URLs 'http://localhost:5000;invalid'.", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual("Failed to parse frontend endpoint URLs 'http://localhost:5000;invalid'.", result.FailureMessage);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(-1)]
     public void FrontendOptions_MaxConsoleLogCount(int limit)
     {
         var options = GetValidOptions();
@@ -84,15 +84,15 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal($"{DashboardConfigNames.DashboardFrontendMaxConsoleLogCountName.ConfigKey} must be greater than zero.", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual($"{DashboardConfigNames.DashboardFrontendMaxConsoleLogCountName.ConfigKey} must be greater than zero.", result.FailureMessage);
     }
 
     #endregion
 
     #region Resource service client options
 
-    [Fact]
+    [TestMethod]
     public void ResourceServiceClientOptions_InvalidUrl()
     {
         var options = GetValidOptions();
@@ -100,11 +100,11 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal("Failed to parse resource service client endpoint URL 'invalid'.", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual("Failed to parse resource service client endpoint URL 'invalid'.", result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void ResourceServiceClientOptions_ApiKeyMode_Empty()
     {
         var options = GetValidOptions();
@@ -114,11 +114,11 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal($"{DashboardConfigNames.ResourceServiceClientAuthModeName.ConfigKey} is \"{nameof(ResourceClientAuthMode.ApiKey)}\", but no {DashboardConfigNames.ResourceServiceClientApiKeyName.ConfigKey} is configured.", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual($"{DashboardConfigNames.ResourceServiceClientAuthModeName.ConfigKey} is \"{nameof(ResourceClientAuthMode.ApiKey)}\", but no {DashboardConfigNames.ResourceServiceClientApiKeyName.ConfigKey} is configured.", result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void ResourceServiceClientOptions_CertificateMode_FileSource_FilePathEmpty()
     {
         var options = GetValidOptions();
@@ -129,11 +129,11 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal($"{DashboardConfigNames.ResourceServiceClientCertificateSourceName.ConfigKey} is \"File\", but no {DashboardConfigNames.ResourceServiceClientCertificateFilePathName.ConfigKey} is configured.", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual($"{DashboardConfigNames.ResourceServiceClientCertificateSourceName.ConfigKey} is \"File\", but no {DashboardConfigNames.ResourceServiceClientCertificateFilePathName.ConfigKey} is configured.", result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void ResourceServiceClientOptions_CertificateMode_KeyStoreSource_SubjectEmpty()
     {
         var options = GetValidOptions();
@@ -144,11 +144,11 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal($"{DashboardConfigNames.ResourceServiceClientCertificateSourceName.ConfigKey} is \"KeyStore\", but no {DashboardConfigNames.ResourceServiceClientCertificateSubjectName.ConfigKey} is configured.", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual($"{DashboardConfigNames.ResourceServiceClientCertificateSourceName.ConfigKey} is \"KeyStore\", but no {DashboardConfigNames.ResourceServiceClientCertificateSubjectName.ConfigKey} is configured.", result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void ResourceServiceClientOptions_CertificateMode_NullSource()
     {
         var options = GetValidOptions();
@@ -158,11 +158,11 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal($"The resource service client is configured to use certificates, but no certificate source is specified. Specify {DashboardConfigNames.ResourceServiceClientCertificateSourceName.ConfigKey}. Possible values: {string.Join(", ", typeof(DashboardClientCertificateSource).GetEnumNames())}", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual($"The resource service client is configured to use certificates, but no certificate source is specified. Specify {DashboardConfigNames.ResourceServiceClientCertificateSourceName.ConfigKey}. Possible values: {string.Join(", ", typeof(DashboardClientCertificateSource).GetEnumNames())}", result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void ResourceServiceClientOptions_CertificateMode_InvalidSource()
     {
         var options = GetValidOptions();
@@ -172,11 +172,11 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal($"Unexpected resource service client certificate source: {options.ResourceServiceClient.ClientCertificate.Source}", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual($"Unexpected resource service client certificate source: {options.ResourceServiceClient.ClientCertificate.Source}", result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void ResourceServiceClientOptions_NullMode()
     {
         var options = GetValidOptions();
@@ -185,11 +185,11 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal($"Resource service client authentication is not configured. Specify {DashboardConfigNames.ResourceServiceClientAuthModeName.ConfigKey}. Possible values: {string.Join(", ", typeof(ResourceClientAuthMode).GetEnumNames())}", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual($"Resource service client authentication is not configured. Specify {DashboardConfigNames.ResourceServiceClientAuthModeName.ConfigKey}. Possible values: {string.Join(", ", typeof(ResourceClientAuthMode).GetEnumNames())}", result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void ResourceServiceClientOptions_InvalidMode()
     {
         var options = GetValidOptions();
@@ -198,15 +198,15 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal($"Unexpected resource service client authentication mode: {int.MaxValue}", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual($"Unexpected resource service client authentication mode: {int.MaxValue}", result.FailureMessage);
     }
 
     #endregion
 
     #region OTLP options
 
-    [Fact]
+    [TestMethod]
     public void OtlpOptions_NeitherEndpointSet()
     {
         var options = GetValidOptions();
@@ -215,13 +215,13 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal(
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual(
             $"Neither OTLP/gRPC or OTLP/HTTP endpoint URLs are configured. Specify either a {DashboardConfigNames.DashboardOtlpGrpcUrlName.EnvVarName} or {DashboardConfigNames.DashboardOtlpHttpUrlName.EnvVarName} value.",
             result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void OtlpOptions_gRPC_InvalidUrl()
     {
         var options = GetValidOptions();
@@ -229,11 +229,11 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal("Failed to parse OTLP gRPC endpoint URL 'invalid'.", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual("Failed to parse OTLP gRPC endpoint URL 'invalid'.", result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void OtlpOptions_HTTP_InvalidUrl()
     {
         var options = GetValidOptions();
@@ -241,15 +241,15 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal("Failed to parse OTLP HTTP endpoint URL 'invalid'.", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual("Failed to parse OTLP HTTP endpoint URL 'invalid'.", result.FailureMessage);
     }
 
     #endregion
 
     #region OpenIDConnect options
 
-    [Fact]
+    [TestMethod]
     public void OpenIdConnectOptions_NoNameClaimType()
     {
         var options = GetValidOptions();
@@ -258,11 +258,11 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal("OpenID Connect claim type for name not configured. Specify a Dashboard:Frontend:OpenIdConnect:NameClaimType value.", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual("OpenID Connect claim type for name not configured. Specify a Dashboard:Frontend:OpenIdConnect:NameClaimType value.", result.FailureMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public void OpenIdConnectOptions_NoUserNameClaimType()
     {
         var options = GetValidOptions();
@@ -271,8 +271,8 @@ public sealed class DashboardOptionsTests
 
         var result = new ValidateDashboardOptions().Validate(null, options);
 
-        Assert.False(result.Succeeded);
-        Assert.Equal("OpenID Connect claim type for username not configured. Specify a Dashboard:Frontend:OpenIdConnect:UsernameClaimType value.", result.FailureMessage);
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual("OpenID Connect claim type for username not configured. Specify a Dashboard:Frontend:OpenIdConnect:UsernameClaimType value.", result.FailureMessage);
     }
 
     #endregion

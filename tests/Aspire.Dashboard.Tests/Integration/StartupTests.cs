@@ -17,18 +17,17 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using OpenTelemetry.Proto.Collector.Logs.V1;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Dashboard.Tests.Integration;
 
-public class StartupTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class StartupTests(TestContext testContext)
 {
-    [Fact]
+    [TestMethod]
     public async Task EndPointAccessors_AppStarted_EndPointPortsAssigned()
     {
         // Arrange
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
             additionalConfiguration: data =>
             {
                 data[DashboardConfigNames.DashboardFrontendUrlName.ConfigKey] = "https://127.0.0.1:0;http://127.0.0.1:0";
@@ -40,15 +39,15 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         await app.StartAsync().DefaultTimeout();
 
         // Assert
-        Assert.Collection(app.FrontendEndPointsAccessor,
+        Assert.That.Collection(app.FrontendEndPointsAccessor,
             a =>
             {
-                Assert.True(a().IsHttps);
+                Assert.IsTrue(a().IsHttps);
                 AssertDynamicIPEndpoint(a);
             },
             a =>
             {
-                Assert.False(a().IsHttps);
+                Assert.IsFalse(a().IsHttps);
                 AssertDynamicIPEndpoint(a);
             });
 
@@ -56,11 +55,11 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         AssertDynamicIPEndpoint(app.OtlpServiceHttpEndPointAccessor);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EndPointAccessors_AppStarted_IPv4OrIPv6()
     {
         // Arrange
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
             additionalConfiguration: data =>
             {
                 data[DashboardConfigNames.DashboardFrontendUrlName.ConfigKey] = "https://+:0;http://+:0";
@@ -72,16 +71,16 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         await app.StartAsync().DefaultTimeout();
 
         // Assert,
-        Assert.Collection(app.FrontendEndPointsAccessor,
+        Assert.That.Collection(app.FrontendEndPointsAccessor,
             a =>
             {
-                Assert.True(a().IsHttps);
+                Assert.IsTrue(a().IsHttps);
                 AssertDynamicIPEndpoint(a);
                 AssertIPv4OrIPv6Endpoint(a);
             },
             a =>
             {
-                Assert.False(a().IsHttps);
+                Assert.IsFalse(a().IsHttps);
                 AssertDynamicIPEndpoint(a);
                 AssertIPv4OrIPv6Endpoint(a);
             });
@@ -93,27 +92,27 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         AssertIPv4OrIPv6Endpoint(app.OtlpServiceGrpcEndPointAccessor);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_NoExtraConfig_Error()
     {
         // Arrange & Act
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
             additionalConfiguration: data =>
             {
                 data.Clear();
             });
 
         // Assert
-        Assert.Collection(app.ValidationFailures,
+        Assert.That.Collection(app.ValidationFailures,
             s => Assert.Contains("ASPNETCORE_URLS", s),
             s => Assert.Contains("DOTNET_DASHBOARD_OTLP_ENDPOINT_URL", s));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_EmptyAllowedCertificateRule_Error()
     {
         // Arrange & Act
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
             additionalConfiguration: data =>
             {
                 data["Dashboard:Otlp:AuthMode"] = nameof(OtlpAuthMode.ClientCertificate);
@@ -121,18 +120,18 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
             });
 
         // Assert
-        Assert.Collection(app.ValidationFailures,
+        Assert.That.Collection(app.ValidationFailures,
             s => Assert.Contains("Dashboard:Otlp:AllowedCertificates:0:Thumbprint", s));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_ConfigFilePathDoesntExist_Error()
     {
         // Arrange & Act
         var configFilePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         var ex = await Assert.ThrowsAsync<FileNotFoundException>(async () =>
         {
-            await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+            await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
                 additionalConfiguration: data =>
                 {
                     data[DashboardConfigNames.DashboardConfigFilePathName.ConfigKey] = configFilePath;
@@ -143,7 +142,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         Assert.Contains(configFilePath, ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_FileConfigDirectoryDoesExist_Success()
     {
         // Arrange
@@ -158,7 +157,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
             WebApplicationBuilder? localBuilder = null;
 
             // Act
-            await using var dashboardWebApplication = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+            await using var dashboardWebApplication = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
                 preConfigureBuilder: builder =>
                 {
                     builder.Configuration.AddConfiguration(config);
@@ -166,8 +165,8 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
                 });
 
             // Assert
-            Assert.NotNull(localBuilder);
-            Assert.Equal(frontendBrowserToken, localBuilder.Configuration[DashboardConfigNames.DashboardFrontendBrowserTokenName.ConfigKey]);
+            Assert.IsNotNull(localBuilder);
+            Assert.AreEqual(frontendBrowserToken, localBuilder.Configuration[DashboardConfigNames.DashboardFrontendBrowserTokenName.ConfigKey]);
         }
         finally
         {
@@ -175,7 +174,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_FileConfigDirectoryReloadsChanges_Success()
     {
         // Arrange
@@ -185,7 +184,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         var browserTokenConfigFile = await CreateBrowserTokenConfigFileAsync(fileConfigDirectory, initialFrontendBrowserToken).DefaultTimeout();
         try
         {
-            var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(testOutputHelper);
+            var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(testContext);
             var logger = loggerFactory.CreateLogger<StartupTests>();
             var config = new ConfigurationManager()
                 .AddInMemoryCollection(new Dictionary<string, string?> { [DashboardConfigNames.DashboardFileConfigDirectoryName.ConfigKey] = fileConfigDirectory.FullName })
@@ -206,7 +205,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
             await File.WriteAllTextAsync(browserTokenConfigFile, changedFrontendBrowserToken).DefaultTimeout();
 
             // Assert
-            Assert.Equal(initialFrontendBrowserToken, initialBrowserTokenProvidedByConfiguration);
+            Assert.AreEqual(initialFrontendBrowserToken, initialBrowserTokenProvidedByConfiguration);
 
             await AsyncTestHelpers.AssertIsTrueRetryAsync(
                 () =>
@@ -222,14 +221,14 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_FileConfigDirectoryDoesntExist_Error()
     {
         // Arrange & Act
         var fileConfigDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         var ex = await Assert.ThrowsAsync<DirectoryNotFoundException>(async () =>
         {
-            await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+            await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
                 data =>
                 {
                     data[DashboardConfigNames.DashboardFileConfigDirectoryName.ConfigKey] = fileConfigDirectory;
@@ -240,11 +239,11 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         Assert.Contains(fileConfigDirectory, ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_OptionsMonitor_CanReadConfiguration()
     {
         // Arrange
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
             additionalConfiguration: initialData =>
             {
                 initialData["Dashboard:Otlp:AuthMode"] = nameof(OtlpAuthMode.ApiKey);
@@ -255,11 +254,11 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         await app.StartAsync().DefaultTimeout();
 
         // Assert
-        Assert.Equal(OtlpAuthMode.ApiKey, app.DashboardOptionsMonitor.CurrentValue.Otlp.AuthMode);
-        Assert.Equal("TestKey123!", app.DashboardOptionsMonitor.CurrentValue.Otlp.PrimaryApiKey);
+        Assert.AreEqual(OtlpAuthMode.ApiKey, app.DashboardOptionsMonitor.CurrentValue.Otlp.AuthMode);
+        Assert.AreEqual("TestKey123!", app.DashboardOptionsMonitor.CurrentValue.Otlp.PrimaryApiKey);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_BrowserAndOtlpGrpcEndpointSame_Https_EndPointPortsAssigned()
     {
         // Arrange
@@ -268,7 +267,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         {
             await ServerRetryHelper.BindPortWithRetry(async port =>
             {
-                app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+                app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
                     additionalConfiguration: initialData =>
                     {
                         initialData[DashboardConfigNames.DashboardFrontendUrlName.ConfigKey] = $"https://127.0.0.1:{port}";
@@ -281,8 +280,8 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
             }, NullLogger.Instance);
 
             // Assert
-            Assert.NotNull(app);
-            Assert.Equal(app.FrontendSingleEndPointAccessor().EndPoint.Port, app.OtlpServiceGrpcEndPointAccessor().EndPoint.Port);
+            Assert.IsNotNull(app);
+            Assert.AreEqual(app.FrontendSingleEndPointAccessor().EndPoint.Port, app.OtlpServiceGrpcEndPointAccessor().EndPoint.Port);
 
             // Check browser access
             using var httpClient = new HttpClient(new HttpClientHandler
@@ -300,10 +299,10 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
             response.EnsureSuccessStatusCode();
 
             // Check OTLP service
-            using var channel = IntegrationTestHelpers.CreateGrpcChannel($"https://{app.FrontendSingleEndPointAccessor().EndPoint}", testOutputHelper);
+            using var channel = IntegrationTestHelpers.CreateGrpcChannel($"https://{app.FrontendSingleEndPointAccessor().EndPoint}", testContext);
             var client = new LogsService.LogsServiceClient(channel);
             var serviceResponse = await client.ExportAsync(new ExportLogsServiceRequest()).ResponseAsync.DefaultTimeout();
-            Assert.Equal(0, serviceResponse.PartialSuccess.RejectedLogRecords);
+            Assert.AreEqual(0, serviceResponse.PartialSuccess.RejectedLogRecords);
         }
         finally
         {
@@ -314,7 +313,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_BrowserAndOtlpGrpcEndpointSame_NoHttps_Error()
     {
         // Arrange
@@ -324,7 +323,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         {
             await ServerRetryHelper.BindPortWithRetry(async port =>
             {
-                app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+                app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
                     additionalConfiguration: initialData =>
                     {
                         initialData[DashboardConfigNames.DashboardFrontendUrlName.ConfigKey] = $"http://127.0.0.1:{port}";
@@ -364,7 +363,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_BrowserAndOtlpHttpEndpointSame_NoHttps_EndPointPortsAssigned()
     {
         // Arrange
@@ -374,7 +373,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         {
             await ServerRetryHelper.BindPortWithRetry(async port =>
             {
-                app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+                app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
                     additionalConfiguration: initialData =>
                     {
                         initialData[DashboardConfigNames.DashboardFrontendUrlName.ConfigKey] = $"http://127.0.0.1:{port}";
@@ -388,8 +387,8 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
             }, NullLogger.Instance);
 
             // Assert
-            Assert.NotNull(app);
-            Assert.Equal(app.FrontendSingleEndPointAccessor().EndPoint.Port, app.OtlpServiceGrpcEndPointAccessor().EndPoint.Port);
+            Assert.IsNotNull(app);
+            Assert.AreEqual(app.FrontendSingleEndPointAccessor().EndPoint.Port, app.OtlpServiceGrpcEndPointAccessor().EndPoint.Port);
 
             // Check browser access
             using var httpClient = new HttpClient()
@@ -409,9 +408,9 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
 
             var response = ExportLogsServiceResponse.Parser.ParseFrom(await responseMessage.Content.ReadAsByteArrayAsync().DefaultTimeout());
 
-            Assert.Equal(OtlpHttpEndpointsBuilder.ProtobufContentType, responseMessage.Content.Headers.GetValues("content-type").Single());
-            Assert.False(responseMessage.Headers.Contains("content-security-policy"));
-            Assert.Equal(0, response.PartialSuccess.RejectedLogRecords);
+            Assert.AreEqual(OtlpHttpEndpointsBuilder.ProtobufContentType, responseMessage.Content.Headers.GetValues("content-type").Single());
+            Assert.IsFalse(responseMessage.Headers.Contains("content-security-policy"));
+            Assert.AreEqual(0, response.PartialSuccess.RejectedLogRecords);
         }
         finally
         {
@@ -422,11 +421,11 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_NoAuthMode_DefaultAuthModes()
     {
         // Arrange & Act
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
             additionalConfiguration: data =>
             {
                 data.Remove(DashboardConfigNames.DashboardOtlpAuthModeName.ConfigKey);
@@ -434,17 +433,17 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
             });
 
         // Assert
-        Assert.Equal(FrontendAuthMode.BrowserToken, app.DashboardOptionsMonitor.CurrentValue.Frontend.AuthMode);
-        Assert.Equal(16, Convert.FromHexString(app.DashboardOptionsMonitor.CurrentValue.Frontend.BrowserToken!).Length);
-        Assert.Equal(OtlpAuthMode.Unsecured, app.DashboardOptionsMonitor.CurrentValue.Otlp.AuthMode);
-        Assert.Empty(app.ValidationFailures);
+        Assert.AreEqual(FrontendAuthMode.BrowserToken, app.DashboardOptionsMonitor.CurrentValue.Frontend.AuthMode);
+        Assert.AreEqual(16, Convert.FromHexString(app.DashboardOptionsMonitor.CurrentValue.Frontend.BrowserToken!).Length);
+        Assert.AreEqual(OtlpAuthMode.Unsecured, app.DashboardOptionsMonitor.CurrentValue.Otlp.AuthMode);
+        Assert.IsEmpty(app.ValidationFailures);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_AllowAnonymous_NoError()
     {
         // Arrange
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
             additionalConfiguration: data =>
             {
                 data[DashboardConfigNames.DashboardUnsecuredAllowAnonymousName.ConfigKey] = bool.TrueString;
@@ -454,16 +453,16 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         await app.StartAsync().DefaultTimeout();
 
         // Assert
-        Assert.Equal(FrontendAuthMode.Unsecured, app.DashboardOptionsMonitor.CurrentValue.Frontend.AuthMode);
-        Assert.Equal(OtlpAuthMode.Unsecured, app.DashboardOptionsMonitor.CurrentValue.Otlp.AuthMode);
-        Assert.Empty(app.ValidationFailures);
+        Assert.AreEqual(FrontendAuthMode.Unsecured, app.DashboardOptionsMonitor.CurrentValue.Frontend.AuthMode);
+        Assert.AreEqual(OtlpAuthMode.Unsecured, app.DashboardOptionsMonitor.CurrentValue.Otlp.AuthMode);
+        Assert.IsEmpty(app.ValidationFailures);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_ResourceClientCertificates()
     {
         // Arrange & Act
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
             additionalConfiguration: data =>
             {
                 data[DashboardConfigNames.ResourceServiceClientAuthModeName.ConfigKey] = nameof(ResourceClientAuthMode.Certificate);
@@ -472,17 +471,17 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
             });
 
         // Assert
-        Assert.Equal(ResourceClientAuthMode.Certificate, app.DashboardOptionsMonitor.CurrentValue.ResourceServiceClient.AuthMode);
-        Assert.Equal(DashboardClientCertificateSource.KeyStore, app.DashboardOptionsMonitor.CurrentValue.ResourceServiceClient.ClientCertificate.Source);
-        Assert.Equal("MySubject", app.DashboardOptionsMonitor.CurrentValue.ResourceServiceClient.ClientCertificate.Subject);
-        Assert.Empty(app.ValidationFailures);
+        Assert.AreEqual(ResourceClientAuthMode.Certificate, app.DashboardOptionsMonitor.CurrentValue.ResourceServiceClient.AuthMode);
+        Assert.AreEqual(DashboardClientCertificateSource.KeyStore, app.DashboardOptionsMonitor.CurrentValue.ResourceServiceClient.ClientCertificate.Source);
+        Assert.AreEqual("MySubject", app.DashboardOptionsMonitor.CurrentValue.ResourceServiceClient.ClientCertificate.Subject);
+        Assert.IsEmpty(app.ValidationFailures);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_Logging_OverrideDefaults()
     {
         // Arrange & Act
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
             additionalConfiguration: data =>
             {
                 data["Logging:LogLevel:Default"] = "Trace";
@@ -496,12 +495,12 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
 
         var options = app.Services.GetRequiredService<IOptions<LoggerFilterOptions>>();
 
-        Assert.Single(options.Value.Rules.Where(r => r.CategoryName == null && r.LogLevel == LogLevel.Trace));
-        Assert.Single(options.Value.Rules.Where(r => r.CategoryName == "Grpc" && r.LogLevel == LogLevel.Trace));
-        Assert.Single(options.Value.Rules.Where(r => r.CategoryName == "Microsoft.Hosting.Lifetime" && r.LogLevel == LogLevel.Trace));
+        Assert.ContainsSingle(options.Value.Rules.Where(r => r.CategoryName == null && r.LogLevel == LogLevel.Trace));
+        Assert.ContainsSingle(options.Value.Rules.Where(r => r.CategoryName == "Grpc" && r.LogLevel == LogLevel.Trace));
+        Assert.ContainsSingle(options.Value.Rules.Where(r => r.CategoryName == "Microsoft.Hosting.Lifetime" && r.LogLevel == LogLevel.Trace));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_Logging_FileConfig_OverrideDefaults()
     {
         // Arrange
@@ -523,7 +522,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         try
         {
             // Arrange & Act
-            await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+            await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
                 additionalConfiguration: data =>
                 {
                     data[DashboardConfigNames.DashboardConfigFilePathName.ConfigKey] = configFilePath;
@@ -535,9 +534,9 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
 
             var options = app.Services.GetRequiredService<IOptions<LoggerFilterOptions>>();
 
-            Assert.Single(options.Value.Rules.Where(r => r.CategoryName == null && r.LogLevel == LogLevel.Trace));
-            Assert.Single(options.Value.Rules.Where(r => r.CategoryName == "Grpc" && r.LogLevel == LogLevel.Trace));
-            Assert.Single(options.Value.Rules.Where(r => r.CategoryName == "Microsoft.Hosting.Lifetime" && r.LogLevel == LogLevel.Trace));
+            Assert.ContainsSingle(options.Value.Rules.Where(r => r.CategoryName == null && r.LogLevel == LogLevel.Trace));
+            Assert.ContainsSingle(options.Value.Rules.Where(r => r.CategoryName == "Grpc" && r.LogLevel == LogLevel.Trace));
+            Assert.ContainsSingle(options.Value.Rules.Where(r => r.CategoryName == "Microsoft.Hosting.Lifetime" && r.LogLevel == LogLevel.Trace));
         }
         finally
         {
@@ -545,48 +544,48 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task LogOutput_DynamicPort_PortResolvedInLogs()
     {
         // Arrange
         var testSink = new TestSink();
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper, testSink: testSink);
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext, testSink: testSink);
 
         // Act
         await app.StartAsync().DefaultTimeout();
 
         // Assert
         var l = testSink.Writes.Where(w => w.LoggerName == typeof(DashboardWebApplication).FullName).ToList();
-        Assert.Collection(l,
+        Assert.That.Collection(l,
             w =>
             {
-                Assert.Equal("Aspire version: {Version}", GetValue(w.State, "{OriginalFormat}"));
+                Assert.AreEqual("Aspire version: {Version}", GetValue(w.State, "{OriginalFormat}"));
             },
             w =>
             {
-                Assert.Equal("Now listening on: {DashboardUri}", GetValue(w.State, "{OriginalFormat}"));
+                Assert.AreEqual("Now listening on: {DashboardUri}", GetValue(w.State, "{OriginalFormat}"));
 
                 var uri = new Uri((string)GetValue(w.State, "DashboardUri")!);
-                Assert.NotEqual(0, uri.Port);
+                Assert.AreNotEqual(0, uri.Port);
             },
             w =>
             {
-                Assert.Equal("OTLP/gRPC listening on: {OtlpEndpointUri}", GetValue(w.State, "{OriginalFormat}"));
+                Assert.AreEqual("OTLP/gRPC listening on: {OtlpEndpointUri}", GetValue(w.State, "{OriginalFormat}"));
 
                 var uri = new Uri((string)GetValue(w.State, "OtlpEndpointUri")!);
-                Assert.NotEqual(0, uri.Port);
+                Assert.AreNotEqual(0, uri.Port);
             },
             w =>
             {
-                Assert.Equal("OTLP/HTTP listening on: {OtlpEndpointUri}", GetValue(w.State, "{OriginalFormat}"));
+                Assert.AreEqual("OTLP/HTTP listening on: {OtlpEndpointUri}", GetValue(w.State, "{OriginalFormat}"));
 
                 var uri = new Uri((string)GetValue(w.State, "OtlpEndpointUri")!);
-                Assert.NotEqual(0, uri.Port);
+                Assert.AreNotEqual(0, uri.Port);
             },
             w =>
             {
-                Assert.Equal("OTLP server is unsecured. Untrusted apps can send telemetry to the dashboard. For more information, visit https://go.microsoft.com/fwlink/?linkid=2267030", GetValue(w.State, "{OriginalFormat}"));
-                Assert.Equal(LogLevel.Warning, w.LogLevel);
+                Assert.AreEqual("OTLP server is unsecured. Untrusted apps can send telemetry to the dashboard. For more information, visit https://go.microsoft.com/fwlink/?linkid=2267030", GetValue(w.State, "{OriginalFormat}"));
+                Assert.AreEqual(LogLevel.Warning, w.LogLevel);
             });
 
         object? GetValue(object? values, string key)
@@ -596,7 +595,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task LogOutput_LocalhostAddress_LocalhostInLogOutput()
     {
         // Arrange
@@ -615,7 +614,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
                 otlpPort = ports[2];
 
                 testSink = new TestSink();
-                app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+                app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
                     additionalConfiguration: data =>
                     {
                         data[DashboardConfigNames.DashboardFrontendUrlName.ConfigKey] = $"https://localhost:{frontendPort1};http://localhost:{frontendPort2}";
@@ -635,40 +634,40 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         }
 
         // Assert
-        Assert.NotNull(testSink);
+        Assert.IsNotNull(testSink);
         var l = testSink.Writes.Where(w => w.LoggerName == typeof(DashboardWebApplication).FullName).ToList();
-        Assert.Collection(l,
+        Assert.That.Collection(l,
             w =>
             {
-                Assert.Equal("Aspire version: {Version}", GetValue(w.State, "{OriginalFormat}"));
+                Assert.AreEqual("Aspire version: {Version}", GetValue(w.State, "{OriginalFormat}"));
             },
             w =>
             {
-                Assert.Equal("Now listening on: {DashboardUri}", GetValue(w.State, "{OriginalFormat}"));
+                Assert.AreEqual("Now listening on: {DashboardUri}", GetValue(w.State, "{OriginalFormat}"));
 
                 var uri = new Uri((string)GetValue(w.State, "DashboardUri")!);
-                Assert.Equal("https", uri.Scheme);
-                Assert.Equal("localhost", uri.Host);
-                Assert.Equal(frontendPort1, uri.Port);
+                Assert.AreEqual("https", uri.Scheme);
+                Assert.AreEqual("localhost", uri.Host);
+                Assert.AreEqual(frontendPort1, uri.Port);
             },
             w =>
             {
-                Assert.Equal("OTLP/gRPC listening on: {OtlpEndpointUri}", GetValue(w.State, "{OriginalFormat}"));
+                Assert.AreEqual("OTLP/gRPC listening on: {OtlpEndpointUri}", GetValue(w.State, "{OriginalFormat}"));
 
                 var uri = new Uri((string)GetValue(w.State, "OtlpEndpointUri")!);
-                Assert.NotEqual(0, uri.Port);
+                Assert.AreNotEqual(0, uri.Port);
             },
             w =>
             {
-                Assert.Equal("OTLP/HTTP listening on: {OtlpEndpointUri}", GetValue(w.State, "{OriginalFormat}"));
+                Assert.AreEqual("OTLP/HTTP listening on: {OtlpEndpointUri}", GetValue(w.State, "{OriginalFormat}"));
 
                 var uri = new Uri((string)GetValue(w.State, "OtlpEndpointUri")!);
-                Assert.NotEqual(0, uri.Port);
+                Assert.AreNotEqual(0, uri.Port);
             },
             w =>
             {
-                Assert.Equal("OTLP server is unsecured. Untrusted apps can send telemetry to the dashboard. For more information, visit https://go.microsoft.com/fwlink/?linkid=2267030", GetValue(w.State, "{OriginalFormat}"));
-                Assert.Equal(LogLevel.Warning, w.LogLevel);
+                Assert.AreEqual("OTLP server is unsecured. Untrusted apps can send telemetry to the dashboard. For more information, visit https://go.microsoft.com/fwlink/?linkid=2267030", GetValue(w.State, "{OriginalFormat}"));
+                Assert.AreEqual(LogLevel.Warning, w.LogLevel);
             });
 
         object? GetValue(object? values, string key)
@@ -678,11 +677,11 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EndPointAccessors_AppStarted_BrowserGet_Success()
     {
         // Arrange
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper);
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext);
 
         // Act
         await app.StartAsync().DefaultTimeout();
@@ -697,11 +696,11 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
         Assert.NotEmpty(response.Headers.GetValues(HeaderNames.ContentSecurityPolicy).Single());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Configuration_CorsNoOtlpHttpEndpoint_Error()
     {
         // Arrange & Act
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testOutputHelper,
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(testContext,
             additionalConfiguration: data =>
             {
                 data.Remove(DashboardConfigNames.DashboardOtlpHttpUrlName.ConfigKey);
@@ -709,7 +708,7 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
             });
 
         // Assert
-        Assert.Collection(app.ValidationFailures,
+        Assert.That.Collection(app.ValidationFailures,
             s => Assert.Contains(DashboardConfigNames.DashboardOtlpHttpUrlName.ConfigKey, s));
     }
 
@@ -717,14 +716,14 @@ public class StartupTests(ITestOutputHelper testOutputHelper)
     {
         // Check that the address is IPv4 or IPv6 any.
         var ipEndPoint = endPointAccessor().EndPoint;
-        Assert.True(ipEndPoint.Address.Equals(IPAddress.Any) || ipEndPoint.Address.Equals(IPAddress.IPv6Any), "Endpoint address should be IPv4 or IPv6.");
+        Assert.IsTrue(ipEndPoint.Address.Equals(IPAddress.Any) || ipEndPoint.Address.Equals(IPAddress.IPv6Any), "Endpoint address should be IPv4 or IPv6.");
     }
 
     private static void AssertDynamicIPEndpoint(Func<EndpointInfo> endPointAccessor)
     {
         // Check that the specified dynamic port of 0 is overridden with the actual port number.
         var ipEndPoint = endPointAccessor().EndPoint;
-        Assert.NotEqual(0, ipEndPoint.Port);
+        Assert.AreNotEqual(0, ipEndPoint.Port);
     }
 
     private static async Task<string> CreateBrowserTokenConfigFileAsync(DirectoryInfo fileConfigDirectory, string browserToken)

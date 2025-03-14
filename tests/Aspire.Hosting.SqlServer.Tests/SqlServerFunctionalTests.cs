@@ -11,19 +11,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Polly;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.SqlServer.Tests;
 
-public class SqlServerFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class SqlServerFunctionalTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWaitForOnSqlServerBlocksDependentResources()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>
@@ -56,16 +57,16 @@ public class SqlServerFunctionalTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifySqlServerResource()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
         var pipeline = new ResiliencePipelineBuilder()
-            .AddRetry(new() { MaxRetryAttempts = int.MaxValue, BackoffType = DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(2) })
+            .AddRetry(new() { MaxRetryAttempts = int.MaxValue, BackoffType = Polly.DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(2) })
             .Build();
 
-        using var builder = TestDistributedApplicationBuilder.Create(o => { }, testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(o => { }, TestContext);
 
         var sqlserver = builder.AddSqlServer("sqlserver");
         var tempDb = sqlserver.AddDatabase("tempdb");
@@ -99,7 +100,7 @@ public class SqlServerFunctionalTests(ITestOutputHelper testOutputHelper)
             selectCommand.CommandText = $"SELECT 1";
             var results = await selectCommand.ExecuteReaderAsync(token);
 
-            Assert.True(results.HasRows);
+            Assert.IsTrue(results.HasRows);
         }, cts.Token);
 
         var dbContext = host.Services.GetRequiredService<TestDbContext>();
@@ -109,13 +110,13 @@ public class SqlServerFunctionalTests(ITestOutputHelper testOutputHelper)
         await dbContext.SaveChangesAsync(cts.Token);
         var cars = await dbContext.Cars.ToListAsync(cts.Token);
 
-        Assert.Single(cars);
-        Assert.Equal("BatMobile", cars[0].Brand);
+        Assert.ContainsSingle(cars);
+        Assert.AreEqual("BatMobile", cars[0].Brand);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
@@ -124,12 +125,12 @@ public class SqlServerFunctionalTests(ITestOutputHelper testOutputHelper)
 
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
         var pipeline = new ResiliencePipelineBuilder()
-            .AddRetry(new() { MaxRetryAttempts = int.MaxValue, BackoffType = DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(2) })
+            .AddRetry(new() { MaxRetryAttempts = int.MaxValue, BackoffType = Polly.DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(2) })
             .Build();
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.Create(o => { }, testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.Create(o => { }, TestContext);
 
             var sqlserver1 = builder1.AddSqlServer("sqlserver");
             var masterdb1 = sqlserver1.AddDatabase("master");
@@ -207,7 +208,7 @@ public class SqlServerFunctionalTests(ITestOutputHelper testOutputHelper)
 
                     var results = await command.ExecuteReaderAsync(token);
 
-                    Assert.True(results.HasRows);
+                    Assert.IsTrue(results.HasRows);
                 }, cts.Token);
 
                 await app1.StopAsync();
@@ -235,7 +236,7 @@ public class SqlServerFunctionalTests(ITestOutputHelper testOutputHelper)
                 await app1.StopAsync();
             }
 
-            using var builder2 = TestDistributedApplicationBuilder.Create(o => { }, testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.Create(o => { }, TestContext);
             var passwordParameter2 = builder2.AddParameter("pwd", password);
 
             var sqlserver2 = builder2.AddSqlServer("sqlserver2", passwordParameter2);
@@ -286,9 +287,9 @@ public class SqlServerFunctionalTests(ITestOutputHelper testOutputHelper)
                         command.CommandText = $"SELECT * FROM [Cars];";
                         var results = await command.ExecuteReaderAsync(cts.Token);
 
-                        Assert.True(await results.ReadAsync(cts.Token));
-                        Assert.Equal("BatMobile", results.GetString(0));
-                        Assert.False(await results.ReadAsync(cts.Token));
+                        Assert.IsTrue(await results.ReadAsync(cts.Token));
+                        Assert.AreEqual("BatMobile", results.GetString(0));
+                        Assert.IsFalse(await results.ReadAsync(cts.Token));
                     }
                 }
                 finally

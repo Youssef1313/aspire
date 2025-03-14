@@ -5,14 +5,14 @@ using Aspire.Dashboard.Otlp.Model;
 using Aspire.Dashboard.Otlp.Storage;
 using Google.Protobuf.Collections;
 using OpenTelemetry.Proto.Trace.V1;
-using Xunit;
 using static Aspire.Tests.Shared.Telemetry.TelemetryTestHelpers;
 
 namespace Aspire.Dashboard.Tests.TelemetryRepositoryTests;
 
+[TestClass]
 public class ApplicationTests
 {
-    [Fact]
+    [TestMethod]
     public void GetApplicationByCompositeName()
     {
         // Arrange
@@ -25,16 +25,16 @@ public class ApplicationTests
         var applications = repository.GetApplications();
 
         // Assert 1
-        Assert.Collection(applications,
+        Assert.That.Collection(applications,
             app =>
             {
-                Assert.Equal("app1", app.ApplicationName);
-                Assert.Equal("TestId", app.InstanceId);
+                Assert.AreEqual("app1", app.ApplicationName);
+                Assert.AreEqual("TestId", app.InstanceId);
             },
             app =>
             {
-                Assert.Equal("app2", app.ApplicationName);
-                Assert.Equal("TestId", app.InstanceId);
+                Assert.AreEqual("app2", app.ApplicationName);
+                Assert.AreEqual("TestId", app.InstanceId);
             });
 
         // Act 2
@@ -43,18 +43,18 @@ public class ApplicationTests
         var notFound = repository.GetApplicationByCompositeName("APP2_TESTID");
 
         // Assert 2
-        Assert.NotNull(app1);
-        Assert.Equal("app1", app1.ApplicationName);
-        Assert.Equal(applications[0], app1);
+        Assert.IsNotNull(app1);
+        Assert.AreEqual("app1", app1.ApplicationName);
+        Assert.AreEqual(applications[0], app1);
 
-        Assert.NotNull(app2);
-        Assert.Equal("app2", app2.ApplicationName);
-        Assert.Equal(applications[1], app2);
+        Assert.IsNotNull(app2);
+        Assert.AreEqual("app2", app2.ApplicationName);
+        Assert.AreEqual(applications[1], app2);
 
-        Assert.Null(notFound);
+        Assert.IsNull(notFound);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetApplications_WithNameAndNoKey()
     {
         // Arrange
@@ -68,31 +68,31 @@ public class ApplicationTests
         var applications1 = repository.GetApplications(new ApplicationKey("app1", InstanceId: null));
 
         // Assert 1
-        Assert.Collection(applications1,
+        Assert.That.Collection(applications1,
             app =>
             {
-                Assert.Equal("app1", app.ApplicationName);
-                Assert.Equal("123", app.InstanceId);
+                Assert.AreEqual("app1", app.ApplicationName);
+                Assert.AreEqual("123", app.InstanceId);
             },
             app =>
             {
-                Assert.Equal("app1", app.ApplicationName);
-                Assert.Equal("456", app.InstanceId);
+                Assert.AreEqual("app1", app.ApplicationName);
+                Assert.AreEqual("456", app.InstanceId);
             });
 
         // Act 2
         var applications2 = repository.GetApplications(new ApplicationKey("app2", InstanceId: null));
 
         // Assert 2
-        Assert.Collection(applications2,
+        Assert.That.Collection(applications2,
             app =>
             {
-                Assert.Equal("app2", app.ApplicationName);
-                Assert.Equal("TestId", app.InstanceId);
+                Assert.AreEqual("app2", app.ApplicationName);
+                Assert.AreEqual("TestId", app.InstanceId);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetApplications_Order()
     {
         // Arrange
@@ -106,25 +106,25 @@ public class ApplicationTests
         var applications = repository.GetApplications();
 
         // Assert
-        Assert.Collection(applications,
+        Assert.That.Collection(applications,
             app =>
             {
-                Assert.Equal("app1", app.ApplicationName);
-                Assert.Equal("abc", app.InstanceId);
+                Assert.AreEqual("app1", app.ApplicationName);
+                Assert.AreEqual("abc", app.InstanceId);
             },
             app =>
             {
-                Assert.Equal("app1", app.ApplicationName);
-                Assert.Equal("def", app.InstanceId);
+                Assert.AreEqual("app1", app.ApplicationName);
+                Assert.AreEqual("def", app.InstanceId);
             },
             app =>
             {
-                Assert.Equal("app2", app.ApplicationName);
-                Assert.Equal("TestId", app.InstanceId);
+                Assert.AreEqual("app2", app.ApplicationName);
+                Assert.AreEqual("TestId", app.InstanceId);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetResourceName_GuidInstanceId_Shorten()
     {
         // Arrange
@@ -142,8 +142,8 @@ public class ApplicationTests
         var instance2Name = OtlpApplication.GetResourceName(applications[1], applications);
 
         // Assert
-        Assert.Equal("app1-19572b19", instance1Name);
-        Assert.Equal("app1-f66e2b1e", instance2Name);
+        Assert.AreEqual("app1-19572b19", instance1Name);
+        Assert.AreEqual("app1-f66e2b1e", instance2Name);
     }
 
     private static void AddResource(TelemetryRepository repository, string name, string? instanceId = null)
@@ -157,6 +157,6 @@ public class ApplicationTests
             }
         });
 
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
     }
 }

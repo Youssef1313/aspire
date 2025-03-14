@@ -9,19 +9,20 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Polly;
 using StackExchange.Redis;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Garnet.Tests;
 
-public class GarnetFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class GarnetFunctionalTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWaitForOnGarnetBlocksDependentResources()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>
@@ -54,7 +55,7 @@ public class GarnetFunctionalTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyGarnetResource()
     {
@@ -63,7 +64,7 @@ public class GarnetFunctionalTests(ITestOutputHelper testOutputHelper)
            .AddRetry(new() { MaxRetryAttempts = 10, Delay = TimeSpan.FromSeconds(3) })
            .Build();
 
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(TestContext);
 
         var garnet = builder.AddGarnet("garnet");
 
@@ -91,14 +92,13 @@ public class GarnetFunctionalTests(ITestOutputHelper testOutputHelper)
 
              var value = await db.StringGetAsync("key");
 
-             Assert.Equal("value", value);
-
+             Assert.AreEqual<RedisValue>("value", value);
          }, cts.Token);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
@@ -111,7 +111,7 @@ public class GarnetFunctionalTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            var builder1 = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+            var builder1 = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(TestContext);
             var garnet1 = builder1.AddGarnet("garnet");
 
             if (useVolume)
@@ -173,7 +173,7 @@ public class GarnetFunctionalTests(ITestOutputHelper testOutputHelper)
                             // c.f. https://microsoft.github.io/garnet/docs/commands/checkpoint#save
                             await db.ExecuteAsync("SAVE");
 
-                            Assert.Equal("value", value);
+                            Assert.AreEqual("value", value);
                         }, cts.Token);
                     }
                 }
@@ -184,7 +184,7 @@ public class GarnetFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            var builder2 = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+            var builder2 = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(TestContext);
             var garnet2 = builder2.AddGarnet("garnet");
 
             if (useVolume)
@@ -219,7 +219,7 @@ public class GarnetFunctionalTests(ITestOutputHelper testOutputHelper)
 
                             var value = await db.StringGetAsync("key");
 
-                            Assert.Equal("value", value);
+                            Assert.AreEqual("value", value);
                         });
                     }
                 }

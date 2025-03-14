@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Xunit;
 
 namespace Aspire.Azure.Messaging.EventHubs.Tests;
 
@@ -67,7 +66,7 @@ public abstract class ConformanceTestsBase<TService, TOptions> : ConformanceTest
          RuntimeConfigurationOptions = { { "Azure.Experimental.EnableActivitySource", true } }
      };
 
-    [Fact]
+    [TestMethod]
     public void HealthChecksClientsAreReused()
     {
         // DisableRetries so the test doesn't take so long retrying when the server isn't available.
@@ -80,16 +79,16 @@ public abstract class ConformanceTestsBase<TService, TOptions> : ConformanceTest
         var healthCheck1 = registration.Factory(host.Services) as AzureEventHubHealthCheck;
         var healthCheck2 = registration.Factory(host.Services) as AzureEventHubHealthCheck;
 
-        Assert.NotNull(healthCheck1);
-        Assert.NotNull(healthCheck2);
+        Assert.IsNotNull(healthCheck1);
+        Assert.IsNotNull(healthCheck2);
 
         var clientAccessor = typeof(AzureEventHubHealthCheck).GetField("_client", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        Assert.NotNull(clientAccessor);
+        Assert.IsNotNull(clientAccessor);
 
         var client1 = clientAccessor?.GetValue(healthCheck1);
         var client2 = clientAccessor?.GetValue(healthCheck2);
 
-        Assert.Same(client1, client2);
+        Assert.AreSame(client1, client2);
     }
 }

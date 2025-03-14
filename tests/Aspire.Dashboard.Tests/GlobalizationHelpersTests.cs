@@ -3,13 +3,13 @@
 
 using System.Globalization;
 using Aspire.Dashboard.Utils;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests;
 
+[TestClass]
 public class GlobalizationHelpersTests
 {
-    [Fact]
+    [TestMethod]
     public void ExpandedLocalizedCultures_IncludesPopularCultures()
     {
         // Act
@@ -30,15 +30,15 @@ public class GlobalizationHelpersTests
         Assert.Contains("zh-CN", supportedCultures);
     }
 
-    [Theory]
-    [InlineData("en", true, "en")]
-    [InlineData("en-US", true, "en")]
-    [InlineData("fr", true, "fr")]
-    [InlineData("zh-Hans", true, "zh-Hans")]
-    [InlineData("zh-Hant", true, "zh-Hant")]
-    [InlineData("zh-CN", true, "zh-Hans")]
-    [InlineData("es", false, null)]
-    [InlineData("aa-bb", false, null)]
+    [TestMethod]
+    [DataRow("en", true, "en")]
+    [DataRow("en-US", true, "en")]
+    [DataRow("fr", true, "fr")]
+    [DataRow("zh-Hans", true, "zh-Hans")]
+    [DataRow("zh-Hant", true, "zh-Hant")]
+    [DataRow("zh-CN", true, "zh-Hans")]
+    [DataRow("es", false, null)]
+    [DataRow("aa-bb", false, null)]
     public void TryGetKnownParentCulture_VariousCultures_ReturnsExpectedResult(string cultureName, bool expectedResult, string? expectedMatchedCultureName)
     {
         // Arrange
@@ -55,22 +55,22 @@ public class GlobalizationHelpersTests
         var result = GlobalizationHelpers.TryGetKnownParentCulture(cultureOptions, culture, out var matchedCulture);
 
         // Assert
-        Assert.Equal(expectedResult, result);
+        Assert.AreEqual(expectedResult, result);
         if (expectedMatchedCultureName is null)
         {
-            Assert.Null(matchedCulture);
+            Assert.IsNull(matchedCulture);
         }
         else
         {
-            Assert.Equal(new CultureInfo(expectedMatchedCultureName), matchedCulture);
+            Assert.AreEqual(new CultureInfo(expectedMatchedCultureName), matchedCulture);
         }
     }
 
-    [Theory]
-    [InlineData("en", "en-US", "en-US")]
-    [InlineData("en", "en-XX", "en")]
-    [InlineData("de", "en-US", null)]
-    [InlineData("zh-Hans", "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7", "zh-CN")]
+    [TestMethod]
+    [DataRow("en", "en-US", "en-US")]
+    [DataRow("en", "en-XX", "en")]
+    [DataRow("de", "en-US", null)]
+    [DataRow("zh-Hans", "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7", "zh-CN")]
     public async Task ResolveSetCultureToAcceptedCultureAsync_MatchRequestToResult(string requestedLanguage, string acceptLanguage, string? result)
     {
         // Arrange
@@ -82,13 +82,13 @@ public class GlobalizationHelpersTests
         // Assert
         if (result != null)
         {
-            Assert.NotNull(requestCulture);
-            Assert.Equal(result, requestCulture.Culture.Name);
-            Assert.Equal(result, requestCulture.UICulture.Name);
+            Assert.IsNotNull(requestCulture);
+            Assert.AreEqual(result, requestCulture.Culture.Name);
+            Assert.AreEqual(result, requestCulture.UICulture.Name);
         }
         else
         {
-            Assert.Null(requestCulture);
+            Assert.IsNull(requestCulture);
         }
     }
 }

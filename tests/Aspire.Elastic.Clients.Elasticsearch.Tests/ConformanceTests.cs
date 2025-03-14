@@ -8,10 +8,10 @@ using Elastic.Transport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Elastic.Clients.Elasticsearch.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<ElasticsearchClient, ElasticClientsElasticsearchSettings>, IClassFixture<ElasticsearchContainerFixture>
 {
     private readonly ElasticsearchContainerFixture _containerFixture;

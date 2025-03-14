@@ -9,10 +9,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
-using Xunit;
 
 namespace Aspire.RabbitMQ.Client.Tests;
 
+[TestClass]
 public class AspireRabbitMQExtensionsTests : IClassFixture<RabbitMQContainerFixture>
 {
     private readonly RabbitMQContainerFixture _containerFixture;
@@ -22,10 +22,10 @@ public class AspireRabbitMQExtensionsTests : IClassFixture<RabbitMQContainerFixt
         _containerFixture = containerFixture;
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(true)]
-    [InlineData(false)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -50,10 +50,10 @@ public class AspireRabbitMQExtensionsTests : IClassFixture<RabbitMQContainerFixt
         AssertEquals(_containerFixture.GetConnectionString(), connection.Endpoint);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(true)]
-    [InlineData(false)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -79,10 +79,10 @@ public class AspireRabbitMQExtensionsTests : IClassFixture<RabbitMQContainerFixt
         AssertEquals(_containerFixture.GetConnectionString(), connection.Endpoint);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(true)]
-    [InlineData(false)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -110,7 +110,7 @@ public class AspireRabbitMQExtensionsTests : IClassFixture<RabbitMQContainerFixt
         AssertEquals(_containerFixture.GetConnectionString(), connection.Endpoint);
     }
 
-    [Fact]
+    [TestMethod]
     public void ConnectionFactoryOptionsFromConfig()
     {
         static Stream CreateStreamFromString(string data) => new MemoryStream(Encoding.UTF8.GetBytes(data));
@@ -148,18 +148,18 @@ public class AspireRabbitMQExtensionsTests : IClassFixture<RabbitMQContainerFixt
         using var host = builder.Build();
         var connectionFactory = (ConnectionFactory)host.Services.GetRequiredService<IConnectionFactory>();
 
-        Assert.Equal(SslProtocols.Tls12, connectionFactory.AmqpUriSslProtocols);
-        Assert.False(connectionFactory.AutomaticRecoveryEnabled);
-        Assert.Equal(2, connectionFactory.ConsumerDispatchConcurrency);
-        Assert.Equal(SslPolicyErrors.RemoteCertificateNameMismatch, connectionFactory.Ssl.AcceptablePolicyErrors);
-        Assert.True(connectionFactory.Ssl.Enabled);
-        Assert.Equal(SslProtocols.Tls13, connectionFactory.Ssl.Version);
-        Assert.Equal(TimeSpan.FromSeconds(3), connectionFactory.SocketReadTimeout);
-        Assert.Equal((uint)304, connectionFactory.RequestedFrameMax);
-        Assert.Equal("aspire-app", connectionFactory.ClientProvidedName);
+        Assert.AreEqual(SslProtocols.Tls12, connectionFactory.AmqpUriSslProtocols);
+        Assert.IsFalse(connectionFactory.AutomaticRecoveryEnabled);
+        Assert.AreEqual(2, connectionFactory.ConsumerDispatchConcurrency);
+        Assert.AreEqual(SslPolicyErrors.RemoteCertificateNameMismatch, connectionFactory.Ssl.AcceptablePolicyErrors);
+        Assert.IsTrue(connectionFactory.Ssl.Enabled);
+        Assert.AreEqual(SslProtocols.Tls13, connectionFactory.Ssl.Version);
+        Assert.AreEqual(TimeSpan.FromSeconds(3), connectionFactory.SocketReadTimeout);
+        Assert.AreEqual((uint)304, connectionFactory.RequestedFrameMax);
+        Assert.AreEqual("aspire-app", connectionFactory.ClientProvidedName);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task CanAddMultipleKeyedServices()
     {
@@ -183,9 +183,9 @@ public class AspireRabbitMQExtensionsTests : IClassFixture<RabbitMQContainerFixt
         var connection2 = host.Services.GetRequiredKeyedService<IConnection>("messaging2");
         var connection3 = host.Services.GetRequiredKeyedService<IConnection>("messaging3");
 
-        Assert.NotSame(connection1, connection2);
-        Assert.NotSame(connection1, connection3);
-        Assert.NotSame(connection2, connection3);
+        Assert.AreNotSame(connection1, connection2);
+        Assert.AreNotSame(connection1, connection3);
+        Assert.AreNotSame(connection2, connection3);
 
         AssertEquals(_containerFixture.GetConnectionString(), connection1.Endpoint);
         AssertEquals(container2.GetConnectionString(), connection2.Endpoint);
@@ -195,7 +195,7 @@ public class AspireRabbitMQExtensionsTests : IClassFixture<RabbitMQContainerFixt
     private static void AssertEquals(string expectedUri, AmqpTcpEndpoint endpoint)
     {
         var uri = new Uri(expectedUri);
-        Assert.Equal(uri.Host, endpoint.HostName);
-        Assert.Equal(uri.Port, endpoint.Port);
+        Assert.AreEqual(uri.Host, endpoint.HostName);
+        Assert.AreEqual(uri.Port, endpoint.Port);
     }
 }

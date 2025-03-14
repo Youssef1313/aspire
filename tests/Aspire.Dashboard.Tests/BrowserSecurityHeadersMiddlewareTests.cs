@@ -8,13 +8,13 @@ using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests;
 
+[TestClass]
 public class BrowserSecurityHeadersMiddlewareTests
 {
-    [Fact]
+    [TestMethod]
     public async Task InvokeAsync_Development_AllowExternalFetch()
     {
         // Arrange
@@ -25,11 +25,11 @@ public class BrowserSecurityHeadersMiddlewareTests
         await middleware.InvokeAsync(httpContext).DefaultTimeout();
 
         // Assert
-        Assert.NotEqual(StringValues.Empty, httpContext.Response.Headers.ContentSecurityPolicy);
+        Assert.AreNotEqual(StringValues.Empty, httpContext.Response.Headers.ContentSecurityPolicy);
         Assert.DoesNotContain("default-src", httpContext.Response.Headers.ContentSecurityPolicy.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task InvokeAsync_Production_DenyExternalFetch()
     {
         // Arrange
@@ -40,13 +40,13 @@ public class BrowserSecurityHeadersMiddlewareTests
         await middleware.InvokeAsync(httpContext).DefaultTimeout();
 
         // Assert
-        Assert.NotEqual(StringValues.Empty, httpContext.Response.Headers.ContentSecurityPolicy);
+        Assert.AreNotEqual(StringValues.Empty, httpContext.Response.Headers.ContentSecurityPolicy);
         Assert.Contains("default-src", httpContext.Response.Headers.ContentSecurityPolicy.ToString());
     }
 
-    [Theory]
-    [InlineData("https", "img-src data: https:;")]
-    [InlineData("http", "img-src data: http: https:;")]
+    [TestMethod]
+    [DataRow("https", "img-src data: https:;")]
+    [DataRow("http", "img-src data: http: https:;")]
     public async Task InvokeAsync_Scheme_ImageSourceChangesOnScheme(string scheme, string expectedContent)
     {
         // Arrange
@@ -58,11 +58,11 @@ public class BrowserSecurityHeadersMiddlewareTests
         await middleware.InvokeAsync(httpContext).DefaultTimeout();
 
         // Assert
-        Assert.NotEqual(StringValues.Empty, httpContext.Response.Headers.ContentSecurityPolicy);
+        Assert.AreNotEqual(StringValues.Empty, httpContext.Response.Headers.ContentSecurityPolicy);
         Assert.Contains(expectedContent, httpContext.Response.Headers.ContentSecurityPolicy.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task InvokeAsync_Otlp_NotAdded()
     {
         // Arrange
@@ -74,7 +74,7 @@ public class BrowserSecurityHeadersMiddlewareTests
         await middleware.InvokeAsync(httpContext).DefaultTimeout();
 
         // Assert
-        Assert.Equal(StringValues.Empty, httpContext.Response.Headers.ContentSecurityPolicy);
+        Assert.AreEqual(StringValues.Empty, httpContext.Response.Headers.ContentSecurityPolicy);
     }
 
     private sealed class TestConnectionTypeFeature : IConnectionTypeFeature

@@ -9,13 +9,13 @@ using Google.Protobuf.Collections;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using OpenTelemetry.Proto.Common.V1;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.TelemetryRepositoryTests;
 
+[TestClass]
 public class OtlpHelpersTests
 {
-    [Fact]
+    [TestMethod]
     public void GetString_StringValue()
     {
         // Arrange
@@ -25,10 +25,10 @@ public class OtlpHelpersTests
         var s = OtlpHelpers.GetString(anyValue);
 
         // Assert
-        Assert.Equal("string!", s);
+        Assert.AreEqual("string!", s);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetString_BytesValue()
     {
         // Arrange
@@ -41,10 +41,10 @@ public class OtlpHelpersTests
         var s = OtlpHelpers.GetString(anyValue);
 
         // Assert
-        Assert.Equal("48656c6c6f20776f726c64", s);
+        Assert.AreEqual("48656c6c6f20776f726c64", s);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetString_NoneValue()
     {
         // Arrange
@@ -54,10 +54,10 @@ public class OtlpHelpersTests
         var s = OtlpHelpers.GetString(anyValue);
 
         // Assert
-        Assert.Equal("", s);
+        Assert.AreEqual("", s);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetString_NullValue()
     {
         // Arrange
@@ -67,10 +67,10 @@ public class OtlpHelpersTests
         var s = anyValue.GetString();
 
         // Assert
-        Assert.Equal("", s);
+        Assert.AreEqual("", s);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetString_ArrayValue()
     {
         // Arrange
@@ -90,10 +90,10 @@ public class OtlpHelpersTests
         var s = OtlpHelpers.GetString(anyValue);
 
         // Assert
-        Assert.Equal("[true,null]", s);
+        Assert.AreEqual("[true,null]", s);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetString_KeyValues()
     {
         // Arrange
@@ -153,10 +153,10 @@ public class OtlpHelpersTests
         var s = OtlpHelpers.GetString(anyValue);
 
         // Assert
-        Assert.Equal(@"{""prop1"":[""string!"",1.1,1],""prop2"":""48656c6c6f20776f726c64"",""prop3"":{""nestedProp1"":""nested!""}}", s);
+        Assert.AreEqual(@"{""prop1"":[""string!"",1.1,1],""prop2"":""48656c6c6f20776f726c64"",""prop3"":{""nestedProp1"":""nested!""}}", s);
     }
 
-    [Fact]
+    [TestMethod]
     public void CopyKeyValuePairs_UnderLimit_AllCopied()
     {
         // Arrange
@@ -174,16 +174,16 @@ public class OtlpHelpersTests
             ref copiedAttributes);
 
         // Assert
-        Assert.Equal(1, copyCount);
-        Assert.Collection(copiedAttributes,
+        Assert.AreEqual(1, copyCount);
+        Assert.That.Collection(copiedAttributes,
             a =>
             {
-                Assert.Equal("key1", a.Key);
-                Assert.Equal("value1", a.Value);
+                Assert.AreEqual("key1", a.Key);
+                Assert.AreEqual("value1", a.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void CopyKeyValuePairs_OverLimit_LimitCopied()
     {
         // Arrange
@@ -204,26 +204,26 @@ public class OtlpHelpersTests
             ref copiedAttributes);
 
         // Assert
-        Assert.Equal(3, copyCount);
-        Assert.Collection(copiedAttributes,
+        Assert.AreEqual(3, copyCount);
+        Assert.That.Collection(copiedAttributes,
             a =>
             {
-                Assert.Equal("key1", a.Key);
-                Assert.Equal("value1", a.Value);
+                Assert.AreEqual("key1", a.Key);
+                Assert.AreEqual("value1", a.Value);
             },
             a =>
             {
-                Assert.Equal("key2", a.Key);
-                Assert.Equal("value2", a.Value);
+                Assert.AreEqual("key2", a.Key);
+                Assert.AreEqual("value2", a.Value);
             },
             a =>
             {
-                Assert.Equal("key3", a.Key);
-                Assert.Equal("value3", a.Value);
+                Assert.AreEqual("key3", a.Key);
+                Assert.AreEqual("value3", a.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void CopyKeyValuePairs_OverLimitWithDuplicates_LimitCopied()
     {
         // Arrange
@@ -248,26 +248,26 @@ public class OtlpHelpersTests
             ref copiedAttributes);
 
         // Assert
-        Assert.Equal(3, copyCount);
-        Assert.Collection(copiedAttributes,
+        Assert.AreEqual(3, copyCount);
+        Assert.That.Collection(copiedAttributes,
             a =>
             {
-                Assert.Equal("key1", a.Key);
-                Assert.Equal("value1-2", a.Value);
+                Assert.AreEqual("key1", a.Key);
+                Assert.AreEqual("value1-2", a.Value);
             },
             a =>
             {
-                Assert.Equal("key2", a.Key);
-                Assert.Equal("value2-2", a.Value);
+                Assert.AreEqual("key2", a.Key);
+                Assert.AreEqual("value2-2", a.Value);
             },
             a =>
             {
-                Assert.Equal("key3", a.Key);
-                Assert.Equal("value3-2", a.Value);
+                Assert.AreEqual("key3", a.Key);
+                Assert.AreEqual("value3-2", a.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void CopyKeyValuePairs_HasParent_UnderLimit_LimitCopied()
     {
         // Arrange
@@ -287,21 +287,21 @@ public class OtlpHelpersTests
             ref copiedAttributes);
 
         // Assert
-        Assert.Equal(2, copyCount);
-        Assert.Collection(copiedAttributes,
+        Assert.AreEqual(2, copyCount);
+        Assert.That.Collection(copiedAttributes,
             a =>
             {
-                Assert.Equal("parentkey1", a.Key);
-                Assert.Equal("parentvalue1", a.Value);
+                Assert.AreEqual("parentkey1", a.Key);
+                Assert.AreEqual("parentvalue1", a.Value);
             },
             a =>
             {
-                Assert.Equal("key1", a.Key);
-                Assert.Equal("value1", a.Value);
+                Assert.AreEqual("key1", a.Key);
+                Assert.AreEqual("value1", a.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void CopyKeyValuePairs_HasParent_OverLimit_LimitCopied()
     {
         // Arrange
@@ -323,26 +323,26 @@ public class OtlpHelpersTests
             ref copiedAttributes);
 
         // Assert
-        Assert.Equal(3, copyCount);
-        Assert.Collection(copiedAttributes,
+        Assert.AreEqual(3, copyCount);
+        Assert.That.Collection(copiedAttributes,
             a =>
             {
-                Assert.Equal("parentkey1", a.Key);
-                Assert.Equal("parentvalue1", a.Value);
+                Assert.AreEqual("parentkey1", a.Key);
+                Assert.AreEqual("parentvalue1", a.Value);
             },
             a =>
             {
-                Assert.Equal("key1", a.Key);
-                Assert.Equal("value1", a.Value);
+                Assert.AreEqual("key1", a.Key);
+                Assert.AreEqual("value1", a.Value);
             },
             a =>
             {
-                Assert.Equal("key2", a.Key);
-                Assert.Equal("value2", a.Value);
+                Assert.AreEqual("key2", a.Key);
+                Assert.AreEqual("value2", a.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void CopyKeyValuePairs_HasParent_ParentLimit_ParentValues()
     {
         // Arrange
@@ -366,26 +366,26 @@ public class OtlpHelpersTests
             ref copiedAttributes);
 
         // Assert
-        Assert.Equal(3, copyCount);
-        Assert.Collection(copiedAttributes,
+        Assert.AreEqual(3, copyCount);
+        Assert.That.Collection(copiedAttributes,
             a =>
             {
-                Assert.Equal("parentkey1", a.Key);
-                Assert.Equal("parentvalue1", a.Value);
+                Assert.AreEqual("parentkey1", a.Key);
+                Assert.AreEqual("parentvalue1", a.Value);
             },
             a =>
             {
-                Assert.Equal("parentkey2", a.Key);
-                Assert.Equal("parentvalue2", a.Value);
+                Assert.AreEqual("parentkey2", a.Key);
+                Assert.AreEqual("parentvalue2", a.Value);
             },
             a =>
             {
-                Assert.Equal("parentkey3", a.Key);
-                Assert.Equal("parentvalue3", a.Value);
+                Assert.AreEqual("parentkey3", a.Key);
+                Assert.AreEqual("parentvalue3", a.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void ToKeyValuePairs_OverLimit_LimitReturned()
     {
         // Arrange
@@ -400,20 +400,20 @@ public class OtlpHelpersTests
         var results = attributes.ToKeyValuePairs(TelemetryTestHelpers.CreateContext(options: new TelemetryLimitOptions { MaxAttributeCount = 2 }));
 
         // Act
-        Assert.Collection(results,
+        Assert.That.Collection(results,
             a =>
             {
-                Assert.Equal("key1", a.Key);
-                Assert.Equal("value1", a.Value);
+                Assert.AreEqual("key1", a.Key);
+                Assert.AreEqual("value1", a.Value);
             },
             a =>
             {
-                Assert.Equal("key2", a.Key);
-                Assert.Equal("value2", a.Value);
+                Assert.AreEqual("key2", a.Key);
+                Assert.AreEqual("value2", a.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void ToKeyValuePairs_OverLimitWithDuplicates_LimitReturned()
     {
         // Arrange
@@ -436,23 +436,23 @@ public class OtlpHelpersTests
         var results = attributes.ToKeyValuePairs(context);
 
         // Assert
-        Assert.Collection(results,
+        Assert.That.Collection(results,
             a =>
             {
-                Assert.Equal("key1", a.Key);
-                Assert.Equal("value1-2", a.Value);
+                Assert.AreEqual("key1", a.Key);
+                Assert.AreEqual("value1-2", a.Value);
             },
             a =>
             {
-                Assert.Equal("key2", a.Key);
-                Assert.Equal("value2", a.Value);
+                Assert.AreEqual("key2", a.Key);
+                Assert.AreEqual("value2", a.Value);
             });
 
-        var w = Assert.Single(testSink.Writes);
-        Assert.Equal("Duplicate attribute key1 with different value. Last value wins.", w.Message);
+        var w = Assert.ContainsSingle(testSink.Writes);
+        Assert.AreEqual("Duplicate attribute key1 with different value. Last value wins.", w.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void ToKeyValuePairs_OverLimitWithDuplicates_Filter_LimitReturned()
     {
         // Arrange
@@ -484,24 +484,24 @@ public class OtlpHelpersTests
         });
 
         // Assert
-        Assert.Collection(results,
+        Assert.That.Collection(results,
             a =>
             {
-                Assert.Equal("key1", a.Key);
-                Assert.Equal("value1-2", a.Value);
+                Assert.AreEqual("key1", a.Key);
+                Assert.AreEqual("value1-2", a.Value);
             },
             a =>
             {
-                Assert.Equal("key2", a.Key);
-                Assert.Equal("value2", a.Value);
+                Assert.AreEqual("key2", a.Key);
+                Assert.AreEqual("value2", a.Value);
             },
             a =>
             {
-                Assert.Equal("key3", a.Key);
-                Assert.Equal("value3", a.Value);
+                Assert.AreEqual("key3", a.Key);
+                Assert.AreEqual("value3", a.Value);
             });
 
-        var w = Assert.Single(testSink.Writes);
-        Assert.Equal("Duplicate attribute key1 with different value. Last value wins.", w.Message);
+        var w = Assert.ContainsSingle(testSink.Writes);
+        Assert.AreEqual("Duplicate attribute key1 with different value. Last value wins.", w.Message);
     }
 }

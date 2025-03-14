@@ -9,15 +9,15 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Microsoft.EntityFrameworkCore.SqlServer.Tests;
 
+[TestClass]
 public class AspireSqlServerEFCoreSqlClientExtensionsTests
 {
     private const string ConnectionString = "Data Source=fake;Database=master;Encrypt=True";
 
-    [Fact]
+    [TestMethod]
     public void ReadsFromConnectionStringsCorrectly()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -30,10 +30,10 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
         using var host = builder.Build();
         var context = host.Services.GetRequiredService<TestDbContext>();
 
-        Assert.Equal(ConnectionString, context.Database.GetDbConnection().ConnectionString);
+        Assert.AreEqual(ConnectionString, context.Database.GetDbConnection().ConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void ConnectionStringCanBeSetInCode()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -47,12 +47,12 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
         var context = host.Services.GetRequiredService<TestDbContext>();
 
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
         // the connection string from config should not be used since code set it explicitly
         Assert.DoesNotContain("unused", actualConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void ConnectionNameWinsOverConfigSection()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -67,12 +67,12 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
         var context = host.Services.GetRequiredService<TestDbContext>();
 
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
         // the connection string from config should not be used since it was found in ConnectionStrings
         Assert.DoesNotContain("unused", actualConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanConfigureDbContextOptions()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -96,28 +96,28 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<SqlServerOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the min batch size was respected
-        Assert.Equal(123, extension.MinBatchSize);
+        Assert.AreEqual(123, extension.MinBatchSize);
 
         // ensure the connection string from config was respected
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
 
         // ensure the retry strategy is enabled and set to its default value
-        Assert.NotNull(extension.ExecutionStrategyFactory);
+        Assert.IsNotNull(extension.ExecutionStrategyFactory);
         var executionStrategy = extension.ExecutionStrategyFactory(new ExecutionStrategyDependencies(new CurrentDbContext(context), context.Options, null!));
         var retryStrategy = Assert.IsType<SqlServerRetryingExecutionStrategy>(executionStrategy);
-        Assert.Equal(new WorkaroundToReadProtectedField(context).MaxRetryCount, retryStrategy.MaxRetryCount);
+        Assert.AreEqual(new WorkaroundToReadProtectedField(context).MaxRetryCount, retryStrategy.MaxRetryCount);
 
         // ensure the command timeout from config was respected
-        Assert.Equal(608, extension.CommandTimeout);
+        Assert.AreEqual(608, extension.CommandTimeout);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Fact]
+    [TestMethod]
     public void CanConfigureDbContextOptionsWithoutRetry()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -140,24 +140,24 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<SqlServerOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout was respected
-        Assert.Equal(123, extension.CommandTimeout);
+        Assert.AreEqual(123, extension.CommandTimeout);
 
         // ensure the connection string from config was respected
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
 
         // ensure no retry strategy was registered
-        Assert.Null(extension.ExecutionStrategyFactory);
+        Assert.IsNull(extension.ExecutionStrategyFactory);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CanConfigureCommandTimeout(bool useSettings)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -181,17 +181,17 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<SqlServerOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout was respected
-        Assert.Equal(608, extension.CommandTimeout);
+        Assert.AreEqual(608, extension.CommandTimeout);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CommandTimeoutFromBuilderWinsOverOthers(bool useSettings)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -216,10 +216,10 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<SqlServerOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout from builder was respected
-        Assert.Equal(123, extension.CommandTimeout);
+        Assert.AreEqual(123, extension.CommandTimeout);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
@@ -227,7 +227,7 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
     /// <summary>
     /// Verifies that two different DbContexts can be registered with different connection strings.
     /// </summary>
-    [Fact]
+    [TestMethod]
     public void CanHave2DbContexts()
     {
         const string connectionString2 = "Data Source=fake2;Database=master2;Encrypt=True";
@@ -246,15 +246,15 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
         var context2 = host.Services.GetRequiredService<TestDbContext2>();
 
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
 
         actualConnectionString = context2.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(connectionString2, actualConnectionString);
+        Assert.AreEqual(connectionString2, actualConnectionString);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ThrowsWhenDbContextIsRegisteredBeforeAspireComponent(bool useServiceType)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = Environments.Development });
@@ -272,12 +272,12 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
         }
 
         var exception = Assert.Throws<InvalidOperationException>(() => builder.AddSqlServerDbContext<TestDbContext>("sqlconnection"));
-        Assert.Equal("DbContext<TestDbContext> is already registered. Please ensure 'services.AddDbContext<TestDbContext>()' is not used when calling 'AddSqlServerDbContext()' or use the corresponding 'Enrich' method.", exception.Message);
+        Assert.AreEqual("DbContext<TestDbContext> is already registered. Please ensure 'services.AddDbContext<TestDbContext>()' is not used when calling 'AddSqlServerDbContext()' or use the corresponding 'Enrich' method.", exception.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void DoesntThrowWhenDbContextIsRegisteredBeforeAspireComponentProduction(bool useServiceType)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = Environments.Production });
@@ -296,10 +296,10 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
 
         var exception = Record.Exception(() => builder.AddSqlServerDbContext<TestDbContext>("sqlconnection"));
 
-        Assert.Null(exception);
+        Assert.IsNull(exception);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddSqlServerDbContext_WithConnectionNameAndSettings_AppliesConnectionSpecificSettings()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -319,12 +319,12 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
             capturedSettings = settings;
         });
 
-        Assert.NotNull(capturedSettings);
-        Assert.Equal(60, capturedSettings.CommandTimeout);
-        Assert.True(capturedSettings.DisableTracing);
+        Assert.IsNotNull(capturedSettings);
+        Assert.AreEqual(60, capturedSettings.CommandTimeout);
+        Assert.IsTrue(capturedSettings.DisableTracing);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddSqlServerDbContext_WithConnectionSpecificAndContextSpecificSettings_PrefersContextSpecific()
     {
         // Arrange
@@ -347,8 +347,8 @@ public class AspireSqlServerEFCoreSqlClientExtensionsTests
             capturedSettings = settings;
         });
 
-        Assert.NotNull(capturedSettings);
-        Assert.Equal(120, capturedSettings.CommandTimeout);
+        Assert.IsNotNull(capturedSettings);
+        Assert.AreEqual(120, capturedSettings.CommandTimeout);
     }
 
     public class TestDbContext2 : DbContext

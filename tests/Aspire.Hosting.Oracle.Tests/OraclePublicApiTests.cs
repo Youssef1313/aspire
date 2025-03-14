@@ -3,170 +3,170 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Oracle.Tests;
 
+[TestClass]
 public class OraclePublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddOracleShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
         const string name = "oracle";
 
-        var action = () => builder.AddOracle(name);
+        Action action = () => builder.AddOracle(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddOracleShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create();
         var name = isNull ? null! : string.Empty;
 
-        var action = () => builder.AddOracle(name);
+        Action action = () => builder.AddOracle(name);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddDatabaseShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<OracleDatabaseServerResource> builder = null!;
         const string name = "db";
 
-        var action = () => builder.AddDatabase(name);
+        Action action = () => builder.AddDatabase(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddDatabaseShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create()
             .AddOracle("oracle");
         var name = isNull ? null! : string.Empty;
 
-        var action = () => builder.AddDatabase(name);
+        Action action = () => builder.AddDatabase(name);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataVolumeShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<OracleDatabaseServerResource> builder = null!;
 
-        var action = () => builder.WithDataVolume();
+        Action action = () => builder.WithDataVolume();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataBindMountShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<OracleDatabaseServerResource> builder = null!;
         const string source = "/opt/oracle/oradata";
 
-        var action = () => builder.WithDataBindMount(source);
+        Action action = () => builder.WithDataBindMount(source);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithDataBindMountShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create()
             .AddOracle("oracle");
         var source = isNull ? null! : string.Empty;
 
-        var action = () => builder.WithDataBindMount(source);
+        Action action = () => builder.WithDataBindMount(source);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(source), exception.ParamName);
+        Assert.AreEqual(nameof(source), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithInitBindMountShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<OracleDatabaseServerResource> builder = null!;
         const string source = "/opt/oracle/scripts/startup";
 
-        var action = () => builder.WithInitBindMount(source);
+        Action action = () => builder.WithInitBindMount(source);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithInitBindMountShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create()
             .AddOracle("oracle");
         var source = isNull ? null! : string.Empty;
 
-        var action = () => builder.WithInitBindMount(source);
+        Action action = () => builder.WithInitBindMount(source);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(source), exception.ParamName);
+        Assert.AreEqual(nameof(source), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDbSetupBindMountShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<OracleDatabaseServerResource> builder = null!;
         const string source = "/opt/oracle/scripts/setup";
 
-        var action = () => builder.WithDbSetupBindMount(source);
+        Action action = () => builder.WithDbSetupBindMount(source);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithDbSetupBindMountShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create()
             .AddOracle("oracle");
         var source = isNull ? null! : string.Empty;
 
-        var action = () => builder.WithDbSetupBindMount(source);
+        Action action = () => builder.WithDbSetupBindMount(source);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(source), exception.ParamName);
+        Assert.AreEqual(nameof(source), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorOracleDatabaseResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create()
@@ -175,17 +175,17 @@ public class OraclePublicApiTests
         const string databaseName = "db";
         var parent = builder.Resource;
 
-        var action = () => new OracleDatabaseResource(name, databaseName, parent);
+        Action action = () => new OracleDatabaseResource(name, databaseName, parent);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorOracleDatabaseResourceShouldThrowWhenDatabaseNameIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create()
@@ -194,52 +194,52 @@ public class OraclePublicApiTests
         var databaseName = isNull ? null! : string.Empty;
         var parent = builder.Resource;
 
-        var action = () => new OracleDatabaseResource(name, databaseName, parent);
+        Action action = () => new OracleDatabaseResource(name, databaseName, parent);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(databaseName), exception.ParamName);
+        Assert.AreEqual(nameof(databaseName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorOracleDatabaseResourceShouldThrowWhenParentIsNull()
     {
         const string name = "oracle";
         const string databaseName = "db";
         OracleDatabaseServerResource parent = null!;
 
-        var action = () => new OracleDatabaseResource(name, databaseName, parent);
+        Action action = () => new OracleDatabaseResource(name, databaseName, parent);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(parent), exception.ParamName);
+        Assert.AreEqual(nameof(parent), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorOracleDatabaseServerResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
         var password = new ParameterResource("password", (p) => "password");
 
-        var action = () => new OracleDatabaseServerResource(name, password);
+        Action action = () => new OracleDatabaseServerResource(name, password);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorOracleDatabaseServerResourceShouldThrowWhenPasswordIsNull()
     {
         const string name = "oracle";
         ParameterResource password = null!;
 
-        var action = () => new OracleDatabaseServerResource(name, password);
+        Action action = () => new OracleDatabaseServerResource(name, password);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(password), exception.ParamName);
+        Assert.AreEqual(nameof(password), exception.ParamName);
     }
 }

@@ -15,7 +15,6 @@ using OpenTelemetry.Proto.Logs.V1;
 using OpenTelemetry.Proto.Metrics.V1;
 using OpenTelemetry.Proto.Resource.V1;
 using OpenTelemetry.Proto.Trace.V1;
-using Xunit;
 
 namespace Aspire.Tests.Shared.Telemetry;
 
@@ -25,7 +24,7 @@ internal static class TelemetryTestHelpers
     {
         var resolvedActual = GetStringId(actual);
 
-        Assert.Equal(expected, resolvedActual);
+        Assert.AreEqual(expected, resolvedActual);
     }
 
     public static string GetStringId(string hexString)

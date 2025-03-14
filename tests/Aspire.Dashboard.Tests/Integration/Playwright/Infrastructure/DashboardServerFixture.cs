@@ -8,7 +8,6 @@ using Aspire.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.Integration.Playwright.Infrastructure;
 

@@ -12,18 +12,19 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.RabbitMQ.Tests;
 
-public class RabbitMQFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class RabbitMQFunctionalTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWaitForOnRabbitMQBlocksDependentResources()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>
@@ -56,11 +57,11 @@ public class RabbitMQFunctionalTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync().DefaultTimeout(TestConstants.LongTimeoutTimeSpan);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyRabbitMQResource()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var rabbitMQ = builder.AddRabbitMQ("rabbitMQ");
 
@@ -88,12 +89,12 @@ public class RabbitMQFunctionalTests(ITestOutputHelper testOutputHelper)
         await channel.BasicPublishAsync(exchange: string.Empty, routingKey: queueName, body: body);
 
         var result = await channel.BasicGetAsync(queueName, true);
-        Assert.Equal(message, Encoding.UTF8.GetString(result!.Body.Span));
+        Assert.AreEqual(message, Encoding.UTF8.GetString(result!.Body.Span));
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
@@ -104,7 +105,7 @@ public class RabbitMQFunctionalTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var rabbitMQ1 = builder1.AddRabbitMQ("rabbitMQ");
             var password = rabbitMQ1.Resource.PasswordParameter.Value;
 
@@ -131,7 +132,7 @@ public class RabbitMQFunctionalTests(ITestOutputHelper testOutputHelper)
                 {
                     var hb = Host.CreateApplicationBuilder();
                     hb.Configuration[$"ConnectionStrings:{rabbitMQ1.Resource.Name}"] = await rabbitMQ1.Resource.ConnectionStringExpression.GetValueAsync(default);
-                    hb.Services.AddXunitLogging(testOutputHelper);
+                    hb.Services.AddMSTestLogging(TestContext);
                     hb.AddRabbitMQClient(rabbitMQ1.Resource.Name);
 
                     using (var host = hb.Build())
@@ -165,9 +166,9 @@ public class RabbitMQFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            testOutputHelper.WriteLine($"Starting the second run with the same volume/mount");
+            TestContext.WriteLine($"Starting the second run with the same volume/mount");
 
-            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var passwordParameter2 = builder2.AddParameter("pwd", password);
 
             var rabbitMQ2 = builder2.AddRabbitMQ("rabbitMQ", password: passwordParameter2);
@@ -188,7 +189,7 @@ public class RabbitMQFunctionalTests(ITestOutputHelper testOutputHelper)
                 {
                     var hb = Host.CreateApplicationBuilder();
                     hb.Configuration[$"ConnectionStrings:{rabbitMQ2.Resource.Name}"] = await rabbitMQ2.Resource.ConnectionStringExpression.GetValueAsync(default);
-                    hb.Services.AddXunitLogging(testOutputHelper);
+                    hb.Services.AddMSTestLogging(TestContext);
                     hb.AddRabbitMQClient(rabbitMQ2.Resource.Name);
 
                     using (var host = hb.Build())
@@ -203,7 +204,7 @@ public class RabbitMQFunctionalTests(ITestOutputHelper testOutputHelper)
                         await channel.QueueDeclareAsync(queueName, durable: true, exclusive: false);
 
                         var result = await channel.BasicGetAsync(queueName, true);
-                        Assert.Equal("Hello World!", Encoding.UTF8.GetString(result!.Body.Span));
+                        Assert.AreEqual("Hello World!", Encoding.UTF8.GetString(result!.Body.Span));
                     }
                 }
                 finally

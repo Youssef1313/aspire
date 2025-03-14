@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.DotNet.RemoteExecutor;
-using Xunit;
 
 namespace Aspire.Azure.Messaging.EventHubs.Tests;
 
+[TestClass]
 public class AzureMessagingEventHubsSettingsTests
 {
-    [Fact]
+    [TestMethod]
     public void TracingIsEnabledWhenAzureSwitchIsSet()
     {
         RemoteExecutor.Invoke(() => EnsureTracingIsEnabledWhenAzureSwitchIsSet(true)).Dispose();
@@ -18,7 +18,7 @@ public class AzureMessagingEventHubsSettingsTests
     private static void EnsureTracingIsEnabledWhenAzureSwitchIsSet(bool expectedValue)
     {
         // doesn't matter which concrete class we use, as the property is defined in the base class
-        Assert.Equal(expectedValue, new AzureMessagingEventHubsConsumerSettings().DisableTracing);
+        Assert.AreEqual(expectedValue, new AzureMessagingEventHubsConsumerSettings().DisableTracing);
     }
 
     private static RemoteInvokeOptions EnableTracingForAzureSdk()

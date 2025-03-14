@@ -3,13 +3,13 @@
 
 using Aspire.Hosting.Orchestrator;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Tests.Orchestrator;
 
+[TestClass]
 public class RelationshipEvaluatorTests
 {
-    [Fact]
+    [TestMethod]
     public void HandlesNestedChildren()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -29,20 +29,20 @@ public class RelationshipEvaluatorTests
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
         var parentChildLookup = RelationshipEvaluator.GetParentChildLookup(appModel);
-        Assert.Equal(4, parentChildLookup.Count);
+        Assert.AreEqual(4, parentChildLookup.Count);
 
-        Assert.Collection(parentChildLookup[parentResource.Resource],
-            x => Assert.Equal(childResource.Resource, x),
-            x => Assert.Equal(childWithAnnotationsResource.Resource, x));
+        Assert.That.Collection(parentChildLookup[parentResource.Resource],
+            x => Assert.AreEqual(childResource.Resource, x),
+            x => Assert.AreEqual(childWithAnnotationsResource.Resource, x));
 
-        Assert.Single(parentChildLookup[childResource.Resource], grandChildResource.Resource);
-        Assert.Single(parentChildLookup[grandChildResource.Resource], greatGrandChildResource.Resource);
+        Assert.ContainsSingle(parentChildLookup[childResource.Resource], grandChildResource.Resource);
+        Assert.ContainsSingle(parentChildLookup[grandChildResource.Resource], greatGrandChildResource.Resource);
 
-        Assert.Empty(parentChildLookup[greatGrandChildResource.Resource]);
+        Assert.IsEmpty(parentChildLookup[greatGrandChildResource.Resource]);
 
-        Assert.Single(parentChildLookup[childWithAnnotationsResource.Resource], grandChildWithAnnotationsResource.Resource);
+        Assert.ContainsSingle(parentChildLookup[childWithAnnotationsResource.Resource], grandChildWithAnnotationsResource.Resource);
 
-        Assert.Empty(parentChildLookup[grandChildWithAnnotationsResource.Resource]);
+        Assert.IsEmpty(parentChildLookup[grandChildWithAnnotationsResource.Resource]);
     }
 
     private sealed class CustomChildResource(string name, IResource parent) : Resource(name), IResourceWithParent

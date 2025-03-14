@@ -8,10 +8,10 @@ using Aspire.Hosting.Utils;
 using Azure.Provisioning.KeyVault;
 using Json.Schema;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Tests.Schema;
 
+[TestClass]
 public class SchemaTests
 {
     public static TheoryData<string, Action<IDistributedApplicationBuilder>> ApplicationSamples
@@ -206,7 +206,7 @@ public class SchemaTests
         return s_schema;
     }
 
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(ApplicationSamples))]
     public void ValidateApplicationSamples(string testCaseName, Action<IDistributedApplicationBuilder> configurator)
     {
@@ -224,7 +224,7 @@ public class SchemaTests
         AssertValid(manifestText);
     }
 
-    [Fact]
+    [TestMethod]
     public void SchemaRejectsEmptyManifest()
     {
         var manifestText = """
@@ -234,10 +234,10 @@ public class SchemaTests
 
         var manifestJson = JsonNode.Parse(manifestText);
         var schema = GetSchema();
-        Assert.False(schema.Evaluate(manifestJson).IsValid);
+        Assert.IsFalse(schema.Evaluate(manifestJson).IsValid);
     }
 
-    [Fact]
+    [TestMethod]
     public void ManifestAcceptsUnknownResourceType()
     {
         var manifestText = """
@@ -253,7 +253,7 @@ public class SchemaTests
         AssertValid(manifestText);
     }
 
-    [Fact]
+    [TestMethod]
     public void ManifestWithContainerResourceWithMissingImageIsRejected()
     {
         var manifestText = """
@@ -268,10 +268,10 @@ public class SchemaTests
 
         var manifestJson = JsonNode.Parse(manifestText);
         var schema = GetSchema();
-        Assert.False(schema.Evaluate(manifestJson).IsValid);
+        Assert.IsFalse(schema.Evaluate(manifestJson).IsValid);
     }
 
-    [Fact]
+    [TestMethod]
     public void ManifestWithValue0ResourceWithConnectionStringAndValueIsRejectedIsRejected()
     {
         var manifestText = """
@@ -288,10 +288,10 @@ public class SchemaTests
 
         var manifestJson = JsonNode.Parse(manifestText);
         var schema = GetSchema();
-        Assert.False(schema.Evaluate(manifestJson).IsValid);
+        Assert.IsFalse(schema.Evaluate(manifestJson).IsValid);
     }
 
-    [Fact]
+    [TestMethod]
     public void InvalidBicepResourceFailsValidationToProveItIsntBeingIgnored()
     {
         var manifestText = """
@@ -307,10 +307,10 @@ public class SchemaTests
 
         var manifestJson = JsonNode.Parse(manifestText);
         var schema = GetSchema();
-        Assert.False(schema.Evaluate(manifestJson).IsValid);
+        Assert.IsFalse(schema.Evaluate(manifestJson).IsValid);
     }
 
-    [Fact]
+    [TestMethod]
     public void ManifestWithContainerResourceAndNoEnvOrBindingsIsAccepted()
     {
         var manifestText = """
@@ -327,7 +327,7 @@ public class SchemaTests
         AssertValid(manifestText);
     }
 
-    [Fact]
+    [TestMethod]
     public void ManifestWithContainerV0ResourceAndBuildFieldIsRejected()
     {
         var manifestText = """
@@ -347,10 +347,10 @@ public class SchemaTests
 
         var manifestJson = JsonNode.Parse(manifestText);
         var schema = GetSchema();
-        Assert.False(schema.Evaluate(manifestJson).IsValid);
+        Assert.IsFalse(schema.Evaluate(manifestJson).IsValid);
     }
 
-    [Fact]
+    [TestMethod]
     public void ManifestWithContainerV1ResourceWithImageAndBuildFieldIsRejected()
     {
         var manifestText = """
@@ -370,10 +370,10 @@ public class SchemaTests
 
         var manifestJson = JsonNode.Parse(manifestText);
         var schema = GetSchema();
-        Assert.False(schema.Evaluate(manifestJson).IsValid);
+        Assert.IsFalse(schema.Evaluate(manifestJson).IsValid);
     }
 
-    [Fact]
+    [TestMethod]
     public void ManifestWithContainerV1ResourceAndBuildFieldIsAccepted()
     {
         var manifestText = """
@@ -393,7 +393,7 @@ public class SchemaTests
         AssertValid(manifestText);
     }
 
-    [Fact]
+    [TestMethod]
     public void ManifestWithDockerfileV0ResourceAndBuildFieldAndArgsIsAccepted()
     {
         var manifestText = """
@@ -414,7 +414,7 @@ public class SchemaTests
         AssertValid(manifestText);
     }
 
-    [Fact]
+    [TestMethod]
     public void ManifestWithContainerV1ResourceAndBuildFieldAndArgsIsAccepted()
     {
         var manifestText = """
@@ -437,7 +437,7 @@ public class SchemaTests
         AssertValid(manifestText);
     }
 
-    [Fact]
+    [TestMethod]
     public void ManifestWithContainerV1ResourceAndImageFieldIsAccepted()
     {
         var manifestText = """
@@ -454,7 +454,7 @@ public class SchemaTests
         AssertValid(manifestText);
     }
 
-    [Fact]
+    [TestMethod]
     public void ManifestWithProjectResourceAndNoEnvOrBindingsIsAccepted()
     {
         var manifestText = """
@@ -471,7 +471,7 @@ public class SchemaTests
         AssertValid(manifestText);
     }
 
-    [Fact]
+    [TestMethod]
     public void BicepManifestIsAccepted()
     {
         // The reason this large test is here is that when submitting the positive test cases to SchemaStore.org
@@ -713,7 +713,7 @@ public class SchemaTests
         AssertValid(manifestText);
     }
 
-    [Fact]
+    [TestMethod]
     public void BothDefaultGenerateAndValueAreMutuallyExclusive()
     {
         // Trying to us both 'generate' and 'value' in the same parameter should be rejected.
@@ -753,7 +753,7 @@ public class SchemaTests
         if (!results.IsValid)
         {
             var errorMessages = results.Details.Where(x => x.HasErrors).SelectMany(e => e.Errors!).Select(e => e.Value);
-            Assert.True(results.IsValid, string.Join(Environment.NewLine, errorMessages ?? ["Schema failed validation with no errors"]));
+            Assert.IsTrue(results.IsValid, string.Join(Environment.NewLine, errorMessages ?? ["Schema failed validation with no errors"]));
         }
     }
 
@@ -763,6 +763,6 @@ public class SchemaTests
         var schema = GetSchema();
         var results = schema.Evaluate(manifestJson);
 
-        Assert.False(results.IsValid);
+        Assert.IsFalse(results.IsValid);
     }
 }

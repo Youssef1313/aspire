@@ -5,20 +5,20 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Microsoft.Azure.Cosmos.Tests;
 
+[TestClass]
 public class AspireMicrosoftAzureCosmosExtensionsTests
 {
-    [Theory]
-    [InlineData("AccountEndpoint=https://localhost:8081;AccountKey=fake;", "https://localhost:8081/")]
-    [InlineData("AccountEndpoint=https://localhost:8081;Database=db;", "https://localhost:8081/")]
-    [InlineData("AccountEndpoint=https://localhost:8081;Database=db;Container=mycontainer;", "https://localhost:8081/")]
-    [InlineData("AccountEndpoint=https://localhost:8081;AccountKey=fake;Database=db", "https://localhost:8081/")]
-    [InlineData("AccountEndpoint=https://localhost:8081;AccountKey=fake;Database=db;DisableServerCertificateValidation=True", "https://localhost:8081/")]
-    [InlineData("AccountEndpoint=https://localhost:8081;AccountKey=fake;Database=db;Container=mycontainer", "https://localhost:8081/")]
-    [InlineData("https://example1.documents.azure.com:443", "https://example1.documents.azure.com/")]
+    [TestMethod]
+    [DataRow("AccountEndpoint=https://localhost:8081;AccountKey=fake;", "https://localhost:8081/")]
+    [DataRow("AccountEndpoint=https://localhost:8081;Database=db;", "https://localhost:8081/")]
+    [DataRow("AccountEndpoint=https://localhost:8081;Database=db;Container=mycontainer;", "https://localhost:8081/")]
+    [DataRow("AccountEndpoint=https://localhost:8081;AccountKey=fake;Database=db", "https://localhost:8081/")]
+    [DataRow("AccountEndpoint=https://localhost:8081;AccountKey=fake;Database=db;DisableServerCertificateValidation=True", "https://localhost:8081/")]
+    [DataRow("AccountEndpoint=https://localhost:8081;AccountKey=fake;Database=db;Container=mycontainer", "https://localhost:8081/")]
+    [DataRow("https://example1.documents.azure.com:443", "https://example1.documents.azure.com/")]
     public void AddAzureCosmosClient_EnsuresConnectionStringIsCorrect(string connectionString, string expectedEndpoint)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -30,10 +30,10 @@ public class AspireMicrosoftAzureCosmosExtensionsTests
         using var host = builder.Build();
         var client = host.Services.GetRequiredService<CosmosClient>();
 
-        Assert.Equal(expectedEndpoint, client.Endpoint.ToString());
+        Assert.AreEqual(expectedEndpoint, client.Endpoint.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureCosmosClient_FailsWithError()
     {
         var e = Assert.Throws<ArgumentException>(() =>

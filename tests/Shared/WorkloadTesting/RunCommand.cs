@@ -7,7 +7,7 @@ namespace Aspire.Workload.Tests;
 
 public class RunCommand : DotNetCommand
 {
-    public RunCommand(ITestOutputHelper _testOutput, BuildEnvironment? buildEnv = null, string label="") : base(_testOutput, false, buildEnv, label)
+    public RunCommand(TestContext _testOutput, BuildEnvironment? buildEnv = null, string label="") : base(_testOutput, false, buildEnv, label)
     {
         WithEnvironmentVariables(_buildEnvironment.EnvVars);
         WithEnvironmentVariable("DOTNET_ROOT", Path.GetDirectoryName(_buildEnvironment.DotNet)!);

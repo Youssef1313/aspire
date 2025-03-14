@@ -8,16 +8,17 @@ using Microsoft.Extensions.Hosting;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Xunit;
-using Xunit.Abstractions;
 using Polly;
 using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Aspire.Hosting.MongoDB.Tests;
 
-public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class MongoDbFunctionalTests
 {
+    public TestContext TestContext { get; set; }
+
     private const string CollectionName = "movie_collection";
 
     private static readonly Movie[] s_movies =
@@ -28,12 +29,12 @@ public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
             new() { Name = "Schindler's List"},
         ];
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWaitForOnMongoBlocksDependentResources()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>
@@ -65,7 +66,7 @@ public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyMongoDBResource()
     {
@@ -74,7 +75,7 @@ public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
             .AddRetry(new() { MaxRetryAttempts = 10, Delay = TimeSpan.FromSeconds(1) })
             .Build();
 
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var mongodb = builder.AddMongoDB("mongodb");
         var db = mongodb.AddDatabase("testdb");
@@ -100,11 +101,11 @@ public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
         }, cts.Token);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
-    [ActiveIssue("https://github.com/dotnet/aspire/issues/7293")]
+    // [ActiveIssue("https://github.com/dotnet/aspire/issues/7293")]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
         var dbName = "testdb";
@@ -118,7 +119,7 @@ public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var mongodb1 = builder1.AddMongoDB("mongodb");
             var password = mongodb1.Resource.PasswordParameter!.Value;
             var db1 = mongodb1.AddDatabase(dbName);
@@ -169,7 +170,7 @@ public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var passwordParameter2 = builder2.AddParameter("pwd", password);
 
             var mongodb2 = builder2.AddMongoDB("mongodb", password: passwordParameter2);
@@ -209,7 +210,7 @@ public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
 
                             var results = await collection.Find(new BsonDocument()).ToListAsync(token);
 
-                            Assert.Collection(results,
+                            Assert.That.Collection(results,
                                             item => Assert.Contains("The Shawshank Redemption", item.Name),
                                             item => Assert.Contains("The Godfather", item.Name),
                                             item => Assert.Contains("The Dark Knight", item.Name),
@@ -246,9 +247,9 @@ public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
-    [ActiveIssue("https://github.com/dotnet/aspire/issues/5937")]
+    // [ActiveIssue("https://github.com/dotnet/aspire/issues/5937")]
     public async Task VerifyWithInitBindMount()
     {
         // Creates a script that should be executed when the container is initialized.
@@ -257,7 +258,7 @@ public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
 
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(6));
         var pipeline = new ResiliencePipelineBuilder()
-            .AddRetry(new() { MaxRetryAttempts = 10, BackoffType = DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(2) })
+            .AddRetry(new() { MaxRetryAttempts = 10, BackoffType = Polly.DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(2) })
             .Build();
 
         var bindMountPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
@@ -291,7 +292,7 @@ public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
                 File.SetUnixFileMode(initFilePath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
             }
 
-            using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
             var mongodb = builder.AddMongoDB("mongodb")
                 .WithInitBindMount(bindMountPath);
@@ -321,7 +322,7 @@ public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
 
                 var results = await collection.Find(new BsonDocument()).ToListAsync(token);
 
-                Assert.Collection(results,
+                Assert.That.Collection(results,
                                 item => Assert.Contains("The Shawshank Redemption", item.Name),
                                 item => Assert.Contains("The Godfather", item.Name),
                                 item => Assert.Contains("The Dark Knight", item.Name),
@@ -350,7 +351,7 @@ public class MongoDbFunctionalTests(ITestOutputHelper testOutputHelper)
 
         var results = await collection.Find(new BsonDocument()).ToListAsync(token);
 
-        Assert.Collection(results,
+        Assert.That.Collection(results,
                         item => Assert.Contains("The Shawshank Redemption", item.Name),
                         item => Assert.Contains("The Godfather", item.Name),
                         item => Assert.Contains("The Dark Knight", item.Name),

@@ -8,10 +8,10 @@ using Microsoft.DotNet.RemoteExecutor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Security.KeyVault.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<SecretClient, AzureSecurityKeyVaultSettings>
 {
     // Roles: Key Vault Secrets User
@@ -102,11 +102,11 @@ public class ConformanceTests : ConformanceTests<SecretClient, AzureSecurityKeyV
     protected override void TriggerActivity(SecretClient service)
         => service.GetSecret("IsAlive");
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: null)).Dispose();
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource_Keyed()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: "key")).Dispose();
 

@@ -3,13 +3,13 @@
 
 using Aspire.Hosting.Tests.Utils;
 using Microsoft.AspNetCore.InternalTesting;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class ExpressionResolverTests
 {
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(ResolveInternalAsync_ResolvesCorrectly_MemberData))]
     public async Task ResolveInternalAsync_ResolvesCorrectly(ExpressionResolverTestData testData, Type? exceptionType, (string Value, bool IsSensitive)? expectedValue)
     {
@@ -21,8 +21,8 @@ public class ExpressionResolverTests
         {
             var resolvedValue = await ExpressionResolver.ResolveAsync(testData.SourceIsContainer, testData.ValueProvider, string.Empty, CancellationToken.None);
 
-            Assert.Equal(expectedValue?.Value, resolvedValue.Value);
-            Assert.Equal(expectedValue?.IsSensitive, resolvedValue.IsSensitive);
+            Assert.AreEqual(expectedValue?.Value, resolvedValue.Value);
+            Assert.AreEqual(expectedValue?.IsSensitive, resolvedValue.IsSensitive);
         }
 
         async Task<ResolvedValue> ResolveAsync() => await ExpressionResolver.ResolveAsync(testData.SourceIsContainer, testData.ValueProvider, string.Empty, CancellationToken.None);
@@ -52,27 +52,27 @@ public class ExpressionResolverTests
 
     public record ExpressionResolverTestData(bool SourceIsContainer, IValueProvider ValueProvider);
 
-    [Theory]
-    [InlineData("TwoFullEndpoints", false, false, "Test1=http://127.0.0.1:12345/;Test2=https://localhost:12346/;")]
-    [InlineData("TwoFullEndpoints", false, true, "Test1=http://127.0.0.1:12345/;Test2=https://localhost:12346/;")]
-    [InlineData("TwoFullEndpoints", true, false, "Test1=http://ContainerHostName:12345/;Test2=https://ContainerHostName:12346/;")]
-    [InlineData("TwoFullEndpoints", true, true, "Test1=http://testresource:10000/;Test2=https://testresource:10001/;")]
-    [InlineData("Url", false, false, "Url=http://localhost:12345;")]
-    [InlineData("Url", false, true, "Url=http://localhost:12345;")]
-    [InlineData("Url", true, false, "Url=http://ContainerHostName:12345;")]
-    [InlineData("Url", true, true, "Url=http://testresource:10000;")]
-    [InlineData("Url2", true, false, "Url=http://ContainerHostName:12345;")]
-    [InlineData("Url2", true, true, "Url=http://testresource:10000;")]
-    [InlineData("OnlyHost", true, false, "Host=ContainerHostName;")]
-    [InlineData("OnlyHost", true, true, "Host=localhost;")] // host not replaced since no port
-    [InlineData("OnlyPort", true, false, "Port=12345;")]
-    [InlineData("OnlyPort", true, true, "Port=12345;")] // port not replaced since no host
-    [InlineData("HostAndPort", true, false, "HostPort=ContainerHostName:12345")]
-    [InlineData("HostAndPort", true, true, "HostPort=testresource:10000")] // host not replaced since no port
-    [InlineData("PortBeforeHost", true, false, "Port=12345;Host=ContainerHostName;")]
-    [InlineData("PortBeforeHost", true, true, "Port=10000;Host=testresource;")]
-    [InlineData("FullAndPartial", true, false, "Test1=http://ContainerHostName:12345/;Test2=https://localhost:12346/;")]
-    [InlineData("FullAndPartial", true, true, "Test1=http://testresource:10000/;Test2=https://localhost:12346/;")] // Second port not replaced since host is hard coded
+    [TestMethod]
+    [DataRow("TwoFullEndpoints", false, false, "Test1=http://127.0.0.1:12345/;Test2=https://localhost:12346/;")]
+    [DataRow("TwoFullEndpoints", false, true, "Test1=http://127.0.0.1:12345/;Test2=https://localhost:12346/;")]
+    [DataRow("TwoFullEndpoints", true, false, "Test1=http://ContainerHostName:12345/;Test2=https://ContainerHostName:12346/;")]
+    [DataRow("TwoFullEndpoints", true, true, "Test1=http://testresource:10000/;Test2=https://testresource:10001/;")]
+    [DataRow("Url", false, false, "Url=http://localhost:12345;")]
+    [DataRow("Url", false, true, "Url=http://localhost:12345;")]
+    [DataRow("Url", true, false, "Url=http://ContainerHostName:12345;")]
+    [DataRow("Url", true, true, "Url=http://testresource:10000;")]
+    [DataRow("Url2", true, false, "Url=http://ContainerHostName:12345;")]
+    [DataRow("Url2", true, true, "Url=http://testresource:10000;")]
+    [DataRow("OnlyHost", true, false, "Host=ContainerHostName;")]
+    [DataRow("OnlyHost", true, true, "Host=localhost;")] // host not replaced since no port
+    [DataRow("OnlyPort", true, false, "Port=12345;")]
+    [DataRow("OnlyPort", true, true, "Port=12345;")] // port not replaced since no host
+    [DataRow("HostAndPort", true, false, "HostPort=ContainerHostName:12345")]
+    [DataRow("HostAndPort", true, true, "HostPort=testresource:10000")] // host not replaced since no port
+    [DataRow("PortBeforeHost", true, false, "Port=12345;Host=ContainerHostName;")]
+    [DataRow("PortBeforeHost", true, true, "Port=10000;Host=testresource;")]
+    [DataRow("FullAndPartial", true, false, "Test1=http://ContainerHostName:12345/;Test2=https://localhost:12346/;")]
+    [DataRow("FullAndPartial", true, true, "Test1=http://testresource:10000/;Test2=https://localhost:12346/;")] // Second port not replaced since host is hard coded
     public async Task ExpressionResolverGeneratesCorrectEndpointStrings(string exprName, bool sourceIsContainer, bool targetIsContainer, string expectedConnectionString)
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -97,7 +97,7 @@ public class ExpressionResolverTests
         // First test ExpressionResolver directly
         var csRef = new ConnectionStringReference(target.Resource, false);
         var connectionString = await ExpressionResolver.ResolveAsync(sourceIsContainer, csRef, "ContainerHostName", CancellationToken.None).DefaultTimeout();
-        Assert.Equal(expectedConnectionString, connectionString.Value);
+        Assert.AreEqual(expectedConnectionString, connectionString.Value);
 
         // Then test it indirectly with a resource reference, which exercises a more complete code path
         var source = builder.AddResource(new ContainerResource("testSource"))
@@ -108,22 +108,22 @@ public class ExpressionResolverTests
         }
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(source.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance, "ContainerHostName").DefaultTimeout();
-        Assert.Equal(expectedConnectionString, config["ConnectionStrings__testresource"]);
+        Assert.AreEqual(expectedConnectionString, config["ConnectionStrings__testresource"]);
     }
 
-    [Theory]
-    [InlineData(false, "http://localhost:18889", "http://localhost:18889")]
-    [InlineData(true, "http://localhost:18889", "http://ContainerHostName:18889")]
-    [InlineData(false, "http://127.0.0.1:18889", "http://127.0.0.1:18889")]
-    [InlineData(true, "http://127.0.0.1:18889", "http://ContainerHostName:18889")]
-    [InlineData(false, "http://[::1]:18889", "http://[::1]:18889")]
-    [InlineData(true, "http://[::1]:18889", "http://ContainerHostName:18889")]
-    [InlineData(false, "Server=localhost,1433;User ID=sa;Password=xxx;Database=yyy", "Server=localhost,1433;User ID=sa;Password=xxx;Database=yyy")]
-    [InlineData(true, "Server=localhost,1433;User ID=sa;Password=xxx;Database=yyy", "Server=ContainerHostName,1433;User ID=sa;Password=xxx;Database=yyy")]
-    [InlineData(false, "Server=127.0.0.1,1433;User ID=sa;Password=xxx;Database=yyy", "Server=127.0.0.1,1433;User ID=sa;Password=xxx;Database=yyy")]
-    [InlineData(true, "Server=127.0.0.1,1433;User ID=sa;Password=xxx;Database=yyy", "Server=ContainerHostName,1433;User ID=sa;Password=xxx;Database=yyy")]
-    [InlineData(false, "Server=[::1],1433;User ID=sa;Password=xxx;Database=yyy", "Server=[::1],1433;User ID=sa;Password=xxx;Database=yyy")]
-    [InlineData(true, "Server=[::1],1433;User ID=sa;Password=xxx;Database=yyy", "Server=ContainerHostName,1433;User ID=sa;Password=xxx;Database=yyy")]
+    [TestMethod]
+    [DataRow(false, "http://localhost:18889", "http://localhost:18889")]
+    [DataRow(true, "http://localhost:18889", "http://ContainerHostName:18889")]
+    [DataRow(false, "http://127.0.0.1:18889", "http://127.0.0.1:18889")]
+    [DataRow(true, "http://127.0.0.1:18889", "http://ContainerHostName:18889")]
+    [DataRow(false, "http://[::1]:18889", "http://[::1]:18889")]
+    [DataRow(true, "http://[::1]:18889", "http://ContainerHostName:18889")]
+    [DataRow(false, "Server=localhost,1433;User ID=sa;Password=xxx;Database=yyy", "Server=localhost,1433;User ID=sa;Password=xxx;Database=yyy")]
+    [DataRow(true, "Server=localhost,1433;User ID=sa;Password=xxx;Database=yyy", "Server=ContainerHostName,1433;User ID=sa;Password=xxx;Database=yyy")]
+    [DataRow(false, "Server=127.0.0.1,1433;User ID=sa;Password=xxx;Database=yyy", "Server=127.0.0.1,1433;User ID=sa;Password=xxx;Database=yyy")]
+    [DataRow(true, "Server=127.0.0.1,1433;User ID=sa;Password=xxx;Database=yyy", "Server=ContainerHostName,1433;User ID=sa;Password=xxx;Database=yyy")]
+    [DataRow(false, "Server=[::1],1433;User ID=sa;Password=xxx;Database=yyy", "Server=[::1],1433;User ID=sa;Password=xxx;Database=yyy")]
+    [DataRow(true, "Server=[::1],1433;User ID=sa;Password=xxx;Database=yyy", "Server=ContainerHostName,1433;User ID=sa;Password=xxx;Database=yyy")]
     public async Task HostUrlPropertyGetsResolved(bool container, string hostUrlVal, string expectedValue)
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -140,12 +140,12 @@ public class ExpressionResolverTests
         }
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(test.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance, "ContainerHostName").DefaultTimeout();
-        Assert.Equal(expectedValue, config["envname"]);
+        Assert.AreEqual(expectedValue, config["envname"]);
     }
 
-    [Theory]
-    [InlineData(false, "http://localhost:18889")]
-    [InlineData(true, "http://ContainerHostName:18889")]
+    [TestMethod]
+    [DataRow(false, "http://localhost:18889")]
+    [DataRow(true, "http://ContainerHostName:18889")]
     public async Task HostUrlPropertyGetsResolvedInOtlpExporterEndpoint(bool container, string expectedValue)
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -159,7 +159,7 @@ public class ExpressionResolverTests
         }
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(test.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance, "ContainerHostName").DefaultTimeout();
-        Assert.Equal(expectedValue, config["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+        Assert.AreEqual(expectedValue, config["OTEL_EXPORTER_OTLP_ENDPOINT"]);
     }
 }
 

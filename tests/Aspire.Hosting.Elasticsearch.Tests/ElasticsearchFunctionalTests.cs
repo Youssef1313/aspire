@@ -9,13 +9,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Polly;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Elasticsearch.Tests;
 
-public class ElasticsearchFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class ElasticsearchFunctionalTests
 {
+    public TestContext TestContext { get; set; }
+
     private const string IndexName = "people";
     private static readonly Person s_person = new()
     {
@@ -24,9 +25,9 @@ public class ElasticsearchFunctionalTests(ITestOutputHelper testOutputHelper)
         LastName = "Baloochi"
     };
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
-    [ActiveIssue("https://github.com/dotnet/aspire/issues/5821")]
+    // [ActiveIssue("https://github.com/dotnet/aspire/issues/5821")]
     public async Task VerifyElasticsearchResource()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
@@ -34,7 +35,7 @@ public class ElasticsearchFunctionalTests(ITestOutputHelper testOutputHelper)
            .AddRetry(new() { MaxRetryAttempts = 10, Delay = TimeSpan.FromSeconds(10) })
            .Build();
 
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var elasticsearch = builder.AddElasticsearch("elasticsearch");
 
@@ -61,15 +62,15 @@ public class ElasticsearchFunctionalTests(ITestOutputHelper testOutputHelper)
 
                 var elasticsearchClient = host.Services.GetRequiredService<ElasticsearchClient>();
 
-                await CreateTestData(elasticsearchClient, testOutputHelper, token);
+                await CreateTestData(elasticsearchClient, TestContext, token);
             }, cts.Token);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
-    [ActiveIssue("https://github.com/dotnet/aspire/issues/7276")]
+    // [ActiveIssue("https://github.com/dotnet/aspire/issues/7276")]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
@@ -82,7 +83,7 @@ public class ElasticsearchFunctionalTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
             var elasticsearch1 = builder1.AddElasticsearch("elasticsearch");
 
@@ -125,7 +126,7 @@ public class ElasticsearchFunctionalTests(ITestOutputHelper testOutputHelper)
                             async token =>
                             {
                                 var elasticsearchClient = host.Services.GetRequiredService<ElasticsearchClient>();
-                                await CreateTestData(elasticsearchClient, testOutputHelper, token);
+                                await CreateTestData(elasticsearchClient, TestContext, token);
                             }, cts.Token);
 
                         await app.StopAsync();
@@ -136,7 +137,7 @@ public class ElasticsearchFunctionalTests(ITestOutputHelper testOutputHelper)
                             {
                                 var elasticsearchClient = host.Services.GetRequiredService<ElasticsearchClient>();
                                 var getResponse = await elasticsearchClient.GetAsync<Person>(IndexName, s_person.Id, token);
-                                Assert.False(getResponse.IsSuccess());
+                                Assert.IsFalse(getResponse.IsSuccess());
                             }, cts.Token);
                     }
                 }
@@ -147,7 +148,7 @@ public class ElasticsearchFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var passwordParameter2 = builder2.AddParameter("pwd", password);
             var elasticsearch2 = builder2.AddElasticsearch("elasticsearch", passwordParameter2);
 
@@ -184,9 +185,9 @@ public class ElasticsearchFunctionalTests(ITestOutputHelper testOutputHelper)
 
                                 var getResponse = await elasticsearchClient.GetAsync<Person>(IndexName, s_person.Id, token);
 
-                                Assert.True(getResponse.IsSuccess());
-                                Assert.NotNull(getResponse.Source);
-                                Assert.Equal(s_person.Id, getResponse.Source?.Id);
+                                Assert.IsTrue(getResponse.IsSuccess());
+                                Assert.IsNotNull(getResponse.Source);
+                                Assert.AreEqual(s_person.Id, getResponse.Source?.Id);
                             }, cts.Token);
 
                         await app.StopAsync();
@@ -197,7 +198,7 @@ public class ElasticsearchFunctionalTests(ITestOutputHelper testOutputHelper)
                             {
                                 var elasticsearchClient = host.Services.GetRequiredService<ElasticsearchClient>();
                                 var getResponse = await elasticsearchClient.GetAsync<Person>(IndexName, s_person.Id, token);
-                                Assert.False(getResponse.IsSuccess());
+                                Assert.IsFalse(getResponse.IsSuccess());
                             }, cts.Token);
                     }
                 }
@@ -230,13 +231,13 @@ public class ElasticsearchFunctionalTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
-    [ActiveIssue("https://github.com/dotnet/aspire/issues/5844")]
+    // [ActiveIssue("https://github.com/dotnet/aspire/issues/5844")]
     public async Task VerifyWaitForOnElasticsearchBlocksDependentResources()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>
@@ -269,19 +270,19 @@ public class ElasticsearchFunctionalTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    private static async Task CreateTestData(ElasticsearchClient elasticsearchClient, ITestOutputHelper testOutputHelper, CancellationToken cancellationToken)
+    private static async Task CreateTestData(ElasticsearchClient elasticsearchClient, TestContext testContext, CancellationToken cancellationToken)
     {
         var indexResponse = await elasticsearchClient.IndexAsync<Person>(s_person, IndexName, s_person.Id, cancellationToken);
 
         var getResponse = await elasticsearchClient.GetAsync<Person>(IndexName, s_person.Id, cancellationToken);
 
-        testOutputHelper.WriteLine(indexResponse.DebugInformation);
-        testOutputHelper.WriteLine(getResponse.DebugInformation);
+        testContext.WriteLine(indexResponse.DebugInformation);
+        testContext.WriteLine(getResponse.DebugInformation);
 
-        Assert.True(indexResponse.IsSuccess());
-        Assert.True(getResponse.IsSuccess());
-        Assert.NotNull(getResponse.Source);
-        Assert.Equal(s_person.Id, getResponse.Source?.Id);
+        Assert.IsTrue(indexResponse.IsSuccess());
+        Assert.IsTrue(getResponse.IsSuccess());
+        Assert.IsNotNull(getResponse.Source);
+        Assert.AreEqual(s_person.Id, getResponse.Source?.Id);
     }
 
     private sealed class Person

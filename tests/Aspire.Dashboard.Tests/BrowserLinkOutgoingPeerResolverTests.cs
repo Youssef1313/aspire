@@ -2,113 +2,113 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Dashboard.Model;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests;
 
+[TestClass]
 public class BrowserLinkOutgoingPeerResolverTests
 {
-    [Fact]
+    [TestMethod]
     public void EmptyAttributes_NoMatch()
     {
         // Arrange
         var resolver = new BrowserLinkOutgoingPeerResolver();
 
         // Act & Assert
-        Assert.False(TryResolvePeerName(resolver, [], out _));
+        Assert.IsFalse(TryResolvePeerName(resolver, [], out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void EmptyUrlAttribute_NoMatch()
     {
         // Arrange
         var resolver = new BrowserLinkOutgoingPeerResolver();
 
         // Act & Assert
-        Assert.False(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "")], out _));
+        Assert.IsFalse(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "")], out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void NullUrlAttribute_NoMatch()
     {
         // Arrange
         var resolver = new BrowserLinkOutgoingPeerResolver();
 
         // Act & Assert
-        Assert.False(TryResolvePeerName(resolver, [KeyValuePair.Create<string, string>("http.url", null!)], out _));
+        Assert.IsFalse(TryResolvePeerName(resolver, [KeyValuePair.Create<string, string>("http.url", null!)], out _));
     }
 
     // http://localhost:59267/6eed7c2dedc14419901b813e8fe87a86/getScriptTag
 
-    [Fact]
+    [TestMethod]
     public void RelativeUrlAttribute_NoMatch()
     {
         // Arrange
         var resolver = new BrowserLinkOutgoingPeerResolver();
 
         // Act & Assert
-        Assert.False(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "/6eed7c2dedc14419901b813e8fe87a86/getScriptTag")], out _));
+        Assert.IsFalse(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "/6eed7c2dedc14419901b813e8fe87a86/getScriptTag")], out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void NonLocalHostUrlAttribute_NoMatch()
     {
         // Arrange
         var resolver = new BrowserLinkOutgoingPeerResolver();
 
         // Act & Assert
-        Assert.False(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "http://dummy:59267/6eed7c2dedc14419901b813e8fe87a86/getScriptTag")], out _));
+        Assert.IsFalse(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "http://dummy:59267/6eed7c2dedc14419901b813e8fe87a86/getScriptTag")], out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void NoPathGuidUrlAttribute_NoMatch()
     {
         // Arrange
         var resolver = new BrowserLinkOutgoingPeerResolver();
 
         // Act & Assert
-        Assert.False(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "http://localhost:59267/getScriptTag")], out _));
+        Assert.IsFalse(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "http://localhost:59267/getScriptTag")], out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void InvalidUrlAttribute_NoMatch()
     {
         // Arrange
         var resolver = new BrowserLinkOutgoingPeerResolver();
 
         // Act & Assert
-        Assert.False(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "ht$tp://localhost:59267/6eed7c2dedc14419901b813e8fe87a86/getScriptTag")], out _));
+        Assert.IsFalse(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "ht$tp://localhost:59267/6eed7c2dedc14419901b813e8fe87a86/getScriptTag")], out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void NoPathUrlAttribute_Match()
     {
         // Arrange
         var resolver = new BrowserLinkOutgoingPeerResolver();
 
         // Act & Assert
-        Assert.False(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "http://localhost:59267/")], out _));
+        Assert.IsFalse(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "http://localhost:59267/")], out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void GuidPathUrlAttribute_NoMatch()
     {
         // Arrange
         var resolver = new BrowserLinkOutgoingPeerResolver();
 
         // Act & Assert
-        Assert.False(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "http://localhost:59267/not-a-guid/getScriptTag")], out _));
+        Assert.IsFalse(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "http://localhost:59267/not-a-guid/getScriptTag")], out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void LocalHostAndPathUrlAttribute_Match()
     {
         // Arrange
         var resolver = new BrowserLinkOutgoingPeerResolver();
 
         // Act & Assert
-        Assert.True(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "http://localhost:59267/6eed7c2dedc14419901b813e8fe87a86/getScriptTag")], out var name));
-        Assert.Equal("Browser Link", name);
+        Assert.IsTrue(TryResolvePeerName(resolver, [KeyValuePair.Create("http.url", "http://localhost:59267/6eed7c2dedc14419901b813e8fe87a86/getScriptTag")], out var name));
+        Assert.AreEqual("Browser Link", name);
     }
 
     private static bool TryResolvePeerName(IOutgoingPeerResolver resolver, KeyValuePair<string, string>[] attributes, out string? peerName)

@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Hosting.Tests.Schema;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests;
 
+[TestClass]
 public class AzureSchemaTests
 {
-    [Fact]
+    [TestMethod]
     public void ValidateApplicationSamples()
     {
         var schemaTests = new SchemaTests();

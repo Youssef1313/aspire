@@ -5,17 +5,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
-using Xunit;
 
 namespace Aspire.Npgsql.Tests;
 
+[TestClass]
 public class AspirePostgreSqlNpgsqlExtensionsTests
 {
     private const string ConnectionString = "Host=localhost;Database=test_aspire_npgsql";
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -37,12 +37,12 @@ public class AspirePostgreSqlNpgsqlExtensionsTests
             host.Services.GetRequiredKeyedService<NpgsqlDataSource>("npgsql") :
             host.Services.GetRequiredService<NpgsqlDataSource>();
 
-        Assert.Equal(ConnectionString, dataSource.ConnectionString);
+        Assert.AreEqual(ConnectionString, dataSource.ConnectionString);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -65,14 +65,14 @@ public class AspirePostgreSqlNpgsqlExtensionsTests
             host.Services.GetRequiredKeyedService<NpgsqlDataSource>("npgsql") :
             host.Services.GetRequiredService<NpgsqlDataSource>();
 
-        Assert.Equal(ConnectionString, dataSource.ConnectionString);
+        Assert.AreEqual(ConnectionString, dataSource.ConnectionString);
         // the connection string from config should not be used since code set it explicitly
         Assert.DoesNotContain("unused", dataSource.ConnectionString);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -97,14 +97,14 @@ public class AspirePostgreSqlNpgsqlExtensionsTests
             host.Services.GetRequiredKeyedService<NpgsqlDataSource>("npgsql") :
             host.Services.GetRequiredService<NpgsqlDataSource>();
 
-        Assert.Equal(ConnectionString, dataSource.ConnectionString);
+        Assert.AreEqual(ConnectionString, dataSource.ConnectionString);
         // the connection string from config should not be used since it was found in ConnectionStrings
         Assert.DoesNotContain("unused", dataSource.ConnectionString);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CustomDataSourceBuilderIsExecuted(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -129,10 +129,10 @@ public class AspirePostgreSqlNpgsqlExtensionsTests
             host.Services.GetRequiredKeyedService<NpgsqlDataSource>("npgsql") :
             host.Services.GetRequiredService<NpgsqlDataSource>();
 
-        Assert.True(wasCalled);
+        Assert.IsTrue(wasCalled);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -152,9 +152,9 @@ public class AspirePostgreSqlNpgsqlExtensionsTests
         var connection2 = host.Services.GetRequiredKeyedService<NpgsqlDataSource>("npgsql2");
         var connection3 = host.Services.GetRequiredKeyedService<NpgsqlDataSource>("npgsql3");
 
-        Assert.NotSame(connection1, connection2);
-        Assert.NotSame(connection1, connection3);
-        Assert.NotSame(connection2, connection3);
+        Assert.AreNotSame(connection1, connection2);
+        Assert.AreNotSame(connection1, connection3);
+        Assert.AreNotSame(connection2, connection3);
 
         Assert.Contains("localhost1", connection1.ConnectionString);
         Assert.Contains("localhost2", connection2.ConnectionString);

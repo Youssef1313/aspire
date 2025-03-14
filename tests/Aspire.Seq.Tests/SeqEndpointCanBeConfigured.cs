@@ -1,16 +1,16 @@
-﻿
+
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Exporter;
-using Xunit;
 
 namespace Aspire.Seq.Tests;
 
+[TestClass]
 public class SeqTests
 {
-    [Fact]
+    [TestMethod]
     public void SeqEndpointCanBeConfigured()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -24,7 +24,7 @@ public class SeqTests
         using var host = builder.Build();
     }
 
-    [Fact]
+    [TestMethod]
     public void ServerUrlSettingOverridesExporterEndpoints()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -41,11 +41,11 @@ public class SeqTests
             s.Traces.Endpoint = new Uri("http://localhost:1234/ingest/otlp/v1/traces");
         });
 
-        Assert.Equal(settings.Logs.Endpoint, new Uri("http://localhost:9876/ingest/otlp/v1/logs"));
-        Assert.Equal(settings.Traces.Endpoint, new Uri("http://localhost:9876/ingest/otlp/v1/traces"));
+        Assert.AreEqual(settings.Logs.Endpoint, new Uri("http://localhost:9876/ingest/otlp/v1/logs"));
+        Assert.AreEqual(settings.Traces.Endpoint, new Uri("http://localhost:9876/ingest/otlp/v1/traces"));
     }
 
-    [Fact]
+    [TestMethod]
     public void ApiKeySettingIsMergedWithConfiguredHeaders()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -61,7 +61,7 @@ public class SeqTests
             s.Traces.Headers = "quality=good,speed=fast";
         });
 
-        Assert.Equal("speed=fast,quality=good,X-Seq-ApiKey=TestKey123!", settings.Logs.Headers);
-        Assert.Equal("quality=good,speed=fast,X-Seq-ApiKey=TestKey123!", settings.Traces.Headers);
+        Assert.AreEqual("speed=fast,quality=good,X-Seq-ApiKey=TestKey123!", settings.Logs.Headers);
+        Assert.AreEqual("quality=good,speed=fast,X-Seq-ApiKey=TestKey123!", settings.Traces.Headers);
     }
 }

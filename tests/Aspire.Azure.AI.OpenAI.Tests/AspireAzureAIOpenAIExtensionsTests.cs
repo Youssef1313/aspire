@@ -9,10 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using OpenAI;
-using Xunit;
 
 namespace Aspire.Azure.AI.OpenAI.Tests;
 
+[TestClass]
 public class AspireAzureAIOpenAIExtensionsTests
 {
     private const string ConnectionString = "Endpoint=https://aspireopenaitests.openai.azure.com/;Key=fake";
@@ -21,9 +21,9 @@ public class AspireAzureAIOpenAIExtensionsTests
     /// Azure OpenAI registers both <see cref="AzureOpenAIClient"/> and <see cref="OpenAIClient"/> services.
     /// This way consumers can use either service type to resolve the client.
     /// </summary>
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void RegistersBothServiceTypes(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -49,12 +49,12 @@ public class AspireAzureAIOpenAIExtensionsTests
             host.Services.GetRequiredKeyedService<OpenAIClient>("openai") :
             host.Services.GetRequiredService<OpenAIClient>();
 
-        Assert.Same(azureClient, unbrandedClient);
+        Assert.AreSame(azureClient, unbrandedClient);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -76,12 +76,12 @@ public class AspireAzureAIOpenAIExtensionsTests
             host.Services.GetRequiredKeyedService<AzureOpenAIClient>("openai") :
             host.Services.GetRequiredService<AzureOpenAIClient>();
 
-        Assert.NotNull(client);
+        Assert.IsNotNull(client);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var uri = new Uri("https://aspireopenaitests.openai.azure.com/");
@@ -102,14 +102,14 @@ public class AspireAzureAIOpenAIExtensionsTests
             host.Services.GetRequiredKeyedService<AzureOpenAIClient>("openai") :
             host.Services.GetRequiredService<AzureOpenAIClient>();
 
-        Assert.NotNull(client);
+        Assert.IsNotNull(client);
     }
 
-    [Theory]
-    [InlineData("https://yourservice.openai.azure.com/")]
-    [InlineData("http://domain:12345")]
-    [InlineData("Endpoint=http://domain.com:12345;Key=abc123")]
-    [InlineData("Endpoint=http://domain.com:12345")]
+    [TestMethod]
+    [DataRow("https://yourservice.openai.azure.com/")]
+    [DataRow("http://domain:12345")]
+    [DataRow("Endpoint=http://domain.com:12345;Key=abc123")]
+    [DataRow("Endpoint=http://domain.com:12345")]
     public void ReadsFromConnectionStringsFormats(string connectionString)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -122,10 +122,10 @@ public class AspireAzureAIOpenAIExtensionsTests
         using var host = builder.Build();
         var client = host.Services.GetRequiredService<AzureOpenAIClient>();
 
-        Assert.NotNull(client);
+        Assert.IsNotNull(client);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -146,14 +146,14 @@ public class AspireAzureAIOpenAIExtensionsTests
         var client2 = host.Services.GetRequiredKeyedService<AzureOpenAIClient>("openai2");
         var client3 = host.Services.GetRequiredKeyedService<AzureOpenAIClient>("openai3");
 
-        //Assert.NotSame(client1, client2);
-        //Assert.NotSame(client1, client3);
-        Assert.NotSame(client2, client3);
+        //Assert.AreNotSame(client1, client2);
+        //Assert.AreNotSame(client1, client3);
+        Assert.AreNotSame(client2, client3);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void BindsOptionsAndInvokesCallback(bool useKeyed)
     {
         var networkTimeout = TimeSpan.FromSeconds(123);
@@ -190,8 +190,8 @@ public class AspireAzureAIOpenAIExtensionsTests
 
         var options = host.Services.GetRequiredService<IOptionsMonitor<AzureOpenAIClientOptions>>().Get(useKeyed ? "openai" : "Default");
 
-        Assert.NotNull(options);
-        Assert.Equal(applicationId, options.UserAgentApplicationId);
-        Assert.Equal(networkTimeout, options.NetworkTimeout);
+        Assert.IsNotNull(options);
+        Assert.AreEqual(applicationId, options.UserAgentApplicationId);
+        Assert.AreEqual(networkTimeout, options.NetworkTimeout);
     }
 }

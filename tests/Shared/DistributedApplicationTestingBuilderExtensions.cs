@@ -17,9 +17,9 @@ public static class DistributedApplicationTestingBuilderExtensions
     public static string GetVolumePrefix(this IDistributedApplicationTestingBuilder builder) =>
         $"{VolumeNameGenerator.Sanitize(builder.Environment.ApplicationName).ToLowerInvariant()}-{builder.Configuration["AppHost:Sha256"]!.ToLowerInvariant()[..10]}";
 
-    public static IDistributedApplicationTestingBuilder WithTestAndResourceLogging(this IDistributedApplicationTestingBuilder builder, ITestOutputHelper testOutputHelper)
+    public static IDistributedApplicationTestingBuilder WithTestAndResourceLogging(this IDistributedApplicationTestingBuilder builder, TestContext testContext)
     {
-        builder.Services.AddXunitLogging(testOutputHelper);
+        builder.Services.AddMSTestLogging(testContext);
         builder.Services.AddLogging(builder => builder.AddFilter("Aspire.Hosting", LogLevel.Trace));
         return builder;
     }

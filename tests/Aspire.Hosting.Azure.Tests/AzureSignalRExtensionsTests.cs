@@ -3,14 +3,14 @@
 
 using Aspire.Hosting.Utils;
 
-using Xunit;
-using Xunit.Abstractions;
-
 namespace Aspire.Hosting.Azure.Tests;
 
-public class AzureSignalRExtensionsTests(ITestOutputHelper output)
+[TestClass]
+public class AzureSignalRExtensionsTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     public async Task AddAzureSignalR()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -30,7 +30,7 @@ public class AzureSignalRExtensionsTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -78,11 +78,11 @@ public class AzureSignalRExtensionsTests(ITestOutputHelper output)
 
             output hostName string = signalr.properties.hostName
             """;
-        output.WriteLine(manifest.BicepText);
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        TestContext.WriteLine(manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddServerlessAzureSignalR()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -102,7 +102,7 @@ public class AzureSignalRExtensionsTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -160,7 +160,7 @@ public class AzureSignalRExtensionsTests(ITestOutputHelper output)
 
             output hostName string = signalr.properties.hostName
             """;
-        output.WriteLine(manifest.BicepText);
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        TestContext.WriteLine(manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 }

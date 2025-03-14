@@ -3,7 +3,6 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 using Yarp.ReverseProxy.Configuration;
 using System.Net;
 using DnsClient;
@@ -26,7 +25,7 @@ public class YarpServiceDiscoveryTests
             serviceProvider.GetRequiredService<IOptions<ServiceDiscoveryOptions>>());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ServiceDiscoveryDestinationResolverTests_PassThrough()
     {
         await using var services = new ServiceCollection()
@@ -45,12 +44,12 @@ public class YarpServiceDiscoveryTests
 
         var result = await yarpResolver.ResolveDestinationsAsync(destinationConfigs, CancellationToken.None);
 
-        Assert.Single(result.Destinations);
-        Assert.Collection(result.Destinations.Select(d => d.Value.Address),
-            a => Assert.Equal("https://my-svc/", a));
+        Assert.ContainsSingle(result.Destinations);
+        Assert.That.Collection(result.Destinations.Select(d => d.Value.Address),
+            a => Assert.AreEqual("https://my-svc/", a));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ServiceDiscoveryDestinationResolverTests_Configuration()
     {
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
@@ -76,12 +75,12 @@ public class YarpServiceDiscoveryTests
 
         var result = await yarpResolver.ResolveDestinationsAsync(destinationConfigs, CancellationToken.None);
 
-        Assert.Single(result.Destinations);
-        Assert.Collection(result.Destinations.Select(d => d.Value.Address),
-            a => Assert.Equal("https://localhost:8888/", a));
+        Assert.ContainsSingle(result.Destinations);
+        Assert.That.Collection(result.Destinations.Select(d => d.Value.Address),
+            a => Assert.AreEqual("https://localhost:8888/", a));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ServiceDiscoveryDestinationResolverTests_Configuration_NonPreferredScheme()
     {
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
@@ -106,14 +105,14 @@ public class YarpServiceDiscoveryTests
 
         var result = await yarpResolver.ResolveDestinationsAsync(destinationConfigs, CancellationToken.None);
 
-        Assert.Single(result.Destinations);
-        Assert.Collection(result.Destinations.Select(d => d.Value.Address),
-            a => Assert.Equal("http://localhost:1111/", a));
+        Assert.ContainsSingle(result.Destinations);
+        Assert.That.Collection(result.Destinations.Select(d => d.Value.Address),
+            a => Assert.AreEqual("http://localhost:1111/", a));
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public async Task ServiceDiscoveryDestinationResolverTests_Configuration_Host_Value(bool configHasHost)
     {
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
@@ -141,59 +140,59 @@ public class YarpServiceDiscoveryTests
 
         var result = await yarpResolver.ResolveDestinationsAsync(destinationConfigs, CancellationToken.None);
 
-        Assert.Equal(4, result.Destinations.Count);
-        Assert.Collection(result.Destinations.Values,
+        Assert.AreEqual(4, result.Destinations.Count);
+        Assert.That.Collection(result.Destinations.Values,
             a =>
             {
-                Assert.Equal("https://localhost:1111/", a.Address);
+                Assert.AreEqual("https://localhost:1111/", a.Address);
                 if (configHasHost)
                 {
-                    Assert.Equal("my-basket-svc.faketld", a.Host);
+                    Assert.AreEqual("my-basket-svc.faketld", a.Host);
                 }
                 else
                 {
-                    Assert.Null(a.Host);
+                    Assert.IsNull(a.Host);
                 }
             },
             a =>
             {
-                Assert.Equal("https://127.0.0.1:2222/", a.Address);
+                Assert.AreEqual("https://127.0.0.1:2222/", a.Address);
                 if (configHasHost)
                 {
-                    Assert.Equal("my-basket-svc.faketld", a.Host);
+                    Assert.AreEqual("my-basket-svc.faketld", a.Host);
                 }
                 else
                 {
-                    Assert.Null(a.Host);
+                    Assert.IsNull(a.Host);
                 }
             },
             a =>
             {
-                Assert.Equal("https://[::1]:3333/", a.Address);
+                Assert.AreEqual("https://[::1]:3333/", a.Address);
                 if (configHasHost)
                 {
-                    Assert.Equal("my-basket-svc.faketld", a.Host);
+                    Assert.AreEqual("my-basket-svc.faketld", a.Host);
                 }
                 else
                 {
-                    Assert.Null(a.Host);
+                    Assert.IsNull(a.Host);
                 }
             },
             a =>
             {
-                Assert.Equal("https://baskets-galore.faketld/", a.Address);
+                Assert.AreEqual("https://baskets-galore.faketld/", a.Address);
                 if (configHasHost)
                 {
-                    Assert.Equal("my-basket-svc.faketld", a.Host);
+                    Assert.AreEqual("my-basket-svc.faketld", a.Host);
                 }
                 else
                 {
-                    Assert.Null(a.Host);
+                    Assert.IsNull(a.Host);
                 }
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ServiceDiscoveryDestinationResolverTests_Configuration_DisallowedScheme()
     {
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
@@ -225,10 +224,10 @@ public class YarpServiceDiscoveryTests
         var result = await yarpResolver.ResolveDestinationsAsync(destinationConfigs, CancellationToken.None);
 
         // No results: there are no 'https' endpoints in config and 'http' is disallowed.
-        Assert.Empty(result.Destinations);
+        Assert.IsEmpty(result.Destinations);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ServiceDiscoveryDestinationResolverTests_Dns()
     {
         await using var services = new ServiceCollection()
@@ -250,19 +249,19 @@ public class YarpServiceDiscoveryTests
         };
 
         var result = await yarpResolver.ResolveDestinationsAsync(destinationConfigs, CancellationToken.None);
-        Assert.NotNull(result);
+        Assert.IsNotNull(result);
         Assert.NotEmpty(result.Destinations);
         Assert.All(result.Destinations, d =>
         {
             var address = d.Value.Address;
-            Assert.True(Uri.TryCreate(address, default, out var uri), $"Failed to parse address '{address}' as URI.");
-            Assert.True(uri.IsDefaultPort, "URI should use the default port when resolved via DNS.");
+            Assert.IsTrue(Uri.TryCreate(address, default, out var uri), $"Failed to parse address '{address}' as URI.");
+            Assert.IsTrue(uri.IsDefaultPort, "URI should use the default port when resolved via DNS.");
             var expectedScheme = d.Key.StartsWith("dest-a") ? "https" : "http";
-            Assert.Equal(expectedScheme, uri.Scheme);
+            Assert.AreEqual(expectedScheme, uri.Scheme);
         });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ServiceDiscoveryDestinationResolverTests_DnsSrv()
     {
         var dnsClientMock = new FakeDnsClient
@@ -306,11 +305,11 @@ public class YarpServiceDiscoveryTests
 
         var result = await yarpResolver.ResolveDestinationsAsync(destinationConfigs, CancellationToken.None);
 
-        Assert.Equal(3, result.Destinations.Count);
-        Assert.Collection(result.Destinations.Select(d => d.Value.Address),
-            a => Assert.Equal("https://10.10.10.10:8888/", a),
-            a => Assert.Equal("https://[::1]:9999/", a),
-            a => Assert.Equal("https://127.0.0.1:7777/", a));
+        Assert.AreEqual(3, result.Destinations.Count);
+        Assert.That.Collection(result.Destinations.Select(d => d.Value.Address),
+            a => Assert.AreEqual("https://10.10.10.10:8888/", a),
+            a => Assert.AreEqual("https://[::1]:9999/", a),
+            a => Assert.AreEqual("https://127.0.0.1:7777/", a));
     }
 
     private sealed class FakeDnsClient : IDnsQuery

@@ -5,13 +5,13 @@ using System.Diagnostics.CodeAnalysis;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
 using Azure.Provisioning.AppContainers;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests.PublicApiTests;
 
+[TestClass]
 public class AppContainersPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void PublishAsAzureContainerAppShouldThrowWhenContainerIsNull()
     {
         IResourceBuilder<ContainerResource> container = null!;
@@ -20,10 +20,10 @@ public class AppContainersPublicApiTests
         var action = () => container.PublishAsAzureContainerApp(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(container), exception.ParamName);
+        Assert.AreEqual(nameof(container), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void PublishAsAzureContainerAppShouldThrowWhenConfigureIsNull()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -33,10 +33,10 @@ public class AppContainersPublicApiTests
         var action = () => container.PublishAsAzureContainerApp(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configure), exception.ParamName);
+        Assert.AreEqual(nameof(configure), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureContainerAppCustomizationAnnotationShouldThrowWhenConfigureIsNull()
     {
         Action<AzureResourceInfrastructure, ContainerApp> configure = null!;
@@ -44,10 +44,10 @@ public class AppContainersPublicApiTests
         var action = () => new AzureContainerAppCustomizationAnnotation(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configure), exception.ParamName);
+        Assert.AreEqual(nameof(configure), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void PublishAsAzureContainerAppShouldThrowWhenExecutableIsNull()
     {
         IResourceBuilder<ExecutableResource> executable = null!;
@@ -56,10 +56,10 @@ public class AppContainersPublicApiTests
         var action = () => executable.PublishAsAzureContainerApp(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(executable), exception.ParamName);
+        Assert.AreEqual(nameof(executable), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void PublishAsAzureContainerAppForExecutableShouldThrowWhenConfigureIsNull()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -69,10 +69,10 @@ public class AppContainersPublicApiTests
         var action = () => executable.PublishAsAzureContainerApp(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configure), exception.ParamName);
+        Assert.AreEqual(nameof(configure), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureContainerAppsInfrastructureShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -83,10 +83,10 @@ public class AppContainersPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void PublishAsAzureContainerAppShouldThrowWhenProjectIsNull()
     {
         IResourceBuilder<ProjectResource> project = null!;
@@ -95,10 +95,10 @@ public class AppContainersPublicApiTests
         var action = () => project.PublishAsAzureContainerApp(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(project), exception.ParamName);
+        Assert.AreEqual(nameof(project), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void PublishAsAzureContainerAppForProjectShouldThrowWhenConfigureIsNull()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -108,10 +108,10 @@ public class AppContainersPublicApiTests
         var action = () => project.PublishAsAzureContainerApp(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configure), exception.ParamName);
+        Assert.AreEqual(nameof(configure), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Experimental("ASPIREACADOMAINS001", UrlFormat = "https://aka.ms/dotnet/aspire/diagnostics#{0}")]
     public void ConfigureCustomDomainShouldThrowWhenAppIsNull()
     {
@@ -123,10 +123,10 @@ public class AppContainersPublicApiTests
         var action = () => app.ConfigureCustomDomain(customDomain, certificateName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(app), exception.ParamName);
+        Assert.AreEqual(nameof(app), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Experimental("ASPIREACADOMAINS001", UrlFormat = "https://aka.ms/dotnet/aspire/diagnostics#{0}")]
     public void ConfigureCustomDomainShouldThrowWhenCustomDomainIsNull()
     {
@@ -138,10 +138,10 @@ public class AppContainersPublicApiTests
         var action = () => app.ConfigureCustomDomain(customDomain, certificateName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(customDomain), exception.ParamName);
+        Assert.AreEqual(nameof(customDomain), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Experimental("ASPIREACADOMAINS001", UrlFormat = "https://aka.ms/dotnet/aspire/diagnostics#{0}")]
     public void ConfigureCustomDomainShouldThrowWhenCertificateNameIsNull()
     {
@@ -153,7 +153,7 @@ public class AppContainersPublicApiTests
         var action = () => app.ConfigureCustomDomain(customDomain, certificateName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(certificateName), exception.ParamName);
+        Assert.AreEqual(nameof(certificateName), exception.ParamName);
     }
 
     private sealed class ProjectA : IProjectMetadata

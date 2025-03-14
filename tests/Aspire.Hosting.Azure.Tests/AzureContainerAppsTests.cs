@@ -12,14 +12,15 @@ using Azure.Provisioning.AppContainers;
 using Azure.Provisioning.Primitives;
 using Azure.Provisioning.Storage;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Azure.Tests;
 
-public class AzureContainerAppsTests(ITestOutputHelper output)
+[TestClass]
+public class AzureContainerAppsTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     public async Task AddContainerAppsInfrastructureAddsDeploymentTargetWithContainerAppToContainerResources()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -34,13 +35,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -58,7 +59,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -97,11 +98,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddDockerfileWithAppsInfrastructureAddsDeploymentTargetWithContainerAppToContainerResources()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -121,13 +122,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -147,7 +148,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -196,11 +197,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddContainerAppsInfrastructureAddsDeploymentTargetWithContainerAppToProjectResources()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -216,13 +217,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetProjectResources());
+        var container = Assert.ContainsSingle(model.GetProjectResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -243,7 +244,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -321,11 +322,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddExecutableResourceWithPublishAsDockerFileWithAppsInfrastructureAddsDeploymentTargetWithContainerAppToContainerResources()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -351,13 +352,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -378,7 +379,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -435,11 +436,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CanTweakContainerAppEnvironmentUsingPublishAsContainerAppOnExecutable()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -455,13 +456,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -481,7 +482,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -530,11 +531,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddContainerAppsInfrastructureWithParameterReference()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -562,13 +563,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         await ExecuteBeforeStartHooksAsync(app, default);
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -588,7 +589,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -638,11 +639,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddContainerAppsEntrypointAndArgs()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -658,13 +659,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         await ExecuteBeforeStartHooksAsync(app, default);
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -713,11 +714,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ProjectWithManyReferenceTypes()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -777,15 +778,15 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var proj = Assert.Single(model.GetProjectResources());
+        var proj = Assert.ContainsSingle(model.GetProjectResources());
         var rolesName = $"{proj.Name}-roles";
-        var projRoles = Assert.Single(model.Resources.OfType<AzureProvisioningResource>().Where(r => r.Name == rolesName));
+        var projRoles = Assert.ContainsSingle(model.Resources.OfType<AzureProvisioningResource>().Where(r => r.Name == rolesName));
 
         proj.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
         var (rolesManifest, rolesBicep) = await GetManifestWithBicep(projRoles);
@@ -816,7 +817,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedRolesManifest =
         """
@@ -829,7 +830,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedRolesManifest, rolesManifest.ToString());
+        Assert.AreEqual(expectedRolesManifest, rolesManifest.ToString());
 
         var expectedBicep =
         """
@@ -1034,8 +1035,8 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
 
         var expectedRolesBicep =
         """
@@ -1090,11 +1091,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         output principalId string = api_identity.properties.principalId
         """;
 
-        output.WriteLine(rolesBicep);
-        Assert.Equal(expectedRolesBicep, rolesBicep);
+        TestContext.WriteLine(rolesBicep);
+        Assert.AreEqual(expectedRolesBicep, rolesBicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task PublishAsContainerAppInfluencesContainerAppDefinition()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1114,13 +1115,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -1138,7 +1139,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -1177,11 +1178,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ConfigureCustomDomainMutatesIngress()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1203,13 +1204,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureBicepResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -1229,7 +1230,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -1284,11 +1285,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ConfigureDuplicateCustomDomainMutatesIngress()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1312,13 +1313,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureBicepResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -1339,7 +1340,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -1396,11 +1397,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ConfigureMultipleCustomDomainsMutatesIngress()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1426,13 +1427,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureBicepResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -1454,7 +1455,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -1518,11 +1519,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VolumesAndBindMountsAreTranslation()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1540,13 +1541,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -1567,7 +1568,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -1644,10 +1645,10 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedBicep, bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SecretOutputHandling()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1683,13 +1684,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -1710,7 +1711,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -1814,11 +1815,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CanCustomizeWithProvisioningBuildOptions()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1834,13 +1835,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (_, bicep) = await GetManifestWithBicep(resource);
 
@@ -1881,8 +1882,8 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
     private sealed class MyResourceNamePropertyResolver : DynamicResourceNamePropertyResolver
@@ -1898,7 +1899,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ExternalEndpointBecomesIngress()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1915,13 +1916,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -1939,7 +1940,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -1983,11 +1984,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task FirstHttpEndpointBecomesIngress()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -2004,13 +2005,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -2028,7 +2029,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -2078,11 +2079,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EndpointWithHttp2SetsTransportToH2()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -2100,13 +2101,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var model = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var container = Assert.Single(model.GetContainerResources());
+        var container = Assert.ContainsSingle(model.GetContainerResources());
 
         container.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -2124,7 +2125,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -2168,11 +2169,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ProjectUsesTheTargetPortAsADefaultPortForFirstHttpEndpoint()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -2189,13 +2190,13 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         await ExecuteBeforeStartHooksAsync(app, default);
 
-        var project = Assert.Single(model.GetProjectResources());
+        var project = Assert.ContainsSingle(model.GetProjectResources());
 
         project.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
 
@@ -2216,7 +2217,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
         }
         """;
 
-        Assert.Equal(expectedManifest, m);
+        Assert.AreEqual(expectedManifest, m);
 
         var expectedBicep =
         """
@@ -2298,11 +2299,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
           }
         }
         """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task RoleAssignmentsWithAsExisting()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -2325,15 +2326,15 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         await ExecuteBeforeStartHooksAsync(app, default);
 
-        var project = Assert.Single(model.GetProjectResources());
-        var projRoles = Assert.Single(model.Resources.OfType<AzureProvisioningResource>().Where(r => r.Name == $"api-roles"));
-        var projRolesStorage = Assert.Single(model.Resources.OfType<AzureProvisioningResource>().Where(r => r.Name == $"api-roles-storage"));
+        var project = Assert.ContainsSingle(model.GetProjectResources());
+        var projRoles = Assert.ContainsSingle(model.Resources.OfType<AzureProvisioningResource>().Where(r => r.Name == $"api-roles"));
+        var projRolesStorage = Assert.ContainsSingle(model.Resources.OfType<AzureProvisioningResource>().Where(r => r.Name == $"api-roles-storage"));
 
         project.TryGetLastAnnotation<DeploymentTargetAnnotation>(out var target);
 
         var resource = target?.DeploymentTarget as AzureProvisioningResource;
 
-        Assert.NotNull(resource);
+        Assert.IsNotNull(resource);
 
         var (manifest, bicep) = await GetManifestWithBicep(resource);
         var (rolesManifest, rolesBicep) = await GetManifestWithBicep(projRoles);
@@ -2354,7 +2355,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
 
         var expectedRolesManifest =
             """
@@ -2363,7 +2364,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
               "path": "api-roles.module.bicep"
             }
             """;
-        Assert.Equal(expectedRolesManifest, rolesManifest.ToString());
+        Assert.AreEqual(expectedRolesManifest, rolesManifest.ToString());
 
         var expectedRolesStorageManifest =
             """
@@ -2380,7 +2381,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedRolesStorageManifest, rolesStorageManifest.ToString());
+        Assert.AreEqual(expectedRolesStorageManifest, rolesStorageManifest.ToString());
 
         var expectedBicep =
             """
@@ -2452,8 +2453,8 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
               }
             }
             """;
-        output.WriteLine(bicep);
-        Assert.Equal(expectedBicep, bicep);
+        TestContext.WriteLine(bicep);
+        Assert.AreEqual(expectedBicep, bicep);
 
         var expectedRolesBicep =
             """
@@ -2471,8 +2472,8 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
             output principalId string = api_identity.properties.principalId
             """;
-        output.WriteLine(rolesBicep);
-        Assert.Equal(expectedRolesBicep, rolesBicep);
+        TestContext.WriteLine(rolesBicep);
+        Assert.AreEqual(expectedRolesBicep, rolesBicep);
 
         var expectedRolesStorageBicep =
             """
@@ -2499,11 +2500,11 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
               scope: storage
             }
             """;
-        output.WriteLine(rolesStorageBicep);
-        Assert.Equal(expectedRolesStorageBicep, rolesStorageBicep);
+        TestContext.WriteLine(rolesStorageBicep);
+        Assert.AreEqual(expectedRolesStorageBicep, rolesStorageBicep);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task NonTcpHttpOrUdpSchemeThrows()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -2519,10 +2520,10 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var ex = await Assert.ThrowsAsync<NotSupportedException>(() => ExecuteBeforeStartHooksAsync(app, default));
 
-        Assert.Equal("The endpoint(s) 'foo' specify an unsupported scheme. The supported schemes are 'http', 'https', and 'tcp'.", ex.Message);
+        Assert.AreEqual("The endpoint(s) 'foo' specify an unsupported scheme. The supported schemes are 'http', 'https', and 'tcp'.", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task MultipleExternalEndpointsAreNotSupported()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -2540,10 +2541,10 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var ex = await Assert.ThrowsAsync<NotSupportedException>(() => ExecuteBeforeStartHooksAsync(app, default));
 
-        Assert.Equal("Multiple external endpoints are not supported", ex.Message);
+        Assert.AreEqual("Multiple external endpoints are not supported", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ExternalNonHttpEndpointsAreNotSupported()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -2559,10 +2560,10 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var ex = await Assert.ThrowsAsync<NotSupportedException>(() => ExecuteBeforeStartHooksAsync(app, default));
 
-        Assert.Equal("External non-HTTP(s) endpoints are not supported", ex.Message);
+        Assert.AreEqual("External non-HTTP(s) endpoints are not supported", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task HttpAndTcpEndpointsCannotHaveTheSameTargetPort()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -2579,10 +2580,10 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var ex = await Assert.ThrowsAsync<NotSupportedException>(() => ExecuteBeforeStartHooksAsync(app, default));
 
-        Assert.Equal("HTTP(s) and TCP endpoints cannot be mixed", ex.Message);
+        Assert.AreEqual("HTTP(s) and TCP endpoints cannot be mixed", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task DefaultHttpIngressMustUsePort80()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -2598,10 +2599,10 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var ex = await Assert.ThrowsAsync<NotSupportedException>(() => ExecuteBeforeStartHooksAsync(app, default));
 
-        Assert.Equal($"The endpoint 'http' is an http endpoint and must use port 80", ex.Message);
+        Assert.AreEqual($"The endpoint 'http' is an http endpoint and must use port 80", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task DefaultHttpsIngressMustUsePort443()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -2617,7 +2618,7 @@ public class AzureContainerAppsTests(ITestOutputHelper output)
 
         var ex = await Assert.ThrowsAsync<NotSupportedException>(() => ExecuteBeforeStartHooksAsync(app, default));
 
-        Assert.Equal($"The endpoint 'https' is an https endpoint and must use port 443", ex.Message);
+        Assert.AreEqual($"The endpoint 'https' is an https endpoint and must use port 443", ex.Message);
     }
 
     private static Task<(JsonNode ManifestNode, string BicepText)> GetManifestWithBicep(IResource resource) =>

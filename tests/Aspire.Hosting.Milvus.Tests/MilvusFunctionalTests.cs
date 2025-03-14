@@ -7,20 +7,21 @@ using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Milvus.Client;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Milvus.Tests;
 
-public class MilvusFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class MilvusFunctionalTests
 {
+    public TestContext TestContext { get; set; }
+
     private const string CollectionName = "book";
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyMilvusResource()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var milvus = builder.AddMilvus("milvus");
         var db = milvus.AddDatabase("milvusdb", "db1");
@@ -60,12 +61,12 @@ public class MilvusFunctionalTests(ITestOutputHelper testOutputHelper)
             , cancellationToken: token);
 
         var collections = await milvusClient.ListCollectionsAsync(cancellationToken: token);
-        Assert.Single(collections, c => c.Name == CollectionName);
+        Assert.ContainsSingle(collections, c => c.Name == CollectionName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     [RequiresDocker]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
@@ -76,7 +77,7 @@ public class MilvusFunctionalTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var milvus1 = builder1.AddMilvus("milvus1");
             var password = milvus1.Resource.ApiKeyParameter.Value;
 
@@ -131,7 +132,7 @@ public class MilvusFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var passwordParameter = builder2.AddParameter("pwd", password);
 
             var milvus2 = builder2.AddMilvus("milvus2", passwordParameter);
@@ -168,7 +169,7 @@ public class MilvusFunctionalTests(ITestOutputHelper testOutputHelper)
 
                         var collections = await milvusClient.ListCollectionsAsync();
 
-                        Assert.Single(collections, c => c.Name == CollectionName);
+                        Assert.ContainsSingle(collections, c => c.Name == CollectionName);
                     }
                 }
                 finally

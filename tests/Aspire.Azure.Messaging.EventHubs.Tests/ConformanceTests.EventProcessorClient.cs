@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Aspire.Azure.Messaging.EventHubs.Tests;
 
+[TestClass]
 public class ConformanceTests_EventProcessorClient : ConformanceTestsBase<EventProcessorClient, AzureMessagingEventHubsProcessorSettings>
 {
     protected override string[] RequiredLogCategories => ["Azure.Core", "Azure.Messaging.EventHubs.Processor.BlobEventStore"];

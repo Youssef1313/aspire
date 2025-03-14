@@ -3,10 +3,10 @@
 
 using Aspire.Dashboard.ConsoleLogs;
 using Aspire.Hosting.ConsoleLogs;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.ConsoleLogsTests;
 
+[TestClass]
 public class LogEntriesTests
 {
     private static LogEntries CreateLogEntries(int? maximumEntryCount = null, int? baseLineNumber = null)
@@ -23,7 +23,7 @@ public class LogEntriesTests
         logEntries.InsertSorted(logEntry);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogLine_Single()
     {
         // Arrange
@@ -33,12 +33,12 @@ public class LogEntriesTests
         AddLogLine(logEntries, "Hello world", isError: false);
 
         // Assert
-        var entry = Assert.Single(logEntries.GetEntries());
-        Assert.Equal("Hello world", entry.Content);
-        Assert.Null(entry.Timestamp);
+        var entry = Assert.ContainsSingle(logEntries.GetEntries());
+        Assert.AreEqual("Hello world", entry.Content);
+        Assert.IsNull(entry.Timestamp);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogLine_MultipleLines()
     {
         // Arrange
@@ -50,13 +50,13 @@ public class LogEntriesTests
         AddLogLine(logEntries, "Hello world 3", isError: true);
 
         // Assert
-        Assert.Collection(logEntries.GetEntries(),
-            l => Assert.Equal("Hello world", l.Content),
-            l => Assert.Equal("Hello world 2", l.Content),
-            l => Assert.Equal("Hello world 3", l.Content));
+        Assert.That.Collection(logEntries.GetEntries(),
+            l => Assert.AreEqual("Hello world", l.Content),
+            l => Assert.AreEqual("Hello world 2", l.Content),
+            l => Assert.AreEqual("Hello world 3", l.Content));
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogLine_MultipleLines_MixDatePrefix()
     {
         // Arrange
@@ -71,35 +71,35 @@ public class LogEntriesTests
 
         // Assert
         var entries = logEntries.GetEntries();
-        Assert.Collection(entries,
+        Assert.That.Collection(entries,
             l =>
             {
-                Assert.Equal("Hello world", l.Content);
-                Assert.Equal(1, l.LineNumber);
+                Assert.AreEqual("Hello world", l.Content);
+                Assert.AreEqual(1, l.LineNumber);
             },
             l =>
             {
-                Assert.Equal("Hello world 2", l.Content);
-                Assert.Equal(2, l.LineNumber);
+                Assert.AreEqual("Hello world 2", l.Content);
+                Assert.AreEqual(2, l.LineNumber);
             },
             l =>
             {
-                Assert.Equal("Hello world 3", l.Content);
-                Assert.Equal(3, l.LineNumber);
+                Assert.AreEqual("Hello world 3", l.Content);
+                Assert.AreEqual(3, l.LineNumber);
             },
             l =>
             {
-                Assert.Equal("Hello world 4", l.Content);
-                Assert.Equal(4, l.LineNumber);
+                Assert.AreEqual("Hello world 4", l.Content);
+                Assert.AreEqual(4, l.LineNumber);
             },
             l =>
             {
-                Assert.Equal("Hello world 5", l.Content);
-                Assert.Equal(5, l.LineNumber);
+                Assert.AreEqual("Hello world 5", l.Content);
+                Assert.AreEqual(5, l.LineNumber);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogLine_MultipleLines_MixDatePrefix_OutOfOrder()
     {
         // Arrange
@@ -115,40 +115,40 @@ public class LogEntriesTests
 
         // Assert
         var entries = logEntries.GetEntries();
-        Assert.Collection(entries,
+        Assert.That.Collection(entries,
             l =>
             {
-                Assert.Equal("Hello world", l.Content);
-                Assert.Equal(1, l.LineNumber);
+                Assert.AreEqual("Hello world", l.Content);
+                Assert.AreEqual(1, l.LineNumber);
             },
             l =>
             {
-                Assert.Equal("Hello world 6", l.Content);
-                Assert.Equal(2, l.LineNumber);
+                Assert.AreEqual("Hello world 6", l.Content);
+                Assert.AreEqual(2, l.LineNumber);
             },
             l =>
             {
-                Assert.Equal("Hello world 3", l.Content);
-                Assert.Equal(3, l.LineNumber);
+                Assert.AreEqual("Hello world 3", l.Content);
+                Assert.AreEqual(3, l.LineNumber);
             },
             l =>
             {
-                Assert.Equal("Hello world 2", l.Content);
-                Assert.Equal(4, l.LineNumber);
+                Assert.AreEqual("Hello world 2", l.Content);
+                Assert.AreEqual(4, l.LineNumber);
             },
             l =>
             {
-                Assert.Equal("Hello world 4", l.Content);
-                Assert.Equal(5, l.LineNumber);
+                Assert.AreEqual("Hello world 4", l.Content);
+                Assert.AreEqual(5, l.LineNumber);
             },
             l =>
             {
-                Assert.Equal("Hello world 5", l.Content);
-                Assert.Equal(6, l.LineNumber);
+                Assert.AreEqual("Hello world 5", l.Content);
+                Assert.AreEqual(6, l.LineNumber);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void AddLogLine_MultipleLines_SameDate_InOrder()
     {
         // Arrange
@@ -160,20 +160,20 @@ public class LogEntriesTests
 
         // Assert
         var entries = logEntries.GetEntries();
-        Assert.Collection(entries,
+        Assert.That.Collection(entries,
             l =>
             {
-                Assert.Equal("Hello world 1", l.Content);
-                Assert.Equal(1, l.LineNumber);
+                Assert.AreEqual("Hello world 1", l.Content);
+                Assert.AreEqual(1, l.LineNumber);
             },
             l =>
             {
-                Assert.Equal("Hello world 2", l.Content);
-                Assert.Equal(2, l.LineNumber);
+                Assert.AreEqual("Hello world 2", l.Content);
+                Assert.AreEqual(2, l.LineNumber);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void InsertSorted_OutOfOrderWithSameTimestamp_ReturnInOrder()
     {
         // Arrange
@@ -188,13 +188,13 @@ public class LogEntriesTests
 
         // Assert
         var entries = logEntries.GetEntries();
-        Assert.Collection(entries,
-            l => Assert.Equal("1", l.Content),
-            l => Assert.Equal("2", l.Content),
-            l => Assert.Equal("3", l.Content));
+        Assert.That.Collection(entries,
+            l => Assert.AreEqual("1", l.Content),
+            l => Assert.AreEqual("2", l.Content),
+            l => Assert.AreEqual("3", l.Content));
     }
 
-    [Fact]
+    [TestMethod]
     public void InsertSorted_TrimsToMaximumEntryCount_Ordered()
     {
         // Arrange
@@ -209,12 +209,12 @@ public class LogEntriesTests
 
         // Assert
         var entries = logEntries.GetEntries();
-        Assert.Collection(entries,
-            l => Assert.Equal("2", l.Content),
-            l => Assert.Equal("3", l.Content));
+        Assert.That.Collection(entries,
+            l => Assert.AreEqual("2", l.Content),
+            l => Assert.AreEqual("3", l.Content));
     }
 
-    [Fact]
+    [TestMethod]
     public void InsertSorted_TrimsToMaximumEntryCount_OutOfOrder()
     {
         // Arrange
@@ -229,12 +229,12 @@ public class LogEntriesTests
 
         // Assert
         var entries = logEntries.GetEntries();
-        Assert.Collection(entries,
-            l => Assert.Equal("2", l.Content),
-            l => Assert.Equal("3", l.Content));
+        Assert.That.Collection(entries,
+            l => Assert.AreEqual("2", l.Content),
+            l => Assert.AreEqual("3", l.Content));
     }
 
-    [Fact]
+    [TestMethod]
     public void CreateLogEntry_AnsiAndUrl_HasUrlAnchor()
     {
         // Arrange
@@ -244,6 +244,6 @@ public class LogEntriesTests
         var entry = parser.CreateLogEntry("\x1b[36mhttps://www.example.com\u001b[0m", isErrorOutput: false);
 
         // Assert
-        Assert.Equal("<span class=\"ansi-fg-cyan\"></span><a target=\"_blank\" href=\"https://www.example.com\" rel=\"noopener noreferrer nofollow\">https://www.example.com</a>", entry.Content);
+        Assert.AreEqual("<span class=\"ansi-fg-cyan\"></span><a target=\"_blank\" href=\"https://www.example.com\" rel=\"noopener noreferrer nofollow\">https://www.example.com</a>", entry.Content);
     }
 }

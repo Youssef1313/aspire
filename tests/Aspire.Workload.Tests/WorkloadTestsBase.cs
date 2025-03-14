@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.Playwright;
-using Xunit;
 using Xunit.Abstractions;
 using static Aspire.Workload.Tests.TestExtensions;
 
@@ -25,7 +24,7 @@ public partial class WorkloadTestsBase
 
     public static readonly string[] TestFrameworkTypes = ["none", "mstest", "nunit", "xunit.net"];
 
-    public WorkloadTestsBase(ITestOutputHelper testOutput)
+    public WorkloadTestsBase(TestContext testOutput)
     {
         _testOutput = new TestOutputWrapper(testOutput);
     }
@@ -68,10 +67,10 @@ public partial class WorkloadTestsBase
         res.EnsureSuccessful();
 
         var testProjectDir = Path.Combine(project.RootDir, testProjectName);
-        Assert.True(Directory.Exists(testProjectDir), $"Expected tests project at {testProjectDir}");
+        Assert.IsTrue(Directory.Exists(testProjectDir), $"Expected tests project at {testProjectDir}");
 
         var testProjectPath = Path.Combine(testProjectDir, testProjectName + ".csproj");
-        Assert.True(File.Exists(testProjectPath), $"Expected tests project file at {testProjectPath}");
+        Assert.IsTrue(File.Exists(testProjectPath), $"Expected tests project file at {testProjectPath}");
 
         PrepareTestCsFile(project.Id, testProjectDir, testTemplateName);
         PrepareTestProject(project, testProjectPath);
@@ -108,7 +107,7 @@ public partial class WorkloadTestsBase
             {
                 "aspire-nunit" or "aspire-nunit-9" => "// [Test]",
                 "aspire-mstest" or "aspire-mstest-9" => "// [TestMethod]",
-                "aspire-xunit" or "aspire-xunit-9" => "// [Fact]",
+                "aspire-xunit" or "aspire-xunit-9" => "// [TestMethod]",
                 _ => throw new NotImplementedException($"Unknown test template: {testTemplateName}")
             };
 
@@ -142,7 +141,7 @@ public partial class WorkloadTestsBase
     protected Task<ResourceRow[]> CheckDashboardHasResourcesAsync(IPage dashboardPage, IEnumerable<ResourceRow> expectedResources, int timeoutSecs = 120)
         => CheckDashboardHasResourcesAsync(dashboardPage, expectedResources, _testOutput, timeoutSecs);
 
-    protected static async Task<ResourceRow[]> CheckDashboardHasResourcesAsync(IPage dashboardPage, IEnumerable<ResourceRow> expectedResources, ITestOutputHelper testOutput, int timeoutSecs = 120)
+    protected static async Task<ResourceRow[]> CheckDashboardHasResourcesAsync(IPage dashboardPage, IEnumerable<ResourceRow> expectedResources, TestContext testOutput, int timeoutSecs = 120)
     {
         // FIXME: check the page has 'Resources' label
         // fluent-toolbar/h1 resources
@@ -279,7 +278,7 @@ public partial class WorkloadTestsBase
         yield return "aspire";
     }
 
-    public static async Task AssertStarterTemplateRunAsync(IBrowserContext? context, AspireProject project, string config, ITestOutputHelper _testOutput)
+    public static async Task AssertStarterTemplateRunAsync(IBrowserContext? context, AspireProject project, string config, TestContext _testOutput)
     {
         await project.StartAppHostAsync(extraArgs: [$"-c {config}"], noBuild: false);
 
@@ -316,16 +315,16 @@ public partial class WorkloadTestsBase
         await project.StopAppHostAsync();
     }
 
-    public static async Task<CommandResult?> AssertTestProjectRunAsync(string testProjectDirectory, string testType, ITestOutputHelper testOutput, string config = "Debug", int testRunTimeoutSecs = 3 * 60)
+    public static async Task<CommandResult?> AssertTestProjectRunAsync(string testProjectDirectory, string testType, TestContext testOutput, string config = "Debug", int testRunTimeoutSecs = 3 * 60)
     {
         if (testType == "none")
         {
-            Assert.False(Directory.Exists(testProjectDirectory), "Expected no tests project to be created");
+            Assert.IsFalse(Directory.Exists(testProjectDirectory), "Expected no tests project to be created");
             return null;
         }
         else
         {
-            Assert.True(Directory.Exists(testProjectDirectory), $"Expected tests project at {testProjectDirectory}");
+            Assert.IsTrue(Directory.Exists(testProjectDirectory), $"Expected tests project at {testProjectDirectory}");
 
             // Build first, because `dotnet test` does not show test results if all the tests pass
             using var buildCmd = new DotNetCommand(testOutput, label: $"test-{testType}")

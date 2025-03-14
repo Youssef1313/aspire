@@ -5,36 +5,36 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Sockets;
-using Xunit;
 
 namespace Aspire.Hosting.RabbitMQ.Tests;
 
+[TestClass]
 public class AddRabbitMQTests
 {
-    [Fact]
+    [TestMethod]
     public void AddRabbitMQAddsGeneratedPasswordParameterWithUserSecretsParameterDefaultInRunMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
 
         var rmq = appBuilder.AddRabbitMQ("rmq");
 
-        Assert.Equal("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", rmq.Resource.PasswordParameter.Default?.GetType().FullName);
+        Assert.AreEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", rmq.Resource.PasswordParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddRabbitMQDoesNotAddGeneratedPasswordParameterWithUserSecretsParameterDefaultInPublishMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
 
         var rmq = appBuilder.AddRabbitMQ("rmq");
 
-        Assert.NotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", rmq.Resource.PasswordParameter.Default?.GetType().FullName);
+        Assert.AreNotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", rmq.Resource.PasswordParameter.Default?.GetType().FullName);
     }
 
-    [Theory]
-    [InlineData(false, null)]
-    [InlineData(true, null)]
-    [InlineData(true, 15672)]
+    [TestMethod]
+    [DataRow(false, null)]
+    [DataRow(true, null)]
+    [DataRow(true, 15672)]
     public void AddRabbitMQContainerWithDefaultsAddsAnnotationMetadata(bool withManagementPlugin, int? withManagementPluginPort)
     {
         var appBuilder = TestDistributedApplicationBuilder.Create();
@@ -50,45 +50,45 @@ public class AddRabbitMQTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<RabbitMQServerResource>());
-        Assert.Equal("rabbit", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<RabbitMQServerResource>());
+        Assert.AreEqual("rabbit", containerResource.Name);
 
-        var primaryEndpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>().Where(e => e.Name == "tcp"));
-        Assert.Equal(5672, primaryEndpoint.TargetPort);
-        Assert.False(primaryEndpoint.IsExternal);
-        Assert.Equal("tcp", primaryEndpoint.Name);
-        Assert.Null(primaryEndpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, primaryEndpoint.Protocol);
-        Assert.Equal("tcp", primaryEndpoint.Transport);
-        Assert.Equal("tcp", primaryEndpoint.UriScheme);
+        var primaryEndpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>().Where(e => e.Name == "tcp"));
+        Assert.AreEqual(5672, primaryEndpoint.TargetPort);
+        Assert.IsFalse(primaryEndpoint.IsExternal);
+        Assert.AreEqual("tcp", primaryEndpoint.Name);
+        Assert.IsNull(primaryEndpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, primaryEndpoint.Protocol);
+        Assert.AreEqual("tcp", primaryEndpoint.Transport);
+        Assert.AreEqual("tcp", primaryEndpoint.UriScheme);
 
         if (withManagementPlugin)
         {
-            var mangementEndpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>().Where(e => e.Name == "management"));
-            Assert.Equal(15672, mangementEndpoint.TargetPort);
-            Assert.False(primaryEndpoint.IsExternal);
-            Assert.Equal("management", mangementEndpoint.Name);
-            Assert.Equal(ProtocolType.Tcp, mangementEndpoint.Protocol);
-            Assert.Equal("http", mangementEndpoint.Transport);
-            Assert.Equal("http", mangementEndpoint.UriScheme);
+            var mangementEndpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>().Where(e => e.Name == "management"));
+            Assert.AreEqual(15672, mangementEndpoint.TargetPort);
+            Assert.IsFalse(primaryEndpoint.IsExternal);
+            Assert.AreEqual("management", mangementEndpoint.Name);
+            Assert.AreEqual(ProtocolType.Tcp, mangementEndpoint.Protocol);
+            Assert.AreEqual("http", mangementEndpoint.Transport);
+            Assert.AreEqual("http", mangementEndpoint.UriScheme);
 
             if (!withManagementPluginPort.HasValue)
             {
-                Assert.Null(mangementEndpoint.Port);
+                Assert.IsNull(mangementEndpoint.Port);
             }
             else
             {
-                Assert.Equal(withManagementPluginPort.Value, mangementEndpoint.Port);
+                Assert.AreEqual(withManagementPluginPort.Value, mangementEndpoint.Port);
             }
         }
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(RabbitMQContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(withManagementPlugin ? RabbitMQContainerImageTags.ManagementTag : RabbitMQContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(RabbitMQContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(RabbitMQContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(withManagementPlugin ? RabbitMQContainerImageTags.ManagementTag : RabbitMQContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(RabbitMQContainerImageTags.Registry, containerAnnotation.Registry);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task RabbitMQCreatesConnectionString()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -102,25 +102,25 @@ public class AddRabbitMQTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var rabbitMqResource = Assert.Single(appModel.Resources.OfType<RabbitMQServerResource>());
+        var rabbitMqResource = Assert.ContainsSingle(appModel.Resources.OfType<RabbitMQServerResource>());
         var connectionStringResource = rabbitMqResource as IResourceWithConnectionString;
         var connectionString = await connectionStringResource.GetConnectionStringAsync(default);
 
-        Assert.Equal("amqp://guest:p@ssw0rd1@localhost:27011", connectionString);
-        Assert.Equal("amqp://guest:{pass.value}@{rabbit.bindings.tcp.host}:{rabbit.bindings.tcp.port}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("amqp://guest:p@ssw0rd1@localhost:27011", connectionString);
+        Assert.AreEqual("amqp://guest:{pass.value}@{rabbit.bindings.tcp.host}:{rabbit.bindings.tcp.port}", connectionStringResource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Theory]
-    [InlineData(null, RabbitMQContainerImageTags.ManagementTag)]
-    [InlineData("3", "3-management")]
-    [InlineData("3.12", "3.12-management")]
-    [InlineData("3.12.0", "3.12.0-management")]
-    [InlineData("3-alpine", "3-management-alpine")]
-    [InlineData("3.12-alpine", "3.12-management-alpine")]
-    [InlineData("3.12.0-alpine", "3.12.0-management-alpine")]
-    [InlineData("999", "999-management")]
-    [InlineData("12345", "12345-management")]
-    [InlineData("12345.00.12", "12345.00.12-management")]
+    [TestMethod]
+    [DataRow(null, RabbitMQContainerImageTags.ManagementTag)]
+    [DataRow("3", "3-management")]
+    [DataRow("3.12", "3.12-management")]
+    [DataRow("3.12.0", "3.12.0-management")]
+    [DataRow("3-alpine", "3-management-alpine")]
+    [DataRow("3.12-alpine", "3.12-management-alpine")]
+    [DataRow("3.12.0-alpine", "3.12.0-management-alpine")]
+    [DataRow("999", "999-management")]
+    [DataRow("12345", "12345-management")]
+    [DataRow("12345.00.12", "12345.00.12-management")]
     public void WithManagementPluginUpdatesContainerImageTagToEnableManagementPlugin(string? imageTag, string expectedTag)
     {
         var appBuilder = TestDistributedApplicationBuilder.Create();
@@ -136,21 +136,21 @@ public class AddRabbitMQTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<RabbitMQServerResource>());
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(expectedTag, containerAnnotation.Tag);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<RabbitMQServerResource>());
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(expectedTag, containerAnnotation.Tag);
     }
 
-    [Theory]
-    [InlineData(" ")]
-    [InlineData("test")]
-    [InlineData(".123")]
-    [InlineData(".")]
-    [InlineData(".1.2")]
-    [InlineData("1.2.")]
-    [InlineData("1.٩.3")]
-    [InlineData("1.2..3")]
-    [InlineData("not-supported")]
+    [TestMethod]
+    [DataRow(" ")]
+    [DataRow("test")]
+    [DataRow(".123")]
+    [DataRow(".")]
+    [DataRow(".1.2")]
+    [DataRow("1.2.")]
+    [DataRow("1.٩.3")]
+    [DataRow("1.2..3")]
+    [DataRow("not-supported")]
     public void WithManagementPluginThrowsForUnsupportedContainerImageTag(string imageTag)
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
@@ -158,12 +158,12 @@ public class AddRabbitMQTests
         var rabbitmq = appBuilder.AddRabbitMQ("rabbit");
         rabbitmq.WithImageTag(imageTag);
 
-        Assert.Throws<DistributedApplicationException>(rabbitmq.WithManagementPlugin);
+        Assert.Throws<DistributedApplicationException>(() => _ = rabbitmq.WithManagementPlugin());
     }
 
-    [Theory]
-    [InlineData("notrabbitmq")]
-    [InlineData("not-supported")]
+    [TestMethod]
+    [DataRow("notrabbitmq")]
+    [DataRow("not-supported")]
     public void WithManagementPluginThrowsForUnsupportedContainerImageName(string imageName)
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
@@ -171,13 +171,13 @@ public class AddRabbitMQTests
         var rabbitmq = appBuilder.AddRabbitMQ("rabbit");
         rabbitmq.WithImage(imageName);
 
-        Assert.Throws<DistributedApplicationException>(rabbitmq.WithManagementPlugin);
+        Assert.Throws<DistributedApplicationException>(() => _ = rabbitmq.WithManagementPlugin());
     }
 
-    [Theory]
-    [InlineData(" ")]
-    [InlineData("custom.url")]
-    [InlineData("not.the.default")]
+    [TestMethod]
+    [DataRow(" ")]
+    [DataRow("custom.url")]
+    [DataRow("not.the.default")]
     public void WithManagementPluginThrowsForUnsupportedContainerImageRegistry(string registry)
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
@@ -185,12 +185,12 @@ public class AddRabbitMQTests
         var rabbitmq = appBuilder.AddRabbitMQ("rabbit");
         rabbitmq.WithImageRegistry(registry);
 
-        Assert.Throws<DistributedApplicationException>(rabbitmq.WithManagementPlugin);
+        Assert.Throws<DistributedApplicationException>(() => _ = rabbitmq.WithManagementPlugin());
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public async Task VerifyManifest(bool withManagementPlugin)
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -234,10 +234,10 @@ public class AddRabbitMQTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithParameters()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -267,7 +267,7 @@ public class AddRabbitMQTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
 
         rabbit = builder.AddRabbitMQ("rabbit2", userNameParameter);
         manifest = await ManifestUtils.GetManifest(rabbit.Resource);
@@ -291,7 +291,7 @@ public class AddRabbitMQTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
 
         rabbit = builder.AddRabbitMQ("rabbit3", password: passwordParameter);
         manifest = await ManifestUtils.GetManifest(rabbit.Resource);
@@ -315,6 +315,6 @@ public class AddRabbitMQTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 }

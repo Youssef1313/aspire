@@ -7,33 +7,33 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.MySql.Tests;
 
+[TestClass]
 public class AddMySqlTests
 {
-    [Fact]
+    [TestMethod]
     public void AddMySqlAddsGeneratedPasswordParameterWithUserSecretsParameterDefaultInRunMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
 
         var mysql = appBuilder.AddMySql("mysql");
 
-        Assert.Equal("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", mysql.Resource.PasswordParameter.Default?.GetType().FullName);
+        Assert.AreEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", mysql.Resource.PasswordParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddMySqlDoesNotAddGeneratedPasswordParameterWithUserSecretsParameterDefaultInPublishMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
 
         var mysql = appBuilder.AddMySql("mysql");
 
-        Assert.NotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", mysql.Resource.PasswordParameter.Default?.GetType().FullName);
+        Assert.AreNotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", mysql.Resource.PasswordParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddMySqlContainerWithDefaultsAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -43,34 +43,34 @@ public class AddMySqlTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<MySqlServerResource>());
-        Assert.Equal("mysql", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<MySqlServerResource>());
+        Assert.AreEqual("mysql", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(MySqlContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(MySqlContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(MySqlContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(MySqlContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(MySqlContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(MySqlContainerImageTags.Registry, containerAnnotation.Registry);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(3306, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(3306, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("MYSQL_ROOT_PASSWORD", env.Key);
-                Assert.False(string.IsNullOrEmpty(env.Value));
+                Assert.AreEqual("MYSQL_ROOT_PASSWORD", env.Key);
+                Assert.IsFalse(string.IsNullOrEmpty(env.Value));
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddMySqlAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -82,34 +82,34 @@ public class AddMySqlTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.GetContainerResources());
-        Assert.Equal("mysql", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.GetContainerResources());
+        Assert.AreEqual("mysql", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(MySqlContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(MySqlContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(MySqlContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(MySqlContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(MySqlContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(MySqlContainerImageTags.Registry, containerAnnotation.Registry);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(3306, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Equal(1234, endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(3306, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.AreEqual(1234, endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("MYSQL_ROOT_PASSWORD", env.Key);
-                Assert.Equal("pass", env.Value);
+                Assert.AreEqual("MYSQL_ROOT_PASSWORD", env.Key);
+                Assert.AreEqual("pass", env.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task MySqlCreatesConnectionString()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -120,14 +120,14 @@ public class AddMySqlTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<IResourceWithConnectionString>());
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<IResourceWithConnectionString>());
         var connectionString = await connectionStringResource.GetConnectionStringAsync();
 
-        Assert.Equal("Server={mysql.bindings.tcp.host};Port={mysql.bindings.tcp.port};User ID=root;Password={mysql-password.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
-        Assert.StartsWith("Server=localhost;Port=2000;User ID=root;Password=", connectionString);
+        Assert.AreEqual("Server={mysql.bindings.tcp.host};Port={mysql.bindings.tcp.port};User ID=root;Password={mysql-password.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        StringAssert.StartsWith(connectionString, "Server=localhost;Port=2000;User ID=root;Password=");
     }
 
-    [Fact]
+    [TestMethod]
     public async Task MySqlCreatesConnectionStringWithDatabase()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -139,18 +139,18 @@ public class AddMySqlTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var mySqlResource = Assert.Single(appModel.Resources.OfType<MySqlServerResource>());
+        var mySqlResource = Assert.ContainsSingle(appModel.Resources.OfType<MySqlServerResource>());
         var mySqlConnectionStringResource = (IResourceWithConnectionString)mySqlResource;
         var mySqlConnectionString = await mySqlConnectionStringResource.GetConnectionStringAsync();
-        var mySqlDatabaseResource = Assert.Single(appModel.Resources.OfType<MySqlDatabaseResource>());
+        var mySqlDatabaseResource = Assert.ContainsSingle(appModel.Resources.OfType<MySqlDatabaseResource>());
         var mySqlDatabaseConnectionStringResource = (IResourceWithConnectionString)mySqlDatabaseResource;
         var dbConnectionString = await mySqlDatabaseConnectionStringResource.GetConnectionStringAsync();
 
-        Assert.Equal(mySqlConnectionString + ";Database=db", dbConnectionString);
-        Assert.Equal("{mysql.connectionString};Database=db", mySqlDatabaseResource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual(mySqlConnectionString + ";Database=db", dbConnectionString);
+        Assert.AreEqual("{mysql.connectionString};Database=db", mySqlDatabaseResource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifest()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
@@ -178,7 +178,7 @@ public class AddMySqlTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, mySqlManifest.ToString());
+        Assert.AreEqual(expectedManifest, mySqlManifest.ToString());
 
         expectedManifest = """
             {
@@ -186,10 +186,10 @@ public class AddMySqlTests
               "connectionString": "{mysql.connectionString};Database=db"
             }
             """;
-        Assert.Equal(expectedManifest, dbManifest.ToString());
+        Assert.AreEqual(expectedManifest, dbManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithPasswordParameter()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
@@ -216,20 +216,20 @@ public class AddMySqlTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, serverManifest.ToString());
+        Assert.AreEqual(expectedManifest, serverManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void WithMySqlTwiceEndsUpWithOneAdminContainer()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         builder.AddMySql("mySql").WithPhpMyAdmin();
         builder.AddMySql("mySql2").WithPhpMyAdmin();
 
-        Assert.Single(builder.Resources.OfType<ContainerResource>().Where(resource => resource.Name is "mySql-phpmyadmin"));
+        Assert.ContainsSingle(builder.Resources.OfType<ContainerResource>().Where(resource => resource.Name is "mySql-phpmyadmin"));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SingleMySqlInstanceProducesCorrectMySqlHostsVariable()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -246,14 +246,16 @@ public class AddMySqlTests
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(myAdmin, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
         var container = builder.Resources.Single(r => r.Name == "mySql-phpmyadmin");
-        Assert.Empty(container.Annotations.OfType<ContainerMountAnnotation>());
+        Assert.IsEmpty(container.Annotations.OfType<ContainerMountAnnotation>());
 
-        Assert.Equal($"{mysql.Resource.Name}:{mysql.Resource.PrimaryEndpoint.TargetPort}", config["PMA_HOST"]);
-        Assert.NotNull(config["PMA_USER"]);
-        Assert.NotNull(config["PMA_PASSWORD"]);
+        Assert.AreEqual($"{mysql.Resource.Name}:{mysql.Resource.PrimaryEndpoint.TargetPort}", config["PMA_HOST"]);
+#pragma warning disable MSTEST0032 // Assertion condition is always true - https://github.com/microsoft/testfx/issues/5241
+        Assert.IsNotNull(config["PMA_USER"]);
+        Assert.IsNotNull(config["PMA_PASSWORD"]);
+#pragma warning restore MSTEST0032 // Assertion condition is always true
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPhpMyAdminProducesValidServerConfigFile()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -283,9 +285,9 @@ public class AddMySqlTests
         string pattern1 = $@"\$cfg\['Servers'\]\[\$i\]\['host'\] = '{mysql1.Resource.Name}:{mysql1.Resource.PrimaryEndpoint.TargetPort}';";
         string pattern2 = $@"\$cfg\['Servers'\]\[\$i\]\['host'\] = '{mysql2.Resource.Name}:{mysql2.Resource.PrimaryEndpoint.TargetPort}';";
         Match match1 = Regex.Match(fileContents, pattern1);
-        Assert.True(match1.Success);
+        Assert.IsTrue(match1.Success);
         Match match2 = Regex.Match(fileContents, pattern2);
-        Assert.True(match2.Success);
+        Assert.IsTrue(match2.Success);
 
         try
         {
@@ -297,7 +299,7 @@ public class AddMySqlTests
         }
     }
 
-    [Fact]
+    [TestMethod]
     public void ThrowsWithIdenticalChildResourceNames()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -308,7 +310,7 @@ public class AddMySqlTests
         Assert.Throws<DistributedApplicationException>(() => db.AddDatabase("db"));
     }
 
-    [Fact]
+    [TestMethod]
     public void ThrowsWithIdenticalChildResourceNamesDifferentParents()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -320,7 +322,7 @@ public class AddMySqlTests
         Assert.Throws<DistributedApplicationException>(() => db.AddDatabase("db"));
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddDatabasesWithDifferentNamesOnSingleServer()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -330,17 +332,17 @@ public class AddMySqlTests
         var db1 = mysql1.AddDatabase("db1", "customers1");
         var db2 = mysql1.AddDatabase("db2", "customers2");
 
-        Assert.Equal(["db1", "db2"], mysql1.Resource.Databases.Keys);
-        Assert.Equal(["customers1", "customers2"], mysql1.Resource.Databases.Values);
+        Assert.AreEqual(["db1", "db2"], mysql1.Resource.Databases.Keys);
+        Assert.AreEqual(["customers1", "customers2"], mysql1.Resource.Databases.Values);
 
-        Assert.Equal("customers1", db1.Resource.DatabaseName);
-        Assert.Equal("customers2", db2.Resource.DatabaseName);
+        Assert.AreEqual("customers1", db1.Resource.DatabaseName);
+        Assert.AreEqual("customers2", db2.Resource.DatabaseName);
 
-        Assert.Equal("{mysql1.connectionString};Database=customers1", db1.Resource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal("{mysql1.connectionString};Database=customers2", db2.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{mysql1.connectionString};Database=customers1", db1.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{mysql1.connectionString};Database=customers2", db2.Resource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddDatabasesWithTheSameNameOnMultipleServers()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -351,10 +353,10 @@ public class AddMySqlTests
         var db2 = builder.AddMySql("mysql2")
             .AddDatabase("db2", "imports");
 
-        Assert.Equal("imports", db1.Resource.DatabaseName);
-        Assert.Equal("imports", db2.Resource.DatabaseName);
+        Assert.AreEqual("imports", db1.Resource.DatabaseName);
+        Assert.AreEqual("imports", db2.Resource.DatabaseName);
 
-        Assert.Equal("{mysql1.connectionString};Database=imports", db1.Resource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal("{mysql2.connectionString};Database=imports", db2.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{mysql1.connectionString};Database=imports", db1.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{mysql2.connectionString};Database=imports", db2.Resource.ConnectionStringExpression.ValueExpression);
     }
 }

@@ -9,10 +9,10 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Npgsql.EntityFrameworkCore.PostgreSQL.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<TestDbContext, NpgsqlEntityFrameworkCorePostgreSQLSettings>, IClassFixture<PostgreSQLContainerFixture>
 {
     // in the future it can become a static property that reads the value from Env Var
@@ -110,7 +110,7 @@ public class ConformanceTests : ConformanceTests<TestDbContext, NpgsqlEntityFram
         }
     }
 
-    [Fact]
+    [TestMethod]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Required to verify pooling without touching DB")]
     public void DbContextPoolingRegistersIDbContextPool()
     {
@@ -118,20 +118,20 @@ public class ConformanceTests : ConformanceTests<TestDbContext, NpgsqlEntityFram
 
         IDbContextPool<TestDbContext>? pool = host.Services.GetService<IDbContextPool<TestDbContext>>();
 
-        Assert.NotNull(pool);
+        Assert.IsNotNull(pool);
     }
 
-    [Fact]
+    [TestMethod]
     public void DbContextCanBeAlwaysResolved()
     {
         using IHost host = CreateHostWithComponent();
 
         TestDbContext? dbContext = host.Services.GetService<TestDbContext>();
 
-        Assert.NotNull(dbContext);
+        Assert.IsNotNull(dbContext);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void TracingEnablesTheRightActivitySource()
         => RemoteExecutor.Invoke(static connectionStringToUse => RunWithConnectionString(connectionStringToUse, obj => obj.ActivitySourceTest(key: null)),

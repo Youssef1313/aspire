@@ -4,10 +4,10 @@
 using Aspire.Dashboard.Extensions;
 using Aspire.Dashboard.Model.Otlp;
 using Aspire.Dashboard.Utils;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests;
 
+[TestClass]
 public class DashboardUrlsTests
 {
     private const string PlaceholderInput = "!@#";
@@ -19,13 +19,13 @@ public class DashboardUrlsTests
     private const string PlaceholderAllCharactersEncoded = "%21%40%23";
     private const string PlaceholderAllButExclamationMarkEncoded = "!@%23";
 
-    [Fact]
+    [TestMethod]
     public void ConsoleLogsUrl_HtmlValues_CorrectlyEscaped()
     {
-        Assert.Equal($"/consolelogs/resource/resource{PlaceholderAllCharactersEncoded}", DashboardUrls.ConsoleLogsUrl(resource: $"resource{PlaceholderInput}"));
+        Assert.AreEqual($"/consolelogs/resource/resource{PlaceholderAllCharactersEncoded}", DashboardUrls.ConsoleLogsUrl(resource: $"resource{PlaceholderInput}"));
     }
 
-    [Fact]
+    [TestMethod]
     public void StructuredLogsUrl_HtmlValues_CorrectlyEscaped()
     {
         var singleFilterUrl = DashboardUrls.StructuredLogsUrl(
@@ -37,7 +37,7 @@ public class DashboardUrlsTests
             traceId: PlaceholderInput,
             spanId: PlaceholderInput);
 
-        Assert.Equal($"/structuredlogs/resource/resource{PlaceholderAllCharactersEncoded}?logLevel=error&filters=test%3Acontains%3Avalue&traceId={PlaceholderAllButExclamationMarkEncoded}&spanId={PlaceholderAllButExclamationMarkEncoded}", singleFilterUrl);
+        Assert.AreEqual($"/structuredlogs/resource/resource{PlaceholderAllCharactersEncoded}?logLevel=error&filters=test%3Acontains%3Avalue&traceId={PlaceholderAllButExclamationMarkEncoded}&spanId={PlaceholderAllButExclamationMarkEncoded}", singleFilterUrl);
 
         var multipleFiltersIncludingSpacesUrl = DashboardUrls.StructuredLogsUrl(
             resource: $"resource{PlaceholderInput}",
@@ -49,22 +49,22 @@ public class DashboardUrlsTests
             ]),
             traceId: PlaceholderInput,
             spanId: PlaceholderInput);
-        Assert.Equal($"/structuredlogs/resource/resource{PlaceholderAllCharactersEncoded}?logLevel=error&filters=test%3Acontains%3Avalue%20fieldWithSpacedValue%3Agt%3A!!%2Bmultiple%2Bwords%2Bhere%2B!!%20name%3A!equals%3AnameValue&traceId={PlaceholderAllButExclamationMarkEncoded}&spanId={PlaceholderAllButExclamationMarkEncoded}", multipleFiltersIncludingSpacesUrl);
+        Assert.AreEqual($"/structuredlogs/resource/resource{PlaceholderAllCharactersEncoded}?logLevel=error&filters=test%3Acontains%3Avalue%20fieldWithSpacedValue%3Agt%3A!!%2Bmultiple%2Bwords%2Bhere%2B!!%20name%3A!equals%3AnameValue&traceId={PlaceholderAllButExclamationMarkEncoded}&spanId={PlaceholderAllButExclamationMarkEncoded}", multipleFiltersIncludingSpacesUrl);
     }
 
-    [Fact]
+    [TestMethod]
     public void TracesUrl_HtmlValues_CorrectlyEscaped()
     {
-        Assert.Equal($"/traces/resource/resource{PlaceholderAllCharactersEncoded}", DashboardUrls.TracesUrl(resource: $"resource{PlaceholderInput}"));
+        Assert.AreEqual($"/traces/resource/resource{PlaceholderAllCharactersEncoded}", DashboardUrls.TracesUrl(resource: $"resource{PlaceholderInput}"));
     }
 
-    [Fact]
+    [TestMethod]
     public void TraceDetailUrl_HtmlValues_CorrectlyEscaped()
     {
-        Assert.Equal($"/traces/detail/traceId{PlaceholderAllCharactersEncoded}", DashboardUrls.TraceDetailUrl(traceId: $"traceId{PlaceholderInput}"));
+        Assert.AreEqual($"/traces/detail/traceId{PlaceholderAllCharactersEncoded}", DashboardUrls.TraceDetailUrl(traceId: $"traceId{PlaceholderInput}"));
     }
 
-    [Fact]
+    [TestMethod]
     public void MetricsUrl_HtmlValues_CorrectlyEscaped()
     {
         var url = DashboardUrls.MetricsUrl(
@@ -74,12 +74,12 @@ public class DashboardUrlsTests
             duration: 10,
             view: "table");
 
-        Assert.Equal($"/metrics/resource/resource{PlaceholderAllCharactersEncoded}?meter=meter{PlaceholderAllButExclamationMarkEncoded}&instrument=meter{PlaceholderAllButExclamationMarkEncoded}&duration=10&view=table", url);
+        Assert.AreEqual($"/metrics/resource/resource{PlaceholderAllCharactersEncoded}?meter=meter{PlaceholderAllButExclamationMarkEncoded}&instrument=meter{PlaceholderAllButExclamationMarkEncoded}&duration=10&view=table", url);
     }
 
-    [Fact]
+    [TestMethod]
     public void SetLanguagesUrl_HtmlValues_CorrectlyEscaped()
     {
-        Assert.Equal("/api/set-language?language=fr-FR&redirectUrl=%2Fhi", DashboardUrls.SetLanguageUrl("fr-FR", "/hi"));
+        Assert.AreEqual("/api/set-language?language=fr-FR&redirectUrl=%2Fhi", DashboardUrls.SetLanguageUrl("fr-FR", "/hi"));
     }
 }

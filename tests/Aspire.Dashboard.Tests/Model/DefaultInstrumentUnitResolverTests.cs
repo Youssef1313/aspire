@@ -6,19 +6,19 @@ using Aspire.Dashboard.Otlp.Model;
 using Aspire.Dashboard.Resources;
 using Aspire.Tests.Shared.Telemetry;
 using OpenTelemetry.Proto.Common.V1;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.Model;
 
+[TestClass]
 public sealed class DefaultInstrumentUnitResolverTests
 {
-    [Theory]
-    [InlineData("By/s", "instrument_name", "Bytes Per Second")]
-    [InlineData("connection", "instrument_name", "Connections")]
-    [InlineData("{connection}", "instrument_name", "Connections")]
-    [InlineData("", "instrument_name", "Localized:PlotlyChartValue")]
-    [InlineData("", "instrument_name.count", "Localized:PlotlyChartCount")]
-    [InlineData("", "instrument_name.length", "Localized:PlotlyChartLength")]
+    [TestMethod]
+    [DataRow("By/s", "instrument_name", "Bytes Per Second")]
+    [DataRow("connection", "instrument_name", "Connections")]
+    [DataRow("{connection}", "instrument_name", "Connections")]
+    [DataRow("", "instrument_name", "Localized:PlotlyChartValue")]
+    [DataRow("", "instrument_name.count", "Localized:PlotlyChartCount")]
+    [DataRow("", "instrument_name.length", "Localized:PlotlyChartLength")]
     public void ResolveDisplayedUnit(string unit, string name, string expected)
     {
         // Arrange
@@ -38,6 +38,6 @@ public sealed class DefaultInstrumentUnitResolverTests
         var result = resolver.ResolveDisplayedUnit(otlpInstrumentSummary, titleCase: true, pluralize: true);
 
         // Assert
-        Assert.Equal(expected, result);
+        Assert.AreEqual(expected, result);
     }
 }

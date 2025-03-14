@@ -1,15 +1,15 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class PublishAsDockerfileTests
 {
-    [Fact]
+    [TestMethod]
     public async Task PublishAsDockerFileConfiguresManifestWithoutBuildArgs()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -23,8 +23,8 @@ public class PublishAsDockerfileTests
 
         // There should be an equivalent container resource with the same name
         // as the npm app resource.
-        var containerResource = Assert.Single(builder.Resources.OfType<ContainerResource>());
-        Assert.Equal("frontend", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(builder.Resources.OfType<ContainerResource>());
+        Assert.AreEqual("frontend", containerResource.Name);
 
         var manifest = await ManifestUtils.GetManifest(frontend.Resource, manifestDirectory: path).DefaultTimeout();
 
@@ -44,10 +44,10 @@ public class PublishAsDockerfileTests
 
         var actual = manifest.ToString();
 
-        Assert.Equal(expected, actual, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+        Assert.AreEqual(expected, actual, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task PublishAsDockerFileConfiguresManifestWithBuildArgs()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -69,8 +69,8 @@ public class PublishAsDockerfileTests
 
         // There should be an equivalent container resource with the same name
         // as the npm app resource.
-        var containerResource = Assert.Single(builder.Resources.OfType<ContainerResource>());
-        Assert.Equal("frontend", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(builder.Resources.OfType<ContainerResource>());
+        Assert.AreEqual("frontend", containerResource.Name);
 
         var manifest = await ManifestUtils.GetManifest(frontend.Resource, manifestDirectory: path).DefaultTimeout();
 
@@ -97,10 +97,10 @@ public class PublishAsDockerfileTests
 
         var actual = manifest.ToString();
 
-        Assert.Equal(expected, actual, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+        Assert.AreEqual(expected, actual, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task PublishAsDockerFileConfiguresManifestWithBuildArgsThatHaveNoValue()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -118,8 +118,8 @@ public class PublishAsDockerfileTests
 
         // There should be an equivalent container resource with the same name
         // as the npm app resource.
-        var containerResource = Assert.Single(builder.Resources.OfType<ContainerResource>());
-        Assert.Equal("frontend", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(builder.Resources.OfType<ContainerResource>());
+        Assert.AreEqual("frontend", containerResource.Name);
 
         var manifest = await ManifestUtils.GetManifest(frontend.Resource, manifestDirectory: path).DefaultTimeout();
 
@@ -142,10 +142,10 @@ public class PublishAsDockerfileTests
 
         var actual = manifest.ToString();
 
-        Assert.Equal(expected, actual, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+        Assert.AreEqual(expected, actual, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task PublishAsDockerFileConfigureContainer()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -167,8 +167,8 @@ public class PublishAsDockerfileTests
 
         // There should be an equivalent container resource with the same name
         // as the npm app resource.
-        var containerResource = Assert.Single(builder.Resources.OfType<ContainerResource>());
-        Assert.Equal("frontend", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(builder.Resources.OfType<ContainerResource>());
+        Assert.AreEqual("frontend", containerResource.Name);
 
         var manifest = await ManifestUtils.GetManifest(frontend.Resource, manifestDirectory: path).DefaultTimeout();
 
@@ -204,10 +204,10 @@ public class PublishAsDockerfileTests
 
         var actual = manifest.ToString();
 
-        Assert.Equal(expected, actual, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+        Assert.AreEqual(expected, actual, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task PublishProjectAsDockerFile()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -226,8 +226,8 @@ public class PublishAsDockerfileTests
                              });
         // There should be an equivalent container resource with the same name
         // as the project resource.
-        var containerResource = Assert.Single(builder.Resources.OfType<ContainerResource>());
-        Assert.Equal("project", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(builder.Resources.OfType<ContainerResource>());
+        Assert.AreEqual("project", containerResource.Name);
 
         var manifest = await ManifestUtils.GetManifest(project.Resource, manifestDirectory: path).DefaultTimeout();
 
@@ -261,7 +261,7 @@ public class PublishAsDockerfileTests
             """;
 
         var actual = manifest.ToString();
-        Assert.Equal(expected, actual, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+        Assert.AreEqual(expected, actual, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
     }
 
     private static DisposableTempDirectory CreateDirectoryWithDockerFile()

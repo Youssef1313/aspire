@@ -1,25 +1,25 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 
 namespace Aspire.Npgsql.Tests;
 
+[TestClass]
 public class ConfigurationTests
 {
-    [Fact]
+    [TestMethod]
     public void ConnectionStringIsNullByDefault()
-    => Assert.Null(new NpgsqlSettings().ConnectionString);
+    => Assert.IsNull(new NpgsqlSettings().ConnectionString);
 
-    [Fact]
+    [TestMethod]
     public void HealthCheckIsEnabledByDefault()
-        => Assert.False(new NpgsqlSettings().DisableHealthChecks);
+        => Assert.IsFalse(new NpgsqlSettings().DisableHealthChecks);
 
-    [Fact]
+    [TestMethod]
     public void TracingIsEnabledByDefault()
-        => Assert.False(new NpgsqlSettings().DisableTracing);
+        => Assert.IsFalse(new NpgsqlSettings().DisableTracing);
 
-    [Fact]
+    [TestMethod]
     public void MetricsAreEnabledByDefault()
-        => Assert.False(new NpgsqlSettings().DisableMetrics);
+        => Assert.IsFalse(new NpgsqlSettings().DisableMetrics);
 }

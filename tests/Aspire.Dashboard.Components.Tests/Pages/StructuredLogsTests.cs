@@ -18,14 +18,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.FluentUI.AspNetCore.Components;
-using Xunit;
 
 namespace Aspire.Dashboard.Components.Tests.Pages;
 
 [UseCulture("en-US")]
-public partial class StructuredLogsTests : TestContext
+[TestClass]
+public partial class StructuredLogsTests : Bunit.TestContext
 {
-    [Fact]
+    [TestMethod]
     public void Render_TraceIdAndSpanId_FilterAdded()
     {
         // Arrange
@@ -49,20 +49,20 @@ public partial class StructuredLogsTests : TestContext
         // Assert
         var viewModel = Services.GetRequiredService<StructuredLogsViewModel>();
 
-        Assert.Collection(viewModel.Filters,
+        Assert.That.Collection(viewModel.Filters,
             f =>
             {
-                Assert.Equal(KnownStructuredLogFields.TraceIdField, f.Field);
-                Assert.Equal("123", f.Value);
+                Assert.AreEqual(KnownStructuredLogFields.TraceIdField, f.Field);
+                Assert.AreEqual("123", f.Value);
             },
             f =>
             {
-                Assert.Equal(KnownStructuredLogFields.SpanIdField, f.Field);
-                Assert.Equal("456", f.Value);
+                Assert.AreEqual(KnownStructuredLogFields.SpanIdField, f.Field);
+                Assert.AreEqual("456", f.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void Render_DuplicateFilters_SingleFilterAdded()
     {
         // Arrange
@@ -89,16 +89,16 @@ public partial class StructuredLogsTests : TestContext
         // Assert
         var viewModel = Services.GetRequiredService<StructuredLogsViewModel>();
 
-        Assert.Collection(viewModel.Filters,
+        Assert.That.Collection(viewModel.Filters,
             f =>
             {
-                Assert.Equal(filter.Field, f.Field);
-                Assert.Equal(filter.Condition, f.Condition);
-                Assert.Equal(filter.Value, f.Value);
+                Assert.AreEqual(filter.Field, f.Field);
+                Assert.AreEqual(filter.Condition, f.Condition);
+                Assert.AreEqual(filter.Value, f.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void Render_FiltersWithSpecialCharacters_SuccessfullyParsed()
     {
         // Arrange
@@ -127,24 +127,24 @@ public partial class StructuredLogsTests : TestContext
         // Assert
         var viewModel = Services.GetRequiredService<StructuredLogsViewModel>();
 
-        Assert.Collection(viewModel.Filters,
+        Assert.That.Collection(viewModel.Filters,
             f =>
             {
-                Assert.Equal(filter1.Field, f.Field);
-                Assert.Equal(filter1.Condition, f.Condition);
-                Assert.Equal(filter1.Value, f.Value);
+                Assert.AreEqual(filter1.Field, f.Field);
+                Assert.AreEqual(filter1.Condition, f.Condition);
+                Assert.AreEqual(filter1.Value, f.Value);
             },
             f =>
             {
-                Assert.Equal(filter2.Field, f.Field);
-                Assert.Equal(filter2.Condition, f.Condition);
-                Assert.Equal(filter2.Value, f.Value);
+                Assert.AreEqual(filter2.Field, f.Field);
+                Assert.AreEqual(filter2.Condition, f.Condition);
+                Assert.AreEqual(filter2.Value, f.Value);
             },
             f =>
             {
-                Assert.Equal(filter3.Field, f.Field);
-                Assert.Equal(filter3.Condition, f.Condition);
-                Assert.Equal(filter3.Value, f.Value);
+                Assert.AreEqual(filter3.Field, f.Field);
+                Assert.AreEqual(filter3.Condition, f.Condition);
+                Assert.AreEqual(filter3.Value, f.Value);
             });
     }
 

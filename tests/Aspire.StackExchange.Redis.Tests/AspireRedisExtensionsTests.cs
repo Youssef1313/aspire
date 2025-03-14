@@ -16,10 +16,10 @@ using OpenTelemetry.Instrumentation.StackExchangeRedis;
 using OpenTelemetry.Trace;
 using StackExchange.Redis;
 using StackExchange.Redis.Profiling;
-using Xunit;
 
 namespace Aspire.StackExchange.Redis.Tests;
 
+[TestClass]
 public class AspireRedisExtensionsTests : IClassFixture<RedisContainerFixture>
 {
     private const string TestingEndpoint = "localhost";
@@ -31,7 +31,7 @@ public class AspireRedisExtensionsTests : IClassFixture<RedisContainerFixture>
         _containerFixture = containerFixture;
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void AllowsConfigureConfigurationOptions()
     {
@@ -51,10 +51,10 @@ public class AspireRedisExtensionsTests : IClassFixture<RedisContainerFixture>
         Assert.Contains("aspire-test-user", connection.Configuration);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(true)]
-    [InlineData(false)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -79,10 +79,10 @@ public class AspireRedisExtensionsTests : IClassFixture<RedisContainerFixture>
         Assert.Contains(ConnectionString, connection.Configuration);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(true)]
-    [InlineData(false)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -110,10 +110,10 @@ public class AspireRedisExtensionsTests : IClassFixture<RedisContainerFixture>
         Assert.DoesNotContain("unused", connection.Configuration);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(true)]
-    [InlineData(false)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -173,7 +173,7 @@ public class AspireRedisExtensionsTests : IClassFixture<RedisContainerFixture>
         new KeyValuePair<string, string?>("ConnectionStrings:redis", $"{TestingEndpoint},abortConnect={(abortConnect ? "true" : "false")}")
     ];
 
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(AbortOnConnectFailData))]
     public void AbortOnConnectFailDefaults(bool useKeyed, IEnumerable<KeyValuePair<string, string?>> configValues, bool expectedAbortOnConnect)
     {
@@ -194,16 +194,16 @@ public class AspireRedisExtensionsTests : IClassFixture<RedisContainerFixture>
             host.Services.GetRequiredService<IOptionsMonitor<ConfigurationOptions>>().Get("redis") :
             host.Services.GetRequiredService<IOptions<ConfigurationOptions>>().Value;
 
-        Assert.Equal(expectedAbortOnConnect, options.AbortOnConnectFail);
+        Assert.AreEqual(expectedAbortOnConnect, options.AbortOnConnectFail);
     }
 
     /// <summary>
     /// Verifies that both distributed and output caching components can be added to the same builder and their HealthChecks don't conflict.
     /// See https://github.com/dotnet/aspire/issues/705
     /// </summary>
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void MultipleRedisComponentsCanBeAdded(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -232,13 +232,13 @@ public class AspireRedisExtensionsTests : IClassFixture<RedisContainerFixture>
         // Explicitly ensure the HealthCheckService can be retrieved. It validates the registrations in its constructor.
         // See https://github.com/dotnet/aspnetcore/blob/94ad7031db6744409de24f75777a59620cb94d9a/src/HealthChecks/HealthChecks/src/DefaultHealthCheckService.cs#L33-L36
         var healthCheckService = host.Services.GetRequiredService<HealthCheckService>();
-        Assert.NotNull(healthCheckService);
+        Assert.IsNotNull(healthCheckService);
     }
 
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_profilingSessionProvider")]
     static extern ref Func<ProfilingSession>? GetProfiler(ConnectionMultiplexer? @this);
 
-    [Fact]
+    [TestMethod]
     public void KeyedServiceRedisInstrumentation()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -256,10 +256,10 @@ public class AspireRedisExtensionsTests : IClassFixture<RedisContainerFixture>
         var connectionMultiplexer = host.Services.GetRequiredKeyedService<IConnectionMultiplexer>("redis");
         var profiler = GetProfiler(connectionMultiplexer as ConnectionMultiplexer);
 
-        Assert.NotNull(profiler);
+        Assert.IsNotNull(profiler);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void KeyedServiceRedisInstrumentationEndToEnd()
     {
@@ -288,15 +288,15 @@ public class AspireRedisExtensionsTests : IClassFixture<RedisContainerFixture>
 
             // read the first activity
             var activityList = await notifier.TakeAsync(1, TimeSpan.FromSeconds(10));
-            Assert.Single(activityList);
+            Assert.ContainsSingle(activityList);
 
             var activity = activityList[0];
-            Assert.Equal("GET", activity.OperationName);
+            Assert.AreEqual("GET", activity.OperationName);
             Assert.Contains(activity.Tags, kvp => kvp.Key == "db.system" && kvp.Value == "redis");
         }, ConnectionString).Dispose();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task CanAddMultipleKeyedServices()
     {
@@ -320,19 +320,19 @@ public class AspireRedisExtensionsTests : IClassFixture<RedisContainerFixture>
         var connection2 = host.Services.GetRequiredKeyedService<IConnectionMultiplexer>("redis2");
         var connection3 = host.Services.GetRequiredKeyedService<IConnectionMultiplexer>("redis3");
 
-        Assert.NotSame(connection1, connection2);
-        Assert.NotSame(connection1, connection3);
-        Assert.NotSame(connection2, connection3);
+        Assert.AreNotSame(connection1, connection2);
+        Assert.AreNotSame(connection1, connection3);
+        Assert.AreNotSame(connection2, connection3);
 
-        Assert.Equal(ConnectionString, connection1.Configuration);
-        Assert.Equal(container2.GetConnectionString(), connection2.Configuration);
-        Assert.Equal(container3.GetConnectionString(), connection3.Configuration);
+        Assert.AreEqual(ConnectionString, connection1.Configuration);
+        Assert.AreEqual(container2.GetConnectionString(), connection2.Configuration);
+        Assert.AreEqual(container3.GetConnectionString(), connection3.Configuration);
     }
 
     /// <summary>
     /// Tests that you can use a keyed service for a distributed cache, another for an output cache, while also adding a plain Redis service.
     /// </summary>
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task CanAddMultipleKeyedCachingServices()
     {
@@ -359,27 +359,27 @@ public class AspireRedisExtensionsTests : IClassFixture<RedisContainerFixture>
         var connection3 = host.Services.GetRequiredKeyedService<IConnectionMultiplexer>("redis3");
         var outputCache = host.Services.GetRequiredService<IOutputCacheStore>();
 
-        Assert.NotSame(connection1, connection2);
-        Assert.NotSame(connection1, connection3);
-        Assert.NotSame(connection2, connection3);
+        Assert.AreNotSame(connection1, connection2);
+        Assert.AreNotSame(connection1, connection3);
+        Assert.AreNotSame(connection2, connection3);
 
-        Assert.Equal(container1.GetConnectionString(), connection1.Configuration);
-        Assert.Equal(container2.GetConnectionString(), connection2.Configuration);
-        Assert.Equal(container3.GetConnectionString(), connection3.Configuration);
+        Assert.AreEqual(container1.GetConnectionString(), connection1.Configuration);
+        Assert.AreEqual(container2.GetConnectionString(), connection2.Configuration);
+        Assert.AreEqual(container3.GetConnectionString(), connection3.Configuration);
 
         // set a value in the distributed cache and ensure it is only in the redis2 server
         distributedCache.SetString("key", "value");
 
-        Assert.Empty(connection1.GetServers().Single().Keys());
-        Assert.Single(connection2.GetServers().Single().Keys());
-        Assert.Empty(connection3.GetServers().Single().Keys());
+        Assert.IsEmpty(connection1.GetServers().Single().Keys());
+        Assert.ContainsSingle(connection2.GetServers().Single().Keys());
+        Assert.IsEmpty(connection3.GetServers().Single().Keys());
 
         // set a value in the output cache and ensure it was added to the redis3 server
         await outputCache.SetAsync("outputKey", [1, 2, 3, 4], tags: null, validFor: TimeSpan.MaxValue, cancellationToken: default);
 
-        Assert.Empty(connection1.GetServers().Single().Keys());
-        Assert.Single(connection2.GetServers().Single().Keys());
-        Assert.Single(connection3.GetServers().Single().Keys());
+        Assert.IsEmpty(connection1.GetServers().Single().Keys());
+        Assert.ContainsSingle(connection2.GetServers().Single().Keys());
+        Assert.ContainsSingle(connection3.GetServers().Single().Keys());
     }
 
     private void PopulateConfiguration(ConfigurationManager configuration, string? key = null) =>

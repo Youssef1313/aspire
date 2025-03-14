@@ -4,14 +4,14 @@
 using Aspire.Hosting.Utils;
 using System.Net.Sockets;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 using Aspire.Hosting.ApplicationModel;
 
 namespace Aspire.Hosting.Keycloak.Tests;
 
+[TestClass]
 public class KeycloakResourceBuilderTests
 {
-    [Fact]
+    [TestMethod]
     public void AddKeycloakWithDefaultsAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -23,38 +23,38 @@ public class KeycloakResourceBuilderTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<KeycloakResource>());
-        Assert.Equal(resourceName, containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<KeycloakResource>());
+        Assert.AreEqual(resourceName, containerResource.Name);
 
         const string defaultEndpointName = "http";
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>().Where(e => e.Name == defaultEndpointName));
-        Assert.Equal(8080, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal(defaultEndpointName, endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("http", endpoint.Transport);
-        Assert.Equal("http", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>().Where(e => e.Name == defaultEndpointName));
+        Assert.AreEqual(8080, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual(defaultEndpointName, endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("http", endpoint.Transport);
+        Assert.AreEqual("http", endpoint.UriScheme);
 
         const string managementEndpointName = "management";
 
-        var healthEndpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>().Where(e => e.Name == managementEndpointName));
-        Assert.Equal(9000, healthEndpoint.TargetPort);
-        Assert.False(healthEndpoint.IsExternal);
-        Assert.Equal(managementEndpointName, healthEndpoint.Name);
-        Assert.Null(healthEndpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, healthEndpoint.Protocol);
-        Assert.Equal("http", healthEndpoint.Transport);
-        Assert.Equal("http", healthEndpoint.UriScheme);
+        var healthEndpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>().Where(e => e.Name == managementEndpointName));
+        Assert.AreEqual(9000, healthEndpoint.TargetPort);
+        Assert.IsFalse(healthEndpoint.IsExternal);
+        Assert.AreEqual(managementEndpointName, healthEndpoint.Name);
+        Assert.IsNull(healthEndpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, healthEndpoint.Protocol);
+        Assert.AreEqual("http", healthEndpoint.Transport);
+        Assert.AreEqual("http", healthEndpoint.UriScheme);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(KeycloakContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(KeycloakContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(KeycloakContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(KeycloakContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(KeycloakContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(KeycloakContainerImageTags.Registry, containerAnnotation.Registry);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataVolumeAddsVolumeAnnotation()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -65,13 +65,13 @@ public class KeycloakResourceBuilderTests
 
         var volumeAnnotation = keycloak.Resource.Annotations.OfType<ContainerMountAnnotation>().Single();
 
-        Assert.Equal($"{builder.GetVolumePrefix()}-{resourceName}-data", volumeAnnotation.Source);
-        Assert.Equal("/opt/keycloak/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.Volume, volumeAnnotation.Type);
-        Assert.False(volumeAnnotation.IsReadOnly);
+        Assert.AreEqual($"{builder.GetVolumePrefix()}-{resourceName}-data", volumeAnnotation.Source);
+        Assert.AreEqual("/opt/keycloak/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.Volume, volumeAnnotation.Type);
+        Assert.IsFalse(volumeAnnotation.IsReadOnly);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataBindMountAddsMountAnnotation()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -80,33 +80,33 @@ public class KeycloakResourceBuilderTests
 
         var volumeAnnotation = keycloak.Resource.Annotations.OfType<ContainerMountAnnotation>().Single();
 
-        Assert.Equal(Path.Combine(builder.AppHostDirectory, "mydata"), volumeAnnotation.Source);
-        Assert.Equal("/opt/keycloak/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.BindMount, volumeAnnotation.Type);
-        Assert.False(volumeAnnotation.IsReadOnly);
+        Assert.AreEqual(Path.Combine(builder.AppHostDirectory, "mydata"), volumeAnnotation.Source);
+        Assert.AreEqual("/opt/keycloak/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.BindMount, volumeAnnotation.Type);
+        Assert.IsFalse(volumeAnnotation.IsReadOnly);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAddKeycloakAddsGeneratedPasswordParameterWithUserSecretsParameterDefaultInRunMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
 
         var rmq = appBuilder.AddKeycloak("keycloak");
 
-        Assert.Equal("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", rmq.Resource.AdminPasswordParameter.Default?.GetType().FullName);
+        Assert.AreEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", rmq.Resource.AdminPasswordParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAddKeycloakDoesNotAddGeneratedPasswordParameterWithUserSecretsParameterDefaultInPublishMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
 
         var rmq = appBuilder.AddKeycloak("keycloak");
 
-        Assert.NotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", rmq.Resource.AdminPasswordParameter.Default?.GetType().FullName);
+        Assert.AreNotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", rmq.Resource.AdminPasswordParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -143,6 +143,6 @@ public class KeycloakResourceBuilderTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 }

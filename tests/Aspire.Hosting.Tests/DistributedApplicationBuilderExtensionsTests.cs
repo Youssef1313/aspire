@@ -1,13 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class DistributedApplicationBuilderExtensionsTests
 {
-    [Fact]
+    [TestMethod]
     public void CreateResourceBuilderByNameRequiresExistingResource()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -15,7 +15,7 @@ public class DistributedApplicationBuilderExtensionsTests
         Assert.Contains("not found", missingException.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void CreateResourceBuilderByNameRequiresCompatibleType()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -24,7 +24,7 @@ public class DistributedApplicationBuilderExtensionsTests
         Assert.Contains("not assignable", incorrectTypeException.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void CreateResourceBuilderByNameSupportsUpCast()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -32,15 +32,15 @@ public class DistributedApplicationBuilderExtensionsTests
 
         // RedisResource implements ContainerResource, so this is acceptable.
         var newRedisBuilder = appBuilder.CreateResourceBuilder<ContainerResource>("redis");
-        Assert.Same(originalRedis.Resource, newRedisBuilder.Resource);
+        Assert.AreSame(originalRedis.Resource, newRedisBuilder.Resource);
     }
 
-    [Fact]
+    [TestMethod]
     public void CreateResourceBuilderByReturnsSameResourceInstance()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
         var originalRedis = appBuilder.AddRedis("redis");
         var newRedisBuilder = appBuilder.CreateResourceBuilder<RedisResource>("redis");
-        Assert.Same(originalRedis.Resource, newRedisBuilder.Resource);
+        Assert.AreSame(originalRedis.Resource, newRedisBuilder.Resource);
     }
 }

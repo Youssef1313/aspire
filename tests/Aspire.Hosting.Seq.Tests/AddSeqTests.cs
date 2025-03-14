@@ -5,13 +5,13 @@ using System.Net.Sockets;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Seq.Tests;
 
+[TestClass]
 public class AddSeqTests
 {
-    [Fact]
+    [TestMethod]
     public void AddSeqContainerWithDefaultsAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -21,25 +21,25 @@ public class AddSeqTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<SeqResource>());
-        Assert.Equal("mySeq", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<SeqResource>());
+        Assert.AreEqual("mySeq", containerResource.Name);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(80, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("http", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("http", endpoint.Transport);
-        Assert.Equal("http", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(80, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("http", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("http", endpoint.Transport);
+        Assert.AreEqual("http", endpoint.UriScheme);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(SeqContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(SeqContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(SeqContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(SeqContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(SeqContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(SeqContainerImageTags.Registry, containerAnnotation.Registry);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddSeqContainerAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -49,25 +49,25 @@ public class AddSeqTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<SeqResource>());
-        Assert.Equal("mySeq", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<SeqResource>());
+        Assert.AreEqual("mySeq", containerResource.Name);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(80, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("http", endpoint.Name);
-        Assert.Equal(9813, endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("http", endpoint.Transport);
-        Assert.Equal("http", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(80, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("http", endpoint.Name);
+        Assert.AreEqual(9813, endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("http", endpoint.Transport);
+        Assert.AreEqual("http", endpoint.UriScheme);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(SeqContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(SeqContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(SeqContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(SeqContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(SeqContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(SeqContainerImageTags.Registry, containerAnnotation.Registry);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SeqCreatesConnectionString()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -78,13 +78,13 @@ public class AddSeqTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<IResourceWithConnectionString>());
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<IResourceWithConnectionString>());
         var connectionString = await connectionStringResource.GetConnectionStringAsync(default);
-        Assert.Equal("{mySeq.bindings.http.url}", connectionStringResource.ConnectionStringExpression.ValueExpression);
-        Assert.StartsWith("http://localhost:2000", connectionString);
+        Assert.AreEqual("{mySeq.bindings.http.url}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        StringAssert.StartsWith(connectionString, "http://localhost:2000");
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -110,13 +110,13 @@ public class AddSeqTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithDataVolumeAddsVolumeAnnotation(bool? isReadOnly)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -132,16 +132,16 @@ public class AddSeqTests
 
         var volumeAnnotation = seq.Resource.Annotations.OfType<ContainerMountAnnotation>().Single();
 
-        Assert.Equal($"{builder.GetVolumePrefix()}-mySeq-data", volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.Volume, volumeAnnotation.Type);
-        Assert.Equal(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
+        Assert.AreEqual($"{builder.GetVolumePrefix()}-mySeq-data", volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.Volume, volumeAnnotation.Type);
+        Assert.AreEqual(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithDataBindMountAddsMountAnnotation(bool? isReadOnly)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -157,9 +157,9 @@ public class AddSeqTests
 
         var volumeAnnotation = seq.Resource.Annotations.OfType<ContainerMountAnnotation>().Single();
 
-        Assert.Equal(Path.Combine(builder.AppHostDirectory, "mydata"), volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.BindMount, volumeAnnotation.Type);
-        Assert.Equal(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
+        Assert.AreEqual(Path.Combine(builder.AppHostDirectory, "mydata"), volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.BindMount, volumeAnnotation.Type);
+        Assert.AreEqual(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
     }
 }

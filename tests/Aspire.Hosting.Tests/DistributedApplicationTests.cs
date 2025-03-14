@@ -23,27 +23,27 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using TestConstants = Microsoft.AspNetCore.InternalTesting.TestConstants;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class DistributedApplicationTests
 {
-    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly TestContext _testContext;
 
     private const string ReplicaIdRegex = @"[\w]+"; // Matches a replica ID that is part of a resource name.
     private const string AspireTestContainerRegistry = "netaspireci.azurecr.io";
     private const string RedisImageSource = $"{AspireTestContainerRegistry}/{RedisContainerImageTags.Image}:{RedisContainerImageTags.Tag}";
 
-    public DistributedApplicationTests(ITestOutputHelper testOutputHelper)
+    public DistributedApplicationTests(TestContext testContext)
     {
-        _testOutputHelper = testOutputHelper;
+        _testContext = testContext;
     }
 
-    [Fact]
+    [TestMethod]
     public async Task RegisteredLifecycleHookIsExecutedWhenRunAsynchronously()
     {
         var exceptionMessage = "Exception from lifecycle hook to prove it ran!";
@@ -53,7 +53,7 @@ public class DistributedApplicationTests
         {
             return new CallbackLifecycleHook((appModel, cancellationToken) =>
             {
-                Assert.NotNull(appModel);
+                Assert.IsNotNull(appModel);
 
                 throw new DistributedApplicationException(exceptionMessage);
             });
@@ -66,10 +66,10 @@ public class DistributedApplicationTests
             await testProgram.RunAsync(cts.Token);
         }).DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout);
 
-        Assert.Equal(exceptionMessage, ex.Message);
+        Assert.AreEqual(exceptionMessage, ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task MultipleRegisteredLifecycleHooksAreExecuted()
     {
         var exceptionMessage = "Exception from lifecycle hook to prove it ran!";
@@ -107,12 +107,12 @@ public class DistributedApplicationTests
             await testProgram.RunAsync(cts.Token);
         }).DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout);
 
-        Assert.Equal(exceptionMessage, ex.Message);
-        Assert.True(signal.FirstHookExecuted);
-        Assert.True(signal.SecondHookExecuted);
+        Assert.AreEqual(exceptionMessage, ex.Message);
+        Assert.IsTrue(signal.FirstHookExecuted);
+        Assert.IsTrue(signal.SecondHookExecuted);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task StartResourceForcesStart()
     {
         using var testProgram = CreateTestProgram("force-resource-start");
@@ -154,7 +154,7 @@ public class DistributedApplicationTests
         await app.StopAsync().DefaultTimeout(TestConstants.LongTimeoutTimeSpan);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ExplicitStart_StartExecutable()
     {
         const string testName = "explicit-start-executable";
@@ -180,16 +180,16 @@ public class DistributedApplicationTests
 
         // Inactive URLs and source should be populated on non-started resources.
         Assert.Contains("TestProject.ServiceA.csproj", notStartedResourceEvent.Snapshot.Properties.Single(p => p.Name == "project.path").Value?.ToString());
-        Assert.Collection(notStartedResourceEvent.Snapshot.Urls, u =>
+        Assert.That.Collection(notStartedResourceEvent.Snapshot.Urls, u =>
         {
-            Assert.Equal("http://localhost:5156", u.Url);
-            Assert.True(u.IsInactive);
+            Assert.AreEqual("http://localhost:5156", u.Url);
+            Assert.IsTrue(u.IsInactive);
         });
         Assert.Contains("TestProject.ServiceB.csproj", dependentResourceEvent.Snapshot.Properties.Single(p => p.Name == "project.path").Value?.ToString());
-        Assert.Collection(dependentResourceEvent.Snapshot.Urls, u =>
+        Assert.That.Collection(dependentResourceEvent.Snapshot.Urls, u =>
         {
-            Assert.Equal("http://localhost:5254", u.Url);
-            Assert.True(u.IsInactive);
+            Assert.AreEqual("http://localhost:5254", u.Url);
+            Assert.IsTrue(u.IsInactive);
         });
 
         logger.LogInformation("Start explicit start resource.");
@@ -211,7 +211,7 @@ public class DistributedApplicationTests
         await app.StopAsync().DefaultTimeout(TestConstants.LongTimeoutTimeSpan);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task ExplicitStart_StartContainer()
     {
@@ -241,17 +241,17 @@ public class DistributedApplicationTests
         var dependentResourceEvent = await rns.WaitForResourceAsync(dependentResourceName, e => e.Snapshot.State?.Text == KnownResourceStates.Waiting).DefaultTimeout(TestConstants.LongTimeoutTimeSpan);
 
         // Inactive URLs and source should be populated on non-started resources.
-        Assert.Equal(RedisImageSource, notStartedResourceEvent.Snapshot.Properties.Single(p => p.Name == "container.image").Value?.ToString());
-        Assert.Collection(notStartedResourceEvent.Snapshot.Urls, u =>
+        Assert.AreEqual(RedisImageSource, notStartedResourceEvent.Snapshot.Properties.Single(p => p.Name == "container.image").Value?.ToString());
+        Assert.That.Collection(notStartedResourceEvent.Snapshot.Urls, u =>
         {
-            Assert.Equal("tcp://localhost:6379", u.Url);
-            Assert.True(u.IsInactive);
+            Assert.AreEqual("tcp://localhost:6379", u.Url);
+            Assert.IsTrue(u.IsInactive);
         });
         Assert.Contains("TestProject.ServiceB.csproj", dependentResourceEvent.Snapshot.Properties.Single(p => p.Name == "project.path").Value?.ToString());
-        Assert.Collection(dependentResourceEvent.Snapshot.Urls, u =>
+        Assert.That.Collection(dependentResourceEvent.Snapshot.Urls, u =>
         {
-            Assert.Equal("http://localhost:5254", u.Url);
-            Assert.True(u.IsInactive);
+            Assert.AreEqual("http://localhost:5254", u.Url);
+            Assert.IsTrue(u.IsInactive);
         });
 
         logger.LogInformation("Start explicit start resource.");
@@ -273,7 +273,7 @@ public class DistributedApplicationTests
         await app.StopAsync().DefaultTimeout(TestConstants.LongTimeoutTimeSpan);
     }
 
-    [Fact]
+    [TestMethod]
     public void RegisteredLifecycleHookIsExecutedWhenRunSynchronously()
     {
         var exceptionMessage = "Exception from lifecycle hook to prove it ran!";
@@ -283,7 +283,7 @@ public class DistributedApplicationTests
         {
             return new CallbackLifecycleHook((appModel, cancellationToken) =>
             {
-                Assert.NotNull(appModel);
+                Assert.IsNotNull(appModel);
 
                 throw new DistributedApplicationException(exceptionMessage);
             });
@@ -291,10 +291,10 @@ public class DistributedApplicationTests
 
         var ex = Assert.Throws<AggregateException>(testProgram.Run);
         Assert.IsType<DistributedApplicationException>(ex.InnerExceptions.First());
-        Assert.Equal(exceptionMessage, ex.InnerExceptions.First().Message);
+        Assert.AreEqual(exceptionMessage, ex.InnerExceptions.First().Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void TryAddWillNotAddTheSameLifecycleHook()
     {
         using var testProgram = CreateTestProgram("lifecycle-hook-duplicates");
@@ -307,11 +307,11 @@ public class DistributedApplicationTests
 
         var lifecycleHookDescriptors = testProgram.AppBuilder.Services.Where(sd => sd.ServiceType == typeof(IDistributedApplicationLifecycleHook));
 
-        Assert.Single(lifecycleHookDescriptors.Where(sd => sd.ImplementationFactory == callback1));
+        Assert.ContainsSingle(lifecycleHookDescriptors.Where(sd => sd.ImplementationFactory == callback1));
         Assert.DoesNotContain(lifecycleHookDescriptors, sd => sd.ImplementationFactory == callback2);
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task AllocatedPortsAssignedAfterHookRuns()
     {
@@ -329,7 +329,7 @@ public class DistributedApplicationTests
         {
             if (item is IResourceWithEndpoints resourceWithEndpoints)
             {
-                Assert.True(resourceWithEndpoints.GetEndpoints().All(e => e.IsAllocated));
+                Assert.IsTrue(resourceWithEndpoints.GetEndpoints().All(e => e.IsAllocated));
             }
         }
     }
@@ -344,7 +344,7 @@ public class DistributedApplicationTests
         }
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task TestServicesWithMultipleReplicas()
     {
@@ -397,10 +397,10 @@ public class DistributedApplicationTests
             await Task.Delay(100);
         }
 
-        Assert.Equal(3, pids.Count);
+        Assert.AreEqual(3, pids.Count);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task VerifyContainerArgs()
@@ -419,18 +419,18 @@ public class DistributedApplicationTests
         var s = app.Services.GetRequiredService<IKubernetesService>();
         var list = await s.ListAsync<Container>().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
 
-        Assert.Collection(list,
+        Assert.That.Collection(list,
             item =>
             {
-                Assert.Equal(RedisImageSource, item.Spec.Image);
-                Assert.Equal(["redis-cli", "-h", "host.docker.internal", "-p", "9999", "MONITOR"], item.Spec.Args);
-                Assert.Equal(["--add-host", "testlocalhost:127.0.0.1"], item.Spec.RunArgs);
+                Assert.AreEqual(RedisImageSource, item.Spec.Image);
+                Assert.AreEqual(["redis-cli", "-h", "host.docker.internal", "-p", "9999", "MONITOR"], item.Spec.Args);
+                Assert.AreEqual(["--add-host", "testlocalhost:127.0.0.1"], item.Spec.RunArgs);
             });
 
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task VerifyContainerStopStartWorks()
@@ -463,7 +463,7 @@ public class DistributedApplicationTests
 
         var containerPattern = $"{containerName}-{ReplicaIdRegex}-{suffix}";
         var redisContainer = await KubernetesHelper.GetResourceByNameMatchAsync<Container>(kubernetes, containerPattern, r => r.Status?.State == ContainerState.Running, token).DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
-        Assert.NotNull(redisContainer);
+        Assert.IsNotNull(redisContainer);
 
         // Initial startup event.
         await beforeResourceStartedEvents.Reader.ReadAsync().DefaultTimeout();
@@ -471,7 +471,7 @@ public class DistributedApplicationTests
         await orchestrator.StopResourceAsync(redisContainer.Metadata.Name, token).DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout);
 
         redisContainer = await KubernetesHelper.GetResourceByNameMatchAsync<Container>(kubernetes, containerPattern, r => r.Status?.State == ContainerState.Exited, token).DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
-        Assert.NotNull(redisContainer);
+        Assert.IsNotNull(redisContainer);
 
         await orchestrator.StartResourceAsync(redisContainer.Metadata.Name, token);
 
@@ -479,12 +479,12 @@ public class DistributedApplicationTests
         await beforeResourceStartedEvents.Reader.ReadAsync().DefaultTimeout();
 
         redisContainer = await KubernetesHelper.GetResourceByNameMatchAsync<Container>(kubernetes, containerPattern, r => r.Status?.State == ContainerState.Running, token);
-        Assert.NotNull(redisContainer);
+        Assert.IsNotNull(redisContainer);
 
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task VerifyExecutableStopStartWorks()
     {
@@ -503,22 +503,22 @@ public class DistributedApplicationTests
 
         var executablePattern = $"{testName}-servicea-{ReplicaIdRegex}-{suffix}";
         var serviceA = await KubernetesHelper.GetResourceByNameMatchAsync<Executable>(kubernetes, executablePattern, r => r.Status?.State == ExecutableState.Running).DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
-        Assert.NotNull(serviceA);
+        Assert.IsNotNull(serviceA);
 
         await orchestrator.StopResourceAsync(serviceA.Metadata.Name, CancellationToken.None).DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout);
 
         serviceA = await KubernetesHelper.GetResourceByNameMatchAsync<Executable>(kubernetes, executablePattern, r => r.Status?.State == ExecutableState.Finished).DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
-        Assert.NotNull(serviceA);
+        Assert.IsNotNull(serviceA);
 
         await orchestrator.StartResourceAsync(serviceA.Metadata.Name, CancellationToken.None).DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout);
 
         serviceA = await KubernetesHelper.GetResourceByNameMatchAsync<Executable>(kubernetes, executablePattern, r => r.Status?.State == ExecutableState.Running).DefaultTimeout(TestConstants.LongTimeoutDuration);
-        Assert.NotNull(serviceA);
+        Assert.IsNotNull(serviceA);
 
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task SpecifyingEnvPortInEndpointFlowsToEnv()
@@ -545,38 +545,38 @@ public class DistributedApplicationTests
 
         var suffix = app.Services.GetRequiredService<IOptions<DcpOptions>>().Value.ResourceNameSuffix;
         var redisContainer = await KubernetesHelper.GetResourceByNameMatchAsync<Container>(kubernetes, $"{testName}-redis-{ReplicaIdRegex}-{suffix}", r => r.Status?.EffectiveEnv is not null).DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
-        Assert.NotNull(redisContainer);
+        Assert.IsNotNull(redisContainer);
 
         var serviceA = await KubernetesHelper.GetResourceByNameAsync<Executable>(kubernetes, $"{testName}-servicea", suffix!, r => r.Status?.EffectiveEnv is not null).DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
-        Assert.NotNull(serviceA);
+        Assert.IsNotNull(serviceA);
 
         var nodeApp = await KubernetesHelper.GetResourceByNameMatchAsync<Executable>(kubernetes, $"{testName}-nodeapp-{ReplicaIdRegex}-{suffix}", r => r.Status?.EffectiveEnv is not null).DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
-        Assert.NotNull(nodeApp);
+        Assert.IsNotNull(nodeApp);
 
-        Assert.Equal(RedisImageSource, redisContainer.Spec.Image);
-        Assert.Equal("6379", GetEnv(redisContainer.Spec.Env, "REDIS_PORT"));
-        Assert.Equal("6379", GetEnv(redisContainer.Status!.EffectiveEnv, "REDIS_PORT"));
+        Assert.AreEqual(RedisImageSource, redisContainer.Spec.Image);
+        Assert.AreEqual("6379", GetEnv(redisContainer.Spec.Env, "REDIS_PORT"));
+        Assert.AreEqual("6379", GetEnv(redisContainer.Status!.EffectiveEnv, "REDIS_PORT"));
 
-        Assert.Equal($"{{{{- portForServing \"{testName}-servicea-http0-{suffix}\" -}}}}", GetEnv(serviceA.Spec.Env, "PORT0"));
+        Assert.AreEqual($"{{{{- portForServing \"{testName}-servicea-http0-{suffix}\" -}}}}", GetEnv(serviceA.Spec.Env, "PORT0"));
         var serviceAPortValue = GetEnv(serviceA.Status!.EffectiveEnv, "PORT0");
-        Assert.False(string.IsNullOrEmpty(serviceAPortValue));
-        Assert.NotEqual(0, int.Parse(serviceAPortValue, CultureInfo.InvariantCulture));
+        Assert.IsFalse(string.IsNullOrEmpty(serviceAPortValue));
+        Assert.AreNotEqual(0, int.Parse(serviceAPortValue, CultureInfo.InvariantCulture));
 
-        Assert.Equal($"{{{{- portForServing \"{testName}-nodeapp-{suffix}\" -}}}}", GetEnv(nodeApp.Spec.Env, "PORT"));
+        Assert.AreEqual($"{{{{- portForServing \"{testName}-nodeapp-{suffix}\" -}}}}", GetEnv(nodeApp.Spec.Env, "PORT"));
         var nodeAppPortValue = GetEnv(nodeApp.Status!.EffectiveEnv, "PORT");
-        Assert.False(string.IsNullOrEmpty(nodeAppPortValue));
-        Assert.NotEqual(0, int.Parse(nodeAppPortValue, CultureInfo.InvariantCulture));
+        Assert.IsFalse(string.IsNullOrEmpty(nodeAppPortValue));
+        Assert.AreNotEqual(0, int.Parse(nodeAppPortValue, CultureInfo.InvariantCulture));
 
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
 
         static string? GetEnv(IEnumerable<EnvVar>? envVars, string name)
         {
-            Assert.NotNull(envVars);
-            return Assert.Single(envVars.Where(e => e.Name == name)).Value;
+            Assert.IsNotNull(envVars);
+            return Assert.ContainsSingle(envVars.Where(e => e.Name == name)).Value;
         }
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task StartAsync_DashboardAuthConfig_PassedToDashboardProcess()
     {
@@ -599,25 +599,25 @@ public class DistributedApplicationTests
 
         var suffix = app.Services.GetRequiredService<IOptions<DcpOptions>>().Value.ResourceNameSuffix;
         var aspireDashboard = await KubernetesHelper.GetResourceByNameMatchAsync<Executable>(kubernetes, $"aspire-dashboard-{ReplicaIdRegex}-{suffix}", r => r.Status?.EffectiveEnv is not null).DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout);
-        Assert.NotNull(aspireDashboard);
+        Assert.IsNotNull(aspireDashboard);
 
-        Assert.Equal("BrowserToken", GetEnv(aspireDashboard.Spec.Env, "DASHBOARD__FRONTEND__AUTHMODE"));
-        Assert.Equal("ThisIsATestToken", GetEnv(aspireDashboard.Spec.Env, "DASHBOARD__FRONTEND__BROWSERTOKEN"));
+        Assert.AreEqual("BrowserToken", GetEnv(aspireDashboard.Spec.Env, "DASHBOARD__FRONTEND__AUTHMODE"));
+        Assert.AreEqual("ThisIsATestToken", GetEnv(aspireDashboard.Spec.Env, "DASHBOARD__FRONTEND__BROWSERTOKEN"));
 
-        Assert.Equal("ApiKey", GetEnv(aspireDashboard.Spec.Env, "DASHBOARD__OTLP__AUTHMODE"));
+        Assert.AreEqual("ApiKey", GetEnv(aspireDashboard.Spec.Env, "DASHBOARD__OTLP__AUTHMODE"));
         var keyBytes = Convert.FromHexString(GetEnv(aspireDashboard.Spec.Env, "DASHBOARD__OTLP__PRIMARYAPIKEY")!);
-        Assert.Equal(16, keyBytes.Length);
+        Assert.AreEqual(16, keyBytes.Length);
 
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
 
         static string? GetEnv(IEnumerable<EnvVar>? envVars, string name)
         {
-            Assert.NotNull(envVars);
-            return Assert.Single(envVars.Where(e => e.Name == name)).Value;
+            Assert.IsNotNull(envVars);
+            return Assert.ContainsSingle(envVars.Where(e => e.Name == name)).Value;
         }
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task StartAsync_UnsecuredAllowAnonymous_PassedToDashboardProcess()
     {
@@ -639,21 +639,21 @@ public class DistributedApplicationTests
 
         var suffix = app.Services.GetRequiredService<IOptions<DcpOptions>>().Value.ResourceNameSuffix;
         var aspireDashboard = await KubernetesHelper.GetResourceByNameMatchAsync<Executable>(kubernetes, $"aspire-dashboard-{ReplicaIdRegex}-{suffix}", r => r.Status?.EffectiveEnv is not null).DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout);
-        Assert.NotNull(aspireDashboard);
+        Assert.IsNotNull(aspireDashboard);
 
-        Assert.Equal("Unsecured", GetEnv(aspireDashboard.Spec.Env, "DASHBOARD__FRONTEND__AUTHMODE"));
-        Assert.Equal("Unsecured", GetEnv(aspireDashboard.Spec.Env, "DASHBOARD__OTLP__AUTHMODE"));
+        Assert.AreEqual("Unsecured", GetEnv(aspireDashboard.Spec.Env, "DASHBOARD__FRONTEND__AUTHMODE"));
+        Assert.AreEqual("Unsecured", GetEnv(aspireDashboard.Spec.Env, "DASHBOARD__OTLP__AUTHMODE"));
 
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
 
         static string? GetEnv(IEnumerable<EnvVar>? envVars, string name)
         {
-            Assert.NotNull(envVars);
-            return Assert.Single(envVars.Where(e => e.Name == name)).Value;
+            Assert.IsNotNull(envVars);
+            return Assert.ContainsSingle(envVars.Where(e => e.Name == name)).Value;
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task VerifyDockerWithEntrypointWorks()
@@ -675,14 +675,14 @@ public class DistributedApplicationTests
         var redisContainer = await KubernetesHelper.GetResourceByNameMatchAsync<Container>(s, $"{testName}-redis-{ReplicaIdRegex}-{suffix}",
             r => r.Status?.State == ContainerState.FailedToStart && (r.Status?.Message.Contains("bob") ?? false)).DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
 
-        Assert.NotNull(redisContainer);
-        Assert.Equal(RedisImageSource, redisContainer.Spec.Image);
-        Assert.Equal("bob", redisContainer.Spec.Command);
+        Assert.IsNotNull(redisContainer);
+        Assert.AreEqual(RedisImageSource, redisContainer.Spec.Image);
+        Assert.AreEqual("bob", redisContainer.Spec.Command);
 
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task VerifyDockerWithBindMountWorksWithAbsolutePaths()
@@ -706,14 +706,14 @@ public class DistributedApplicationTests
                 s,
                 $"{testName}-redis-{ReplicaIdRegex}-{suffix}", r => r.Spec.VolumeMounts != null).DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
 
-        Assert.NotNull(redisContainer.Spec.VolumeMounts);
+        Assert.IsNotNull(redisContainer.Spec.VolumeMounts);
         Assert.NotEmpty(redisContainer.Spec.VolumeMounts);
-        Assert.Equal(sourcePath, redisContainer.Spec.VolumeMounts[0].Source);
+        Assert.AreEqual(sourcePath, redisContainer.Spec.VolumeMounts[0].Source);
 
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task VerifyDockerWithBindMountWorksWithRelativePaths()
@@ -736,15 +736,15 @@ public class DistributedApplicationTests
             s,
             $"{testName}-redis-{ReplicaIdRegex}-{suffix}", r => r.Spec.VolumeMounts != null).DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
 
-        Assert.NotNull(redisContainer.Spec.VolumeMounts);
+        Assert.IsNotNull(redisContainer.Spec.VolumeMounts);
         Assert.NotEmpty(redisContainer.Spec.VolumeMounts);
-        Assert.NotEqual("etc/path-here", redisContainer.Spec.VolumeMounts[0].Source);
-        Assert.True(Path.IsPathRooted(redisContainer.Spec.VolumeMounts[0].Source));
+        Assert.AreNotEqual("etc/path-here", redisContainer.Spec.VolumeMounts[0].Source);
+        Assert.IsTrue(Path.IsPathRooted(redisContainer.Spec.VolumeMounts[0].Source));
 
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task VerifyDockerWithVolumeWorksWithName()
@@ -767,14 +767,14 @@ public class DistributedApplicationTests
                 s,
                 $"{testName}-redis-{ReplicaIdRegex}-{suffix}", r => r.Spec.VolumeMounts != null).DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
 
-        Assert.NotNull(redisContainer.Spec.VolumeMounts);
+        Assert.IsNotNull(redisContainer.Spec.VolumeMounts);
         Assert.NotEmpty(redisContainer.Spec.VolumeMounts);
-        Assert.Equal($"{testName}-volume", redisContainer.Spec.VolumeMounts[0].Source);
+        Assert.AreEqual($"{testName}-volume", redisContainer.Spec.VolumeMounts[0].Source);
 
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task KubernetesHasResourceNameForContainersAndExes()
@@ -806,7 +806,7 @@ public class DistributedApplicationTests
 
         await foreach (var resource in s.WatchAsync<Container>().DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout))
         {
-            Assert.True(resource.Item2.Metadata.Annotations.TryGetValue(Container.ResourceNameAnnotation, out var value));
+            Assert.IsTrue(resource.Item2.Metadata.Annotations.TryGetValue(Container.ResourceNameAnnotation, out var value));
             if (expectedContainerResources.Contains(value))
             {
                 expectedContainerResources.Remove(value);
@@ -820,7 +820,7 @@ public class DistributedApplicationTests
 
         await foreach (var resource in s.WatchAsync<Executable>().DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout))
         {
-            Assert.True(resource.Item2.Metadata.Annotations.TryGetValue(Executable.ResourceNameAnnotation, out var value));
+            Assert.IsTrue(resource.Item2.Metadata.Annotations.TryGetValue(Executable.ResourceNameAnnotation, out var value));
             if (expectedExeResources.Contains(value))
             {
                 expectedExeResources.Remove(value);
@@ -833,7 +833,7 @@ public class DistributedApplicationTests
         }
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task ReplicasAndProxylessEndpointThrows()
     {
@@ -849,10 +849,10 @@ public class DistributedApplicationTests
 
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await app.StartAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout));
         var suffix = app.Services.GetRequiredService<IOptions<DcpOptions>>().Value.ResourceNameSuffix;
-        Assert.Equal($"Resource '{testName}-servicea-{suffix}' uses multiple replicas and a proxy-less endpoint 'http'. These features do not work together.", ex.Message);
+        Assert.AreEqual($"Resource '{testName}-servicea-{suffix}' uses multiple replicas and a proxy-less endpoint 'http'. These features do not work together.", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task ProxylessEndpointWithoutPortThrows()
     {
@@ -869,10 +869,10 @@ public class DistributedApplicationTests
 
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await app.StartAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout));
         var suffix = app.Services.GetRequiredService<IOptions<DcpOptions>>().Value.ResourceNameSuffix;
-        Assert.Equal($"Service '{testName}-servicea-{suffix}' needs to specify a port for endpoint 'http' since it isn't using a proxy.", ex.Message);
+        Assert.AreEqual($"Service '{testName}-servicea-{suffix}' needs to specify a port for endpoint 'http' since it isn't using a proxy.", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task ProxylessEndpointWorks()
     {
@@ -894,7 +894,7 @@ public class DistributedApplicationTests
         var client = app.CreateHttpClientWithResilience($"{testName}-servicea", "http");
 
         var result = await client.GetStringAsync("pid").DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
-        Assert.NotNull(result);
+        Assert.IsNotNull(result);
 
         // Check that endpoint from launchsettings doesn't work
         await Assert.ThrowsAnyAsync<Exception>(async () =>
@@ -965,7 +965,7 @@ public class DistributedApplicationTests
             {
                 using var client = new HttpClient();
                 var value = await client.GetStringAsync($"{httpsEndpoint}urls", token).DefaultTimeout();
-                Assert.Equal(urls, value);
+                Assert.AreEqual(urls, value);
                 break;
             }
             catch (Exception ex) when (ex is not EqualException)
@@ -975,7 +975,7 @@ public class DistributedApplicationTests
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task ProxylessContainerCanBeReferenced()
@@ -1010,24 +1010,24 @@ public class DistributedApplicationTests
         var s = app.Services.GetRequiredService<IKubernetesService>();
         var exeList = await s.ListAsync<Executable>().DefaultTimeout();
 
-        var service = Assert.Single(exeList.Where(c => $"{testName}-servicea".Equals(c.AppModelResourceName)));
-        var env = Assert.Single(service.Spec.Env!.Where(e => e.Name == $"ConnectionStrings__{testName}-redis"));
-        Assert.Equal($"localhost:1234,password={redis.Resource.PasswordParameter?.Value}", env.Value);
+        var service = Assert.ContainsSingle(exeList.Where(c => $"{testName}-servicea".Equals(c.AppModelResourceName)));
+        var env = Assert.ContainsSingle(service.Spec.Env!.Where(e => e.Name == $"ConnectionStrings__{testName}-redis"));
+        Assert.AreEqual($"localhost:1234,password={redis.Resource.PasswordParameter?.Value}", env.Value);
 
         var list = await s.ListAsync<Container>().DefaultTimeout();
-        var redisContainer = Assert.Single(list.Where(c => Regex.IsMatch(c.Name(), $"{testName}-redis-{ReplicaIdRegex}")));
-        Assert.Equal(1234, Assert.Single(redisContainer.Spec.Ports!).HostPort);
+        var redisContainer = Assert.ContainsSingle(list.Where(c => Regex.IsMatch(c.Name(), $"{testName}-redis-{ReplicaIdRegex}")));
+        Assert.AreEqual(1234, Assert.ContainsSingle(redisContainer.Spec.Ports!).HostPort);
 
-        var otherRedisEnv = Assert.Single(service.Spec.Env!.Where(e => e.Name == $"ConnectionStrings__{testName}-redisNoPort"));
-        Assert.Equal($"localhost:6379,password={redisNoPort.Resource.PasswordParameter?.Value}", otherRedisEnv.Value);
+        var otherRedisEnv = Assert.ContainsSingle(service.Spec.Env!.Where(e => e.Name == $"ConnectionStrings__{testName}-redisNoPort"));
+        Assert.AreEqual($"localhost:6379,password={redisNoPort.Resource.PasswordParameter?.Value}", otherRedisEnv.Value);
 
-        var otherRedisContainer = Assert.Single(list.Where(c => Regex.IsMatch(c.Name(), $"{testName}-redisNoPort-{ReplicaIdRegex}")));
-        Assert.Equal(6379, Assert.Single(otherRedisContainer.Spec.Ports!).HostPort);
+        var otherRedisContainer = Assert.ContainsSingle(list.Where(c => Regex.IsMatch(c.Name(), $"{testName}-redisNoPort-{ReplicaIdRegex}")));
+        Assert.AreEqual(6379, Assert.ContainsSingle(otherRedisContainer.Spec.Ports!).HostPort);
 
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task WithEndpointProxySupportDisablesProxies()
     {
@@ -1060,28 +1060,28 @@ public class DistributedApplicationTests
         var s = app.Services.GetRequiredService<IKubernetesService>();
 
         var serviceList = await s.ListAsync<Service>().DefaultTimeout();
-        Assert.All(serviceList.Where(s => s.Metadata.Name.Contains("redis")), s => Assert.Equal(AddressAllocationModes.Proxyless, s.Spec.AddressAllocationMode));
+        Assert.All(serviceList.Where(s => s.Metadata.Name.Contains("redis")), s => Assert.AreEqual(AddressAllocationModes.Proxyless, s.Spec.AddressAllocationMode));
 
         var exeList = await s.ListAsync<Executable>().DefaultTimeout();
 
-        var service = Assert.Single(exeList.Where(c => $"{testName}-servicea".Equals(c.AppModelResourceName)));
-        var env = Assert.Single(service.Spec.Env!.Where(e => e.Name == $"ConnectionStrings__{testName}-redis"));
-        Assert.Equal($"localhost:1234,password={redis.Resource.PasswordParameter!.Value}", env.Value);
+        var service = Assert.ContainsSingle(exeList.Where(c => $"{testName}-servicea".Equals(c.AppModelResourceName)));
+        var env = Assert.ContainsSingle(service.Spec.Env!.Where(e => e.Name == $"ConnectionStrings__{testName}-redis"));
+        Assert.AreEqual($"localhost:1234,password={redis.Resource.PasswordParameter!.Value}", env.Value);
 
         var list = await s.ListAsync<Container>().DefaultTimeout();
-        var redisContainer = Assert.Single(list.Where(c => Regex.IsMatch(c.Name(), $"{testName}-redis-{ReplicaIdRegex}")));
-        Assert.Equal(1234, Assert.Single(redisContainer.Spec.Ports!).HostPort);
+        var redisContainer = Assert.ContainsSingle(list.Where(c => Regex.IsMatch(c.Name(), $"{testName}-redis-{ReplicaIdRegex}")));
+        Assert.AreEqual(1234, Assert.ContainsSingle(redisContainer.Spec.Ports!).HostPort);
 
-        var otherRedisEnv = Assert.Single(service.Spec.Env!.Where(e => e.Name == $"ConnectionStrings__{testName}-redisNoPort"));
-        Assert.Equal($"localhost:6379,password={redisNoPort.Resource.PasswordParameter!.Value}", otherRedisEnv.Value);
+        var otherRedisEnv = Assert.ContainsSingle(service.Spec.Env!.Where(e => e.Name == $"ConnectionStrings__{testName}-redisNoPort"));
+        Assert.AreEqual($"localhost:6379,password={redisNoPort.Resource.PasswordParameter!.Value}", otherRedisEnv.Value);
 
-        var otherRedisContainer = Assert.Single(list.Where(c => Regex.IsMatch(c.Name(), $"{testName}-redisNoPort-{ReplicaIdRegex}")));
-        Assert.Equal(6379, Assert.Single(otherRedisContainer.Spec.Ports!).HostPort);
+        var otherRedisContainer = Assert.ContainsSingle(list.Where(c => Regex.IsMatch(c.Name(), $"{testName}-redisNoPort-{ReplicaIdRegex}")));
+        Assert.AreEqual(6379, Assert.ContainsSingle(otherRedisContainer.Spec.Ports!).HostPort);
 
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task ProxylessContainerWithoutPortThrows()
@@ -1097,10 +1097,10 @@ public class DistributedApplicationTests
         using var app = builder.Build();
 
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await app.StartAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestTimeout));
-        Assert.Equal($"The endpoint 'tcp' for container resource '{testName}-redis' must specify the TargetPort value", ex.Message);
+        Assert.AreEqual($"The endpoint 'tcp' for container resource '{testName}-redis' must specify the TargetPort value", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4651", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task AfterResourcesCreatedLifecycleHookWorks()
@@ -1133,7 +1133,7 @@ public class DistributedApplicationTests
     {
         services.AddLogging(b =>
         {
-            b.AddXunit(_testOutputHelper);
+            b.AddMSTest(_testContext);
             b.SetMinimumLevel(LogLevel.Trace);
         });
     }
@@ -1148,7 +1148,7 @@ public class DistributedApplicationTests
 
         public async Task AfterEndpointsAllocatedAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken)
         {
-            Assert.Empty(await KubernetesService!.ListAsync<Container>(cancellationToken: cancellationToken));
+            Assert.IsEmpty(await KubernetesService!.ListAsync<Container>(cancellationToken: cancellationToken));
         }
 
         public async Task AfterResourcesCreatedAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken)

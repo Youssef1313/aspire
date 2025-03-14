@@ -6,32 +6,32 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Nats.Tests;
 
+[TestClass]
 public class AddNatsTests
 {
-    [Fact]
+    [TestMethod]
     public void AddNatsAddsGeneratedPasswordParameterWithUserSecretsParameterDefaultInRunMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
 
         var nats = appBuilder.AddNats("nats");
-        Assert.Equal("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", nats.Resource.PasswordParameter!.Default?.GetType().FullName);
+        Assert.AreEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", nats.Resource.PasswordParameter!.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddNatsDoesNotAddGeneratedPasswordParameterWithUserSecretsParameterDefaultInPublishMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
 
         var nats = appBuilder.AddNats("nats");
 
-        Assert.NotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", nats.Resource.PasswordParameter!.Default?.GetType().FullName);
+        Assert.AreNotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", nats.Resource.PasswordParameter!.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddNatsSetsDefaultUserNameAndPasswordAndIncludesThemInConnectionString()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -39,23 +39,23 @@ public class AddNatsTests
         var nats = appBuilder.AddNats("nats")
             .WithEndpoint("tcp", e => e.AllocatedEndpoint = new AllocatedEndpoint(e, "localhost", 4222));
 
-        Assert.NotNull(nats.Resource.PasswordParameter);
-        Assert.False(string.IsNullOrEmpty(nats.Resource.PasswordParameter!.Value));
+        Assert.IsNotNull(nats.Resource.PasswordParameter);
+        Assert.IsFalse(string.IsNullOrEmpty(nats.Resource.PasswordParameter!.Value));
 
         using var app = appBuilder.Build();
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var natsResource = Assert.Single(appModel.Resources.OfType<NatsServerResource>());
+        var natsResource = Assert.ContainsSingle(appModel.Resources.OfType<NatsServerResource>());
         var connectionStringResource = natsResource as IResourceWithConnectionString;
-        Assert.NotNull(connectionStringResource);
+        Assert.IsNotNull(connectionStringResource);
         var connectionString = await connectionStringResource.GetConnectionStringAsync();
 
-        Assert.Equal($"nats://nats:{natsResource.PasswordParameter?.Value}@localhost:4222", connectionString);
-        Assert.Equal("nats://nats:{nats-password.value}@{nats.bindings.tcp.host}:{nats.bindings.tcp.port}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual($"nats://nats:{natsResource.PasswordParameter?.Value}@localhost:4222", connectionString);
+        Assert.AreEqual("nats://nats:{nats-password.value}@{nats.bindings.tcp.host}:{nats.bindings.tcp.port}", connectionStringResource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddNatsSetsUserNameAndPasswordAndIncludesThemInConnection()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -65,24 +65,24 @@ public class AddNatsTests
         var nats = appBuilder.AddNats("nats", userName: userParameters, password: passwordParameters)
             .WithEndpoint("tcp", e => e.AllocatedEndpoint = new AllocatedEndpoint(e, "localhost", 4222));
 
-        Assert.NotNull(nats.Resource.UserNameParameter);
-        Assert.NotNull(nats.Resource.PasswordParameter);
+        Assert.IsNotNull(nats.Resource.UserNameParameter);
+        Assert.IsNotNull(nats.Resource.PasswordParameter);
 
-        Assert.Equal("usr", nats.Resource.UserNameParameter!.Value);
-        Assert.Equal("password", nats.Resource.PasswordParameter!.Value);
+        Assert.AreEqual("usr", nats.Resource.UserNameParameter!.Value);
+        Assert.AreEqual("password", nats.Resource.PasswordParameter!.Value);
 
         using var app = appBuilder.Build();
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<NatsServerResource>()) as IResourceWithConnectionString;
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<NatsServerResource>()) as IResourceWithConnectionString;
         var connectionString = await connectionStringResource.GetConnectionStringAsync();
 
-        Assert.Equal("nats://usr:password@localhost:4222", connectionString);
-        Assert.Equal("nats://{user.value}:{pass.value}@{nats.bindings.tcp.host}:{nats.bindings.tcp.port}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("nats://usr:password@localhost:4222", connectionString);
+        Assert.AreEqual("nats://{user.value}:{pass.value}@{nats.bindings.tcp.host}:{nats.bindings.tcp.port}", connectionStringResource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddNatsContainerWithDefaultsAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -93,34 +93,34 @@ public class AddNatsTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<NatsServerResource>());
-        Assert.Equal("nats", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<NatsServerResource>());
+        Assert.AreEqual("nats", containerResource.Name);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(4222, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(4222, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(NatsContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(NatsContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(NatsContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(NatsContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(NatsContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(NatsContainerImageTags.Registry, containerAnnotation.Registry);
 
         var args = await ArgumentEvaluator.GetArgumentListAsync(containerResource);
 
-        Assert.Collection(args,
-            arg => Assert.Equal("--user", arg),
-            arg => Assert.Equal("nats", arg),
-            arg => Assert.Equal("--pass", arg),
-            arg => Assert.False(string.IsNullOrEmpty(arg))
+        Assert.That.Collection(args,
+            arg => Assert.AreEqual("--user", arg),
+            arg => Assert.AreEqual("nats", arg),
+            arg => Assert.AreEqual("--pass", arg),
+            arg => Assert.IsFalse(string.IsNullOrEmpty(arg))
         );
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddNatsContainerAddsAnnotationMetadata()
     {
         var path = OperatingSystem.IsWindows() ? @"C:\tmp\dev-data" : "/tmp/dev-data";
@@ -135,51 +135,51 @@ public class AddNatsTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<NatsServerResource>());
-        Assert.Equal("nats", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<NatsServerResource>());
+        Assert.AreEqual("nats", containerResource.Name);
 
-        var mountAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerMountAnnotation>());
-        Assert.Equal(path, mountAnnotation.Source);
-        Assert.Equal("/var/lib/nats", mountAnnotation.Target);
+        var mountAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerMountAnnotation>());
+        Assert.AreEqual(path, mountAnnotation.Source);
+        Assert.AreEqual("/var/lib/nats", mountAnnotation.Target);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(4222, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Equal(1234, endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(4222, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.AreEqual(1234, endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(NatsContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(NatsContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(NatsContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(NatsContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(NatsContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(NatsContainerImageTags.Registry, containerAnnotation.Registry);
 
         var args = await ArgumentEvaluator.GetArgumentListAsync(containerResource);
 
-        Assert.Collection(args,
-            arg => Assert.Equal("--user", arg),
-            arg => Assert.Equal("usr", arg),
-            arg => Assert.Equal("--pass", arg),
-            arg => Assert.Equal("pass", arg),
-            arg => Assert.Equal("-js", arg),
-            arg => Assert.Equal("-sd", arg),
-            arg => Assert.Equal("/var/lib/nats", arg)
+        Assert.That.Collection(args,
+            arg => Assert.AreEqual("--user", arg),
+            arg => Assert.AreEqual("usr", arg),
+            arg => Assert.AreEqual("--pass", arg),
+            arg => Assert.AreEqual("pass", arg),
+            arg => Assert.AreEqual("-js", arg),
+            arg => Assert.AreEqual("-sd", arg),
+            arg => Assert.AreEqual("/var/lib/nats", arg)
         );
     }
 
-    [Fact]
+    [TestMethod]
     public void WithNatsContainerOnMultipleResources()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         builder.AddNats("nats1");
         builder.AddNats("nats2");
 
-        Assert.Equal(2, builder.Resources.OfType<NatsServerResource>().Count());
+        Assert.AreEqual(2, builder.Resources.OfType<NatsServerResource>().Count());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -209,10 +209,10 @@ public class AddNatsTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWihtParameters()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -246,7 +246,7 @@ public class AddNatsTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
 
         nats = builder.AddNats("nats2", userName: userNameParameter);
 
@@ -273,7 +273,7 @@ public class AddNatsTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
 
         nats = builder.AddNats("nats3", password: passwordParameter);
 
@@ -300,6 +300,6 @@ public class AddNatsTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 }

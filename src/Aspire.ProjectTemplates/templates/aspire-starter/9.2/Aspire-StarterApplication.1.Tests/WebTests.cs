@@ -27,7 +27,7 @@ public class WebTests
             logging.AddFilter(appHost.Environment.ApplicationName, LogLevel.Debug);
             logging.AddFilter("Aspire.", LogLevel.Debug);
 #if (TestFx == "xUnit.net")
-            // To output logs to the xUnit.net ITestOutputHelper, consider adding a package from https://www.nuget.org/packages?q=xunit+logging
+            // To output logs to the xUnit.net TestContext, consider adding a package from https://www.nuget.org/packages?q=xunit+logging
 #endif
         });
         appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>

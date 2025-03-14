@@ -2,19 +2,20 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Components.Common.Tests;
-using Xunit;
 
 namespace Aspire.Hosting.Testing.Tests;
+
+[TestClass]
 
 // Tests that DistributedApplicationTestingBuilder throws exceptions at the right times when the app crashes.
 public class TestingFactoryCrashTests
 {
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData("before-build")]
-    [InlineData("after-build")]
-    [InlineData("after-start")]
-    [InlineData("after-shutdown")]
+    [DataRow("before-build")]
+    [DataRow("after-build")]
+    [DataRow("after-start")]
+    [DataRow("after-shutdown")]
     public async Task CrashTests(string crashArg)
     {
         var timeout = TimeSpan.FromMinutes(5);

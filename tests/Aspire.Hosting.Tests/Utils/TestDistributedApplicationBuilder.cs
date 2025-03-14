@@ -6,7 +6,6 @@ using Aspire.Hosting.Orchestrator;
 using Aspire.Hosting.Testing;
 using Aspire.Hosting.Tests.Dcp;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Utils;
 
@@ -35,20 +34,20 @@ public static class TestDistributedApplicationBuilder
         return CreateCore(args, (_) => { });
     }
 
-    public static IDistributedApplicationTestingBuilder Create(ITestOutputHelper testOutputHelper, params string[] args)
+    public static IDistributedApplicationTestingBuilder Create(TestContext testContext, params string[] args)
     {
-        return CreateCore(args, (_) => { }, testOutputHelper);
+        return CreateCore(args, (_) => { }, testContext);
     }
 
-    public static IDistributedApplicationTestingBuilder Create(Action<DistributedApplicationOptions>? configureOptions, ITestOutputHelper? testOutputHelper = null)
+    public static IDistributedApplicationTestingBuilder Create(Action<DistributedApplicationOptions>? configureOptions, TestContext? testContext = null)
     {
-        return CreateCore([], configureOptions, testOutputHelper);
+        return CreateCore([], configureOptions, testContext);
     }
 
-    public static IDistributedApplicationTestingBuilder CreateWithTestContainerRegistry(ITestOutputHelper testOutputHelper) =>
-        Create(o => o.ContainerRegistryOverride = ComponentTestConstants.AspireTestContainerRegistry, testOutputHelper);
+    public static IDistributedApplicationTestingBuilder CreateWithTestContainerRegistry(TestContext testContext) =>
+        Create(o => o.ContainerRegistryOverride = ComponentTestConstants.AspireTestContainerRegistry, testContext);
 
-    private static IDistributedApplicationTestingBuilder CreateCore(string[] args, Action<DistributedApplicationOptions>? configureOptions, ITestOutputHelper? testOutputHelper = null)
+    private static IDistributedApplicationTestingBuilder CreateCore(string[] args, Action<DistributedApplicationOptions>? configureOptions, TestContext? testContext = null)
     {
         var builder = DistributedApplicationTestingBuilder.Create(args, (applicationOptions, hostBuilderOptions) => configureOptions?.Invoke(applicationOptions));
 
@@ -58,9 +57,9 @@ public static class TestDistributedApplicationBuilder
         builder.Services.ConfigureHttpClientDefaults(http => http.AddStandardResilienceHandler());
 
         builder.Services.AddSingleton<ApplicationOrchestratorProxy>(sp => new ApplicationOrchestratorProxy(sp.GetRequiredService<ApplicationOrchestrator>()));
-        if (testOutputHelper is not null)
+        if (testContext is not null)
         {
-            builder.WithTestAndResourceLogging(testOutputHelper);
+            builder.WithTestAndResourceLogging(testContext);
         }
 
         builder.WithTempAspireStore();

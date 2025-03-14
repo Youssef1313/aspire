@@ -3,13 +3,13 @@
 
 using Aspire.Dashboard.Extensions;
 using Aspire.Dashboard.Model.Otlp;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests;
 
+[TestClass]
 public class TelemetryFilterFormatterTests
 {
-    [Fact]
+    [TestMethod]
     public void RoundTripFilterWithColon()
     {
         var serializedFilters = TelemetryFilterFormatter.SerializeFiltersToString([
@@ -23,13 +23,13 @@ public class TelemetryFilterFormatterTests
 
         var filters = TelemetryFilterFormatter.DeserializeFiltersFromString(serializedFilters);
 
-        var filter = Assert.Single(filters);
+        var filter = Assert.ContainsSingle(filters);
 
-        Assert.Equal("test:name", filter.Field);
-        Assert.Equal("test:value", filter.Value);
+        Assert.AreEqual("test:name", filter.Field);
+        Assert.AreEqual("test:value", filter.Value);
     }
 
-    [Fact]
+    [TestMethod]
     public void RoundTripFiltersWithPluses()
     {
         var serializedFilters = TelemetryFilterFormatter.SerializeFiltersToString([
@@ -43,9 +43,9 @@ public class TelemetryFilterFormatterTests
 
         var filters = TelemetryFilterFormatter.DeserializeFiltersFromString(serializedFilters);
 
-        var filter = Assert.Single(filters);
+        var filter = Assert.ContainsSingle(filters);
 
-        Assert.Equal("test+name", filter.Field);
-        Assert.Equal("test+value", filter.Value);
+        Assert.AreEqual("test+name", filter.Field);
+        Assert.AreEqual("test+value", filter.Value);
     }
 }

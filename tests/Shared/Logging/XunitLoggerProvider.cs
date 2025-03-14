@@ -3,27 +3,26 @@
 
 using System.Globalization;
 using System.Text;
-using Xunit.Abstractions;
 
 namespace Microsoft.Extensions.Logging.Testing;
 
-public class XunitLoggerProvider : ILoggerProvider
+public class MSTestLoggerProvider : ILoggerProvider
 {
-    private readonly ITestOutputHelper _output;
+    private readonly TestContext _output;
     private readonly LogLevel _minLevel;
     private readonly DateTimeOffset? _logStart;
 
-    public XunitLoggerProvider(ITestOutputHelper output)
+    public MSTestLoggerProvider(TestContext output)
         : this(output, LogLevel.Trace)
     {
     }
 
-    public XunitLoggerProvider(ITestOutputHelper output, LogLevel minLevel)
+    public MSTestLoggerProvider(TestContext output, LogLevel minLevel)
         : this(output, minLevel, null)
     {
     }
 
-    public XunitLoggerProvider(ITestOutputHelper output, LogLevel minLevel, DateTimeOffset? logStart)
+    public MSTestLoggerProvider(TestContext output, LogLevel minLevel, DateTimeOffset? logStart)
     {
         _output = output;
         _minLevel = minLevel;
@@ -32,7 +31,7 @@ public class XunitLoggerProvider : ILoggerProvider
 
     public ILogger CreateLogger(string categoryName)
     {
-        return new XunitLogger(_output, categoryName, _minLevel, _logStart);
+        return new MSTestLogger(_output, categoryName, _minLevel, _logStart);
     }
 
     public void Dispose()
@@ -40,15 +39,15 @@ public class XunitLoggerProvider : ILoggerProvider
     }
 }
 
-public class XunitLogger : ILogger
+public class MSTestLogger : ILogger
 {
     private static readonly string[] s_newLineChars = new[] { Environment.NewLine };
     private readonly string _category;
     private readonly LogLevel _minLogLevel;
-    private readonly ITestOutputHelper _output;
+    private readonly TestContext _output;
     private readonly DateTimeOffset? _logStart;
 
-    public XunitLogger(ITestOutputHelper output, string category, LogLevel minLogLevel, DateTimeOffset? logStart)
+    public MSTestLogger(TestContext output, string category, LogLevel minLogLevel, DateTimeOffset? logStart)
     {
         _minLogLevel = minLogLevel;
         _category = category;
@@ -91,7 +90,7 @@ public class XunitLogger : ILogger
             }
         }
 
-        // Remove the last line-break, because ITestOutputHelper only has WriteLine.
+        // Remove the last line-break, because TestContext only has WriteLine.
         var message = messageBuilder.ToString();
         if (message.EndsWith(Environment.NewLine, StringComparison.Ordinal))
         {
@@ -104,7 +103,7 @@ public class XunitLogger : ILogger
         }
         catch (Exception)
         {
-            // We could fail because we're on a background thread and our captured ITestOutputHelper is
+            // We could fail because we're on a background thread and our captured TestContext is
             // busted (if the test "completed" before the background thread fired).
             // So, ignore this. There isn't really anything we can do but hope the
             // caller has additional loggers registered

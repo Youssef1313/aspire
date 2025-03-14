@@ -1,29 +1,29 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 
 namespace Aspire.Pomelo.EntityFrameworkCore.MySql.Tests;
 
+[TestClass]
 public class ConfigurationTests
 {
-    [Fact]
+    [TestMethod]
     public void ConnectionStringIsNullByDefault()
-        => Assert.Null(new PomeloEntityFrameworkCoreMySqlSettings().ConnectionString);
+        => Assert.IsNull(new PomeloEntityFrameworkCoreMySqlSettings().ConnectionString);
 
-    [Fact]
+    [TestMethod]
     public void HealthCheckIsEnabledByDefault()
-        => Assert.False(new PomeloEntityFrameworkCoreMySqlSettings().DisableHealthChecks);
+        => Assert.IsFalse(new PomeloEntityFrameworkCoreMySqlSettings().DisableHealthChecks);
 
-    [Fact]
+    [TestMethod]
     public void TracingIsEnabledByDefault()
-        => Assert.False(new PomeloEntityFrameworkCoreMySqlSettings().DisableTracing);
+        => Assert.IsFalse(new PomeloEntityFrameworkCoreMySqlSettings().DisableTracing);
 
-    [Fact]
+    [TestMethod]
     public void MetricsAreEnabledByDefault()
-        => Assert.False(new PomeloEntityFrameworkCoreMySqlSettings().DisableMetrics);
+        => Assert.IsFalse(new PomeloEntityFrameworkCoreMySqlSettings().DisableMetrics);
 
-    [Fact]
+    [TestMethod]
     public void RetriesAreEnabledByDefault()
-        => Assert.False(new PomeloEntityFrameworkCoreMySqlSettings().DisableRetry);
+        => Assert.IsFalse(new PomeloEntityFrameworkCoreMySqlSettings().DisableRetry);
 }

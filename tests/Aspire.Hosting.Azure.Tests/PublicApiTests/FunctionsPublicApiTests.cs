@@ -3,13 +3,13 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests.PublicApiTests;
 
+[TestClass]
 public class FunctionsPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddAzureFunctionsProjectShouldThrowWhenBuilderIsNull()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -18,12 +18,12 @@ public class FunctionsPublicApiTests
         var action = () => builder.AddAzureFunctionsProject<TestProject>(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddAzureFunctionsProjectShouldThrowWhenBuilderIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -34,10 +34,10 @@ public class FunctionsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithHostStorageShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<AzureFunctionsProjectResource> builder = null!;
@@ -47,10 +47,10 @@ public class FunctionsPublicApiTests
         var action = () => builder.WithHostStorage(storage);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithHostStorageShouldThrowWhenStorageIsNull()
     {
         using var hostBuilder = TestDistributedApplicationBuilder.Create();
@@ -60,10 +60,10 @@ public class FunctionsPublicApiTests
         var action = () => builder.WithHostStorage(storage);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(storage), exception.ParamName);
+        Assert.AreEqual(nameof(storage), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithReferenceShouldThrowWhenSourceIsNull()
     {
         using var hostBuilder = TestDistributedApplicationBuilder.Create();
@@ -76,12 +76,12 @@ public class FunctionsPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(source), exception.ParamName);
+        Assert.AreEqual(nameof(source), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureFunctionsProjectResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
@@ -91,7 +91,7 @@ public class FunctionsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
     private sealed class TestProject : IProjectMetadata

@@ -7,20 +7,19 @@ using Aspire.Dashboard.Authentication;
 using Aspire.Hosting;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.Logging.Testing;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Dashboard.Tests.Integration;
 
-public class FrontendOpenIdConnectAuthTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class FrontendOpenIdConnectAuthTests(TestContext testContext)
 {
-    [Fact]
+    [TestMethod]
     public async Task Get_Unauthenticated_RedirectsToAuthority()
     {
         await using var authority = await MockOpenIdAuthority.CreateAsync().DefaultTimeout();
 
         await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(
-            testOutputHelper,
+            testContext,
             additionalConfiguration: config =>
             {
                 ConfigureOpenIdConnect(config, authority);
@@ -40,31 +39,31 @@ public class FrontendOpenIdConnectAuthTests(ITestOutputHelper testOutputHelper)
         var response = await client.GetAsync("/").DefaultTimeout();
 
         // Assert
-        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Redirect, response.StatusCode);
 
         var redirectedTo = response.Headers.Location;
 
-        Assert.NotNull(redirectedTo);
-        Assert.True(redirectedTo.IsAbsoluteUri);
-        Assert.Equal("localhost", redirectedTo.Host);
-        Assert.Equal("/authorize", redirectedTo.AbsolutePath);
+        Assert.IsNotNull(redirectedTo);
+        Assert.IsTrue(redirectedTo.IsAbsoluteUri);
+        Assert.AreEqual("localhost", redirectedTo.Host);
+        Assert.AreEqual("/authorize", redirectedTo.AbsolutePath);
 
         var query = HttpUtility.ParseQueryString(redirectedTo.Query);
-        Assert.Equal("MyClientId", query.Get("client_id"));
-        Assert.Equal("code", query.Get("response_type"));
-        Assert.Equal("openid profile", query.Get("scope"));
+        Assert.AreEqual("MyClientId", query.Get("client_id"));
+        Assert.AreEqual("code", query.Get("response_type"));
+        Assert.AreEqual("openid profile", query.Get("scope"));
 
         await app.StopAsync().DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task Get_Unauthenticated_OtlpHttpConnection_Denied()
     {
         await using var authority = await MockOpenIdAuthority.CreateAsync().DefaultTimeout();
 
         var testSink = new TestSink();
         await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(
-            testOutputHelper,
+            testContext,
             additionalConfiguration: config =>
             {
                 ConfigureOpenIdConnect(config, authority);
@@ -85,10 +84,10 @@ public class FrontendOpenIdConnectAuthTests(ITestOutputHelper testOutputHelper)
         var response = await client.GetAsync("/").DefaultTimeout();
 
         // Assert
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
 
         var log = testSink.Writes.Single(s => s.LoggerName == typeof(FrontendCompositeAuthenticationHandler).FullName && s.EventId.Name == "AuthenticationSchemeNotAuthenticatedWithFailure");
-        Assert.Equal("FrontendComposite was not authenticated. Failure message: Connection type Frontend is not enabled on this connection.", log.Message);
+        Assert.AreEqual("FrontendComposite was not authenticated. Failure message: Connection type Frontend is not enabled on this connection.", log.Message);
 
         await app.StopAsync().DefaultTimeout();
     }

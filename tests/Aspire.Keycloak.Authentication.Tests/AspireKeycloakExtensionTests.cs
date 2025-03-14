@@ -6,15 +6,15 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Xunit;
 
 namespace Aspire.Keycloak.Authentication.Tests;
 
+[TestClass]
 public class AspireKeycloakExtensionTests()
 {
     internal const string DefaultKeyName = "keycloak";
 
-    [Fact]
+    [TestMethod]
     public void AddKeycloakJwtBearer_WithDefaults_NoHttps_Throws()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -30,10 +30,10 @@ public class AspireKeycloakExtensionTests()
             host.Services.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>()
                          .Get(JwtBearerDefaults.AuthenticationScheme));
 
-        Assert.Equal("The MetadataAddress or Authority must use HTTPS unless disabled for development by setting RequireHttpsMetadata=false.", exception.Message);
+        Assert.AreEqual("The MetadataAddress or Authority must use HTTPS unless disabled for development by setting RequireHttpsMetadata=false.", exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeycloakJwtBearer_WithScheme_NoHttps_Throws()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -49,10 +49,10 @@ public class AspireKeycloakExtensionTests()
         var exception = Assert.Throws<InvalidOperationException>(() =>
             host.Services.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>().Get(scheme));
 
-        Assert.Equal("The MetadataAddress or Authority must use HTTPS unless disabled for development by setting RequireHttpsMetadata=false.", exception.Message);
+        Assert.AreEqual("The MetadataAddress or Authority must use HTTPS unless disabled for development by setting RequireHttpsMetadata=false.", exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeycloakJwtBearer_WithOptions_SetsJwtBearerAuthority()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -70,10 +70,10 @@ public class AspireKeycloakExtensionTests()
         var options = host.Services.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>()
                                    .Get(JwtBearerDefaults.AuthenticationScheme);
 
-        Assert.Equal(options.Authority, $"https+http://{DefaultKeyName}/realms/{realm}");
+        Assert.AreEqual(options.Authority, $"https+http://{DefaultKeyName}/realms/{realm}");
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeycloakJwtBearer_WithSchemeAndOptions_SetsJwtBearerAuthority()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -92,10 +92,10 @@ public class AspireKeycloakExtensionTests()
         var options = host.Services.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>()
                                    .Get(scheme);
 
-        Assert.Equal(options.Authority, $"https+http://{DefaultKeyName}/realms/{realm}");
+        Assert.AreEqual(options.Authority, $"https+http://{DefaultKeyName}/realms/{realm}");
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeycloakOpenIdConnect_WithDefaults_NoHttps_Throws()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -111,10 +111,10 @@ public class AspireKeycloakExtensionTests()
             host.Services.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>()
                          .Get(OpenIdConnectDefaults.AuthenticationScheme));
 
-        Assert.Equal("The MetadataAddress or Authority must use HTTPS unless disabled for development by setting RequireHttpsMetadata=false.", exception.Message);
+        Assert.AreEqual("The MetadataAddress or Authority must use HTTPS unless disabled for development by setting RequireHttpsMetadata=false.", exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeycloakOpenIdConnect_WithScheme_NoHttps_Throws()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -130,10 +130,10 @@ public class AspireKeycloakExtensionTests()
         var exception = Assert.Throws<InvalidOperationException>(() =>
             host.Services.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>().Get(scheme));
 
-        Assert.Equal("The MetadataAddress or Authority must use HTTPS unless disabled for development by setting RequireHttpsMetadata=false.", exception.Message);
+        Assert.AreEqual("The MetadataAddress or Authority must use HTTPS unless disabled for development by setting RequireHttpsMetadata=false.", exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeycloakOpenIdConnect_WithOptions_SetsOpenIdConnectAuthority()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -152,10 +152,10 @@ public class AspireKeycloakExtensionTests()
         var options = host.Services.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>()
                                    .Get(OpenIdConnectDefaults.AuthenticationScheme);
 
-        Assert.Equal(options.Authority, $"https+http://{DefaultKeyName}/realms/{realm}");
+        Assert.AreEqual(options.Authority, $"https+http://{DefaultKeyName}/realms/{realm}");
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeycloakOpenIdConnect_WithSchemeAndOptions_SetsOpenIdConnectAuthority()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -175,6 +175,6 @@ public class AspireKeycloakExtensionTests()
         var options = host.Services.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>()
                                    .Get(scheme);
 
-        Assert.Equal(options.Authority, $"https+http://{DefaultKeyName}/realms/{realm}");
+        Assert.AreEqual(options.Authority, $"https+http://{DefaultKeyName}/realms/{realm}");
     }
 }

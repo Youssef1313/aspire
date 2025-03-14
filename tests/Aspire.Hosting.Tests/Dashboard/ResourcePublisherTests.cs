@@ -4,13 +4,13 @@
 using Aspire.Dashboard.Model;
 using Aspire.Hosting.Dashboard;
 using Microsoft.AspNetCore.InternalTesting;
-using Xunit;
 
 namespace Aspire.Hosting.Tests.Dashboard;
 
+[TestClass]
 public class ResourcePublisherTests
 {
-    [Fact]
+    [TestMethod]
     public async Task ProducesExpectedSnapshotAndUpdates()
     {
         CancellationTokenSource cts = new();
@@ -23,15 +23,15 @@ public class ResourcePublisherTests
         await publisher.IntegrateAsync(new TestResource("A"), a, ResourceSnapshotChangeType.Upsert).DefaultTimeout();
         await publisher.IntegrateAsync(new TestResource("B"), b, ResourceSnapshotChangeType.Upsert).DefaultTimeout();
 
-        Assert.Equal(0, publisher.OutgoingSubscriberCount);
+        Assert.AreEqual(0, publisher.OutgoingSubscriberCount);
 
         var (snapshot, subscription) = publisher.Subscribe();
 
-        Assert.Equal(1, publisher.OutgoingSubscriberCount);
+        Assert.AreEqual(1, publisher.OutgoingSubscriberCount);
 
-        Assert.Equal(2, snapshot.Length);
-        Assert.Single(snapshot.Where(s => s.Name == "A"));
-        Assert.Single(snapshot.Where(s => s.Name == "B"));
+        Assert.AreEqual(2, snapshot.Length);
+        Assert.ContainsSingle(snapshot.Where(s => s.Name == "A"));
+        Assert.ContainsSingle(snapshot.Where(s => s.Name == "B"));
 
         var tcs = new TaskCompletionSource<IReadOnlyList<ResourceSnapshotChange>>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -45,9 +45,9 @@ public class ResourcePublisherTests
 
         await publisher.IntegrateAsync(new TestResource("C"), c, ResourceSnapshotChangeType.Upsert).DefaultTimeout();
 
-        var change = Assert.Single(await tcs.Task.DefaultTimeout());
-        Assert.Equal(ResourceSnapshotChangeType.Upsert, change.ChangeType);
-        Assert.Equal("C", change.Resource.Name);
+        var change = Assert.ContainsSingle(await tcs.Task.DefaultTimeout());
+        Assert.AreEqual(ResourceSnapshotChangeType.Upsert, change.ChangeType);
+        Assert.AreEqual("C", change.Resource.Name);
 
         await cts.CancelAsync().DefaultTimeout();
 
@@ -60,10 +60,10 @@ public class ResourcePublisherTests
             // Ignore possible cancellation error.
         }
 
-        Assert.Equal(0, publisher.OutgoingSubscriberCount);
+        Assert.AreEqual(0, publisher.OutgoingSubscriberCount);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsMultipleSubscribers()
     {
         CancellationTokenSource cts = new();
@@ -76,15 +76,15 @@ public class ResourcePublisherTests
         await publisher.IntegrateAsync(new TestResource("A"), a, ResourceSnapshotChangeType.Upsert).DefaultTimeout();
         await publisher.IntegrateAsync(new TestResource("B"), b, ResourceSnapshotChangeType.Upsert).DefaultTimeout();
 
-        Assert.Equal(0, publisher.OutgoingSubscriberCount);
+        Assert.AreEqual(0, publisher.OutgoingSubscriberCount);
 
         var (snapshot1, subscription1) = publisher.Subscribe();
         var (snapshot2, subscription2) = publisher.Subscribe();
 
-        Assert.Equal(2, publisher.OutgoingSubscriberCount);
+        Assert.AreEqual(2, publisher.OutgoingSubscriberCount);
 
-        Assert.Equal(2, snapshot1.Length);
-        Assert.Equal(2, snapshot2.Length);
+        Assert.AreEqual(2, snapshot1.Length);
+        Assert.AreEqual(2, snapshot2.Length);
 
         await publisher.IntegrateAsync(new TestResource("C"), c, ResourceSnapshotChangeType.Upsert).DefaultTimeout();
 
@@ -94,23 +94,23 @@ public class ResourcePublisherTests
         await enumerator1.MoveNextAsync().DefaultTimeout();
         await enumerator2.MoveNextAsync().DefaultTimeout();
 
-        var v1 = Assert.Single(enumerator1.Current);
-        var v2 = Assert.Single(enumerator2.Current);
+        var v1 = Assert.ContainsSingle(enumerator1.Current);
+        var v2 = Assert.ContainsSingle(enumerator2.Current);
 
-        Assert.Equal(ResourceSnapshotChangeType.Upsert, v1.ChangeType);
-        Assert.Equal(ResourceSnapshotChangeType.Upsert, v2.ChangeType);
-        Assert.Equal("C", v1.Resource.Name);
-        Assert.Equal("C", v2.Resource.Name);
+        Assert.AreEqual(ResourceSnapshotChangeType.Upsert, v1.ChangeType);
+        Assert.AreEqual(ResourceSnapshotChangeType.Upsert, v2.ChangeType);
+        Assert.AreEqual("C", v1.Resource.Name);
+        Assert.AreEqual("C", v2.Resource.Name);
 
         await cts.CancelAsync().DefaultTimeout();
 
-        Assert.False(await enumerator1.MoveNextAsync().DefaultTimeout());
-        Assert.False(await enumerator2.MoveNextAsync().DefaultTimeout());
+        Assert.IsFalse(await enumerator1.MoveNextAsync().DefaultTimeout());
+        Assert.IsFalse(await enumerator2.MoveNextAsync().DefaultTimeout());
 
-        Assert.Equal(0, publisher.OutgoingSubscriberCount);
+        Assert.AreEqual(0, publisher.OutgoingSubscriberCount);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task MergesResourcesInSnapshot()
     {
         CancellationTokenSource cts = new();
@@ -126,12 +126,12 @@ public class ResourcePublisherTests
 
         var (snapshot, _) = publisher.Subscribe();
 
-        Assert.Equal("A", Assert.Single(snapshot).Name);
+        Assert.AreEqual("A", Assert.ContainsSingle(snapshot).Name);
 
         await cts.CancelAsync().DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task DeletesRemoveFromSnapshot()
     {
         CancellationTokenSource cts = new();
@@ -146,12 +146,12 @@ public class ResourcePublisherTests
 
         var (snapshot, _) = publisher.Subscribe();
 
-        Assert.Equal("B", Assert.Single(snapshot).Name);
+        Assert.AreEqual("B", Assert.ContainsSingle(snapshot).Name);
 
         await cts.CancelAsync().DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CancelledSubscriptionIsCleanedUp()
     {
         ResourcePublisher publisher = new(CancellationToken.None);
@@ -165,7 +165,7 @@ public class ResourcePublisherTests
             await foreach (var item in subscription.WithCancellation(cts.Token).ConfigureAwait(false))
             {
                 // We should only loop one time.
-                Assert.False(called);
+                Assert.IsFalse(called);
                 called = true;
 
                 // Now we've received something, cancel.

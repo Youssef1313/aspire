@@ -4,13 +4,14 @@
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Azure.Tests;
 
-public class AzureResourceOptionsTests(ITestOutputHelper output)
+[TestClass]
+public class AzureResourceOptionsTests
 {
+    public TestContext TestContext { get; set; }
+
     /// <summary>
     /// Ensures that an AzureProvisioningOptions can be configured to modify the ProvisioningBuildOptions
     /// used when building the bicep for an Azure resource.
@@ -18,7 +19,7 @@ public class AzureResourceOptionsTests(ITestOutputHelper output)
     /// This uses the .NET Aspire v8.x naming policy, which always calls toLower, appends a unique string with no separator,
     /// and uses a max of 24 characters.
     /// </summary>
-    [Fact]
+    [TestMethod]
     public async Task AzureResourceOptionsCanBeConfigured()
     {
         var tempDir = Directory.CreateTempSubdirectory();
@@ -81,8 +82,8 @@ public class AzureResourceOptionsTests(ITestOutputHelper output)
 
                 output name string = sb.name
                 """;
-            output.WriteLine(actualBicep);
-            Assert.Equal(expectedBicep, actualBicep);
+            TestContext.WriteLine(actualBicep);
+            Assert.AreEqual(expectedBicep, actualBicep);
 
             actualBicep = await File.ReadAllTextAsync(Path.Combine(tempDir.FullName, "sql-server.module.bicep"));
 
@@ -131,8 +132,8 @@ public class AzureResourceOptionsTests(ITestOutputHelper output)
 
                 output sqlServerFqdn string = sql_server.properties.fullyQualifiedDomainName
                 """;
-            output.WriteLine(actualBicep);
-            Assert.Equal(expectedBicep, actualBicep);
+            TestContext.WriteLine(actualBicep);
+            Assert.AreEqual(expectedBicep, actualBicep);
 
             await app.StopAsync();
         }
@@ -143,7 +144,7 @@ public class AzureResourceOptionsTests(ITestOutputHelper output)
         }
         catch (IOException ex)
         {
-            output.WriteLine($"Failed to delete {tempDir.FullName} : {ex.Message}. Ignoring.");
+            TestContext.WriteLine($"Failed to delete {tempDir.FullName} : {ex.Message}. Ignoring.");
         }
     }
 }

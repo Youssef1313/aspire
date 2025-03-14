@@ -3,8 +3,6 @@
 
 using Aspire.Components.Common.Tests;
 using Aspire.Hosting.Utils;
-using Xunit;
-using Xunit.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using NATS.Client.Core;
@@ -16,16 +14,19 @@ using Aspire.Hosting.Tests.Utils;
 
 namespace Aspire.Hosting.Nats.Tests;
 
-public class NatsFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class NatsFunctionalTests
 {
+    public TestContext TestContext { get; set; }
+
     private const string StreamName = "test-stream";
     private const string SubjectName = "test-subject";
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyNatsResource()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var nats = builder.AddNats("nats")
             .WithJetStream();
@@ -58,17 +59,17 @@ public class NatsFunctionalTests(ITestOutputHelper testOutputHelper)
         await ConsumeTestData(jetStream, default);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(null, null)]
-    [InlineData("nats", null)]
-    [InlineData(null, "password")]
-    [InlineData("nats", "password")]
+    [DataRow(null, null)]
+    [DataRow("nats", null)]
+    [DataRow(null, "password")]
+    [DataRow("nats", "password")]
     public async Task AuthenticationShouldWork(string? user, string? password)
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
       
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var usernameParameter = user is null ? null : builder.AddParameter("user", user);
         var passwordParameter = password is null ? null : builder.AddParameter("pass", password);
@@ -98,19 +99,19 @@ public class NatsFunctionalTests(ITestOutputHelper testOutputHelper)
 
         var natsConnection = host.Services.GetRequiredService<INatsConnection>();
         await natsConnection.ConnectAsync();
-        Assert.Equal(NatsConnectionState.Open, natsConnection.ConnectionState);
+        Assert.AreEqual(NatsConnectionState.Open, natsConnection.ConnectionState);
     }
 
-    [Theory]
+    [TestMethod]
     [RequiresDocker]
-    [InlineData("user", "wrong-password")]
-    [InlineData("wrong-user", "password")]
-    [InlineData(null, null)]
+    [DataRow("user", "wrong-password")]
+    [DataRow("wrong-user", "password")]
+    [DataRow(null, null)]
     public async Task AuthenticationShouldFailOnWrongOrMissingCredentials(string? user, string? password)
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
 
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var usernameParameter = builder.AddParameter("user", "user");
         var passwordParameter = builder.AddParameter("pass", "password");
@@ -145,12 +146,12 @@ public class NatsFunctionalTests(ITestOutputHelper testOutputHelper)
         var natsConnection = host.Services.GetRequiredService<INatsConnection>();
 
         var exception = await Assert.ThrowsAsync<NatsException>(async () => await natsConnection.ConnectAsync());
-        Assert.IsType<NatsServerException>(exception.InnerException);
+        Assert.IsInstanceOfType<NatsServerException>(exception.InnerException);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
@@ -159,7 +160,7 @@ public class NatsFunctionalTests(ITestOutputHelper testOutputHelper)
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var nats1 = builder1.AddNats("nats")
                 .WithJetStream();
 
@@ -214,7 +215,7 @@ public class NatsFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var nats2 = builder2.AddNats("nats")
                 .WithJetStream();
 
@@ -300,15 +301,15 @@ public class NatsFunctionalTests(ITestOutputHelper testOutputHelper)
         for (var i = 0; i < 10; i++)
         {
             var @event = events[i];
-            Assert.Equal($"test-event-{i}", @event.Name);
-            Assert.Equal($"test-event-description-{i}", @event.Description);
+            Assert.AreEqual($"test-event-{i}", @event.Name);
+            Assert.AreEqual($"test-event-description-{i}", @event.Description);
         }
     }
 
     private static async Task CreateTestData(INatsJSContext jetStream, CancellationToken token)
     {
         var stream = await jetStream.CreateStreamAsync(new StreamConfig(StreamName, [SubjectName]), cancellationToken: token);
-        Assert.Equal(StreamName, stream.Info.Config.Name);
+        Assert.AreEqual(StreamName, stream.Info.Config.Name);
 
         for (var i = 0; i < 10; i++)
         {
@@ -318,12 +319,12 @@ public class NatsFunctionalTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWaitForOnNatsBlocksDependentResources()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>

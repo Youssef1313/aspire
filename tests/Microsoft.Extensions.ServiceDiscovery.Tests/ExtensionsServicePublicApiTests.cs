@@ -8,7 +8,6 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Primitives;
-using Xunit;
 
 namespace Microsoft.Extensions.ServiceDiscovery.Tests;
 
@@ -16,7 +15,7 @@ namespace Microsoft.Extensions.ServiceDiscovery.Tests;
 
 public class ExtensionsServicePublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddServiceDiscoveryShouldThrowWhenHttpClientBuilderIsNull()
     {
         IHttpClientBuilder httpClientBuilder = null!;
@@ -24,10 +23,10 @@ public class ExtensionsServicePublicApiTests
         var action = () => httpClientBuilder.AddServiceDiscovery();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(httpClientBuilder), exception.ParamName);
+        Assert.AreEqual(nameof(httpClientBuilder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddServiceDiscoveryShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -35,10 +34,10 @@ public class ExtensionsServicePublicApiTests
         var action = () => services.AddServiceDiscovery();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddServiceDiscoveryWithConfigureOptionsShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -47,10 +46,10 @@ public class ExtensionsServicePublicApiTests
         var action = () => services.AddServiceDiscovery(configureOptions);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddServiceDiscoveryWithConfigureOptionsShouldThrowWhenConfigureOptionsIsNull()
     {
         var services = new ServiceCollection();
@@ -59,10 +58,10 @@ public class ExtensionsServicePublicApiTests
         var action = () => services.AddServiceDiscovery(configureOptions);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureOptions), exception.ParamName);
+        Assert.AreEqual(nameof(configureOptions), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddServiceDiscoveryCoreShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -70,10 +69,10 @@ public class ExtensionsServicePublicApiTests
         var action = () => services.AddServiceDiscoveryCore();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddServiceDiscoveryCoreWithConfigureOptionsShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -82,10 +81,10 @@ public class ExtensionsServicePublicApiTests
         var action = () => services.AddServiceDiscoveryCore(configureOptions);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddServiceDiscoveryCoreWithConfigureOptionsShouldThrowWhenConfigureOptionsIsNull()
     {
         var services = new ServiceCollection();
@@ -94,10 +93,10 @@ public class ExtensionsServicePublicApiTests
         var action = () => services.AddServiceDiscoveryCore(configureOptions);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureOptions), exception.ParamName);
+        Assert.AreEqual(nameof(configureOptions), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddConfigurationServiceEndpointProviderShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -105,10 +104,10 @@ public class ExtensionsServicePublicApiTests
         var action = () => services.AddConfigurationServiceEndpointProvider();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddConfigurationServiceEndpointProviderWithConfigureOptionsShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -117,10 +116,10 @@ public class ExtensionsServicePublicApiTests
         var action = () => services.AddConfigurationServiceEndpointProvider(configureOptions);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddConfigurationServiceEndpointProviderWithConfigureOptionsShouldThrowWhenConfigureOptionsIsNull()
     {
         var services = new ServiceCollection();
@@ -129,10 +128,10 @@ public class ExtensionsServicePublicApiTests
         var action = () => services.AddConfigurationServiceEndpointProvider(configureOptions);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureOptions), exception.ParamName);
+        Assert.AreEqual(nameof(configureOptions), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddPassThroughServiceEndpointProviderShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -140,10 +139,10 @@ public class ExtensionsServicePublicApiTests
         var action = () => services.AddPassThroughServiceEndpointProvider();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetEndpointsAsyncShouldThrowWhenServiceNameIsNull()
     {
         var serviceEndpointWatcherFactory = new ServiceEndpointWatcherFactory(
@@ -158,10 +157,10 @@ public class ExtensionsServicePublicApiTests
         var action = async () => await serviceEndpointResolver.GetEndpointsAsync(serviceName, CancellationToken.None);
 
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(action);
-        Assert.Equal(nameof(serviceName), exception.ParamName);
+        Assert.AreEqual(nameof(serviceName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CreateShouldThrowWhenEndPointIsNull()
     {
         EndPoint endPoint = null!;
@@ -169,12 +168,12 @@ public class ExtensionsServicePublicApiTests
         var action = () => ServiceEndpoint.Create(endPoint);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(endPoint), exception.ParamName);
+        Assert.AreEqual(nameof(endPoint), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void TryParseShouldThrowWhenEndPointIsNullOrEmpty(bool isNull)
     {
         var input = isNull ? null! : string.Empty;
@@ -187,10 +186,10 @@ public class ExtensionsServicePublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(input), exception.ParamName);
+        Assert.AreEqual(nameof(input), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorServiceEndpointSourceShouldThrowWhenChangeTokenIsNull()
     {
         IChangeToken changeToken = null!;
@@ -200,10 +199,10 @@ public class ExtensionsServicePublicApiTests
         var action = () => new ServiceEndpointSource(endpoints, changeToken, features);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(changeToken), exception.ParamName);
+        Assert.AreEqual(nameof(changeToken), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorServiceEndpointSourceShouldThrowWhenFeaturesIsNull()
     {
         var changeToken = NullChangeToken.Singleton;
@@ -213,6 +212,6 @@ public class ExtensionsServicePublicApiTests
         var action = () => new ServiceEndpointSource(endpoints, changeToken, features);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(features), exception.ParamName);
+        Assert.AreEqual(nameof(features), exception.ParamName);
     }
 }

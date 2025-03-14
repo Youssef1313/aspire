@@ -18,53 +18,52 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Xunit;
-using Xunit.Abstractions;
 using DashboardServiceBase = Aspire.ResourceService.Proto.V1.DashboardService.DashboardServiceBase;
 
 namespace Aspire.Dashboard.Tests.Integration;
 
+[TestClass]
 public sealed class DashboardClientAuthTests
 {
     private const string ApiKeyHeaderName = "x-resource-service-api-key";
 
-    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly TestContext _testContext;
 
-    public DashboardClientAuthTests(ITestOutputHelper testOutputHelper)
+    public DashboardClientAuthTests(TestContext testContext)
     {
-        _testOutputHelper = testOutputHelper;
+        _testContext = testContext;
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task ConnectsToResourceService_Unsecured(bool useHttps)
     {
-        var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(_testOutputHelper);
+        var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(_testContext);
         await using var server = await CreateResourceServiceServerAsync(loggerFactory, useHttps).DefaultTimeout();
         await using var client = await CreateDashboardClientAsync(loggerFactory, server.Url, authMode: ResourceClientAuthMode.Unsecured).DefaultTimeout();
 
         var call = await server.Calls.ApplicationInformationCallsChannel.Reader.ReadAsync().DefaultTimeout();
 
-        Assert.NotNull(call.Request);
-        Assert.NotNull(call.RequestHeaders);
-        Assert.Null(call.RequestHeaders.Get(ApiKeyHeaderName));
+        Assert.IsNotNull(call.Request);
+        Assert.IsNotNull(call.RequestHeaders);
+        Assert.IsNull(call.RequestHeaders.Get(ApiKeyHeaderName));
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task ConnectsToResourceService_ApiKey(bool useHttps)
     {
-        var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(_testOutputHelper);
+        var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(_testContext);
         await using var server = await CreateResourceServiceServerAsync(loggerFactory, useHttps).DefaultTimeout();
         await using var client = await CreateDashboardClientAsync(loggerFactory, server.Url, authMode: ResourceClientAuthMode.ApiKey, configureOptions: options => options.ResourceServiceClient.ApiKey = "TestApiKey!").DefaultTimeout();
 
         var call = await server.Calls.ApplicationInformationCallsChannel.Reader.ReadAsync().DefaultTimeout();
 
-        Assert.NotNull(call.Request);
-        Assert.NotNull(call.RequestHeaders);
-        Assert.Equal("TestApiKey!", call.RequestHeaders.GetValue(ApiKeyHeaderName));
+        Assert.IsNotNull(call.Request);
+        Assert.IsNotNull(call.RequestHeaders);
+        Assert.AreEqual("TestApiKey!", call.RequestHeaders.GetValue(ApiKeyHeaderName));
     }
 
     private static async Task<ResourceServiceServer> CreateResourceServiceServerAsync(ILoggerFactory loggerFactory, bool useHttps, Action<TestCalls>? configureCalls = null)

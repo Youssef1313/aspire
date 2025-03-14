@@ -10,7 +10,7 @@ public class DotNetCommand : ToolCommand
     protected readonly BuildEnvironment _buildEnvironment;
     private readonly bool _useDefaultArgs;
 
-    public DotNetCommand(ITestOutputHelper _testOutput, bool useDefaultArgs = true, BuildEnvironment? buildEnv = null, string label = "")
+    public DotNetCommand(TestContext _testOutput, bool useDefaultArgs = true, BuildEnvironment? buildEnv = null, string label = "")
             : base((buildEnv ?? BuildEnvironment.ForDefaultFramework).DotNet, _testOutput, label)
     {
         _buildEnvironment = buildEnv ?? BuildEnvironment.ForDefaultFramework;

@@ -7,14 +7,15 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
 using Azure.Provisioning.ServiceBus;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Azure.Tests;
 
-public class RoleAssignmentTests(ITestOutputHelper output)
+[TestClass]
+public class RoleAssignmentTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     public async Task ServiceBusSupport()
     {
         var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -31,7 +32,7 @@ public class RoleAssignmentTests(ITestOutputHelper output)
 
         await ExecuteBeforeStartHooksAsync(app, default);
 
-        var projRoles = Assert.Single(model.Resources.OfType<AzureProvisioningResource>().Where(r => r.Name == $"api-roles"));
+        var projRoles = Assert.ContainsSingle(model.Resources.OfType<AzureProvisioningResource>().Where(r => r.Name == $"api-roles"));
 
         var (rolesManifest, rolesBicep) = await GetManifestWithBicep(projRoles);
 
@@ -45,7 +46,7 @@ public class RoleAssignmentTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedRolesManifest, rolesManifest.ToString());
+        Assert.AreEqual(expectedRolesManifest, rolesManifest.ToString());
 
         var expectedRolesBicep =
             """
@@ -89,8 +90,8 @@ public class RoleAssignmentTests(ITestOutputHelper output)
 
             output principalId string = api_identity.properties.principalId
             """;
-        output.WriteLine(rolesBicep);
-        Assert.Equal(expectedRolesBicep, rolesBicep);
+        TestContext.WriteLine(rolesBicep);
+        Assert.AreEqual(expectedRolesBicep, rolesBicep);
     }
 
     private static Task<(JsonNode ManifestNode, string BicepText)> GetManifestWithBicep(IResource resource) =>

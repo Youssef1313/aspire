@@ -10,13 +10,13 @@ using Aspire.Hosting.Tests.Helpers;
 using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class ManifestGenerationTests
 {
-    [Fact]
+    [TestMethod]
     public void EnsureAddParameterWithSecretFalseDoesntEmitSecretField()
     {
         using var program = CreateTestProgramJsonDocumentManifestPublisher();
@@ -30,10 +30,10 @@ public class ManifestGenerationTests
         var x = resources.GetProperty("x");
         var inputs = x.GetProperty("inputs");
         var value = inputs.GetProperty("value");
-        Assert.False(value.TryGetProperty("secret", out _));
+        Assert.IsFalse(value.TryGetProperty("secret", out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void EnsureAddParameterWithSecretDefaultDoesntEmitSecretField()
     {
         using var program = CreateTestProgramJsonDocumentManifestPublisher();
@@ -47,10 +47,10 @@ public class ManifestGenerationTests
         var x = resources.GetProperty("x");
         var inputs = x.GetProperty("inputs");
         var value = inputs.GetProperty("value");
-        Assert.False(value.TryGetProperty("secret", out _));
+        Assert.IsFalse(value.TryGetProperty("secret", out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void EnsureAddParameterWithSecretTrueDoesEmitSecretField()
     {
         using var program = CreateTestProgramJsonDocumentManifestPublisher();
@@ -64,11 +64,11 @@ public class ManifestGenerationTests
         var x = resources.GetProperty("x");
         var inputs = x.GetProperty("inputs");
         var value = inputs.GetProperty("value");
-        Assert.True(value.TryGetProperty("secret", out var secret));
-        Assert.True(secret.GetBoolean());
+        Assert.IsTrue(value.TryGetProperty("secret", out var secret));
+        Assert.IsTrue(secret.GetBoolean());
     }
 
-    [Fact]
+    [TestMethod]
     public void EnsureWorkerProjectDoesNotGetBindingsGenerated()
     {
         using var program = CreateTestProgramJsonDocumentManifestPublisher();
@@ -82,10 +82,10 @@ public class ManifestGenerationTests
         var resources = publisher.ManifestDocument.RootElement.GetProperty("resources");
 
         var workerA = resources.GetProperty("workera");
-        Assert.False(workerA.TryGetProperty("bindings", out _));
+        Assert.IsFalse(workerA.TryGetProperty("bindings", out _));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithContainerRegistryUpdatesContainerImageAnnotationsDuringPublish()
     {
         var builder = DistributedApplication.CreateBuilder(new DistributedApplicationOptions
@@ -104,10 +104,10 @@ public class ManifestGenerationTests
               "image": "myprivateregistry.company.com/redis:latest"
             }
             """;
-        Assert.Equal(expectedManifest, redisManifest.ToString());
+        Assert.AreEqual(expectedManifest, redisManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void ExcludeLaunchProfileOmitsBindings()
     {
         var appBuilder = DistributedApplication.CreateBuilder(new DistributedApplicationOptions
@@ -124,15 +124,15 @@ public class ManifestGenerationTests
 
         var resources = publisher.ManifestDocument.RootElement.GetProperty("resources");
 
-        Assert.False(
+        Assert.IsFalse(
             resources.GetProperty("servicea").TryGetProperty("bindings", out _),
             "Service has no bindings because they weren't populated from the launch profile.");
     }
 
-    [Theory]
-    [InlineData(new string[] { "args1", "args2" }, new string[] { "withArgs1", "withArgs2" })]
-    [InlineData(new string[] { }, new string[] { "withArgs1", "withArgs2" })]
-    [InlineData(new string[] { "args1", "args2" }, new string[] { })]
+    [TestMethod]
+    [DataRow(new string[] { "args1", "args2" }, new string[] { "withArgs1", "withArgs2" })]
+    [DataRow(new string[] { }, new string[] { "withArgs1", "withArgs2" })]
+    [DataRow(new string[] { "args1", "args2" }, new string[] { })]
     public void EnsureExecutableWithArgsEmitsExecutableArgs(string[] addExecutableArgs, string[] withArgsArgs)
     {
         using var program = CreateTestProgramJsonDocumentManifestPublisher();
@@ -153,23 +153,23 @@ public class ManifestGenerationTests
 
         var resource = resources.GetProperty("program");
         var args = resource.GetProperty("args");
-        Assert.Equal(addExecutableArgs.Length + withArgsArgs.Length, args.GetArrayLength());
+        Assert.AreEqual(addExecutableArgs.Length + withArgsArgs.Length, args.GetArrayLength());
 
         var verify = new List<Action<JsonElement>>();
         foreach (var addExecutableArg in addExecutableArgs)
         {
-            verify.Add(arg => Assert.Equal(addExecutableArg, arg.GetString()));
+            verify.Add(arg => Assert.AreEqual(addExecutableArg, arg.GetString()));
         }
 
         foreach (var withArgsArg in withArgsArgs)
         {
-            verify.Add(arg => Assert.Equal(withArgsArg, arg.GetString()));
+            verify.Add(arg => Assert.AreEqual(withArgsArg, arg.GetString()));
         }
 
-        Assert.Collection(args.EnumerateArray(), [.. verify]);
+        Assert.That.Collection(args.EnumerateArray(), [.. verify]);
     }
 
-    [Fact]
+    [TestMethod]
     public void ExecutableManifestNotIncludeArgsWhenEmpty()
     {
         using var program = CreateTestProgramJsonDocumentManifestPublisher();
@@ -186,10 +186,10 @@ public class ManifestGenerationTests
 
         var resource = resources.GetProperty("program");
         var exists = resource.TryGetProperty("args", out _);
-        Assert.False(exists);
+        Assert.IsFalse(exists);
     }
 
-    [Fact]
+    [TestMethod]
     public void EnsureAllRedisManifestTypesHaveVersion0Suffix()
     {
         using var program = CreateTestProgramJsonDocumentManifestPublisher();
@@ -205,10 +205,10 @@ public class ManifestGenerationTests
         var resources = publisher.ManifestDocument.RootElement.GetProperty("resources");
 
         var container = resources.GetProperty("rediscontainer");
-        Assert.Equal("container.v0", container.GetProperty("type").GetString());
+        Assert.AreEqual("container.v0", container.GetProperty("type").GetString());
     }
 
-    [Fact]
+    [TestMethod]
     public void PublishingRedisResourceAsContainerResultsInConnectionStringProperty()
     {
         using var program = CreateTestProgramJsonDocumentManifestPublisher();
@@ -224,11 +224,11 @@ public class ManifestGenerationTests
         var resources = publisher.ManifestDocument.RootElement.GetProperty("resources");
 
         var container = resources.GetProperty("rediscontainer");
-        Assert.Equal("container.v0", container.GetProperty("type").GetString());
-        Assert.Equal("{rediscontainer.bindings.tcp.host}:{rediscontainer.bindings.tcp.port},password={rediscontainer-password.value}", container.GetProperty("connectionString").GetString());
+        Assert.AreEqual("container.v0", container.GetProperty("type").GetString());
+        Assert.AreEqual("{rediscontainer.bindings.tcp.host}:{rediscontainer.bindings.tcp.port},password={rediscontainer-password.value}", container.GetProperty("connectionString").GetString());
     }
 
-    [Fact]
+    [TestMethod]
     public void EnsureAllPostgresManifestTypesHaveVersion0Suffix()
     {
         using var program = CreateTestProgramJsonDocumentManifestPublisher();
@@ -244,13 +244,13 @@ public class ManifestGenerationTests
         var resources = publisher.ManifestDocument.RootElement.GetProperty("resources");
 
         var server = resources.GetProperty("postgrescontainer");
-        Assert.Equal("container.v0", server.GetProperty("type").GetString());
+        Assert.AreEqual("container.v0", server.GetProperty("type").GetString());
 
         var db = resources.GetProperty("postgresdatabase");
-        Assert.Equal("value.v0", db.GetProperty("type").GetString());
+        Assert.AreEqual("value.v0", db.GetProperty("type").GetString());
     }
 
-    [Fact]
+    [TestMethod]
     public void MetadataPropertyNotEmittedWhenMetadataNotAdded()
     {
         using var program = CreateTestProgramJsonDocumentManifestPublisher();
@@ -266,10 +266,10 @@ public class ManifestGenerationTests
         var resources = publisher.ManifestDocument.RootElement.GetProperty("resources");
 
         var container = resources.GetProperty("testresource");
-        Assert.False(container.TryGetProperty("metadata", out var _));
+        Assert.IsFalse(container.TryGetProperty("metadata", out var _));
     }
 
-    [Fact]
+    [TestMethod]
     public void VerifyTestProgramFullManifest()
     {
         using var program = CreateTestProgramJsonDocumentManifestPublisher(includeIntegrationServices: true);
@@ -475,10 +475,10 @@ public class ManifestGenerationTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, publisher.ManifestDocument.RootElement.ToString());
+        Assert.AreEqual(expectedManifest, publisher.ManifestDocument.RootElement.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ParameterInputDefaultValuesGenerateCorrectly()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -522,7 +522,7 @@ public class ManifestGenerationTests
             """;
 
         var manifest = await ManifestUtils.GetManifest(param.Resource).DefaultTimeout();
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
     private static TestProgram CreateTestProgramJsonDocumentManifestPublisher(bool includeIntegrationServices = false, bool includeNodeApp = false)

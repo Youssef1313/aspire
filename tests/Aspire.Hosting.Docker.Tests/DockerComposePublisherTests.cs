@@ -5,13 +5,13 @@ using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Xunit;
 
 namespace Aspire.Hosting.Docker.Tests;
 
+[TestClass]
 public class DockerComposePublisherTests
 {
-    [Fact]
+    [TestMethod]
     public async Task PublishAsync_GeneratesValidDockerComposeFile()
     {
         using var tempDir = new TempDirectory();
@@ -51,13 +51,13 @@ public class DockerComposePublisherTests
         // Assert
         var composePath = Path.Combine(tempDir.Path, "docker-compose.yaml");
         var envPath = Path.Combine(tempDir.Path, ".env");
-        Assert.True(File.Exists(composePath));
-        Assert.True(File.Exists(envPath));
+        Assert.IsTrue(File.Exists(composePath));
+        Assert.IsTrue(File.Exists(envPath));
 
         var content = await File.ReadAllTextAsync(composePath);
         var envContent = await File.ReadAllTextAsync(envPath);
 
-        Assert.Equal(
+        Assert.AreEqual(
             """
             services:
             myapp:
@@ -92,7 +92,7 @@ public class DockerComposePublisherTests
             """,
             content, ignoreAllWhiteSpace: true, ignoreLineEndingDifferences: true);
 
-        Assert.Equal(
+        Assert.AreEqual(
             """
             # Parameter param0
             PARAM0=

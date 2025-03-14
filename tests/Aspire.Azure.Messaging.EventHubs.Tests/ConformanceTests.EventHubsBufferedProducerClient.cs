@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Aspire.Azure.Messaging.EventHubs.Tests;
 
+[TestClass]
 public class ConformanceTests_EventHubsBufferedProducerClient : ConformanceTestsBase<EventHubBufferedProducerClient, AzureMessagingEventHubsBufferedProducerSettings>
 {
     protected override void SetHealthCheck(AzureMessagingEventHubsBufferedProducerSettings options, bool enabled)

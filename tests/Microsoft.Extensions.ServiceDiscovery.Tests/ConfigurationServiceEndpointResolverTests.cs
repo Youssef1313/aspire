@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ServiceDiscovery.Configuration;
 using Microsoft.Extensions.ServiceDiscovery.Internal;
-using Xunit;
 
 namespace Microsoft.Extensions.ServiceDiscovery.Tests;
 
@@ -17,7 +16,7 @@ namespace Microsoft.Extensions.ServiceDiscovery.Tests;
 /// </summary>
 public class ConfigurationServiceEndpointResolverTests
 {
-    [Fact]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_Configuration_SingleResult_NoScheme()
     {
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
@@ -33,25 +32,25 @@ public class ConfigurationServiceEndpointResolverTests
         ServiceEndpointWatcher watcher;
         await using ((watcher = watcherFactory.CreateWatcher("http://basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            var ep = Assert.Single(initialResult.EndpointSource.Endpoints);
-            Assert.Equal(new DnsEndPoint("localhost", 8080), ep.EndPoint);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            var ep = Assert.ContainsSingle(initialResult.EndpointSource.Endpoints);
+            Assert.AreEqual(new DnsEndPoint("localhost", 8080), ep.EndPoint);
 
             Assert.All(initialResult.EndpointSource.Endpoints, ep =>
             {
                 var hostNameFeature = ep.Features.Get<IHostNameFeature>();
-                Assert.Null(hostNameFeature);
+                Assert.IsNull(hostNameFeature);
             });
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_Configuration_DisallowedScheme()
     {
         // Try to resolve an http endpoint when only https is allowed.
@@ -77,63 +76,63 @@ public class ConfigurationServiceEndpointResolverTests
         // We should get no endpoint back because http is not allowed by configuration.
         await using ((watcher = watcherFactory.CreateWatcher("http://_foo.basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            Assert.Empty(initialResult.EndpointSource.Endpoints);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            Assert.IsEmpty(initialResult.EndpointSource.Endpoints);
         }
 
         // Specifying no scheme.
         // We should get the HTTPS endpoint back, since it is explicitly allowed
         await using ((watcher = watcherFactory.CreateWatcher("_foo.basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            var ep = Assert.Single(initialResult.EndpointSource.Endpoints);
-            Assert.Equal(new UriEndPoint(new Uri("https://localhost")), ep.EndPoint);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            var ep = Assert.ContainsSingle(initialResult.EndpointSource.Endpoints);
+            Assert.AreEqual(new UriEndPoint(new Uri("https://localhost")), ep.EndPoint);
         }
 
         // Specifying either https or http.
         // We should only get the https endpoint back.
         await using ((watcher = watcherFactory.CreateWatcher("https+http://_foo.basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            var ep = Assert.Single(initialResult.EndpointSource.Endpoints);
-            Assert.Equal(new UriEndPoint(new Uri("https://localhost")), ep.EndPoint);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            var ep = Assert.ContainsSingle(initialResult.EndpointSource.Endpoints);
+            Assert.AreEqual(new UriEndPoint(new Uri("https://localhost")), ep.EndPoint);
         }
 
         // Specifying either https or http, but in reverse.
         // We should only get the https endpoint back.
         await using ((watcher = watcherFactory.CreateWatcher("http+https://_foo.basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            var ep = Assert.Single(initialResult.EndpointSource.Endpoints);
-            Assert.Equal(new UriEndPoint(new Uri("https://localhost")), ep.EndPoint);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            var ep = Assert.ContainsSingle(initialResult.EndpointSource.Endpoints);
+            Assert.AreEqual(new UriEndPoint(new Uri("https://localhost")), ep.EndPoint);
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_Configuration_DefaultEndpointName()
     {
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
@@ -161,21 +160,21 @@ public class ConfigurationServiceEndpointResolverTests
         // We should get the endpoint back because it is an https endpoint (allowed) with the default endpoint name.
         await using ((watcher = watcherFactory.CreateWatcher("https://basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            Assert.Single(initialResult.EndpointSource.Endpoints);
-            Assert.Equal(new UriEndPoint(new Uri("https://localhost:8080")), initialResult.EndpointSource.Endpoints[0].EndPoint);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            Assert.ContainsSingle(initialResult.EndpointSource.Endpoints);
+            Assert.AreEqual(new UriEndPoint(new Uri("https://localhost:8080")), initialResult.EndpointSource.Endpoints[0].EndPoint);
 
             Assert.All(initialResult.EndpointSource.Endpoints, ep =>
             {
                 var hostNameFeature = ep.Features.Get<IHostNameFeature>();
-                Assert.NotNull(hostNameFeature);
-                Assert.Equal("basket", hostNameFeature.HostName);
+                Assert.IsNotNull(hostNameFeature);
+                Assert.AreEqual("basket", hostNameFeature.HostName);
             });
         }
 
@@ -183,46 +182,46 @@ public class ConfigurationServiceEndpointResolverTests
         // We should get the endpoint back because it is an https endpoint (allowed) with the default endpoint name.
         await using ((watcher = watcherFactory.CreateWatcher("basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            Assert.Single(initialResult.EndpointSource.Endpoints);
-            Assert.Equal(new UriEndPoint(new Uri("https://localhost:8080")), initialResult.EndpointSource.Endpoints[0].EndPoint);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            Assert.ContainsSingle(initialResult.EndpointSource.Endpoints);
+            Assert.AreEqual(new UriEndPoint(new Uri("https://localhost:8080")), initialResult.EndpointSource.Endpoints[0].EndPoint);
         }
 
         // Not specifying the scheme, but specifying the default endpoint name.
         // We should get the endpoint back because it is an https endpoint (allowed) with the default endpoint name.
         await using ((watcher = watcherFactory.CreateWatcher("_default.basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            Assert.Single(initialResult.EndpointSource.Endpoints);
-            Assert.Equal(new UriEndPoint(new Uri("https://localhost:8080")), initialResult.EndpointSource.Endpoints[0].EndPoint);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            Assert.ContainsSingle(initialResult.EndpointSource.Endpoints);
+            Assert.AreEqual(new UriEndPoint(new Uri("https://localhost:8080")), initialResult.EndpointSource.Endpoints[0].EndPoint);
         }
     }
 
     /// <summary>
     /// Checks that when there is no named endpoint, configuration resolves first from the "default" section, then sections named by the scheme names.
     /// </summary>
-    [Theory]
-    [InlineData(true, true, "https://basket", "https://default-host:8080")]
-    [InlineData(false, true, "https://basket","https://https-host:8080")]
-    [InlineData(true, false, "https://basket", "https://default-host:8080")]
-    [InlineData(true, true, "basket", "https://default-host:8080")]
-    [InlineData(false, true, "basket", null)]
-    [InlineData(true, false, "basket", "https://default-host:8080")]
-    [InlineData(true, true, "http+https://basket", "https://default-host:8080")]
-    [InlineData(false, true, "http+https://basket","https://https-host:8080")]
-    [InlineData(true, false, "http+https://basket", "https://default-host:8080")]
+    [TestMethod]
+    [DataRow(true, true, "https://basket", "https://default-host:8080")]
+    [DataRow(false, true, "https://basket","https://https-host:8080")]
+    [DataRow(true, false, "https://basket", "https://default-host:8080")]
+    [DataRow(true, true, "basket", "https://default-host:8080")]
+    [DataRow(false, true, "basket", null)]
+    [DataRow(true, false, "basket", "https://default-host:8080")]
+    [DataRow(true, true, "http+https://basket", "https://default-host:8080")]
+    [DataRow(false, true, "http+https://basket","https://https-host:8080")]
+    [DataRow(true, false, "http+https://basket", "https://default-host:8080")]
     public async Task ResolveServiceEndpoint_Configuration_DefaultEndpointName_ResolutionOrder(
         bool includeDefault,
         bool includeSchemeNamed,
@@ -252,26 +251,26 @@ public class ConfigurationServiceEndpointResolverTests
         // Scheme in query
         await using ((watcher = watcherFactory.CreateWatcher(serviceName)).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
             if (expectedResult is not null)
             {
-                Assert.Single(initialResult.EndpointSource.Endpoints);
-                Assert.Equal(new UriEndPoint(new Uri(expectedResult)), initialResult.EndpointSource.Endpoints[0].EndPoint);
+                Assert.ContainsSingle(initialResult.EndpointSource.Endpoints);
+                Assert.AreEqual(new UriEndPoint(new Uri(expectedResult)), initialResult.EndpointSource.Endpoints[0].EndPoint);
             }
             else
             {
-                Assert.Empty(initialResult.EndpointSource.Endpoints);
+                Assert.IsEmpty(initialResult.EndpointSource.Endpoints);
             }
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_Configuration_MultipleResults()
     {
         var configSource = new MemoryConfigurationSource
@@ -292,49 +291,49 @@ public class ConfigurationServiceEndpointResolverTests
         ServiceEndpointWatcher watcher;
         await using ((watcher = watcherFactory.CreateWatcher("http://basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            Assert.Equal(2, initialResult.EndpointSource.Endpoints.Count);
-            Assert.Equal(new UriEndPoint(new Uri("http://localhost:8080")), initialResult.EndpointSource.Endpoints[0].EndPoint);
-            Assert.Equal(new UriEndPoint(new Uri("http://remotehost:9090")), initialResult.EndpointSource.Endpoints[1].EndPoint);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            Assert.AreEqual(2, initialResult.EndpointSource.Endpoints.Count);
+            Assert.AreEqual(new UriEndPoint(new Uri("http://localhost:8080")), initialResult.EndpointSource.Endpoints[0].EndPoint);
+            Assert.AreEqual(new UriEndPoint(new Uri("http://remotehost:9090")), initialResult.EndpointSource.Endpoints[1].EndPoint);
 
             Assert.All(initialResult.EndpointSource.Endpoints, ep =>
             {
                 var hostNameFeature = ep.Features.Get<IHostNameFeature>();
-                Assert.NotNull(hostNameFeature);
-                Assert.Equal("basket", hostNameFeature.HostName);
+                Assert.IsNotNull(hostNameFeature);
+                Assert.AreEqual("basket", hostNameFeature.HostName);
             });
         }
 
         // Request either https or http. Since there are only http endpoints, we should get only http endpoints back.
         await using ((watcher = watcherFactory.CreateWatcher("https+http://basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            Assert.Equal(2, initialResult.EndpointSource.Endpoints.Count);
-            Assert.Equal(new UriEndPoint(new Uri("http://localhost:8080")), initialResult.EndpointSource.Endpoints[0].EndPoint);
-            Assert.Equal(new UriEndPoint(new Uri("http://remotehost:9090")), initialResult.EndpointSource.Endpoints[1].EndPoint);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            Assert.AreEqual(2, initialResult.EndpointSource.Endpoints.Count);
+            Assert.AreEqual(new UriEndPoint(new Uri("http://localhost:8080")), initialResult.EndpointSource.Endpoints[0].EndPoint);
+            Assert.AreEqual(new UriEndPoint(new Uri("http://remotehost:9090")), initialResult.EndpointSource.Endpoints[1].EndPoint);
 
             Assert.All(initialResult.EndpointSource.Endpoints, ep =>
             {
                 var hostNameFeature = ep.Features.Get<IHostNameFeature>();
-                Assert.NotNull(hostNameFeature);
-                Assert.Equal("basket", hostNameFeature.HostName);
+                Assert.IsNotNull(hostNameFeature);
+                Assert.AreEqual("basket", hostNameFeature.HostName);
             });
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_Configuration_MultipleProtocols()
     {
         var configSource = new MemoryConfigurationSource
@@ -359,27 +358,27 @@ public class ConfigurationServiceEndpointResolverTests
         ServiceEndpointWatcher watcher;
         await using ((watcher = watcherFactory.CreateWatcher("http://_grpc.basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            Assert.Equal(3, initialResult.EndpointSource.Endpoints.Count);
-            Assert.Equal(new DnsEndPoint("localhost", 2222), initialResult.EndpointSource.Endpoints[0].EndPoint);
-            Assert.Equal(new IPEndPoint(IPAddress.Loopback, 3333), initialResult.EndpointSource.Endpoints[1].EndPoint);
-            Assert.Equal(new UriEndPoint(new Uri("http://remotehost:4444")), initialResult.EndpointSource.Endpoints[2].EndPoint);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            Assert.AreEqual(3, initialResult.EndpointSource.Endpoints.Count);
+            Assert.AreEqual(new DnsEndPoint("localhost", 2222), initialResult.EndpointSource.Endpoints[0].EndPoint);
+            Assert.AreEqual(new IPEndPoint(IPAddress.Loopback, 3333), initialResult.EndpointSource.Endpoints[1].EndPoint);
+            Assert.AreEqual(new UriEndPoint(new Uri("http://remotehost:4444")), initialResult.EndpointSource.Endpoints[2].EndPoint);
 
             Assert.All(initialResult.EndpointSource.Endpoints, ep =>
             {
                 var hostNameFeature = ep.Features.Get<IHostNameFeature>();
-                Assert.Null(hostNameFeature);
+                Assert.IsNull(hostNameFeature);
             });
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_Configuration_MultipleProtocols_WithSpecificationByConsumer()
     {
         var configSource = new MemoryConfigurationSource
@@ -404,26 +403,26 @@ public class ConfigurationServiceEndpointResolverTests
         ServiceEndpointWatcher watcher;
         await using ((watcher = watcherFactory.CreateWatcher("https+http://_grpc.basket")).ConfigureAwait(false))
         {
-            Assert.NotNull(watcher);
+            Assert.IsNotNull(watcher);
             var tcs = new TaskCompletionSource<ServiceEndpointResolverResult>();
             watcher.OnEndpointsUpdated = tcs.SetResult;
             watcher.Start();
             var initialResult = await tcs.Task;
-            Assert.NotNull(initialResult);
-            Assert.True(initialResult.ResolvedSuccessfully);
-            Assert.Equal(3, initialResult.EndpointSource.Endpoints.Count);
+            Assert.IsNotNull(initialResult);
+            Assert.IsTrue(initialResult.ResolvedSuccessfully);
+            Assert.AreEqual(3, initialResult.EndpointSource.Endpoints.Count);
 
             // These must be treated as HTTPS by the HttpClient middleware, but that is not the responsibility of the resolver.
-            Assert.Equal(new DnsEndPoint("localhost", 2222), initialResult.EndpointSource.Endpoints[0].EndPoint);
-            Assert.Equal(new IPEndPoint(IPAddress.Loopback, 3333), initialResult.EndpointSource.Endpoints[1].EndPoint);
+            Assert.AreEqual(new DnsEndPoint("localhost", 2222), initialResult.EndpointSource.Endpoints[0].EndPoint);
+            Assert.AreEqual(new IPEndPoint(IPAddress.Loopback, 3333), initialResult.EndpointSource.Endpoints[1].EndPoint);
 
             // We expect the HTTPS endpoint back but not the HTTP one.
-            Assert.Equal(new UriEndPoint(new Uri("https://remotehost:5555")), initialResult.EndpointSource.Endpoints[2].EndPoint);
+            Assert.AreEqual(new UriEndPoint(new Uri("https://remotehost:5555")), initialResult.EndpointSource.Endpoints[2].EndPoint);
 
             Assert.All(initialResult.EndpointSource.Endpoints, ep =>
             {
                 var hostNameFeature = ep.Features.Get<IHostNameFeature>();
-                Assert.Null(hostNameFeature);
+                Assert.IsNull(hostNameFeature);
             });
         }
     }

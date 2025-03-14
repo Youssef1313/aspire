@@ -12,10 +12,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MySqlConnector;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure.Internal;
-using Xunit;
 
 namespace Aspire.Pomelo.EntityFrameworkCore.MySql.Tests;
 
+[TestClass]
 public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
 {
     private const string ConnectionStringSuffixAddedByPomelo = ";Allow User Variables=True;Use Affected Rows=False";
@@ -29,7 +29,7 @@ public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
     public AspireEFMySqlExtensionsTests(MySqlContainerFixture containerFixture)
         => _containerFixture = containerFixture;
 
-    [Fact]
+    [TestMethod]
     public void ReadsFromConnectionStringsCorrectly()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -45,10 +45,10 @@ public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
 
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
         string expectedConnectionString = new MySqlConnectionStringBuilder(ConnectionString + ConnectionStringSuffixAddedByPomelo).ConnectionString;
-        Assert.Equal(expectedConnectionString, actualConnectionString);
+        Assert.AreEqual(expectedConnectionString, actualConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void ConnectionStringCanBeSetInCode()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -64,12 +64,12 @@ public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
 
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
         string expectedConnectionString = new MySqlConnectionStringBuilder(ConnectionString + ConnectionStringSuffixAddedByPomelo).ConnectionString;
-        Assert.Equal(expectedConnectionString, actualConnectionString);
+        Assert.AreEqual(expectedConnectionString, actualConnectionString);
         // the connection string from config should not be used since code set it explicitly
         Assert.DoesNotContain("unused", actualConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void ConnectionNameWinsOverConfigSection()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -86,12 +86,12 @@ public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
 
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
         string expectedConnectionString = new MySqlConnectionStringBuilder(ConnectionString + ConnectionStringSuffixAddedByPomelo).ConnectionString;
-        Assert.Equal(expectedConnectionString, actualConnectionString);
+        Assert.AreEqual(expectedConnectionString, actualConnectionString);
         // the connection string from config should not be used since it was found in ConnectionStrings
         Assert.DoesNotContain("unused", actualConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanConfigureDbContextOptions()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -115,26 +115,26 @@ public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<MySqlOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout was respected
-        Assert.Equal(123, extension.CommandTimeout);
+        Assert.AreEqual(123, extension.CommandTimeout);
 
         // ensure the connection string from config was respected
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
         var expectedConnectionString = new MySqlConnectionStringBuilder(ConnectionString + ";Allow User Variables=True;Default Command Timeout=123;Use Affected Rows=False").ConnectionString;
-        Assert.Equal(expectedConnectionString, actualConnectionString);
+        Assert.AreEqual(expectedConnectionString, actualConnectionString);
 
         // ensure the retry strategy is enabled and set to its default value
-        Assert.NotNull(extension.ExecutionStrategyFactory);
+        Assert.IsNotNull(extension.ExecutionStrategyFactory);
         var executionStrategy = extension.ExecutionStrategyFactory(new ExecutionStrategyDependencies(new CurrentDbContext(context), context.Options, null!));
         var retryStrategy = Assert.IsType<MySqlRetryingExecutionStrategy>(executionStrategy);
-        Assert.Equal(new WorkaroundToReadProtectedField(context).MaxRetryCount, retryStrategy.MaxRetryCount);
+        Assert.AreEqual(new WorkaroundToReadProtectedField(context).MaxRetryCount, retryStrategy.MaxRetryCount);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Fact]
+    [TestMethod]
     public void CanConfigureDbContextOptionsWithoutRetry()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -158,25 +158,25 @@ public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<MySqlOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout was respected
-        Assert.Equal(123, extension.CommandTimeout);
+        Assert.AreEqual(123, extension.CommandTimeout);
 
         // ensure the connection string from config was respected
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
         var expectedConnectionString = new MySqlConnectionStringBuilder(ConnectionString + ";Allow User Variables=True;Default Command Timeout=123;Use Affected Rows=False").ConnectionString;
-        Assert.Equal(expectedConnectionString, actualConnectionString);
+        Assert.AreEqual(expectedConnectionString, actualConnectionString);
 
         // ensure no retry strategy was registered
-        Assert.Null(extension.ExecutionStrategyFactory);
+        Assert.IsNull(extension.ExecutionStrategyFactory);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CanConfigureCommandTimeout(bool useSettings)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -201,17 +201,17 @@ public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<MySqlOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout was respected
-        Assert.Equal(123, extension.CommandTimeout);
+        Assert.AreEqual(123, extension.CommandTimeout);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CommandTimeoutFromSettingsWinsOverOthers(bool useSettings)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -239,17 +239,17 @@ public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<MySqlOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout from builder was respected
-        Assert.Equal(123, extension.CommandTimeout);
+        Assert.AreEqual(123, extension.CommandTimeout);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ThrowsWhenDbContextIsRegisteredBeforeAspireComponent(bool useServiceType)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = Environments.Development });
@@ -267,12 +267,12 @@ public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
         }
 
         var exception = Assert.Throws<InvalidOperationException>(() => builder.AddMySqlDbContext<TestDbContext>("mysql"));
-        Assert.Equal("DbContext<TestDbContext> is already registered. Please ensure 'services.AddDbContext<TestDbContext>()' is not used when calling 'AddMySqlDbContext()' or use the corresponding 'Enrich' method.", exception.Message);
+        Assert.AreEqual("DbContext<TestDbContext> is already registered. Please ensure 'services.AddDbContext<TestDbContext>()' is not used when calling 'AddMySqlDbContext()' or use the corresponding 'Enrich' method.", exception.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void DoesntThrowWhenDbContextIsRegisteredBeforeAspireComponentProduction(bool useServiceType)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = Environments.Production });
@@ -291,10 +291,10 @@ public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
 
         var exception = Record.Exception(() => builder.AddMySqlDbContext<TestDbContext>("mysql"));
 
-        Assert.Null(exception);
+        Assert.IsNull(exception);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddMySqlDbContext_WithConnectionNameAndSettings_AppliesConnectionSpecificSettings()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -315,13 +315,13 @@ public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
             capturedSettings = settings;
         });
 
-        Assert.NotNull(capturedSettings);
-        Assert.Equal(60, capturedSettings.CommandTimeout);
-        Assert.True(capturedSettings.DisableRetry);
-        Assert.True(capturedSettings.DisableHealthChecks);
+        Assert.IsNotNull(capturedSettings);
+        Assert.AreEqual(60, capturedSettings.CommandTimeout);
+        Assert.IsTrue(capturedSettings.DisableRetry);
+        Assert.IsTrue(capturedSettings.DisableHealthChecks);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddMySqlDbContext_WithConnectionSpecificAndContextSpecificSettings_PrefersContextSpecific()
     {
         // Arrange
@@ -344,7 +344,7 @@ public class AspireEFMySqlExtensionsTests : IClassFixture<MySqlContainerFixture>
             capturedSettings = settings;
         });
 
-        Assert.NotNull(capturedSettings);
-        Assert.Equal(120, capturedSettings.CommandTimeout);
+        Assert.IsNotNull(capturedSettings);
+        Assert.AreEqual(120, capturedSettings.CommandTimeout);
     }
 }

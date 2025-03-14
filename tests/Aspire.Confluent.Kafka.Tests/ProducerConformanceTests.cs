@@ -6,10 +6,10 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Confluent.Kafka.Tests;
 
+[TestClass]
 public class ProducerConformanceTests : ConformanceTests<IProducer<string, string>, KafkaProducerSettings>
 {
     protected override ServiceLifetime ServiceLifetime => ServiceLifetime.Singleton;
@@ -81,7 +81,7 @@ public class ProducerConformanceTests : ConformanceTests<IProducer<string, strin
             ("""{"Aspire": { "Confluent":{ "Kafka": { "Producer": { "DisableHealthChecks": 0}}}}}""", "Value is \"integer\" but should be \"boolean\"")
         };
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -101,8 +101,8 @@ public class ProducerConformanceTests : ConformanceTests<IProducer<string, strin
         var client2 = host.Services.GetRequiredKeyedService<IProducer<string, string>>("messaging2");
         var client3 = host.Services.GetRequiredKeyedService<IProducer<string, string>>("messaging3");
 
-        Assert.NotSame(client1, client2);
-        Assert.NotSame(client1, client3);
-        Assert.NotSame(client2, client3);
+        Assert.AreNotSame(client1, client2);
+        Assert.AreNotSame(client1, client3);
+        Assert.AreNotSame(client2, client3);
     }
 }

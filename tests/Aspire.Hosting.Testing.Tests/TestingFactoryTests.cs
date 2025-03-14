@@ -7,36 +7,36 @@ using Aspire.Hosting.Tests.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Hosting.Testing.Tests;
 
+[TestClass]
 public class TestingFactoryTests(DistributedApplicationFixture<Projects.TestingAppHost1_AppHost> fixture) : IClassFixture<DistributedApplicationFixture<Projects.TestingAppHost1_AppHost>>
 {
     private readonly DistributedApplication _app = fixture.Application;
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void HasEndPoints()
     {
         // Get an endpoint from a resource
         var workerEndpoint = _app.GetEndpoint("myworker1", "myendpoint1");
-        Assert.NotNull(workerEndpoint);
-        Assert.True(workerEndpoint.Host.Length > 0);
+        Assert.IsNotNull(workerEndpoint);
+        Assert.IsTrue(workerEndpoint.Host.Length > 0);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task CanGetConnectionStringFromAddConnectionString()
     {
         // Get a connection string from a resource
         var connectionString = await _app.GetConnectionStringAsync("cs");
         var connectionString2 = await _app.GetConnectionStringAsync("cs2");
-        Assert.Equal("testconnection", connectionString);
-        Assert.Equal("Value=this is a value", connectionString2);
+        Assert.AreEqual("testconnection", connectionString);
+        Assert.AreEqual("Value=this is a value", connectionString2);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void CanGetResources()
     {
@@ -44,7 +44,7 @@ public class TestingFactoryTests(DistributedApplicationFixture<Projects.TestingA
         Assert.Contains(appModel.GetProjectResources(), p => p.Name == "myworker1");
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4650", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task HttpClientGetTest()
@@ -55,11 +55,11 @@ public class TestingFactoryTests(DistributedApplicationFixture<Projects.TestingA
         var httpClient = _app.CreateHttpClientWithResilience("mywebapp1");
 
         var result1 = await httpClient.GetFromJsonAsync<WeatherForecast[]>("/weatherforecast");
-        Assert.NotNull(result1);
-        Assert.True(result1.Length > 0);
+        Assert.IsNotNull(result1);
+        Assert.IsTrue(result1.Length > 0);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void SetsCorrectContentRoot()
     {
@@ -67,14 +67,14 @@ public class TestingFactoryTests(DistributedApplicationFixture<Projects.TestingA
         Assert.Contains("TestingAppHost1", appModel.ContentRootPath);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4650")]
     public async Task SelectsFirstLaunchProfile()
     {
         var config = _app.Services.GetRequiredService<IConfiguration>();
         var profileName = config["AppHost:DefaultLaunchProfileName"];
-        Assert.Equal("https", profileName);
+        Assert.AreEqual("https", profileName);
 
         // Wait for resource to start.
         await _app.ResourceNotifications.WaitForResourceAsync("mywebapp1").WaitAsync(TimeSpan.FromSeconds(60));
@@ -82,8 +82,8 @@ public class TestingFactoryTests(DistributedApplicationFixture<Projects.TestingA
         // Explicitly get the HTTPS endpoint - this is only available on the "https" launch profile.
         var httpClient = _app.CreateHttpClientWithResilience("mywebapp1", "https");
         var result = await httpClient.GetFromJsonAsync<WeatherForecast[]>("/weatherforecast");
-        Assert.NotNull(result);
-        Assert.True(result.Length > 0);
+        Assert.IsNotNull(result);
+        Assert.IsTrue(result.Length > 0);
     }
 
     private sealed record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

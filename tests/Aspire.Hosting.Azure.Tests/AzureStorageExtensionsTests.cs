@@ -4,16 +4,16 @@
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests;
 
+[TestClass]
 public class AzureStorageExtensionsTests
 {
-    [Theory]
-    [InlineData(null)]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AzureStorageUseEmulatorCallbackWithWithDataBindMountResultsInBindMountAnnotationWithDefaultPath(bool? isReadOnly)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -30,16 +30,16 @@ public class AzureStorageExtensionsTests
         });
 
         var volumeAnnotation = storage.Resource.Annotations.OfType<ContainerMountAnnotation>().Single();
-        Assert.Equal(Path.Combine(builder.AppHostDirectory, ".azurite", "storage"), volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.BindMount, volumeAnnotation.Type);
-        Assert.Equal(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
+        Assert.AreEqual(Path.Combine(builder.AppHostDirectory, ".azurite", "storage"), volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.BindMount, volumeAnnotation.Type);
+        Assert.AreEqual(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AzureStorageUseEmulatorCallbackWithWithDataBindMountResultsInBindMountAnnotation(bool? isReadOnly)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -56,16 +56,16 @@ public class AzureStorageExtensionsTests
         });
 
         var volumeAnnotation = storage.Resource.Annotations.OfType<ContainerMountAnnotation>().Single();
-        Assert.Equal(Path.Combine(builder.AppHostDirectory, "mydata"), volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.BindMount, volumeAnnotation.Type);
-        Assert.Equal(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
+        Assert.AreEqual(Path.Combine(builder.AppHostDirectory, "mydata"), volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.BindMount, volumeAnnotation.Type);
+        Assert.AreEqual(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AzureStorageUseEmulatorCallbackWithWithDataVolumeResultsInVolumeAnnotationWithDefaultName(bool? isReadOnly)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -82,16 +82,16 @@ public class AzureStorageExtensionsTests
         });
 
         var volumeAnnotation = storage.Resource.Annotations.OfType<ContainerMountAnnotation>().Single();
-        Assert.Equal($"{builder.GetVolumePrefix()}-storage-data", volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.Volume, volumeAnnotation.Type);
-        Assert.Equal(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
+        Assert.AreEqual($"{builder.GetVolumePrefix()}-storage-data", volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.Volume, volumeAnnotation.Type);
+        Assert.AreEqual(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AzureStorageUseEmulatorCallbackWithWithDataVolumeResultsInVolumeAnnotation(bool? isReadOnly)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -108,13 +108,13 @@ public class AzureStorageExtensionsTests
         });
 
         var volumeAnnotation = storage.Resource.Annotations.OfType<ContainerMountAnnotation>().Single();
-        Assert.Equal("mydata", volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.Volume, volumeAnnotation.Type);
-        Assert.Equal(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
+        Assert.AreEqual("mydata", volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.Volume, volumeAnnotation.Type);
+        Assert.AreEqual(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureStorageUserEmulatorUseBlobQueueTablePortMethodsMutateEndpoints()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -125,16 +125,16 @@ public class AzureStorageExtensionsTests
             builder.WithTablePort(9003);
         });
 
-        Assert.Collection(
+        Assert.That.Collection(
             storage.Resource.Annotations.OfType<EndpointAnnotation>(),
-            e => Assert.Equal(9001, e.Port),
-            e => Assert.Equal(9002, e.Port),
-            e => Assert.Equal(9003, e.Port));
+            e => Assert.AreEqual(9001, e.Port),
+            e => Assert.AreEqual(9002, e.Port),
+            e => Assert.AreEqual(9003, e.Port));
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task AddAzureStorage_WithApiVersionCheck_ShouldSetSkipApiVersionCheck(bool enableApiVersionCheck)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -154,7 +154,7 @@ public class AzureStorageExtensionsTests
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddAzureStorage_RunAsEmulator_SetSkipApiVersionCheck()
     {
         using var builder = TestDistributedApplicationBuilder.Create();

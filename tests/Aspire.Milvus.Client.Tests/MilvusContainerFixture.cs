@@ -4,7 +4,6 @@
 using Aspire.Components.Common.Tests;
 using Aspire.Hosting.Milvus;
 using Testcontainers.Milvus;
-using Xunit;
 
 namespace Aspire.Milvus.Client.Tests;
 

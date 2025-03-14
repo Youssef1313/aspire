@@ -5,13 +5,13 @@ using System.Diagnostics;
 using System.Threading.Channels;
 using Aspire.Dashboard.Utils;
 using Microsoft.AspNetCore.InternalTesting;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests;
 
+[TestClass]
 public class ChannelExtensionsTests
 {
-    [Fact]
+    [TestMethod]
     public async Task GetBatchesAsync_CancellationToken_Exits()
     {
         // Arrange
@@ -35,7 +35,7 @@ public class ChannelExtensionsTests
         await TaskHelpers.WaitIgnoreCancelAsync(readTask).DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetBatchesAsync_WithCancellation_Exits()
     {
         // Arrange
@@ -59,7 +59,7 @@ public class ChannelExtensionsTests
         await TaskHelpers.WaitIgnoreCancelAsync(readTask).DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetBatchesAsync_MinReadInterval_WaitForNextRead()
     {
         // Arrange
@@ -89,12 +89,12 @@ public class ChannelExtensionsTests
         // Assert
         var stopwatch = Stopwatch.StartNew();
         var read1 = await resultChannel.Reader.ReadAsync().DefaultTimeout();
-        Assert.Equal(["a", "b", "c"], read1.Single());
+        Assert.AreEqual(["a", "b", "c"], read1.Single());
 
         channel.Writer.TryWrite(["d", "e", "f"]);
 
         var read2 = await resultChannel.Reader.ReadAsync().DefaultTimeout();
-        Assert.Equal(["d", "e", "f"], read2.Single());
+        Assert.AreEqual(["d", "e", "f"], read2.Single());
 
         var elapsed = stopwatch.Elapsed;
         CustomAssert.AssertExceedsMinInterval(elapsed, minReadInterval);
@@ -103,7 +103,7 @@ public class ChannelExtensionsTests
         await TaskHelpers.WaitIgnoreCancelAsync(readTask).DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetBatchesAsync_MinReadInterval_WithCancellation_Exit()
     {
         // Arrange
@@ -133,7 +133,7 @@ public class ChannelExtensionsTests
         // Assert
         var stopwatch = Stopwatch.StartNew();
         var read1 = await resultChannel.Reader.ReadAsync().DefaultTimeout();
-        Assert.Equal(["a", "b", "c"], read1.Single());
+        Assert.AreEqual(["a", "b", "c"], read1.Single());
 
         channel.Writer.TryWrite(["d", "e", "f"]);
 
@@ -150,6 +150,6 @@ public class ChannelExtensionsTests
         }
 
         var elapsed = stopwatch.Elapsed;
-        Assert.True(elapsed <= minReadInterval, $"Elapsed time {elapsed} should be less than min read interval {minReadInterval} on cancellation.");
+        Assert.IsTrue(elapsed <= minReadInterval, $"Elapsed time {elapsed} should be less than min read interval {minReadInterval} on cancellation.");
     }
 }

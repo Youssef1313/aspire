@@ -6,13 +6,13 @@ using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class AddParameterTests
 {
-    [Fact]
+    [TestMethod]
     public void ParametersAreHiddenByDefault()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -24,28 +24,28 @@ public class AddParameterTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var parameterResource = Assert.Single(appModel.Resources.OfType<ParameterResource>());
+        var parameterResource = Assert.ContainsSingle(appModel.Resources.OfType<ParameterResource>());
         var annotation = parameterResource.Annotations.OfType<ResourceSnapshotAnnotation>().SingleOrDefault();
 
-        Assert.NotNull(annotation);
+        Assert.IsNotNull(annotation);
 
         var state = annotation.InitialSnapshot;
 
-        Assert.Equal("Hidden", state.State);
-        Assert.Collection(state.Properties,
+        Assert.AreEqual("Hidden", state.State);
+        Assert.That.Collection(state.Properties,
             prop =>
             {
-                Assert.Equal("parameter.secret", prop.Name);
-                Assert.Equal("True", prop.Value);
+                Assert.AreEqual("parameter.secret", prop.Name);
+                Assert.AreEqual("True", prop.Value);
             },
             prop =>
             {
-                Assert.Equal(CustomResourceKnownProperties.Source, prop.Name);
-                Assert.Equal("Parameters:pass", prop.Value);
+                Assert.AreEqual(CustomResourceKnownProperties.Source, prop.Name);
+                Assert.AreEqual("Parameters:pass", prop.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void ParametersWithConfigurationValueDoNotGetDefaultValue()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -61,16 +61,16 @@ public class AddParameterTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var parameterResource = Assert.Single(appModel.Resources.OfType<ParameterResource>());
-        Assert.Equal("ValueFromConfiguration", parameterResource.Value);
+        var parameterResource = Assert.ContainsSingle(appModel.Resources.OfType<ParameterResource>());
+        Assert.AreEqual("ValueFromConfiguration", parameterResource.Value);
     }
 
-    [Theory]
+    [TestMethod]
     // We test all the combinations of {direct param, callback param} x {config value, no config value}
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [DataRow(false, false)]
+    [DataRow(false, true)]
+    [DataRow(true, false)]
+    [DataRow(true, true)]
     public async Task ParametersWithDefaultValueStringOverloadUsedRegardlessOfConfigurationValue(bool useCallback, bool hasConfig)
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -96,8 +96,8 @@ public class AddParameterTests
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
         // Make sure the code value is used, ignoring any config value
-        var parameterResource = Assert.Single(appModel.Resources.OfType<ParameterResource>(), r => r.Name == "pass");
-        Assert.Equal($"DefaultValue", parameterResource.Value);
+        var parameterResource = Assert.ContainsSingle(appModel.Resources.OfType<ParameterResource>(), r => r.Name == "pass");
+        Assert.AreEqual($"DefaultValue", parameterResource.Value);
 
         // The manifest should not include anything about the default value
         var paramManifest = await ManifestUtils.GetManifest(appModel.Resources.OfType<ParameterResource>().Single(r => r.Name == "pass")).DefaultTimeout();
@@ -112,15 +112,15 @@ public class AddParameterTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, paramManifest.ToString());
+        Assert.AreEqual(expectedManifest, paramManifest.ToString());
     }
 
-    [Theory]
+    [TestMethod]
     // We test all the combinations of {direct param, callback param} x {config value, no config value}
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [DataRow(false, false)]
+    [DataRow(false, true)]
+    [DataRow(true, false)]
+    [DataRow(true, true)]
     public async Task ParametersWithDefaultValueGetPublishedIfPublishFlagIsPassed(bool useCallback, bool hasConfig)
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -146,8 +146,8 @@ public class AddParameterTests
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
         // Make sure the code value is used, ignoring any config value
-        var parameterResource = Assert.Single(appModel.Resources.OfType<ParameterResource>(), r => r.Name == "pass");
-        Assert.Equal($"DefaultValue", parameterResource.Value);
+        var parameterResource = Assert.ContainsSingle(appModel.Resources.OfType<ParameterResource>(), r => r.Name == "pass");
+        Assert.AreEqual($"DefaultValue", parameterResource.Value);
 
         // The manifest should include the default value, since we passed publishValueAsDefault: true
         var paramManifest = await ManifestUtils.GetManifest(appModel.Resources.OfType<ParameterResource>().Single(r => r.Name == "pass")).DefaultTimeout();
@@ -165,24 +165,24 @@ public class AddParameterTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, paramManifest.ToString());
+        Assert.AreEqual(expectedManifest, paramManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void AddParameterWithBothPublishValueAsDefaultAndSecretFails()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
 
         // publishValueAsDefault and secret are mutually exclusive. Test both overloads.
         var ex1 = Assert.Throws<ArgumentException>(() => appBuilder.AddParameter("pass", () => "SomeSecret", publishValueAsDefault: true, secret: true));
-        Assert.Equal($"A parameter cannot be both secret and published as a default value. (Parameter 'secret')", ex1.Message);
+        Assert.AreEqual($"A parameter cannot be both secret and published as a default value. (Parameter 'secret')", ex1.Message);
         var ex2 = Assert.Throws<ArgumentException>(() => appBuilder.AddParameter("pass", "SomeSecret", publishValueAsDefault: true, secret: true));
-        Assert.Equal($"A parameter cannot be both secret and published as a default value. (Parameter 'secret')", ex2.Message);
+        Assert.AreEqual($"A parameter cannot be both secret and published as a default value. (Parameter 'secret')", ex2.Message);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public async Task ParametersWithDefaultValueObjectOverloadUseConfigurationValueWhenPresent(bool hasConfig)
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -203,16 +203,16 @@ public class AddParameterTests
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
         // Make sure the the generated default value is only used when there isn't a config value
-        var parameterResource = Assert.Single(appModel.Resources.OfType<ParameterResource>(), r => r.Name == "pass");
+        var parameterResource = Assert.ContainsSingle(appModel.Resources.OfType<ParameterResource>(), r => r.Name == "pass");
         if (hasConfig)
         {
-            Assert.Equal("ValueFromConfiguration", parameterResource.Value);
+            Assert.AreEqual("ValueFromConfiguration", parameterResource.Value);
         }
         else
         {
-            Assert.NotEqual("ValueFromConfiguration", parameterResource.Value);
+            Assert.AreNotEqual("ValueFromConfiguration", parameterResource.Value);
             // We can't test the exact value since it's random, but we can test the length
-            Assert.Equal(10, parameterResource.Value.Length);
+            Assert.AreEqual(10, parameterResource.Value.Length);
         }
 
         // The manifest should always include the fields for the generated default value
@@ -233,10 +233,10 @@ public class AddParameterTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, paramManifest.ToString());
+        Assert.AreEqual(expectedManifest, paramManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void ParametersWithDefaultValueObjectOverloadOnlyGetWrappedWhenTheyShould()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -250,7 +250,7 @@ public class AddParameterTests
         Assert.IsType<GenerateParameterDefault>(parameter2.Resource.Default);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ParametersCanGetValueFromNonDefaultConfigurationKeys()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -267,8 +267,8 @@ public class AddParameterTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var parameterResource = Assert.Single(appModel.Resources.OfType<ParameterResource>(), r => r.Name == "val");
-        Assert.Equal($"MyAccessToken", parameterResource.Value);
+        var parameterResource = Assert.ContainsSingle(appModel.Resources.OfType<ParameterResource>(), r => r.Name == "val");
+        Assert.AreEqual($"MyAccessToken", parameterResource.Value);
 
         // The manifest is not affected by the custom configuration key
         var paramManifest = await ManifestUtils.GetManifest(appModel.Resources.OfType<ParameterResource>().Single(r => r.Name == "val")).DefaultTimeout();
@@ -283,10 +283,10 @@ public class AddParameterTests
                   }
                 }
                 """;
-        Assert.Equal(expectedManifest, paramManifest.ToString());
+        Assert.AreEqual(expectedManifest, paramManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddConnectionStringParameterIsASecretParameterInTheManifest()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -296,9 +296,9 @@ public class AddParameterTests
         using var app = appBuilder.Build();
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<ParameterResource>());
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<ParameterResource>());
 
-        Assert.Equal("mycs", connectionStringResource.Name);
+        Assert.AreEqual("mycs", connectionStringResource.Name);
         var connectionStringManifest = await ManifestUtils.GetManifest(connectionStringResource).DefaultTimeout();
 
         var expectedManifest = $$"""
@@ -317,10 +317,10 @@ public class AddParameterTests
 
         var s = connectionStringManifest.ToString();
 
-        Assert.Equal(expectedManifest, s);
+        Assert.AreEqual(expectedManifest, s);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddConnectionStringExpressionIsAValueInTheManifest()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -334,9 +334,9 @@ public class AddParameterTests
         using var app = appBuilder.Build();
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<ConnectionStringResource>());
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<ConnectionStringResource>());
 
-        Assert.Equal("mycs", connectionStringResource.Name);
+        Assert.AreEqual("mycs", connectionStringResource.Name);
         var connectionStringManifest = await ManifestUtils.GetManifest(connectionStringResource).DefaultTimeout();
 
         var expectedManifest = $$"""
@@ -348,7 +348,7 @@ public class AddParameterTests
 
         var s = connectionStringManifest.ToString();
 
-        Assert.Equal(expectedManifest, s);
+        Assert.AreEqual(expectedManifest, s);
     }
 
     private sealed class TestParameterDefault(string defaultValue) : ParameterDefault

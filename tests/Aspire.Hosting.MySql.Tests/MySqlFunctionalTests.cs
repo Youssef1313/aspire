@@ -15,21 +15,22 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using MySqlConnector;
 using Polly;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.MySql.Tests;
 
-public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class MySqlFunctionalTests
 {
+    public TestContext TestContext { get; set; }
+
     private static readonly Predicate<string> s_mySqlReadyText = log => log.Contains("ready for connections") && log.Contains("port: 3306");
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWaitForOnMySqlBlocksDependentResources()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>
@@ -62,16 +63,16 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyMySqlResource()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
         var pipeline = new ResiliencePipelineBuilder()
-            .AddRetry(new() { MaxRetryAttempts = 10, BackoffType = DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(2), ShouldHandle = new PredicateBuilder().Handle<MySqlException>() })
+            .AddRetry(new() { MaxRetryAttempts = 10, BackoffType = Polly.DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(2), ShouldHandle = new PredicateBuilder().Handle<MySqlException>() })
             .Build();
 
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var mySqlDbName = "db1";
 
@@ -105,13 +106,13 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
             command.CommandText = $"SELECT 1";
             var results = await command.ExecuteReaderAsync(token);
 
-            Assert.True(results.HasRows);
+            Assert.IsTrue(results.HasRows);
         }, cts.Token);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task WithDataShouldPersistStateBetweenUsages(bool useVolume)
     {
@@ -122,12 +123,12 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
 
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
         var pipeline = new ResiliencePipelineBuilder()
-            .AddRetry(new() { MaxRetryAttempts = 10, BackoffType = DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(2) })
+            .AddRetry(new() { MaxRetryAttempts = 10, BackoffType = Polly.DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(2) })
             .Build();
 
         try
         {
-            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder1 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
             var mysql1 = builder1.AddMySql("mysql").WithEnvironment("MYSQL_DATABASE", mySqlDbName);
             var password = mysql1.Resource.PasswordParameter.Value;
@@ -176,7 +177,7 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
                         {
                             using var connection = host.Services.GetRequiredService<MySqlConnection>();
                             await connection.OpenAsync(token);
-                            Assert.Equal(ConnectionState.Open, connection.State);
+                            Assert.AreEqual(ConnectionState.Open, connection.State);
                         }, cts.Token);
 
                         await pipeline.ExecuteAsync(async token =>
@@ -193,7 +194,7 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
 
                             var results = await command.ExecuteReaderAsync(token);
 
-                            Assert.True(results.HasRows);
+                            Assert.IsTrue(results.HasRows);
                         }, cts.Token);
                     }
                 }
@@ -204,7 +205,7 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
                 }
             }
 
-            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder2 = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
             var passwordParameter2 = builder2.AddParameter("pwd", password);
 
             var mysql2 = builder2.AddMySql("mysql", passwordParameter2);
@@ -245,7 +246,7 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
                         {
                             using var connection = host.Services.GetRequiredService<MySqlConnection>();
                             await connection.OpenAsync(token);
-                            Assert.Equal(ConnectionState.Open, connection.State);
+                            Assert.AreEqual(ConnectionState.Open, connection.State);
                         }, cts.Token);
 
                         await pipeline.ExecuteAsync(async token =>
@@ -257,7 +258,7 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
                             command.CommandText = $"SELECT * FROM cars;";
                             var results = await command.ExecuteReaderAsync(token);
 
-                            Assert.True(results.HasRows);
+                            Assert.IsTrue(results.HasRows);
                         }, cts.Token);
                     }
 
@@ -291,7 +292,7 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWithInitBindMount()
     {
@@ -299,7 +300,7 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
 
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
         var pipeline = new ResiliencePipelineBuilder()
-            .AddRetry(new() { MaxRetryAttempts = 10, BackoffType = DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(2), ShouldHandle = new PredicateBuilder().Handle<MySqlException>() })
+            .AddRetry(new() { MaxRetryAttempts = 10, BackoffType = Polly.DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(2), ShouldHandle = new PredicateBuilder().Handle<MySqlException>() })
             .Build();
 
         var bindMountPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
@@ -313,7 +314,7 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
                 INSERT INTO cars (brand) VALUES ('BatMobile');
             """);
 
-            using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+            using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
             var mySqlDbName = "db1";
 
@@ -346,7 +347,7 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
             {
                 using var connection = host.Services.GetRequiredService<MySqlConnection>();
                 await connection.OpenAsync(token);
-                Assert.Equal(ConnectionState.Open, connection.State);
+                Assert.AreEqual(ConnectionState.Open, connection.State);
             }, cts.Token);
 
             await pipeline.ExecuteAsync(async token =>
@@ -358,9 +359,9 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
                 command.CommandText = $"SELECT * FROM cars;";
 
                 var results = await command.ExecuteReaderAsync(token);
-                Assert.True(await results.ReadAsync(token));
-                Assert.Equal("BatMobile", results.GetString("brand"));
-                Assert.False(await results.ReadAsync(token));
+                Assert.IsTrue(await results.ReadAsync(token));
+                Assert.AreEqual("BatMobile", results.GetString("brand"));
+                Assert.IsFalse(await results.ReadAsync(token));
             }, cts.Token);
         }
         finally
@@ -376,16 +377,16 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyEfMySql()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
         var pipeline = new ResiliencePipelineBuilder()
-            .AddRetry(new() { MaxRetryAttempts = 10, BackoffType = DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(1), ShouldHandle = new PredicateBuilder().Handle<MySqlException>() })
+            .AddRetry(new() { MaxRetryAttempts = 10, BackoffType = Polly.DelayBackoffType.Linear, Delay = TimeSpan.FromSeconds(1), ShouldHandle = new PredicateBuilder().Handle<MySqlException>() })
             .Build();
 
-        var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(TestContext);
 
         var mySqlDbName = "db1";
 
@@ -416,7 +417,7 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
         {
             var dbContext = host.Services.GetRequiredService<TestDbContext>();
             var databaseCreator = (RelationalDatabaseCreator)dbContext.Database.GetService<IDatabaseCreator>();
-            Assert.True(await databaseCreator.CanConnectAsync(token));
+            Assert.IsTrue(await databaseCreator.CanConnectAsync(token));
         }, cts.Token);
 
         // Initialize database schema
@@ -438,14 +439,14 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
         {
             var dbContext = host.Services.GetRequiredService<TestDbContext>();
             var cars = await dbContext.Cars.ToListAsync(token);
-            Assert.Single(cars);
-            Assert.Equal("BatMobile", cars[0].Brand);
+            Assert.ContainsSingle(cars);
+            Assert.AreEqual("BatMobile", cars[0].Brand);
         }, cts.Token);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task MySql_WithPersistentLifetime_ReusesContainers(bool useMultipleInstances)
     {
@@ -463,7 +464,7 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
 
         Assert.All(before, Assert.NotNull);
         Assert.All(after, Assert.NotNull);
-        Assert.Equal(before, after);
+        Assert.AreEqual(before, after);
 
         try
         {
@@ -476,7 +477,7 @@ public class MySqlFunctionalTests(ITestOutputHelper testOutputHelper)
 
         async Task<string?[]> RunContainersAsync()
         {
-            using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper)
+            using var builder = TestDistributedApplicationBuilder.Create(TestContext)
                 .WithTempAspireStore(aspireStorePath)
                 .WithResourceCleanUp(false);
 

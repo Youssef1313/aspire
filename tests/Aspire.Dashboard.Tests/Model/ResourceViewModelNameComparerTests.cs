@@ -3,13 +3,13 @@
 
 using Aspire.Dashboard.Model;
 using Aspire.Tests.Shared.DashboardModel;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.Model;
 
+[TestClass]
 public sealed class ResourceViewModelNameComparerTests
 {
-    [Fact]
+    [TestMethod]
     public void Compare()
     {
         // Arrange
@@ -25,10 +25,10 @@ public sealed class ResourceViewModelNameComparerTests
         var result = resources.OrderBy(v => v, ResourceViewModelNameComparer.Instance);
 
         // Assert
-        Assert.Collection(result,
-            vm => Assert.Equal("database-abc", vm.Name),
-            vm => Assert.Equal("database-xyz", vm.Name),
-            vm => Assert.Equal("database-dashboard-abc", vm.Name),
-            vm => Assert.Equal("database-dashboard-xyz", vm.Name));
+        Assert.That.Collection(result,
+            vm => Assert.AreEqual("database-abc", vm.Name),
+            vm => Assert.AreEqual("database-xyz", vm.Name),
+            vm => Assert.AreEqual("database-dashboard-abc", vm.Name),
+            vm => Assert.AreEqual("database-dashboard-xyz", vm.Name));
     }
 }

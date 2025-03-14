@@ -1,20 +1,21 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 
 namespace Aspire.Qdrant.Client.Tests;
+
+[TestClass]
 public class ConfigurationTests
 {
-    [Fact]
+    [TestMethod]
     public void EndpointIsNullByDefault()
-    => Assert.Null(new QdrantClientSettings().Endpoint);
+    => Assert.IsNull(new QdrantClientSettings().Endpoint);
 
-    [Fact]
+    [TestMethod]
     public void HealthChecksEnabledByDefault() =>
-     Assert.False(new QdrantClientSettings().DisableHealthChecks);
+     Assert.IsFalse(new QdrantClientSettings().DisableHealthChecks);
 
-    [Fact]
+    [TestMethod]
     public void HealthCheckTimeoutNullByDefault() =>
-     Assert.Null(new QdrantClientSettings().HealthCheckTimeout);
+     Assert.IsNull(new QdrantClientSettings().HealthCheckTimeout);
 }

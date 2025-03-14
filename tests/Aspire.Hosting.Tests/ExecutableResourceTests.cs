@@ -4,13 +4,13 @@
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class ExecutableResourceTests
 {
-    [Fact]
+    [TestMethod]
     public async Task AddExecutableWithArgs()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -38,14 +38,14 @@ public class ExecutableResourceTests
 
         var args = await ArgumentEvaluator.GetArgumentListAsync(exe2.Resource).DefaultTimeout();
 
-        Assert.Collection(args,
-            arg => Assert.Equal("app.py", arg),
-            arg => Assert.Equal("http://localhost:1234", arg),
-            arg => Assert.Equal("arg1", arg),
-            arg => Assert.Equal("connectionString", arg),
-            arg => Assert.Equal("arg2", arg),
-            arg => Assert.Equal("http://localhost:1234", arg),
-            arg => Assert.Equal("anotherConnectionString", arg)
+        Assert.That.Collection(args,
+            arg => Assert.AreEqual("app.py", arg),
+            arg => Assert.AreEqual("http://localhost:1234", arg),
+            arg => Assert.AreEqual("arg1", arg),
+            arg => Assert.AreEqual("connectionString", arg),
+            arg => Assert.AreEqual("arg2", arg),
+            arg => Assert.AreEqual("http://localhost:1234", arg),
+            arg => Assert.AreEqual("anotherConnectionString", arg)
             );
 
         var manifest = await ManifestUtils.GetManifest(exe2.Resource).DefaultTimeout();
@@ -68,7 +68,7 @@ public class ExecutableResourceTests
         }
         """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
     private sealed class TestResource(string name, string connectionString) : Resource(name), IResourceWithConnectionString

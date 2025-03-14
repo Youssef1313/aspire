@@ -1,21 +1,21 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 
 namespace Aspire.NATS.Net.Tests;
 
+[TestClass]
 public class ConfigurationTests
 {
-    [Fact]
+    [TestMethod]
     public void ConnectionStringIsNullByDefault()
-        => Assert.Null(new NatsClientSettings().ConnectionString);
+        => Assert.IsNull(new NatsClientSettings().ConnectionString);
 
-    [Fact]
+    [TestMethod]
     public void HealthCheckIsEnabledByDefault()
-        => Assert.False(new NatsClientSettings().DisableHealthChecks);
+        => Assert.IsFalse(new NatsClientSettings().DisableHealthChecks);
 
-    [Fact]
+    [TestMethod]
     public void TracingIsEnabledByDefault()
-        => Assert.False(new NatsClientSettings().DisableTracing);
+        => Assert.IsFalse(new NatsClientSettings().DisableTracing);
 }

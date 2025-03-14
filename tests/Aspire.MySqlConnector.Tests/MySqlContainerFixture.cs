@@ -4,7 +4,6 @@
 using Aspire.Components.Common.Tests;
 using Aspire.Hosting.MySql;
 using Testcontainers.MySql;
-using Xunit;
 
 namespace Aspire.MySqlConnector.Tests;
 

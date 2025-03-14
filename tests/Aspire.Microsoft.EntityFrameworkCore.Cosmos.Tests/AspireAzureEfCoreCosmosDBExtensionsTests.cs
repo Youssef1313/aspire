@@ -7,15 +7,15 @@ using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Microsoft.EntityFrameworkCore.Cosmos.Tests;
 
+[TestClass]
 public class AspireAzureEfCoreCosmosDBExtensionsTests
 {
     private const string ConnectionString = "AccountEndpoint=https://fake-account.documents.azure.com:443/;AccountKey=<fake-key>;";
 
-    [Fact]
+    [TestMethod]
     public void CanConfigureDbContextOptions()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -38,20 +38,20 @@ public class AspireAzureEfCoreCosmosDBExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<CosmosOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // Ensure the RequestTimeout from config size was respected
-        Assert.Equal(TimeSpan.FromSeconds(608), extension.RequestTimeout);
+        Assert.AreEqual(TimeSpan.FromSeconds(608), extension.RequestTimeout);
 
         // Ensure the Region from the lambda was respected
-        Assert.Equal("westus", extension.Region);
+        Assert.AreEqual("westus", extension.Region);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CanConfigureRequestTimeout(bool useSettings)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -75,17 +75,17 @@ public class AspireAzureEfCoreCosmosDBExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<CosmosOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // Ensure the RequestTimeout was respected
-        Assert.Equal(TimeSpan.FromSeconds(608), extension.RequestTimeout);
+        Assert.AreEqual(TimeSpan.FromSeconds(608), extension.RequestTimeout);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void RequestTimeoutFromBuilderWinsOverOthers(bool useSettings)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -115,10 +115,10 @@ public class AspireAzureEfCoreCosmosDBExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<CosmosOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // Ensure the RequestTimeout from builder was respected
-        Assert.Equal(TimeSpan.FromSeconds(123), extension.RequestTimeout);
+        Assert.AreEqual(TimeSpan.FromSeconds(123), extension.RequestTimeout);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
@@ -126,7 +126,7 @@ public class AspireAzureEfCoreCosmosDBExtensionsTests
     /// <summary>
     /// Verifies that two different DbContexts can be registered with different connection strings.
     /// </summary>
-    [Fact]
+    [TestMethod]
     public void CanHave2DbContexts()
     {
         const string connectionString2 = "AccountEndpoint=https://fake-account2.documents.azure.com:443/;AccountKey=<fake-key2>;";
@@ -145,15 +145,15 @@ public class AspireAzureEfCoreCosmosDBExtensionsTests
         var context2 = host.Services.GetRequiredService<TestDbContext2>();
 
         var actualConnectionString = context.Database.GetCosmosDatabaseId();
-        Assert.Equal("test", actualConnectionString);
+        Assert.AreEqual("test", actualConnectionString);
 
         actualConnectionString = context2.Database.GetCosmosDatabaseId();
-        Assert.Equal("test2", actualConnectionString);
+        Assert.AreEqual("test2", actualConnectionString);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ThrowsWhenDbContextIsRegisteredBeforeAspireComponent(bool useServiceType)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = Environments.Development });
@@ -171,12 +171,12 @@ public class AspireAzureEfCoreCosmosDBExtensionsTests
         }
 
         var exception = Assert.Throws<InvalidOperationException>(() => builder.AddCosmosDbContext<TestDbContext>("cosmos", "databaseName"));
-        Assert.Equal("DbContext<TestDbContext> is already registered. Please ensure 'services.AddDbContext<TestDbContext>()' is not used when calling 'AddCosmosDbContext()' or use the corresponding 'Enrich' method.", exception.Message);
+        Assert.AreEqual("DbContext<TestDbContext> is already registered. Please ensure 'services.AddDbContext<TestDbContext>()' is not used when calling 'AddCosmosDbContext()' or use the corresponding 'Enrich' method.", exception.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void DoesntThrowWhenDbContextIsRegisteredBeforeAspireComponentProduction(bool useServiceType)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = Environments.Production });
@@ -195,7 +195,7 @@ public class AspireAzureEfCoreCosmosDBExtensionsTests
 
         var exception = Record.Exception(() => builder.AddCosmosDbContext<TestDbContext>("cosmos", "databaseName"));
 
-        Assert.Null(exception);
+        Assert.IsNull(exception);
     }
 
     public class TestDbContext2 : DbContext
@@ -213,14 +213,14 @@ public class AspireAzureEfCoreCosmosDBExtensionsTests
         }
     }
 
-    [Theory]
-    [InlineData("AccountEndpoint=https://localhost:8081;AccountKey=fake;", "https://localhost:8081/")]
-    [InlineData("AccountEndpoint=https://localhost:8081;Database=db;", "https://localhost:8081/")]
-    [InlineData("AccountEndpoint=https://localhost:8081;Database=db;Container=mycontainer;", "https://localhost:8081/")]
-    [InlineData("AccountEndpoint=https://localhost:8081;AccountKey=fake;Database=db", "https://localhost:8081/")]
-    [InlineData("AccountEndpoint=https://localhost:8081;AccountKey=fake;Database=db;DisableServerCertificateValidation=True", "https://localhost:8081/")]
-    [InlineData("AccountEndpoint=https://localhost:8081;AccountKey=fake;Database=db;Container=mycontainer", "https://localhost:8081/")]
-    [InlineData("https://example1.documents.azure.com:443", "https://example1.documents.azure.com/")]
+    [TestMethod]
+    [DataRow("AccountEndpoint=https://localhost:8081;AccountKey=fake;", "https://localhost:8081/")]
+    [DataRow("AccountEndpoint=https://localhost:8081;Database=db;", "https://localhost:8081/")]
+    [DataRow("AccountEndpoint=https://localhost:8081;Database=db;Container=mycontainer;", "https://localhost:8081/")]
+    [DataRow("AccountEndpoint=https://localhost:8081;AccountKey=fake;Database=db", "https://localhost:8081/")]
+    [DataRow("AccountEndpoint=https://localhost:8081;AccountKey=fake;Database=db;DisableServerCertificateValidation=True", "https://localhost:8081/")]
+    [DataRow("AccountEndpoint=https://localhost:8081;AccountKey=fake;Database=db;Container=mycontainer", "https://localhost:8081/")]
+    [DataRow("https://example1.documents.azure.com:443", "https://example1.documents.azure.com/")]
     public void AddAzureCosmosClient_EnsuresConnectionStringIsCorrect(string connectionString, string expectedEndpoint)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -233,10 +233,10 @@ public class AspireAzureEfCoreCosmosDBExtensionsTests
         var context = host.Services.GetRequiredService<TestDbContext>();
         var client = context.Database.GetCosmosClient();
 
-        Assert.Equal(expectedEndpoint, client.Endpoint.ToString());
+        Assert.AreEqual(expectedEndpoint, client.Endpoint.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureCosmosClient_FailsWithError()
     {
         var e = Assert.Throws<ArgumentException>(() =>
@@ -246,7 +246,7 @@ public class AspireAzureEfCoreCosmosDBExtensionsTests
         Assert.Contains("AccountEndpoint", e.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddCosmosDbContext_WithConnectionNameAndSettings_AppliesConnectionSpecificSettings()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -267,12 +267,12 @@ public class AspireAzureEfCoreCosmosDBExtensionsTests
             capturedSettings = settings;
         });
 
-        Assert.NotNull(capturedSettings);
-        Assert.Equal(TimeSpan.Parse("60"), capturedSettings.RequestTimeout);
-        Assert.True(capturedSettings.DisableTracing);
+        Assert.IsNotNull(capturedSettings);
+        Assert.AreEqual(TimeSpan.Parse("60"), capturedSettings.RequestTimeout);
+        Assert.IsTrue(capturedSettings.DisableTracing);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddCosmosDbContext_WithConnectionSpecificAndContextSpecificSettings_PrefersContextSpecific()
     {
         // Arrange
@@ -296,8 +296,8 @@ public class AspireAzureEfCoreCosmosDBExtensionsTests
             capturedSettings = settings;
         });
 
-        Assert.NotNull(capturedSettings);
-        Assert.Equal(TimeSpan.Parse("120"), capturedSettings.RequestTimeout);
+        Assert.IsNotNull(capturedSettings);
+        Assert.AreEqual(TimeSpan.Parse("120"), capturedSettings.RequestTimeout);
     }
 
     private static void PopulateConfiguration(ConfigurationManager configuration, string connectionString) =>

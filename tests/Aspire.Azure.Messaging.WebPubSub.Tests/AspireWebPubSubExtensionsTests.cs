@@ -5,18 +5,18 @@ using Azure.Messaging.WebPubSub;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Messaging.WebPubSub.Tests;
 
+[TestClass]
 public class AspireWebPubSubExtensionsTests
 {
     private const string ConnectionString = "Endpoint=https://aspirewebpubsubtests.webpubsub.azure.com/;AccessKey=fake;";
     private const string UnusedConnectionString = "Endpoint=https://unused.webpubsub.azure.com/;AccessKey=fake;";
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -38,13 +38,13 @@ public class AspireWebPubSubExtensionsTests
             host.Services.GetRequiredKeyedService<WebPubSubServiceClient>("wps") :
             host.Services.GetRequiredService<WebPubSubServiceClient>();
 
-        Assert.Equal(ConformanceTests.Endpoint, client.Endpoint.AbsoluteUri);
-        Assert.Equal("hub1", client.Hub);
+        Assert.AreEqual(ConformanceTests.Endpoint, client.Endpoint.AbsoluteUri);
+        Assert.AreEqual("hub1", client.Hub);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -73,13 +73,13 @@ public class AspireWebPubSubExtensionsTests
             host.Services.GetRequiredKeyedService<WebPubSubServiceClient>("wps") :
             host.Services.GetRequiredService<WebPubSubServiceClient>();
 
-        Assert.Equal(ConformanceTests.Endpoint, client.Endpoint.AbsoluteUri);
-        Assert.Equal("hub1", client.Hub);
+        Assert.AreEqual(ConformanceTests.Endpoint, client.Endpoint.AbsoluteUri);
+        Assert.AreEqual("hub1", client.Hub);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -104,13 +104,13 @@ public class AspireWebPubSubExtensionsTests
             host.Services.GetRequiredKeyedService<WebPubSubServiceClient>("wps") :
             host.Services.GetRequiredService<WebPubSubServiceClient>();
 
-        Assert.Equal(ConformanceTests.Endpoint, client.Endpoint.AbsoluteUri);
-        Assert.Equal("hub1", client.Hub);
+        Assert.AreEqual(ConformanceTests.Endpoint, client.Endpoint.AbsoluteUri);
+        Assert.AreEqual("hub1", client.Hub);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void EndpointWorksInConnectionStrings(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -133,11 +133,11 @@ public class AspireWebPubSubExtensionsTests
             host.Services.GetRequiredKeyedService<WebPubSubServiceClient>("wps") :
             host.Services.GetRequiredService<WebPubSubServiceClient>();
 
-        Assert.Equal(ConformanceTests.Endpoint, client.Endpoint.AbsoluteUri);
-        Assert.Equal("hub1", client.Hub);
+        Assert.AreEqual(ConformanceTests.Endpoint, client.Endpoint.AbsoluteUri);
+        Assert.AreEqual("hub1", client.Hub);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddInvalidHubThrows()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -149,10 +149,10 @@ public class AspireWebPubSubExtensionsTests
         var host = builder.Build();
 
         var ex = Assert.Throws<InvalidOperationException>(host.Services.GetRequiredService<WebPubSubServiceClient>);
-        Assert.Equal("A WebPubSubServiceClient could not be configured. Ensure a valid HubName was configured or provided in the 'Aspire:Azure:Messaging:WebPubSub' configuration section.", ex.Message);
+        Assert.AreEqual("A WebPubSubServiceClient could not be configured. Ensure a valid HubName was configured or provided in the 'Aspire:Azure:Messaging:WebPubSub' configuration section.", ex.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeyedServiceWithInvalidHubThrows()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -163,7 +163,7 @@ public class AspireWebPubSubExtensionsTests
         Assert.Throws<ArgumentException>(() => builder.AddKeyedAzureWebPubSubServiceClient("wps", ""));
     }
 
-    [Fact]
+    [TestMethod]
     public void ServiceKeyDefaultsToHubName()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -174,11 +174,11 @@ public class AspireWebPubSubExtensionsTests
 
         var host = builder.Build();
         var client = host.Services.GetRequiredKeyedService<WebPubSubServiceClient>("key");
-        Assert.Equal(ConformanceTests.Endpoint, client.Endpoint.AbsoluteUri);
-        Assert.Equal("key", client.Hub);
+        Assert.AreEqual(ConformanceTests.Endpoint, client.Endpoint.AbsoluteUri);
+        Assert.AreEqual("key", client.Hub);
     }
 
-    [Fact]
+    [TestMethod]
     public void ConfigSectionWorksForMultipleHubs()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -193,10 +193,10 @@ public class AspireWebPubSubExtensionsTests
 
         var host = builder.Build();
         var client1 = host.Services.GetRequiredKeyedService<WebPubSubServiceClient>("hub1");
-        Assert.Equal("hub1", client1.Hub);
-        Assert.Equal(ConformanceTests.Endpoint, client1.Endpoint.AbsoluteUri);
+        Assert.AreEqual("hub1", client1.Hub);
+        Assert.AreEqual(ConformanceTests.Endpoint, client1.Endpoint.AbsoluteUri);
         var client2 = host.Services.GetRequiredKeyedService<WebPubSubServiceClient>("hub2");
-        Assert.Equal("hub2", client2.Hub);
-        Assert.Equal(ConformanceTests.Endpoint, client2.Endpoint.AbsoluteUri);
+        Assert.AreEqual("hub2", client2.Hub);
+        Assert.AreEqual(ConformanceTests.Endpoint, client2.Endpoint.AbsoluteUri);
     }
 }

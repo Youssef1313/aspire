@@ -9,7 +9,7 @@ namespace Aspire.Workload.Tests;
 [RequiresSSLCertificate]
 public class StarterTemplateRunTests : StarterTemplateRunTestsBase<StarterTemplateFixture>
 {
-    public StarterTemplateRunTests(StarterTemplateFixture fixture, ITestOutputHelper testOutput)
+    public StarterTemplateRunTests(StarterTemplateFixture fixture, TestContext testOutput)
         : base(fixture, testOutput)
     {
     }

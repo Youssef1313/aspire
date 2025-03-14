@@ -3,7 +3,6 @@
 
 using System.Text.RegularExpressions;
 using Aspire.Components.Common.Tests;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Workload.Tests;
@@ -11,7 +10,7 @@ namespace Aspire.Workload.Tests;
 // This class has tests that start projects on their own
 public partial class BuildAndRunTemplateTests : WorkloadTestsBase
 {
-    public BuildAndRunTemplateTests(ITestOutputHelper testOutput)
+    public BuildAndRunTemplateTests(TestContext testOutput)
         : base(testOutput)
     {}
 
@@ -26,7 +25,7 @@ public partial class BuildAndRunTemplateTests : WorkloadTestsBase
         return data;
     }
 
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(TestFrameworkTypeWithConfig))]
     [RequiresSSLCertificate]
     public async Task BuildAndRunStarterTemplateBuiltInTest(string config, string testType)
@@ -42,9 +41,9 @@ public partial class BuildAndRunTemplateTests : WorkloadTestsBase
         await AssertTestProjectRunAsync(project.TestsProjectDirectory, testType, _testOutput, config);
     }
 
-    [Theory]
-    [InlineData("Debug")]
-    [InlineData("Release")]
+    [TestMethod]
+    [DataRow("Debug")]
+    [DataRow("Release")]
     [RequiresSSLCertificate]
     public async Task BuildAndRunAspireTemplate(string config)
     {
@@ -62,7 +61,7 @@ public partial class BuildAndRunTemplateTests : WorkloadTestsBase
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task BuildAndRunAspireTemplateWithCentralPackageManagement()
     {
         string id = GetNewProjectId(prefix: "aspire_CPM");
@@ -79,7 +78,7 @@ public partial class BuildAndRunTemplateTests : WorkloadTestsBase
         static string ExtractAndRemoveVersionFromPackageReference(AspireProject project)
         {
             var projectName = Directory.GetFiles(project.AppHostProjectDirectory, "*.csproj").FirstOrDefault();
-            Assert.False(string.IsNullOrEmpty(projectName));
+            Assert.IsFalse(string.IsNullOrEmpty(projectName));
 
             var projectContents = File.ReadAllText(projectName);
 
@@ -111,9 +110,9 @@ public partial class BuildAndRunTemplateTests : WorkloadTestsBase
         }
     }
 
-    [Theory]
-    [InlineData("Debug")]
-    [InlineData("Release")]
+    [TestMethod]
+    [DataRow("Debug")]
+    [DataRow("Release")]
     [RequiresSSLCertificate]
     public async Task StarterTemplateNewAndRunWithoutExplicitBuild(string config)
     {
@@ -128,7 +127,7 @@ public partial class BuildAndRunTemplateTests : WorkloadTestsBase
         await AssertStarterTemplateRunAsync(context, project, config, _testOutput);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ProjectWithNoHTTPSRequiresExplicitOverrideWithEnvironmentVariable()
     {
         string id = GetNewProjectId(prefix: "aspire");
@@ -147,7 +146,7 @@ public partial class BuildAndRunTemplateTests : WorkloadTestsBase
                                     .WithWorkingDirectory(project.AppHostProjectDirectory);
 
         var res = await buildCmd.ExecuteAsync("run");
-        Assert.True(res.ExitCode != 0, $"Expected the app run to fail");
+        Assert.IsTrue(res.ExitCode != 0, $"Expected the app run to fail");
         Assert.Contains("setting must be an https address unless the 'ASPIRE_ALLOW_UNSECURED_TRANSPORT'", res.Output);
 
         // Run with the environment variable set
@@ -162,9 +161,9 @@ public partial class BuildAndRunTemplateTests : WorkloadTestsBase
         }
     }
 
-    [Theory]
-    [InlineData("9.*-*")]
-    [InlineData("[9.0.0]")]
+    [TestMethod]
+    [DataRow("9.*-*")]
+    [DataRow("[9.0.0]")]
     public async Task CreateAndModifyAspireAppHostTemplate(string version)
     {
         string id = GetNewProjectId(prefix: $"aspire_apphost_{version.Replace("*", "wildcard").Replace("[", "").Replace("]", "")}");
@@ -177,7 +176,7 @@ public partial class BuildAndRunTemplateTests : WorkloadTestsBase
         static void ModifyProjectFile(AspireProject project, string version)
         {
             var projectName = Directory.GetFiles(project.RootDir, "*.csproj").FirstOrDefault();
-            Assert.False(string.IsNullOrEmpty(projectName));
+            Assert.IsFalse(string.IsNullOrEmpty(projectName));
 
             var projectContents = File.ReadAllText(projectName);
 

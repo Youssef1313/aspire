@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Microsoft.Extensions.ServiceDiscovery.Yarp.Tests;
 
@@ -10,7 +9,7 @@ namespace Microsoft.Extensions.ServiceDiscovery.Yarp.Tests;
 
 public class YarpServiceDiscoveryPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void AddServiceDiscoveryDestinationResolverShouldThrowWhenBuilderIsNull()
     {
         IReverseProxyBuilder builder = null!;
@@ -18,10 +17,10 @@ public class YarpServiceDiscoveryPublicApiTests
         var action = () => builder.AddServiceDiscoveryDestinationResolver();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddHttpForwarderWithServiceDiscoveryShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -29,10 +28,10 @@ public class YarpServiceDiscoveryPublicApiTests
         var action = () => services.AddHttpForwarderWithServiceDiscovery();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddServiceDiscoveryForwarderFactoryShouldThrowWhenServicesIsNull()
     {
         IServiceCollection services = null!;
@@ -40,6 +39,6 @@ public class YarpServiceDiscoveryPublicApiTests
         var action = () => services.AddServiceDiscoveryForwarderFactory();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(services), exception.ParamName);
+        Assert.AreEqual(nameof(services), exception.ParamName);
     }
 }

@@ -12,22 +12,23 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Polly;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Azure.Tests;
 
-public class AzureCosmosDBEmulatorFunctionalTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class AzureCosmosDBEmulatorFunctionalTests
 {
-    [Theory]
-    // [InlineData(true)] // "Using CosmosDB emulator in integration tests leads to flaky tests - https://github.com/dotnet/aspire/issues/5820"
-    [InlineData(false)]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
+    // [DataRow(true)] // "Using CosmosDB emulator in integration tests leads to flaky tests - https://github.com/dotnet/aspire/issues/5820"
+    [DataRow(false)]
     [RequiresDocker]
     public async Task VerifyWaitForOnCosmosDBEmulatorBlocksDependentResources(bool usePreview)
     {
         // Cosmos can be pretty slow to spin up, lets give it plenty of time.
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>
@@ -61,9 +62,10 @@ public class AzureCosmosDBEmulatorFunctionalTests(ITestOutputHelper testOutputHe
         await app.StopAsync();
     }
 
-    [Theory(Skip = "Using CosmosDB emulator in integration tests leads to flaky tests - https://github.com/dotnet/aspire/issues/5820")]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [Ignore("Using CosmosDB emulator in integration tests leads to flaky tests - https://github.com/dotnet/aspire/issues/5820")]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker(Reason = "CosmosDB emulator is needed for this test")]
     public async Task VerifyCosmosResource(bool usePreview)
     {
@@ -73,13 +75,13 @@ public class AzureCosmosDBEmulatorFunctionalTests(ITestOutputHelper testOutputHe
             {
                 MaxRetryAttempts = 10,
                 Delay = TimeSpan.FromSeconds(10),
-                BackoffType = DelayBackoffType.Linear,
+                BackoffType = Polly.DelayBackoffType.Linear,
                 ShouldHandle = new PredicateBuilder().Handle<HttpRequestException>()
             })
             .Build();
 
         // @sebastienros: we won't use netaspireci.azurecr.io since the image is on mcr.microsoft.com, so Create is the way to go
-        using var builder = TestDistributedApplicationBuilder.Create(options => { }, testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(options => { }, TestContext);
 
         var databaseName = "db1";
         var containerName = "container1";
@@ -120,19 +122,20 @@ public class AzureCosmosDBEmulatorFunctionalTests(ITestOutputHelper testOutputHe
             QueryDefinition query = new("SELECT VALUE c.data FROM c WHERE c.id = '1'");
             var results = await container.GetItemQueryIterator<string>(query).ReadNextAsync(token);
 
-            Assert.True(results.Count == 1);
-            Assert.True(results.First() == testObject.data);
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual(testObject.data, results.First());
 
             await dbContext.Database.EnsureCreatedAsync(token);
             dbContext.AddRange([new Entry(), new Entry()]);
             var count = await dbContext.SaveChangesAsync(token);
-            Assert.Equal(2, count);
+            Assert.AreEqual(2, count);
         }, cts.Token);
     }
 
-    [Theory(Skip = "Using CosmosDB emulator in integration tests leads to flaky tests - https://github.com/dotnet/aspire/issues/5820")]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [Ignore("Using CosmosDB emulator in integration tests leads to flaky tests - https://github.com/dotnet/aspire/issues/5820")]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task WithDataVolumeShouldPersistStateBetweenUsages(bool usePreview)
     {
@@ -144,7 +147,7 @@ public class AzureCosmosDBEmulatorFunctionalTests(ITestOutputHelper testOutputHe
             {
                 MaxRetryAttempts = 10,
                 Delay = TimeSpan.FromSeconds(10),
-                BackoffType = DelayBackoffType.Linear,
+                BackoffType = Polly.DelayBackoffType.Linear,
                 ShouldHandle = new PredicateBuilder().Handle<HttpRequestException>()
             })
             .Build();
@@ -152,7 +155,7 @@ public class AzureCosmosDBEmulatorFunctionalTests(ITestOutputHelper testOutputHe
         var databaseName = "db";
         var containerName = "container";
 
-        using var builder1 = TestDistributedApplicationBuilder.Create(options => { }, testOutputHelper);
+        using var builder1 = TestDistributedApplicationBuilder.Create(options => { }, TestContext);
         var cosmos1 = builder1.AddAzureCosmosDB("cosmos");
 
         // Use a deterministic volume name to prevent them from exhausting the machines if deletion fails
@@ -209,7 +212,7 @@ public class AzureCosmosDBEmulatorFunctionalTests(ITestOutputHelper testOutputHe
             }
         }
 
-        using var builder2 = TestDistributedApplicationBuilder.Create(options => { }, testOutputHelper);
+        using var builder2 = TestDistributedApplicationBuilder.Create(options => { }, TestContext);
 
         var cosmos2 = builder2.AddAzureCosmosDB("cosmos")
             .RunAsEmulator(usePreview, volumeName);
@@ -250,8 +253,8 @@ public class AzureCosmosDBEmulatorFunctionalTests(ITestOutputHelper testOutputHe
                         // run query and check the value
                         var results = await container.GetItemQueryIterator<string>(query).ReadNextAsync(token);
 
-                        Assert.True(results.Count == 1);
-                        Assert.True(results.First() == testObject.data);
+                        Assert.AreEqual(1, results.Count);
+                        Assert.AreEqual(testObject.data, results.First());
 
                     }, cts.Token);
                 }
@@ -266,14 +269,14 @@ public class AzureCosmosDBEmulatorFunctionalTests(ITestOutputHelper testOutputHe
         DockerUtils.AttemptDeleteDockerVolume(volumeName);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
-    [ActiveIssue("https://github.com/dotnet/aspire/issues/7178")]
+    // [ActiveIssue("https://github.com/dotnet/aspire/issues/7178")]
     public async Task AddAzureCosmosDB_RunAsEmulator_CreatesDatabase()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(10));
 
-        using var builder = TestDistributedApplicationBuilder.Create(options => { }, testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(options => { }, TestContext);
 
         var databaseName = "db1";
         var containerName = "container1";
@@ -307,8 +310,8 @@ public class AzureCosmosDBEmulatorFunctionalTests(ITestOutputHelper testOutputHe
         var container = database.GetContainer(containerName);
         var result2 = await container.ReadContainerAsync(cancellationToken: cts.Token);
 
-        Assert.True(IsSuccess(result1.StatusCode));
-        Assert.True(IsSuccess(result2.StatusCode));
+        Assert.IsTrue(IsSuccess(result1.StatusCode));
+        Assert.IsTrue(IsSuccess(result2.StatusCode));
 
         static bool IsSuccess(HttpStatusCode httpStatusCode)
         {

@@ -4,18 +4,18 @@
 using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Tests;
 
-public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class WithHttpCommandTests(TestContext testContext)
 {
-    [Fact]
+    [TestMethod]
     public void WithHttpCommand_AddsResourceCommandAnnotation_WithDefaultValues()
     {
         // Arrange
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         var resourceBuilder = builder.AddContainer("name", "image")
             .WithHttpEndpoint()
             .WithHttpCommand("/some-path", "Do The Thing");
@@ -24,22 +24,22 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         var command = resourceBuilder.Resource.Annotations.OfType<ResourceCommandAnnotation>().FirstOrDefault();
 
         // Assert
-        Assert.NotNull(command);
-        Assert.Equal("Do The Thing", command.DisplayName);
+        Assert.IsNotNull(command);
+        Assert.AreEqual("Do The Thing", command.DisplayName);
         // Expected name format: "{endpoint.Resource.Name}-{endpoint.EndpointName}-http-{httpMethod}"
-        Assert.Equal($"{resourceBuilder.Resource.Name}-http-http-post-/some-path", command.Name);
-        Assert.Null(command.DisplayDescription);
-        Assert.Null(command.ConfirmationMessage);
-        Assert.Null(command.IconName);
-        Assert.Null(command.IconVariant);
-        Assert.False(command.IsHighlighted);
+        Assert.AreEqual($"{resourceBuilder.Resource.Name}-http-http-post-/some-path", command.Name);
+        Assert.IsNull(command.DisplayDescription);
+        Assert.IsNull(command.ConfirmationMessage);
+        Assert.IsNull(command.IconName);
+        Assert.IsNull(command.IconVariant);
+        Assert.IsFalse(command.IsHighlighted);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithHttpCommand_AddsResourceCommandAnnotation_WithCustomValues()
     {
         // Arrange
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         var resourceBuilder = builder.AddContainer("name", "image")
             .WithHttpEndpoint()
             .WithHttpCommand("/some-path", "Do The Thing",
@@ -54,21 +54,21 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         var command = resourceBuilder.Resource.Annotations.OfType<ResourceCommandAnnotation>().FirstOrDefault();
 
         // Assert
-        Assert.NotNull(command);
-        Assert.Equal("Do The Thing", command.DisplayName);
-        Assert.Equal("my-command-name", command.Name);
-        Assert.Equal("Command description", command.DisplayDescription);
-        Assert.Equal("Are you sure?", command.ConfirmationMessage);
-        Assert.Equal("DatabaseLightning", command.IconName);
-        Assert.Equal(IconVariant.Filled, command.IconVariant);
-        Assert.True(command.IsHighlighted);
+        Assert.IsNotNull(command);
+        Assert.AreEqual("Do The Thing", command.DisplayName);
+        Assert.AreEqual("my-command-name", command.Name);
+        Assert.AreEqual("Command description", command.DisplayDescription);
+        Assert.AreEqual("Are you sure?", command.ConfirmationMessage);
+        Assert.AreEqual("DatabaseLightning", command.IconName);
+        Assert.AreEqual(IconVariant.Filled, command.IconVariant);
+        Assert.IsTrue(command.IsHighlighted);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithHttpCommand_AddsResourceCommandAnnotations_WithUniqueCommandNames()
     {
         // Arrange
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         var resourceBuilder = builder.AddContainer("name", "image")
             .WithHttpEndpoint()
             .WithHttpEndpoint(name: "custom-endpoint")
@@ -90,27 +90,27 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         var command6 = commands.FirstOrDefault(c => c.DisplayName == "Do The Other Thing CHANGED");
 
         // Assert
-        Assert.True(commands.Count >= 5);
-        Assert.NotNull(command1);
-        Assert.NotNull(command2);
-        Assert.NotNull(command3);
-        Assert.NotNull(command4);
-        Assert.Null(command5); // This one is overridden by the last one
-        Assert.NotNull(command6);
+        Assert.IsTrue(commands.Count >= 5);
+        Assert.IsNotNull(command1);
+        Assert.IsNotNull(command2);
+        Assert.IsNotNull(command3);
+        Assert.IsNotNull(command4);
+        Assert.IsNull(command5); // This one is overridden by the last one
+        Assert.IsNotNull(command6);
     }
 
-    [InlineData(200, true)]
-    [InlineData(201, true)]
-    [InlineData(400, false)]
-    [InlineData(401, false)]
-    [InlineData(403, false)]
-    [InlineData(404, false)]
-    [InlineData(500, false)]
-    [Theory]
+    [DataRow(200, true)]
+    [DataRow(201, true)]
+    [DataRow(400, false)]
+    [DataRow(401, false)]
+    [DataRow(403, false)]
+    [DataRow(404, false)]
+    [DataRow(500, false)]
+    [TestMethod]
     public async Task WithHttpCommand_ResultsInExpectedResultForStatusCode(int statusCode, bool expectSuccess)
     {
         // Arrange
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         var resourceBuilder = builder.AddProject<Projects.ServiceA>("servicea")
             .WithHttpCommand($"/status/{statusCode}", "Do The Thing", commandName: "mycommand");
         var command = resourceBuilder.Resource.Annotations.OfType<ResourceCommandAnnotation>().First(c => c.Name == "mycommand");
@@ -129,18 +129,18 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         var result = await command.ExecuteCommand(context);
 
         // Assert
-        Assert.Equal(expectSuccess, result.Success);
+        Assert.AreEqual(expectSuccess, result.Success);
     }
 
-    [InlineData(null, false)] // Default method is POST
-    [InlineData("get", true)]
-    [InlineData("post", false)]
-    [Theory]
+    [DataRow(null, false)] // Default method is POST
+    [DataRow("get", true)]
+    [DataRow("post", false)]
+    [TestMethod]
     public async Task WithHttpCommand_ResultsInExpectedResultForHttpMethod(string? httpMethod, bool expectSuccess)
     {
         // Arrange
         var method = httpMethod is not null ? new HttpMethod(httpMethod) : null;
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         var resourceBuilder = builder.AddProject<Projects.ServiceA>("servicea")
             .WithHttpCommand("/get-only", "Do The Thing", method: method, commandName: "mycommand");
         var command = resourceBuilder.Resource.Annotations.OfType<ResourceCommandAnnotation>().First(c => c.Name == "mycommand");
@@ -159,14 +159,14 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         var result = await command.ExecuteCommand(context);
 
         // Assert
-        Assert.Equal(expectSuccess, result.Success);
+        Assert.AreEqual(expectSuccess, result.Success);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithHttpCommand_UsesNamedHttpClient()
     {
         // Arrange
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         var trackingMessageHandler = new TrackingHttpMessageHandler();
         builder.Services.AddHttpClient("commandclient")
             .AddHttpMessageHandler((sp) => trackingMessageHandler);
@@ -188,7 +188,7 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         var result = await command.ExecuteCommand(context);
 
         // Assert
-        Assert.True(trackingMessageHandler.Called);
+        Assert.IsTrue(trackingMessageHandler.Called);
     }
 
     private sealed class TrackingHttpMessageHandler : DelegatingHandler
@@ -202,11 +202,11 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithHttpCommand_UsesEndpointSelector()
     {
         // Arrange
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
 
         var serviceA = builder.AddProject<Projects.ServiceA>("servicea");
         var callbackCalled = false;
@@ -233,26 +233,26 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         var result = await command.ExecuteCommand(context);
 
         // Assert
-        Assert.True(callbackCalled);
+        Assert.IsTrue(callbackCalled);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithHttpCommand_CallsPrepareRequestCallback_BeforeSendingRequest()
     {
         // Arrange
         var callbackCalled = false;
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         var resourceBuilder = builder.AddProject<Projects.ServiceA>("servicea")
             .WithHttpCommand("/status/200", "Do The Thing",
                 commandName: "mycommand",
                 configureRequest: requestContext =>
                 {
-                    Assert.NotNull(requestContext);
-                    Assert.NotNull(requestContext.ServiceProvider);
-                    Assert.Equal("servicea", requestContext.ResourceName);
-                    Assert.NotNull(requestContext.Endpoint);
-                    Assert.NotNull(requestContext.HttpClient);
-                    Assert.NotNull(requestContext.Request);
+                    Assert.IsNotNull(requestContext);
+                    Assert.IsNotNull(requestContext.ServiceProvider);
+                    Assert.AreEqual("servicea", requestContext.ResourceName);
+                    Assert.IsNotNull(requestContext.Endpoint);
+                    Assert.IsNotNull(requestContext.HttpClient);
+                    Assert.IsNotNull(requestContext.Request);
                     
                     callbackCalled = true;
                     return Task.CompletedTask;
@@ -273,27 +273,27 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         var result = await command.ExecuteCommand(context);
 
         // Assert
-        Assert.True(callbackCalled);
-        Assert.True(result.Success);
+        Assert.IsTrue(callbackCalled);
+        Assert.IsTrue(result.Success);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithHttpCommand_CallsGetResponseCallback_AfterSendingRequest()
     {
         // Arrange
         var callbackCalled = false;
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         var resourceBuilder = builder.AddProject<Projects.ServiceA>("servicea")
             .WithHttpCommand("/status/200", "Do The Thing",
                 commandName: "mycommand",
                 getCommandResult: resultContext =>
                 {
-                    Assert.NotNull(resultContext);
-                    Assert.NotNull(resultContext.ServiceProvider);
-                    Assert.Equal("servicea", resultContext.ResourceName);
-                    Assert.NotNull(resultContext.Endpoint);
-                    Assert.NotNull(resultContext.HttpClient);
-                    Assert.NotNull(resultContext.Response);
+                    Assert.IsNotNull(resultContext);
+                    Assert.IsNotNull(resultContext.ServiceProvider);
+                    Assert.AreEqual("servicea", resultContext.ResourceName);
+                    Assert.IsNotNull(resultContext.Endpoint);
+                    Assert.IsNotNull(resultContext.HttpClient);
+                    Assert.IsNotNull(resultContext.Response);
 
                     callbackCalled = true;
                     return Task.FromResult(CommandResults.Failure("A test error message"));
@@ -314,16 +314,16 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         var result = await command.ExecuteCommand(context);
 
         // Assert
-        Assert.True(callbackCalled);
-        Assert.False(result.Success);
-        Assert.Equal("A test error message", result.ErrorMessage);
+        Assert.IsTrue(callbackCalled);
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual("A test error message", result.ErrorMessage);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithHttpCommand_EnablesCommandOnceResourceIsRunning()
     {
         // Arrange
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
 
         builder.Configuration["CODESPACES"] = "false";
 
@@ -359,7 +359,7 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         await app.ResourceNotifications.WaitForResourceAsync(service.Resource.Name, KnownResourceStates.Starting).DefaultTimeout(TestConstants.LongTimeoutTimeSpan);
 
         // Veriy the command is disabled
-        Assert.Equal(ResourceCommandState.Disabled, commandState);
+        Assert.AreEqual(ResourceCommandState.Disabled, commandState);
 
         // Move the resource to the running state
         await app.ResourceNotifications.PublishUpdateAsync(service.Resource, s => s with
@@ -370,18 +370,18 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         await watchTcs.Task.DefaultTimeout(TestConstants.LongTimeoutTimeSpan);
 
         // Verify the command is enabled
-        Assert.Equal(ResourceCommandState.Enabled, commandState);
+        Assert.AreEqual(ResourceCommandState.Enabled, commandState);
 
         // Clean up
         watchCts.Cancel();
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithHttpCommand_EnablesCommandUsingCustomUpdateStateCallback()
     {
         // Arrange
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         
         builder.Configuration["CODESPACES"] = "false";
 
@@ -424,7 +424,7 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         await app.ResourceNotifications.WaitForResourceAsync(service.Resource.Name, KnownResourceStates.Running).DefaultTimeout(TestConstants.LongTimeoutTimeSpan);
 
         // Veriy the command is hidden despite the resource being running
-        Assert.Equal(ResourceCommandState.Hidden, commandState);
+        Assert.AreEqual(ResourceCommandState.Hidden, commandState);
 
         // Publish an update to force reevaluation of the command state
         enableCommand = true;
@@ -435,8 +435,8 @@ public class WithHttpCommandTests(ITestOutputHelper testOutputHelper)
         await watchTcs.Task.DefaultTimeout(TestConstants.LongTimeoutTimeSpan);
 
         // Verify the callback was called and the command is enabled
-        Assert.True(callbackCalled);
-        Assert.Equal(ResourceCommandState.Enabled, commandState);
+        Assert.IsTrue(callbackCalled);
+        Assert.AreEqual(ResourceCommandState.Enabled, commandState);
 
         // Clean up
         watchCts.Cancel();

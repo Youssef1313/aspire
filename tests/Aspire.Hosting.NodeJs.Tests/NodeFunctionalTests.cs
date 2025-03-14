@@ -3,10 +3,10 @@
 
 using Aspire.Components.Common.Tests;
 using Aspire.Hosting.Testing;
-using Xunit;
 
 namespace Aspire.Hosting.NodeJs.Tests;
 
+[TestClass]
 public class NodeFunctionalTests : IClassFixture<NodeAppFixture>
 {
     private readonly NodeAppFixture _nodeJsFixture;
@@ -16,7 +16,7 @@ public class NodeFunctionalTests : IClassFixture<NodeAppFixture>
         _nodeJsFixture = nodeJsFixture;
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresTools(["node"])]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4508", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task VerifyNodeAppWorks()
@@ -25,10 +25,10 @@ public class NodeFunctionalTests : IClassFixture<NodeAppFixture>
         using var nodeClient = _nodeJsFixture.App.CreateHttpClient(_nodeJsFixture.NodeAppBuilder!.Resource.Name, "http");
         var response = await nodeClient.GetStringAsync("/", cts.Token);
 
-        Assert.Equal("Hello from node!", response);
+        Assert.AreEqual("Hello from node!", response);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresTools(["npm"])]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4508", typeof(PlatformDetection), nameof(PlatformDetection.IsRunningOnCI))]
     public async Task VerifyNpmAppWorks()
@@ -37,6 +37,6 @@ public class NodeFunctionalTests : IClassFixture<NodeAppFixture>
         using var npmClient = _nodeJsFixture.App.CreateHttpClient(_nodeJsFixture.NpmAppBuilder!.Resource.Name, "http");
         var response = await npmClient.GetStringAsync("/", cts.Token);
 
-        Assert.Equal("Hello from npm!", response);
+        Assert.AreEqual("Hello from npm!", response);
     }
 }

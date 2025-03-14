@@ -1,13 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit.Sdk;
-
 namespace Aspire.Components.Common.Tests;
 
-[TraitDiscoverer("Aspire.Components.Common.Tests.RequiresDockerDiscoverer", "Aspire.Components.Common.Tests")]
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-public class RequiresDockerAttribute : Attribute, ITraitAttribute
+public sealed class RequiresDockerAttribute : ConditionBaseAttribute
 {
     // This property is `true` when docker is *expected* to be available.
     //
@@ -25,8 +22,16 @@ public class RequiresDockerAttribute : Attribute, ITraitAttribute
         !PlatformDetection.IsRunningOnCI;
 
     public string? Reason { get; init; }
+
+    public override string? IgnoreMessage { get; }
+
+    public override string GroupName => nameof(RequiresDockerAttribute);
+
+    public override bool ShouldRun => IsSupported;
+
     public RequiresDockerAttribute(string? reason = null)
+        : base(ConditionMode.Include)
     {
-        Reason = reason;
+        IgnoreMessage = reason;
     }
 }

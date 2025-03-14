@@ -3,19 +3,19 @@
 
 using Confluent.Kafka;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Confluent.Kafka.Tests;
 
+[TestClass]
 public class ConfluentKafkaPublicApiTests
 {
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    [InlineData(3)]
-    [InlineData(4)]
-    [InlineData(5)]
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(1)]
+    [DataRow(2)]
+    [DataRow(3)]
+    [DataRow(4)]
+    [DataRow(5)]
     public void AddKafkaConsumerShouldThrowWhenBuilderIsNull(int overrideIndex)
     {
         IHostApplicationBuilder builder = null!;
@@ -36,22 +36,22 @@ public class ConfluentKafkaPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0, false)]
-    [InlineData(0, true)]
-    [InlineData(1, false)]
-    [InlineData(1, true)]
-    [InlineData(2, false)]
-    [InlineData(2, true)]
-    [InlineData(3, false)]
-    [InlineData(3, true)]
-    [InlineData(4, false)]
-    [InlineData(4, true)]
-    [InlineData(5, false)]
-    [InlineData(5, true)]
+    [TestMethod]
+    [DataRow(0, false)]
+    [DataRow(0, true)]
+    [DataRow(1, false)]
+    [DataRow(1, true)]
+    [DataRow(2, false)]
+    [DataRow(2, true)]
+    [DataRow(3, false)]
+    [DataRow(3, true)]
+    [DataRow(4, false)]
+    [DataRow(4, true)]
+    [DataRow(5, false)]
+    [DataRow(5, true)]
     public void AddKafkaConsumerShouldThrowWhenConnectionNameIsNullOrEmpty(int overrideIndex, bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -74,16 +74,16 @@ public class ConfluentKafkaPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    [InlineData(3)]
-    [InlineData(4)]
-    [InlineData(5)]
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(1)]
+    [DataRow(2)]
+    [DataRow(3)]
+    [DataRow(4)]
+    [DataRow(5)]
     public void AddKeyedKafkaConsumerShouldThrowWhenBuilderIsNull(int overrideIndex)
     {
         IHostApplicationBuilder builder = null!;
@@ -104,22 +104,22 @@ public class ConfluentKafkaPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0, false)]
-    [InlineData(0, true)]
-    [InlineData(1, false)]
-    [InlineData(1, true)]
-    [InlineData(2, false)]
-    [InlineData(2, true)]
-    [InlineData(3, false)]
-    [InlineData(3, true)]
-    [InlineData(4, false)]
-    [InlineData(4, true)]
-    [InlineData(5, false)]
-    [InlineData(5, true)]
+    [TestMethod]
+    [DataRow(0, false)]
+    [DataRow(0, true)]
+    [DataRow(1, false)]
+    [DataRow(1, true)]
+    [DataRow(2, false)]
+    [DataRow(2, true)]
+    [DataRow(3, false)]
+    [DataRow(3, true)]
+    [DataRow(4, false)]
+    [DataRow(4, true)]
+    [DataRow(5, false)]
+    [DataRow(5, true)]
     public void AddKeyedKafkaConsumerShouldThrowWhenConnectionNameIsNullOrEmpty(int overrideIndex, bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -142,16 +142,16 @@ public class ConfluentKafkaPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    [InlineData(3)]
-    [InlineData(4)]
-    [InlineData(5)]
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(1)]
+    [DataRow(2)]
+    [DataRow(3)]
+    [DataRow(4)]
+    [DataRow(5)]
     public void AddKafkaProducerShouldThrowWhenBuilderIsNull(int overrideIndex)
     {
         IHostApplicationBuilder builder = null!;
@@ -172,22 +172,22 @@ public class ConfluentKafkaPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0, false)]
-    [InlineData(0, true)]
-    [InlineData(1, false)]
-    [InlineData(1, true)]
-    [InlineData(2, false)]
-    [InlineData(2, true)]
-    [InlineData(3, false)]
-    [InlineData(3, true)]
-    [InlineData(4, false)]
-    [InlineData(4, true)]
-    [InlineData(5, false)]
-    [InlineData(5, true)]
+    [TestMethod]
+    [DataRow(0, false)]
+    [DataRow(0, true)]
+    [DataRow(1, false)]
+    [DataRow(1, true)]
+    [DataRow(2, false)]
+    [DataRow(2, true)]
+    [DataRow(3, false)]
+    [DataRow(3, true)]
+    [DataRow(4, false)]
+    [DataRow(4, true)]
+    [DataRow(5, false)]
+    [DataRow(5, true)]
     public void AddKafkaProducerShouldThrowWhenConnectionNameIsNullOrEmpty(int overrideIndex, bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -210,16 +210,16 @@ public class ConfluentKafkaPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    [InlineData(3)]
-    [InlineData(4)]
-    [InlineData(5)]
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(1)]
+    [DataRow(2)]
+    [DataRow(3)]
+    [DataRow(4)]
+    [DataRow(5)]
     public void AddKeyedKafkaProducerConsumerShouldThrowWhenBuilderIsNull(int overrideIndex)
     {
         IHostApplicationBuilder builder = null!;
@@ -240,22 +240,22 @@ public class ConfluentKafkaPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0, false)]
-    [InlineData(0, true)]
-    [InlineData(1, false)]
-    [InlineData(1, true)]
-    [InlineData(2, false)]
-    [InlineData(2, true)]
-    [InlineData(3, false)]
-    [InlineData(3, true)]
-    [InlineData(4, false)]
-    [InlineData(4, true)]
-    [InlineData(5, false)]
-    [InlineData(5, true)]
+    [TestMethod]
+    [DataRow(0, false)]
+    [DataRow(0, true)]
+    [DataRow(1, false)]
+    [DataRow(1, true)]
+    [DataRow(2, false)]
+    [DataRow(2, true)]
+    [DataRow(3, false)]
+    [DataRow(3, true)]
+    [DataRow(4, false)]
+    [DataRow(4, true)]
+    [DataRow(5, false)]
+    [DataRow(5, true)]
     public void AddKeyedKafkaProducerShouldThrowWhenConnectionNameIsNullOrEmpty(int overrideIndex, bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -278,6 +278,6 @@ public class ConfluentKafkaPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 }

@@ -9,22 +9,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.FluentUI.AspNetCore.Components;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Dashboard.Components.Tests.Pages;
 
 [UseCulture("en-US")]
-public partial class LoginTests : TestContext
+[TestClass]
+public partial class LoginTests : Bunit.TestContext
 {
-    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly TestContext _testContext;
 
-    public LoginTests(ITestOutputHelper testOutputHelper)
+    public LoginTests(TestContext testContext)
     {
-        _testOutputHelper = testOutputHelper;
+        _testContext = testContext;
     }
 
-    [Fact]
+    [TestMethod]
     public void Initialize_LongRunningAuthStateFunc_EditContextSet()
     {
         // Arrange
@@ -57,7 +56,7 @@ public partial class LoginTests : TestContext
         var textboxModule = JSInterop.SetupModule(GetFluentFile("./_content/Microsoft.FluentUI.AspNetCore.Components/Components/TextField/FluentTextField.razor.js", version));
         textboxModule.SetupVoid("setControlAttribute", _ => true);
 
-        var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(_testOutputHelper);
+        var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(_testContext);
 
         Services.AddLocalization();
         Services.AddSingleton<ILoggerFactory>(loggerFactory);

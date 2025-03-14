@@ -6,36 +6,36 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Qdrant.Tests;
 
+[TestClass]
 public class AddQdrantTests
 {
     private const int QdrantPortGrpc = 6334;
     private const int QdrantPortHttp = 6333;
 
-    [Fact]
+    [TestMethod]
     public void AddQdrantAddsGeneratedApiKeyParameterWithUserSecretsParameterDefaultInRunMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
 
         var qd = appBuilder.AddQdrant("qd");
 
-        Assert.Equal("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", qd.Resource.ApiKeyParameter.Default?.GetType().FullName);
+        Assert.AreEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", qd.Resource.ApiKeyParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddQdrantDoesNotAddGeneratedPasswordParameterWithUserSecretsParameterDefaultInPublishMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
 
         var qd = appBuilder.AddQdrant("qd");
 
-        Assert.NotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", qd.Resource.ApiKeyParameter.Default?.GetType().FullName);
+        Assert.AreNotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", qd.Resource.ApiKeyParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddQdrantWithDefaultsAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -45,36 +45,36 @@ public class AddQdrantTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.GetContainerResources());
-        Assert.Equal("my-qdrant", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.GetContainerResources());
+        Assert.AreEqual("my-qdrant", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(QdrantContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(QdrantContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(QdrantContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(QdrantContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(QdrantContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(QdrantContainerImageTags.Registry, containerAnnotation.Registry);
 
         var endpoint = containerResource.Annotations.OfType<EndpointAnnotation>()
             .FirstOrDefault(e => e.Name == "grpc");
-        Assert.NotNull(endpoint);
-        Assert.Equal(QdrantPortGrpc, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("grpc", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("http2", endpoint.Transport);
-        Assert.Equal("http", endpoint.UriScheme);
+        Assert.IsNotNull(endpoint);
+        Assert.AreEqual(QdrantPortGrpc, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("grpc", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("http2", endpoint.Transport);
+        Assert.AreEqual("http", endpoint.UriScheme);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("QDRANT__SERVICE__API_KEY", env.Key);
-                Assert.False(string.IsNullOrEmpty(env.Value));
+                Assert.AreEqual("QDRANT__SERVICE__API_KEY", env.Key);
+                Assert.IsFalse(string.IsNullOrEmpty(env.Value));
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void AddQdrantWithDefaultsAndDashboardAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -84,28 +84,28 @@ public class AddQdrantTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.GetContainerResources());
-        Assert.Equal("my-qdrant", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.GetContainerResources());
+        Assert.AreEqual("my-qdrant", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(QdrantContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(QdrantContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(QdrantContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(QdrantContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(QdrantContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(QdrantContainerImageTags.Registry, containerAnnotation.Registry);
 
         var endpoint = containerResource.Annotations.OfType<EndpointAnnotation>()
             .FirstOrDefault(e => e.Name == "http");
 
-        Assert.NotNull(endpoint);
-        Assert.Equal(QdrantPortHttp, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("http", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("http", endpoint.Transport);
-        Assert.Equal("http", endpoint.UriScheme);
+        Assert.IsNotNull(endpoint);
+        Assert.AreEqual(QdrantPortHttp, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("http", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("http", endpoint.Transport);
+        Assert.AreEqual("http", endpoint.UriScheme);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddQdrantAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -117,36 +117,36 @@ public class AddQdrantTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.GetContainerResources());
-        Assert.Equal("my-qdrant", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.GetContainerResources());
+        Assert.AreEqual("my-qdrant", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(QdrantContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(QdrantContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(QdrantContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(QdrantContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(QdrantContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(QdrantContainerImageTags.Registry, containerAnnotation.Registry);
 
         var endpoint = containerResource.Annotations.OfType<EndpointAnnotation>()
             .FirstOrDefault(e => e.Name == "grpc");
-        Assert.NotNull(endpoint);
-        Assert.Equal(QdrantPortGrpc, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("grpc", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("http2", endpoint.Transport);
-        Assert.Equal("http", endpoint.UriScheme);
+        Assert.IsNotNull(endpoint);
+        Assert.AreEqual(QdrantPortGrpc, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("grpc", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("http2", endpoint.Transport);
+        Assert.AreEqual("http", endpoint.UriScheme);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("QDRANT__SERVICE__API_KEY", env.Key);
-                Assert.Equal("pass", env.Value);
+                Assert.AreEqual("QDRANT__SERVICE__API_KEY", env.Key);
+                Assert.AreEqual("pass", env.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task QdrantCreatesConnectionString()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -159,10 +159,10 @@ public class AddQdrantTests
         var connectionStringResource = qdrant.Resource as IResourceWithConnectionString;
 
         var connectionString = await connectionStringResource.GetConnectionStringAsync();
-        Assert.Equal($"Endpoint=http://localhost:6334;Key=pass", connectionString);
+        Assert.AreEqual($"Endpoint=http://localhost:6334;Key=pass", connectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task QdrantClientAppWithReferenceContainsConnectionStrings()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -180,7 +180,7 @@ public class AddQdrantTests
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(projectA.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
         var servicesKeysCount = config.Keys.Count(k => k.StartsWith("ConnectionStrings__"));
-        Assert.Equal(2, servicesKeysCount);
+        Assert.AreEqual(2, servicesKeysCount);
 
         Assert.Contains(config, kvp => kvp.Key == "ConnectionStrings__my-qdrant" && kvp.Value == "Endpoint=http://localhost:6334;Key=pass");
         Assert.Contains(config, kvp => kvp.Key == "ConnectionStrings__my-qdrant_http" && kvp.Value == "Endpoint=http://localhost:6333;Key=pass");
@@ -192,13 +192,13 @@ public class AddQdrantTests
         var containerConfig = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(container1.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
         var containerServicesKeysCount = containerConfig.Keys.Count(k => k.StartsWith("ConnectionStrings__"));
-        Assert.Equal(2, containerServicesKeysCount);
+        Assert.AreEqual(2, containerServicesKeysCount);
 
         Assert.Contains(containerConfig, kvp => kvp.Key == "ConnectionStrings__my-qdrant" && kvp.Value == "Endpoint=http://my-qdrant:6334;Key=pass");
         Assert.Contains(containerConfig, kvp => kvp.Key == "ConnectionStrings__my-qdrant_http" && kvp.Value == "Endpoint=http://my-qdrant:6333;Key=pass");
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifest()
     {
         var appBuilder = DistributedApplication.CreateBuilder(new DistributedApplicationOptions() { Args = new string[] { "--publisher", "manifest" } } );
@@ -231,10 +231,10 @@ public class AddQdrantTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, serverManifest.ToString());
+        Assert.AreEqual(expectedManifest, serverManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithParameters()
     {
         var appBuilder = DistributedApplication.CreateBuilder(new DistributedApplicationOptions() { Args = new string[] { "--publisher", "manifest" } });
@@ -269,10 +269,10 @@ public class AddQdrantTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, serverManifest.ToString());
+        Assert.AreEqual(expectedManifest, serverManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void AddQdrantWithSpecifyingPorts()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -283,26 +283,26 @@ public class AddQdrantTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var qdrantResource = Assert.Single(appModel.Resources.OfType<QdrantServerResource>());
-        Assert.Equal("my-qdrant", qdrantResource.Name);
+        var qdrantResource = Assert.ContainsSingle(appModel.Resources.OfType<QdrantServerResource>());
+        Assert.AreEqual("my-qdrant", qdrantResource.Name);
 
-        Assert.Equal(2, qdrantResource.Annotations.OfType<EndpointAnnotation>().Count());
+        Assert.AreEqual(2, qdrantResource.Annotations.OfType<EndpointAnnotation>().Count());
 
         var grpcEndpoint = qdrantResource.Annotations.OfType<EndpointAnnotation>().Single(e => e.Name == "grpc");
-        Assert.Equal(6334, grpcEndpoint.TargetPort);
-        Assert.False(grpcEndpoint.IsExternal);
-        Assert.Equal(5503, grpcEndpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, grpcEndpoint.Protocol);
-        Assert.Equal("http2", grpcEndpoint.Transport);
-        Assert.Equal("http", grpcEndpoint.UriScheme);
+        Assert.AreEqual(6334, grpcEndpoint.TargetPort);
+        Assert.IsFalse(grpcEndpoint.IsExternal);
+        Assert.AreEqual(5503, grpcEndpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, grpcEndpoint.Protocol);
+        Assert.AreEqual("http2", grpcEndpoint.Transport);
+        Assert.AreEqual("http", grpcEndpoint.UriScheme);
 
         var httpEndpoint = qdrantResource.Annotations.OfType<EndpointAnnotation>().Single(e => e.Name == "http");
-        Assert.Equal(6333, httpEndpoint.TargetPort);
-        Assert.False(httpEndpoint.IsExternal);
-        Assert.Equal(5504, httpEndpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, httpEndpoint.Protocol);
-        Assert.Equal("http", httpEndpoint.Transport);
-        Assert.Equal("http", httpEndpoint.UriScheme);
+        Assert.AreEqual(6333, httpEndpoint.TargetPort);
+        Assert.IsFalse(httpEndpoint.IsExternal);
+        Assert.AreEqual(5504, httpEndpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, httpEndpoint.Protocol);
+        Assert.AreEqual("http", httpEndpoint.Transport);
+        Assert.AreEqual("http", httpEndpoint.UriScheme);
     }
 
     private sealed class ProjectA : IProjectMetadata

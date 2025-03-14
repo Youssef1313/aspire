@@ -16,15 +16,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
-using Xunit;
 using Xunit.Abstractions;
 using Aspire.Hosting.Devcontainers;
 
 namespace Aspire.Hosting.Tests.Dashboard;
 
-public class DashboardLifecycleHookTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class DashboardLifecycleHookTests(TestContext testContext)
 {
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(Data))]
     public async Task WatchDashboardLogs_WrittenToHostLoggerFactory(DateTime? timestamp, string logMessage, string expectedMessage, string expectedCategory, LogLevel expectedLevel)
     {
@@ -34,7 +34,7 @@ public class DashboardLifecycleHookTests(ITestOutputHelper testOutputHelper)
         {
             b.SetMinimumLevel(LogLevel.Trace);
             b.AddProvider(new TestLoggerProvider(testSink));
-            b.AddXunit(testOutputHelper);
+            b.AddMSTest(testContext);
         });
         var logChannel = Channel.CreateUnbounded<WriteContext>();
         testSink.MessageLogged += c => logChannel.Writer.TryWrite(c);
@@ -69,14 +69,14 @@ public class DashboardLifecycleHookTests(ITestOutputHelper testOutputHelper)
             var logContext = await logChannel.Reader.ReadAsync().DefaultTimeout();
             if (logContext.LoggerName == expectedCategory)
             {
-                Assert.Equal(expectedMessage, logContext.Message);
-                Assert.Equal(expectedLevel, logContext.LogLevel);
+                Assert.AreEqual(expectedMessage, logContext.Message);
+                Assert.AreEqual(expectedLevel, logContext.LogLevel);
                 break;
             }
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task BeforeStartAsync_ExcludeLifecycleCommands_CommandsNotAddedToDashboard()
     {
         // Arrange
@@ -93,8 +93,8 @@ public class DashboardLifecycleHookTests(ITestOutputHelper testOutputHelper)
         dashboardResource.AddLifeCycleCommands();
 
         // Assert
-        Assert.Single(dashboardResource.Annotations.OfType<ExcludeLifecycleCommandsAnnotation>());
-        Assert.Empty(dashboardResource.Annotations.OfType<ResourceCommandAnnotation>());
+        Assert.ContainsSingle(dashboardResource.Annotations.OfType<ExcludeLifecycleCommandsAnnotation>());
+        Assert.IsEmpty(dashboardResource.Annotations.OfType<ResourceCommandAnnotation>());
     }
 
     private static DashboardLifecycleHook CreateHook(

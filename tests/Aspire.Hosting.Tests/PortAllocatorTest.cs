@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Hosting.Publishing;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class PortAllocatorTest
 {
-    [Fact]
+    [TestMethod]
     public void CanAllocatePorts()
     {
         var allocator = new PortAllocator(1000);
@@ -16,11 +16,11 @@ public class PortAllocatorTest
         allocator.AddUsedPort(port1);
         var port2 = allocator.AllocatePort();
 
-        Assert.Equal(1000, port1);
-        Assert.Equal(1001, port2);
+        Assert.AreEqual(1000, port1);
+        Assert.AreEqual(1001, port2);
     }
 
-    [Fact]
+    [TestMethod]
     public void SkipUsedPorts()
     {
         var allocator = new PortAllocator(1000);
@@ -31,7 +31,7 @@ public class PortAllocatorTest
         allocator.AddUsedPort(port1);
         var port2 = allocator.AllocatePort();
 
-        Assert.Equal(1002, port1);
-        Assert.Equal(1004, port2);
+        Assert.AreEqual(1002, port1);
+        Assert.AreEqual(1004, port2);
     }
 }

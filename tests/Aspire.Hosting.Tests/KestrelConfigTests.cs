@@ -5,13 +5,13 @@ using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class KestrelConfigTests
 {
-    [Fact]
+    [TestMethod]
     public async Task SingleKestrelHttpEndpointIsNamedHttpAndOverridesProfile()
     {
         var resource = CreateTestProjectResource<ProjectWithProfileEndpointAndKestrelHttpEndpoint>(
@@ -21,18 +21,18 @@ public class KestrelConfigTests
                 builder.WithHttpEndpoint(5017, name: "ExplicitHttp");
             });
 
-        Assert.Collection(
+        Assert.That.Collection(
             resource.Annotations.OfType<EndpointAnnotation>(),
             a =>
             {
                 // Endpoint is named "http", because there is only one Kestrel http endpoint
-                Assert.Equal("http", a.Name);
-                Assert.Equal("http", a.UriScheme);
-                Assert.Equal(5002, a.Port);
+                Assert.AreEqual("http", a.Name);
+                Assert.AreEqual("http", a.UriScheme);
+                Assert.AreEqual(5002, a.Port);
             },
             a =>
             {
-                Assert.Equal("ExplicitHttp", a.Name);
+                Assert.AreEqual("ExplicitHttp", a.Name);
             }
             );
 
@@ -41,13 +41,13 @@ public class KestrelConfigTests
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
         // When using Kestrel, we should not be setting ASPNETCORE_URLS at all
-        Assert.False(config.ContainsKey("ASPNETCORE_URLS"));
+        Assert.IsFalse(config.ContainsKey("ASPNETCORE_URLS"));
 
         // Instead, we should be setting the Kestrel override
-        Assert.Equal("http://*:port_http", config["Kestrel__Endpoints__http__Url"]);
+        Assert.AreEqual("http://*:port_http", config["Kestrel__Endpoints__http__Url"]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task KestrelHttpEndpointsAreIgnoredWhenFlagIsSet()
     {
         var resource = CreateTestProjectResource<ProjectWithProfileEndpointAndKestrelHttpEndpoint>(
@@ -58,19 +58,19 @@ public class KestrelConfigTests
             },
             options => { options.ExcludeKestrelEndpoints = true; });
 
-        Assert.Collection(
+        Assert.That.Collection(
             resource.Annotations.OfType<EndpointAnnotation>(),
             a =>
             {
-                Assert.Equal("http", a.Name);
-                Assert.Equal("http", a.UriScheme);
-                Assert.Equal(5031, a.Port);
+                Assert.AreEqual("http", a.Name);
+                Assert.AreEqual("http", a.UriScheme);
+                Assert.AreEqual(5031, a.Port);
             },
             a =>
             {
-                Assert.Equal("ExplicitHttp", a.Name);
-                Assert.Equal("http", a.UriScheme);
-                Assert.Equal(5017, a.Port);
+                Assert.AreEqual("ExplicitHttp", a.Name);
+                Assert.AreEqual("http", a.UriScheme);
+                Assert.AreEqual(5017, a.Port);
             }
             );
 
@@ -79,56 +79,56 @@ public class KestrelConfigTests
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
         // We're ignoring Kestrel, so we should be setting ASPNETCORE_URLS
-        Assert.Equal("http://localhost:port_http;http://localhost:port_ExplicitHttp", config["ASPNETCORE_URLS"]);
+        Assert.AreEqual("http://localhost:port_http;http://localhost:port_ExplicitHttp", config["ASPNETCORE_URLS"]);
 
         // And we should not be setting the Kestrel override
-        Assert.False(config.ContainsKey("Kestrel__Endpoints__http__Url"));
+        Assert.IsFalse(config.ContainsKey("Kestrel__Endpoints__http__Url"));
     }
 
-    [Fact]
+    [TestMethod]
     public void SingleKestrelHttpsEndpointIsNamedHttps()
     {
         var resource = CreateTestProjectResource<ProjectWithKestrelHttpsEndpoint>(operation: DistributedApplicationOperation.Run);
 
-        Assert.Collection(
+        Assert.That.Collection(
             resource.Annotations.OfType<EndpointAnnotation>(),
             a =>
             {
                 // Endpoint is named "https", because there is only one Kestrel https endpoint
-                Assert.Equal("https", a.Name);
-                Assert.Equal("https", a.UriScheme);
-                Assert.Equal(7002, a.Port);
+                Assert.AreEqual("https", a.Name);
+                Assert.AreEqual("https", a.UriScheme);
+                Assert.AreEqual(7002, a.Port);
             }
             );
     }
 
-    [Fact]
+    [TestMethod]
     public void MultipleKestrelHttpEndpointsKeepTheirNames()
     {
         var resource = CreateTestProjectResource<ProjectWithMultipleHttpKestrelEndpoints>(operation: DistributedApplicationOperation.Run);
 
-        Assert.Collection(
+        Assert.That.Collection(
             resource.Annotations.OfType<EndpointAnnotation>(),
             a =>
             {
                 // Endpoints keep their config names because there are multiple Kestrel http endpoints
-                Assert.Equal("FirstHttpEndpoint", a.Name);
-                Assert.Equal("http", a.UriScheme);
-                Assert.Equal(5002, a.Port);
+                Assert.AreEqual("FirstHttpEndpoint", a.Name);
+                Assert.AreEqual("http", a.UriScheme);
+                Assert.AreEqual(5002, a.Port);
                 // The Http2 specified in Kestrel EndpointDefaults was overriden at Endpoint level
-                Assert.Equal("http", a.Transport);
+                Assert.AreEqual("http", a.Transport);
             },
             a =>
             {
-                Assert.Equal("SecondHttpEndpoint", a.Name);
-                Assert.Equal("http", a.UriScheme);
-                Assert.Equal(5003, a.Port);
-                Assert.Equal("http2", a.Transport);
+                Assert.AreEqual("SecondHttpEndpoint", a.Name);
+                Assert.AreEqual("http", a.UriScheme);
+                Assert.AreEqual(5003, a.Port);
+                Assert.AreEqual("http2", a.Transport);
             }
             );
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ExplicitEndpointsResultInKestrelOverridesAtRuntime()
     {
         var resource = CreateTestProjectResource<ProjectWithMultipleHttpKestrelEndpoints>(
@@ -143,33 +143,33 @@ public class KestrelConfigTests
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
-        Assert.Collection(
+        Assert.That.Collection(
             config.Where(envVar => envVar.Key.StartsWith("Kestrel__")),
             envVar =>
             {
-                Assert.Equal("Kestrel__Endpoints__FirstHttpEndpoint__Url", envVar.Key);
-                Assert.Equal("http://*:port_FirstHttpEndpoint", envVar.Value);
+                Assert.AreEqual("Kestrel__Endpoints__FirstHttpEndpoint__Url", envVar.Key);
+                Assert.AreEqual("http://*:port_FirstHttpEndpoint", envVar.Value);
             },
             envVar =>
             {
-                Assert.Equal("Kestrel__Endpoints__SecondHttpEndpoint__Url", envVar.Key);
+                Assert.AreEqual("Kestrel__Endpoints__SecondHttpEndpoint__Url", envVar.Key);
                 // Note that localhost (from Kestrel config) is preserved at runtime
-                Assert.Equal("http://localhost:port_SecondHttpEndpoint", envVar.Value);
+                Assert.AreEqual("http://localhost:port_SecondHttpEndpoint", envVar.Value);
             },
             envVar =>
             {
-                Assert.Equal("Kestrel__Endpoints__ExplicitProxiedHttp__Url", envVar.Key);
-                Assert.Equal("http://*:port_ExplicitProxiedHttp", envVar.Value);
+                Assert.AreEqual("Kestrel__Endpoints__ExplicitProxiedHttp__Url", envVar.Key);
+                Assert.AreEqual("http://*:port_ExplicitProxiedHttp", envVar.Value);
             },
             envVar =>
             {
-                Assert.Equal("Kestrel__Endpoints__ExplicitNoProxyHttp__Url", envVar.Key);
-                Assert.Equal("http://*:5018", envVar.Value);
+                Assert.AreEqual("Kestrel__Endpoints__ExplicitNoProxyHttp__Url", envVar.Key);
+                Assert.AreEqual("http://*:5018", envVar.Value);
             }
             );
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyKestrelEndpointManifestGeneration()
     {
         var resource = CreateTestProjectResource<ProjectWithOnlyKestrelHttpEndpoint>();
@@ -204,10 +204,10 @@ public class KestrelConfigTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyMultipleKestrelEndpointsManifestGeneration()
     {
         var resource = CreateTestProjectResource<ProjectWithMultipleHttpKestrelEndpoints>(
@@ -271,10 +271,10 @@ public class KestrelConfigTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyKestrelEnvVariablesGetOmittedFromManifestIfExcluded()
     {
         var resource = CreateTestProjectResource<ProjectWithMultipleHttpKestrelEndpoints>(
@@ -302,10 +302,10 @@ public class KestrelConfigTests
             }
             """;
 
-        Assert.Equal(expectedEnv, manifest["env"]!.ToString());
+        Assert.AreEqual(expectedEnv, manifest["env"]!.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyEndpointLevelKestrelProtocol()
     {
         var resource = CreateTestProjectResource<ProjectWithKestrelEndpointsLevelProtocols>(
@@ -342,7 +342,7 @@ public class KestrelConfigTests
             }
             """;
 
-        Assert.Equal(expectedBindings, manifest!["bindings"]!.ToString());
+        Assert.AreEqual(expectedBindings, manifest!["bindings"]!.ToString());
     }
 
     private static ProjectResource CreateTestProjectResource<TProject>(
@@ -359,7 +359,7 @@ public class KestrelConfigTests
         DistributedApplication app = appBuilder.Build();
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var projectResources = appModel.GetProjectResources();
-        return Assert.Single(projectResources);
+        return Assert.ContainsSingle(projectResources);
     }
 
     private sealed class ProjectWithOnlyKestrelHttpEndpoint : ProjectResourceTests.BaseProjectWithProfileAndConfig

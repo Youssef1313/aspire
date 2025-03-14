@@ -36,7 +36,7 @@ public sealed class ProjectInfo
         return Client.GetStringAsync(url, cancellationToken);
     }
 
-    public async Task WaitForHealthyStatusAsync(string bindingName, ITestOutputHelper testOutput, CancellationToken cancellationToken = default)
+    public async Task WaitForHealthyStatusAsync(string bindingName, TestContext testOutput, CancellationToken cancellationToken = default)
     {
         while (true)
         {

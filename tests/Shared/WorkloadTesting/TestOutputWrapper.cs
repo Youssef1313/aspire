@@ -1,18 +1,42 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit.Abstractions;
-using Xunit.Sdk;
-using System.Globalization;
+using System.Collections;
 
 namespace Aspire.Workload.Tests;
 
-public class TestOutputWrapper(ITestOutputHelper? testOutputHelper = null, IMessageSink? messageSink = null, bool forceShowBuildOutput = false) : ITestOutputHelper
+public class TestOutputWrapper(TestContext? testContext = null, bool forceShowBuildOutput = false) : TestContext
 {
-    public void WriteLine(string message)
+    public override IDictionary Properties => throw new NotImplementedException();
+
+    public override void AddResultFile(string fileName)
+        => testContext?.AddResultFile(fileName);
+
+    public override void DisplayMessage(MessageLevel messageLevel, string message)
+        => testContext?.DisplayMessage(messageLevel, message);
+
+    public override void Write(string? message)
     {
-        testOutputHelper?.WriteLine(message);
-        messageSink?.OnMessage(new DiagnosticMessage(message));
+        testContext?.Write(message);
+
+        if (forceShowBuildOutput || EnvironmentVariables.ShowBuildOutput)
+        {
+            Console.Write(message);
+        }
+    }
+
+    public override void Write(string format, params object?[] args)
+    {
+        testContext?.Write(format, args);
+        if (forceShowBuildOutput || EnvironmentVariables.ShowBuildOutput)
+        {
+            Console.Write(format, args);
+        }
+    }
+
+    public override void WriteLine(string? message)
+    {
+        testContext?.WriteLine(message);
 
         if (forceShowBuildOutput || EnvironmentVariables.ShowBuildOutput)
         {
@@ -20,10 +44,9 @@ public class TestOutputWrapper(ITestOutputHelper? testOutputHelper = null, IMess
         }
     }
 
-    public void WriteLine(string format, params object[] args)
+    public override void WriteLine(string format, params object?[] args)
     {
-        testOutputHelper?.WriteLine(format, args);
-        messageSink?.OnMessage(new DiagnosticMessage(string.Format(CultureInfo.CurrentCulture, format, args)));
+        testContext?.WriteLine(format, args);
         if (forceShowBuildOutput || EnvironmentVariables.ShowBuildOutput)
         {
             Console.WriteLine(format, args);

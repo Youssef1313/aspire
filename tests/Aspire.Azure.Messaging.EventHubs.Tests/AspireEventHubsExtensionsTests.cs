@@ -12,10 +12,10 @@ using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Messaging.EventHubs.Tests;
 
+[TestClass]
 public class AspireEventHubsExtensionsTests
 {
     private const string AspireEventHubsSection = "Aspire:Azure:Messaging:EventHubs:";
@@ -70,9 +70,9 @@ public class AspireEventHubsExtensionsTests
         }
     }
 
-    [Theory]
-    [InlineData(false, EventProcessorClientIndex)]
-    [InlineData(true, EventProcessorClientIndex)]
+    [TestMethod]
+    [DataRow(false, EventProcessorClientIndex)]
+    [DataRow(true, EventProcessorClientIndex)]
     public void ProcessorClientShouldNotTryCreateContainerWithBlobContainerSpecified(bool useKeyed, int clientIndex)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -109,17 +109,17 @@ public class AspireEventHubsExtensionsTests
         RetrieveAndAssert(useKeyed, clientIndex, host);
     }
 
-    [Theory]
-    [InlineData(false, EventHubProducerClientIndex)]
-    [InlineData(true, EventHubProducerClientIndex)]
-    [InlineData(false, EventHubConsumerClientIndex)]
-    [InlineData(true, EventHubConsumerClientIndex)]
-    [InlineData(false, EventProcessorClientIndex)]
-    [InlineData(true, EventProcessorClientIndex)]
-    [InlineData(false, PartitionReceiverIndex)]
-    [InlineData(true, PartitionReceiverIndex)]
-    [InlineData(false, EventBufferedProducerClientIndex)]
-    [InlineData(true, EventBufferedProducerClientIndex)]
+    [TestMethod]
+    [DataRow(false, EventHubProducerClientIndex)]
+    [DataRow(true, EventHubProducerClientIndex)]
+    [DataRow(false, EventHubConsumerClientIndex)]
+    [DataRow(true, EventHubConsumerClientIndex)]
+    [DataRow(false, EventProcessorClientIndex)]
+    [DataRow(true, EventProcessorClientIndex)]
+    [DataRow(false, PartitionReceiverIndex)]
+    [DataRow(true, PartitionReceiverIndex)]
+    [DataRow(false, EventBufferedProducerClientIndex)]
+    [DataRow(true, EventBufferedProducerClientIndex)]
     public void BindsClientOptionsFromConfigurationWithNamespace(bool useKeyed, int clientIndex)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -174,21 +174,21 @@ public class AspireEventHubsExtensionsTests
             _ => null
         };
 
-        Assert.NotNull(assignedIdentifier);
-        Assert.Equal("customidentifier", assignedIdentifier);
+        Assert.IsNotNull(assignedIdentifier);
+        Assert.AreEqual("customidentifier", assignedIdentifier);
     }
 
-    [Theory]
-    [InlineData(false, EventHubProducerClientIndex)]
-    [InlineData(true, EventHubProducerClientIndex)]
-    [InlineData(false, EventHubConsumerClientIndex)]
-    [InlineData(true, EventHubConsumerClientIndex)]
-    [InlineData(false, EventProcessorClientIndex)]
-    [InlineData(true, EventProcessorClientIndex)]
-    [InlineData(false, PartitionReceiverIndex)]
-    [InlineData(true, PartitionReceiverIndex)]
-    [InlineData(false, EventBufferedProducerClientIndex)]
-    [InlineData(true, EventBufferedProducerClientIndex)]
+    [TestMethod]
+    [DataRow(false, EventHubProducerClientIndex)]
+    [DataRow(true, EventHubProducerClientIndex)]
+    [DataRow(false, EventHubConsumerClientIndex)]
+    [DataRow(true, EventHubConsumerClientIndex)]
+    [DataRow(false, EventProcessorClientIndex)]
+    [DataRow(true, EventProcessorClientIndex)]
+    [DataRow(false, PartitionReceiverIndex)]
+    [DataRow(true, PartitionReceiverIndex)]
+    [DataRow(false, EventBufferedProducerClientIndex)]
+    [DataRow(true, EventBufferedProducerClientIndex)]
     public void BindsClientOptionsFromConfigurationWithConnectionString(bool useKeyed, int clientIndex)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -236,21 +236,21 @@ public class AspireEventHubsExtensionsTests
             _ => null
         };
 
-        Assert.NotNull(assignedIdentifier);
-        Assert.Equal("customidentifier", assignedIdentifier);
+        Assert.IsNotNull(assignedIdentifier);
+        Assert.AreEqual("customidentifier", assignedIdentifier);
     }
 
-    [Theory]
-    [InlineData(false, EventHubProducerClientIndex)]
-    [InlineData(true, EventHubProducerClientIndex)]
-    [InlineData(false, EventHubConsumerClientIndex)]
-    [InlineData(true, EventHubConsumerClientIndex)]
-    [InlineData(false, EventProcessorClientIndex)]
-    [InlineData(true, EventProcessorClientIndex)]
-    [InlineData(false, PartitionReceiverIndex)]
-    [InlineData(true, PartitionReceiverIndex)]
-    [InlineData(false, EventBufferedProducerClientIndex)]
-    [InlineData(true, EventBufferedProducerClientIndex)]
+    [TestMethod]
+    [DataRow(false, EventHubProducerClientIndex)]
+    [DataRow(true, EventHubProducerClientIndex)]
+    [DataRow(false, EventHubConsumerClientIndex)]
+    [DataRow(true, EventHubConsumerClientIndex)]
+    [DataRow(false, EventProcessorClientIndex)]
+    [DataRow(true, EventProcessorClientIndex)]
+    [DataRow(false, PartitionReceiverIndex)]
+    [DataRow(true, PartitionReceiverIndex)]
+    [DataRow(false, EventBufferedProducerClientIndex)]
+    [DataRow(true, EventBufferedProducerClientIndex)]
     public void BindsClientOptionsFromConfigurationWithConnectionStringAndEventHubName(bool useKeyed, int clientIndex)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -302,21 +302,21 @@ public class AspireEventHubsExtensionsTests
             _ => null
         };
 
-        Assert.NotNull(assignedIdentifier);
-        Assert.Equal("customidentifier", assignedIdentifier);
+        Assert.IsNotNull(assignedIdentifier);
+        Assert.AreEqual("customidentifier", assignedIdentifier);
     }
 
-    [Theory]
-    [InlineData(false, EventHubProducerClientIndex)]
-    [InlineData(true, EventHubProducerClientIndex)]
-    [InlineData(false, EventHubConsumerClientIndex)]
-    [InlineData(true, EventHubConsumerClientIndex)]
-    [InlineData(false, EventProcessorClientIndex)]
-    [InlineData(true, EventProcessorClientIndex)]
-    [InlineData(false, PartitionReceiverIndex)]
-    [InlineData(true, PartitionReceiverIndex)]
-    [InlineData(false, EventBufferedProducerClientIndex)]
-    [InlineData(true, EventBufferedProducerClientIndex)]
+    [TestMethod]
+    [DataRow(false, EventHubProducerClientIndex)]
+    [DataRow(true, EventHubProducerClientIndex)]
+    [DataRow(false, EventHubConsumerClientIndex)]
+    [DataRow(true, EventHubConsumerClientIndex)]
+    [DataRow(false, EventProcessorClientIndex)]
+    [DataRow(true, EventProcessorClientIndex)]
+    [DataRow(false, PartitionReceiverIndex)]
+    [DataRow(true, PartitionReceiverIndex)]
+    [DataRow(false, EventBufferedProducerClientIndex)]
+    [DataRow(true, EventBufferedProducerClientIndex)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed, int clientIndex)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -352,17 +352,17 @@ public class AspireEventHubsExtensionsTests
         RetrieveAndAssert(useKeyed, clientIndex, host);
     }
 
-    [Theory]
-    [InlineData(false, EventHubProducerClientIndex)]
-    [InlineData(true, EventHubProducerClientIndex)]
-    [InlineData(false, EventHubConsumerClientIndex)]
-    [InlineData(true, EventHubConsumerClientIndex)]
-    [InlineData(false, EventProcessorClientIndex)]
-    [InlineData(true, EventProcessorClientIndex)]
-    [InlineData(false, PartitionReceiverIndex)]
-    [InlineData(true, PartitionReceiverIndex)]
-    [InlineData(false, EventBufferedProducerClientIndex)]
-    [InlineData(true, EventBufferedProducerClientIndex)]
+    [TestMethod]
+    [DataRow(false, EventHubProducerClientIndex)]
+    [DataRow(true, EventHubProducerClientIndex)]
+    [DataRow(false, EventHubConsumerClientIndex)]
+    [DataRow(true, EventHubConsumerClientIndex)]
+    [DataRow(false, EventProcessorClientIndex)]
+    [DataRow(true, EventProcessorClientIndex)]
+    [DataRow(false, PartitionReceiverIndex)]
+    [DataRow(true, PartitionReceiverIndex)]
+    [DataRow(false, EventBufferedProducerClientIndex)]
+    [DataRow(true, EventBufferedProducerClientIndex)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed, int clientIndex)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -400,17 +400,17 @@ public class AspireEventHubsExtensionsTests
         RetrieveAndAssert(useKeyed, clientIndex, host);
     }
 
-    [Theory]
-    [InlineData(false, EventHubProducerClientIndex)]
-    [InlineData(true, EventHubProducerClientIndex)]
-    [InlineData(false, EventHubConsumerClientIndex)]
-    [InlineData(true, EventHubConsumerClientIndex)]
-    [InlineData(false, EventProcessorClientIndex)]
-    [InlineData(true, EventProcessorClientIndex)]
-    [InlineData(false, PartitionReceiverIndex)]
-    [InlineData(true, PartitionReceiverIndex)]
-    [InlineData(false, EventBufferedProducerClientIndex)]
-    [InlineData(true, EventBufferedProducerClientIndex)]
+    [TestMethod]
+    [DataRow(false, EventHubProducerClientIndex)]
+    [DataRow(true, EventHubProducerClientIndex)]
+    [DataRow(false, EventHubConsumerClientIndex)]
+    [DataRow(true, EventHubConsumerClientIndex)]
+    [DataRow(false, EventProcessorClientIndex)]
+    [DataRow(true, EventProcessorClientIndex)]
+    [DataRow(false, PartitionReceiverIndex)]
+    [DataRow(true, PartitionReceiverIndex)]
+    [DataRow(false, EventBufferedProducerClientIndex)]
+    [DataRow(true, EventBufferedProducerClientIndex)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed, int clientIndex)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -472,7 +472,7 @@ public class AspireEventHubsExtensionsTests
 
     private static void AssertFullyQualifiedNamespace(string expectedNamespace, object client)
     {
-        Assert.Equal(expectedNamespace, client switch
+        Assert.AreEqual(expectedNamespace, client switch
         {
             EventHubProducerClient producer => producer.FullyQualifiedNamespace,
             EventHubConsumerClient consumer => consumer.FullyQualifiedNamespace,
@@ -483,16 +483,16 @@ public class AspireEventHubsExtensionsTests
         });
     }
 
-    [Theory]
-    [InlineData(false, EventHubProducerClientIndex)]
-    [InlineData(true, EventHubProducerClientIndex)]
-    [InlineData(false, EventHubConsumerClientIndex)]
-    [InlineData(true, EventHubConsumerClientIndex)]
-    [InlineData(false, EventProcessorClientIndex)]
-    [InlineData(true, EventProcessorClientIndex)]
-    [InlineData(false, PartitionReceiverIndex)]
-    [InlineData(true, PartitionReceiverIndex)]
-    [InlineData(false, EventBufferedProducerClientIndex)]
+    [TestMethod]
+    [DataRow(false, EventHubProducerClientIndex)]
+    [DataRow(true, EventHubProducerClientIndex)]
+    [DataRow(false, EventHubConsumerClientIndex)]
+    [DataRow(true, EventHubConsumerClientIndex)]
+    [DataRow(false, EventProcessorClientIndex)]
+    [DataRow(true, EventProcessorClientIndex)]
+    [DataRow(false, PartitionReceiverIndex)]
+    [DataRow(true, PartitionReceiverIndex)]
+    [DataRow(false, EventBufferedProducerClientIndex)]
     public void NamespaceWorksInConnectionStrings(bool useKeyed, int clientIndex)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -535,12 +535,12 @@ public class AspireEventHubsExtensionsTests
         RetrieveAndAssert(useKeyed, clientIndex, host);
     }
 
-    [Theory]
-    [InlineData(EventHubProducerClientIndex)]
-    [InlineData(EventHubConsumerClientIndex)]
-    [InlineData(EventProcessorClientIndex)]
-    [InlineData(PartitionReceiverIndex)]
-    [InlineData(EventBufferedProducerClientIndex)]
+    [TestMethod]
+    [DataRow(EventHubProducerClientIndex)]
+    [DataRow(EventHubConsumerClientIndex)]
+    [DataRow(EventProcessorClientIndex)]
+    [DataRow(PartitionReceiverIndex)]
+    [DataRow(EventBufferedProducerClientIndex)]
     public void CanAddMultipleKeyedServices(int clientIndex)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -571,9 +571,9 @@ public class AspireEventHubsExtensionsTests
         var client2 = RetrieveClient(key: "eh2", clientIndex, host);
         var client3 = RetrieveClient(key: "eh3", clientIndex, host);
 
-        //Assert.NotSame(client1, client2);
-        //Assert.NotSame(client1, client3);
-        Assert.NotSame(client2, client3);
+        //Assert.AreNotSame(client1, client2);
+        //Assert.AreNotSame(client1, client3);
+        Assert.AreNotSame(client2, client3);
 
         //AssertFullyQualifiedNamespace("aspireeventhubstests.servicebus.windows.net", client1);
         AssertFullyQualifiedNamespace("aspireeventhubstests2.servicebus.windows.net", client2);
@@ -587,7 +587,7 @@ public class AspireEventHubsExtensionsTests
     /// Tests that the BlobContainerName defaults correctly when the connection string doesn't contain ".servicebus" and
     /// contains invalid container name characters.
     /// </summary>
-    [Fact]
+    [TestMethod]
     public void ProcessorBlobContainerNameDefaultsCorrectly()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -603,11 +603,11 @@ public class AspireEventHubsExtensionsTests
         using var host = builder.Build();
 
         var client = host.Services.GetRequiredService<EventProcessorClient>();
-        Assert.NotNull(client);
+        Assert.IsNotNull(client);
 
-        Assert.Single(mockTransport.Requests);
+        Assert.ContainsSingle(mockTransport.Requests);
         // the container name should be based on the Endpoint, EventHubName, and ConsumerGroup
-        Assert.Equal("https://fake.blob.core.windows.net/127-0-0-1-MyHub-default?restype=container", mockTransport.Requests[0].Uri.ToString());
+        Assert.AreEqual("https://fake.blob.core.windows.net/127-0-0-1-MyHub-default?restype=container", mockTransport.Requests[0].Uri.ToString());
     }
 
     internal static MockTransport InjectMockBlobClient(HostApplicationBuilder builder)
@@ -633,7 +633,7 @@ public class AspireEventHubsExtensionsTests
         return response;
     }
 
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(ConnectionString_MemberData))]
     public void AddAzureCosmosClient_EnsuresConnectionStringIsCorrect(EventHubTestConnectionInfo testInfo)
     {
@@ -656,14 +656,14 @@ public class AspireEventHubsExtensionsTests
         {
             settingsCalled++;
 
-            Assert.Equal(testInfo.ConnectionString, settings.ConnectionString);
-            Assert.Equal(testInfo.FullyQualifiedNamespace, settings.FullyQualifiedNamespace);
-            Assert.Equal(expectedEventHubName, settings.EventHubName);
+            Assert.AreEqual(testInfo.ConnectionString, settings.ConnectionString);
+            Assert.AreEqual(testInfo.FullyQualifiedNamespace, settings.FullyQualifiedNamespace);
+            Assert.AreEqual(expectedEventHubName, settings.EventHubName);
 
             var consumerGroupProperty = settings.GetType().GetProperty("ConsumerGroup");
             if (consumerGroupProperty != null)
             {
-                Assert.Equal(testInfo.ConsumerGroup, consumerGroupProperty.GetValue(settings));
+                Assert.AreEqual(testInfo.ConsumerGroup, consumerGroupProperty.GetValue(settings));
             }
         }
 
@@ -675,29 +675,29 @@ public class AspireEventHubsExtensionsTests
         builder.AddAzurePartitionReceiverClient("eh1", VerifySettings);
         builder.AddAzureEventHubBufferedProducerClient("eh1", VerifySettings);
 
-        Assert.Equal(5, settingsCalled);
+        Assert.AreEqual(5, settingsCalled);
 
         using var app = builder.Build();
 
         var producerClient = app.Services.GetRequiredService<EventHubProducerClient>();
-        Assert.Equal(testInfo.ClientFullyQualifiedNamespace, producerClient.FullyQualifiedNamespace);
-        Assert.Equal(expectedEventHubName, producerClient.EventHubName);
+        Assert.AreEqual(testInfo.ClientFullyQualifiedNamespace, producerClient.FullyQualifiedNamespace);
+        Assert.AreEqual(expectedEventHubName, producerClient.EventHubName);
 
         var consumerClient = app.Services.GetRequiredService<EventHubConsumerClient>();
-        Assert.Equal(testInfo.ClientFullyQualifiedNamespace, consumerClient.FullyQualifiedNamespace);
-        Assert.Equal(expectedEventHubName, consumerClient.EventHubName);
+        Assert.AreEqual(testInfo.ClientFullyQualifiedNamespace, consumerClient.FullyQualifiedNamespace);
+        Assert.AreEqual(expectedEventHubName, consumerClient.EventHubName);
 
         var processorClient = app.Services.GetRequiredService<EventProcessorClient>();
-        Assert.Equal(testInfo.ClientFullyQualifiedNamespace, processorClient.FullyQualifiedNamespace);
-        Assert.Equal(expectedEventHubName, processorClient.EventHubName);
+        Assert.AreEqual(testInfo.ClientFullyQualifiedNamespace, processorClient.FullyQualifiedNamespace);
+        Assert.AreEqual(expectedEventHubName, processorClient.EventHubName);
 
         var partitionReceiver = app.Services.GetRequiredService<PartitionReceiver>();
-        Assert.Equal(testInfo.ClientFullyQualifiedNamespace, partitionReceiver.FullyQualifiedNamespace);
-        Assert.Equal(expectedEventHubName, partitionReceiver.EventHubName);
+        Assert.AreEqual(testInfo.ClientFullyQualifiedNamespace, partitionReceiver.FullyQualifiedNamespace);
+        Assert.AreEqual(expectedEventHubName, partitionReceiver.EventHubName);
 
         var bufferedProducerClient = app.Services.GetRequiredService<EventHubBufferedProducerClient>();
-        Assert.Equal(testInfo.ClientFullyQualifiedNamespace, bufferedProducerClient.FullyQualifiedNamespace);
-        Assert.Equal(expectedEventHubName, bufferedProducerClient.EventHubName);
+        Assert.AreEqual(testInfo.ClientFullyQualifiedNamespace, bufferedProducerClient.FullyQualifiedNamespace);
+        Assert.AreEqual(expectedEventHubName, bufferedProducerClient.EventHubName);
     }
 
     public static TheoryData<EventHubTestConnectionInfo> ConnectionString_MemberData()

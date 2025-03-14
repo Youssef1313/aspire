@@ -9,14 +9,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
 using Projects;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Testing.Tests;
 
-public class ResourceLoggerForwarderServiceTests(ITestOutputHelper output)
+[TestClass]
+public class ResourceLoggerForwarderServiceTests(TestContext output)
 {
-    [Fact]
+    [TestMethod]
     public async Task BackgroundServiceIsRegisteredInServiceProvider()
     {
         var appHost = await DistributedApplicationTestingBuilder.CreateAsync<TestingAppHost1_AppHost>();
@@ -26,7 +26,7 @@ public class ResourceLoggerForwarderServiceTests(ITestOutputHelper output)
             && sd.Lifetime == ServiceLifetime.Singleton);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ExecuteDoesNotThrowOperationCanceledWhenAppStoppingTokenSignaled()
     {
         var hostApplicationLifetime = new TestHostApplicationLifetime();
@@ -38,8 +38,8 @@ public class ResourceLoggerForwarderServiceTests(ITestOutputHelper output)
 
         await resourceLogForwarder.StartAsync(hostApplicationLifetime.ApplicationStopping);
 
-        Assert.NotNull(resourceLogForwarder.ExecuteTask);
-        Assert.Equal(TaskStatus.WaitingForActivation, resourceLogForwarder.ExecuteTask.Status);
+        Assert.IsNotNull(resourceLogForwarder.ExecuteTask);
+        Assert.AreEqual(TaskStatus.WaitingForActivation, resourceLogForwarder.ExecuteTask.Status);
 
         // Signal the stopping token
         hostApplicationLifetime.StopApplication();
@@ -47,7 +47,7 @@ public class ResourceLoggerForwarderServiceTests(ITestOutputHelper output)
         await resourceLogForwarder.ExecuteTask;
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResourceLogsAreForwardedToHostLogging()
     {
         var hostApplicationLifetime = new TestHostApplicationLifetime();
@@ -55,7 +55,7 @@ public class ResourceLoggerForwarderServiceTests(ITestOutputHelper output)
         var resourceNotificationService = CreateResourceNotificationService(hostApplicationLifetime, resourceLoggerService);
         var hostEnvironment = new HostingEnvironment { ApplicationName = "TestApp.AppHost" };
         var fakeLoggerProvider = new FakeLoggerProvider();
-        var fakeLoggerFactory = new LoggerFactory([fakeLoggerProvider, new XunitLoggerProvider(output)]);
+        var fakeLoggerFactory = new LoggerFactory([fakeLoggerProvider, new MSTestLoggerProvider(output)]);
         var resourceLogForwarder = new ResourceLoggerForwarderService(resourceNotificationService, resourceLoggerService, hostEnvironment, fakeLoggerFactory);
 
         var subscribedTcs = new TaskCompletionSource();
@@ -115,13 +115,13 @@ public class ResourceLoggerForwarderServiceTests(ITestOutputHelper output)
         // Line number is pre-pended to message
         // Category is derived from the application name and resource name
         // Logs sent at information level or lower are logged as information, otherwise they are logged as error
-        Assert.Collection(hostLogs,
-            log => { Assert.Equal(LogLevel.Information, log.Level); Assert.Equal("1: 2000-12-29T20:59:59.0000000Z Test trace message", log.Message); Assert.Equal("TestApp.AppHost.Resources.myresource", log.Category); },
-            log => { Assert.Equal(LogLevel.Information, log.Level); Assert.Equal("2: 2000-12-29T20:59:59.0000000Z Test debug message", log.Message); Assert.Equal("TestApp.AppHost.Resources.myresource", log.Category); },
-            log => { Assert.Equal(LogLevel.Information, log.Level); Assert.Equal("3: 2000-12-29T20:59:59.0000000Z Test information message", log.Message); Assert.Equal("TestApp.AppHost.Resources.myresource", log.Category); },
-            log => { Assert.Equal(LogLevel.Information, log.Level); Assert.Equal("4: 2000-12-29T20:59:59.0000000Z Test warning message", log.Message); Assert.Equal("TestApp.AppHost.Resources.myresource", log.Category); },
-            log => { Assert.Equal(LogLevel.Error, log.Level); Assert.Equal("5: 2000-12-29T20:59:59.0000000Z Test error message", log.Message); Assert.Equal("TestApp.AppHost.Resources.myresource", log.Category); },
-            log => { Assert.Equal(LogLevel.Error, log.Level); Assert.Equal("6: 2000-12-29T20:59:59.0000000Z Test critical message", log.Message); Assert.Equal("TestApp.AppHost.Resources.myresource", log.Category); });
+        Assert.That.Collection(hostLogs,
+            log => { Assert.AreEqual(LogLevel.Information, log.Level); Assert.AreEqual("1: 2000-12-29T20:59:59.0000000Z Test trace message", log.Message); Assert.AreEqual("TestApp.AppHost.Resources.myresource", log.Category); },
+            log => { Assert.AreEqual(LogLevel.Information, log.Level); Assert.AreEqual("2: 2000-12-29T20:59:59.0000000Z Test debug message", log.Message); Assert.AreEqual("TestApp.AppHost.Resources.myresource", log.Category); },
+            log => { Assert.AreEqual(LogLevel.Information, log.Level); Assert.AreEqual("3: 2000-12-29T20:59:59.0000000Z Test information message", log.Message); Assert.AreEqual("TestApp.AppHost.Resources.myresource", log.Category); },
+            log => { Assert.AreEqual(LogLevel.Information, log.Level); Assert.AreEqual("4: 2000-12-29T20:59:59.0000000Z Test warning message", log.Message); Assert.AreEqual("TestApp.AppHost.Resources.myresource", log.Category); },
+            log => { Assert.AreEqual(LogLevel.Error, log.Level); Assert.AreEqual("5: 2000-12-29T20:59:59.0000000Z Test error message", log.Message); Assert.AreEqual("TestApp.AppHost.Resources.myresource", log.Category); },
+            log => { Assert.AreEqual(LogLevel.Error, log.Level); Assert.AreEqual("6: 2000-12-29T20:59:59.0000000Z Test critical message", log.Message); Assert.AreEqual("TestApp.AppHost.Resources.myresource", log.Category); });
     }
 
     private static ResourceNotificationService CreateResourceNotificationService(TestHostApplicationLifetime hostApplicationLifetime, ResourceLoggerService resourceLoggerService)

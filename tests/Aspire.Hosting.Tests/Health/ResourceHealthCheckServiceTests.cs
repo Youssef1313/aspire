@@ -10,19 +10,19 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Tests.Health;
 
-public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class ResourceHealthCheckServiceTests(TestContext testContext)
 {
-    [Fact]
+    [TestMethod]
     public async Task ResourcesWithoutHealthCheck_HealthyWhenRunning()
     {
         var testSink = new TestSink();
 
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         builder.Services.AddLogging(logging => logging.AddProvider(new TestLoggerProvider(testSink)));
 
         var resource = builder.AddResource(new ParentResource("resource"));
@@ -37,7 +37,7 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         }).DefaultTimeout();
 
         var startingEvent = await app.ResourceNotifications.WaitForResourceAsync("resource", e => e.Snapshot.State?.Text == KnownResourceStates.Starting).DefaultTimeout();
-        Assert.Null(startingEvent.Snapshot.HealthStatus);
+        Assert.IsNull(startingEvent.Snapshot.HealthStatus);
 
         await app.ResourceNotifications.PublishUpdateAsync(resource.Resource, s => s with
         {
@@ -45,19 +45,19 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         });
 
         var healthyEvent = await app.ResourceNotifications.WaitForResourceHealthyAsync("resource").DefaultTimeout();
-        Assert.Equal(HealthStatus.Healthy, healthyEvent.Snapshot.HealthStatus);
+        Assert.AreEqual(HealthStatus.Healthy, healthyEvent.Snapshot.HealthStatus);
 
         await app.StopAsync().DefaultTimeout();
 
         Assert.Contains(testSink.Writes, w => w.Message == "Resource 'resource' has no health checks to monitor.");
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResourcesWithHealthCheck_NotHealthyUntilCheckSucceeds()
     {
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         builder.Services.AddHealthChecks().AddAsyncCheck("healthcheck_a", async () =>
         {
             await tcs.Task;
@@ -77,7 +77,7 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         }).DefaultTimeout();
 
         var startingEvent = await app.ResourceNotifications.WaitForResourceAsync("resource", e => e.Snapshot.State?.Text == KnownResourceStates.Starting).DefaultTimeout();
-        Assert.Null(startingEvent.Snapshot.HealthStatus);
+        Assert.IsNull(startingEvent.Snapshot.HealthStatus);
 
         await app.ResourceNotifications.PublishUpdateAsync(resource.Resource, s => s with
         {
@@ -86,7 +86,7 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
 
         var runningEvent = await app.ResourceNotifications.WaitForResourceAsync("resource", e => e.Snapshot.State?.Text == KnownResourceStates.Running).DefaultTimeout();
         // Resource is unhealthy because it has health reports that haven't run yet.
-        Assert.Equal(HealthStatus.Unhealthy, runningEvent.Snapshot.HealthStatus);
+        Assert.AreEqual(HealthStatus.Unhealthy, runningEvent.Snapshot.HealthStatus);
 
         // Allow health check to report success.
         tcs.SetResult();
@@ -96,10 +96,10 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync().DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResourcesWithHealthCheck_CreationErrorIsReported()
     {
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         builder.Services.AddHealthChecks().Add(new HealthCheckRegistration(
             "healthcheck_a",
             services => throw new InvalidOperationException("An error!"),
@@ -120,7 +120,7 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         }).DefaultTimeout();
 
         var startingEvent = await app.ResourceNotifications.WaitForResourceAsync("resource", e => e.Snapshot.State?.Text == KnownResourceStates.Starting).DefaultTimeout();
-        Assert.Null(startingEvent.Snapshot.HealthStatus);
+        Assert.IsNull(startingEvent.Snapshot.HealthStatus);
 
         await app.ResourceNotifications.PublishUpdateAsync(resource.Resource, s => s with
         {
@@ -130,16 +130,16 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         var runningEvent = await app.ResourceNotifications.WaitForResourceAsync("resource",
             e => e.Snapshot.State?.Text == KnownResourceStates.Running && e.Snapshot.HealthReports.Single().Status == HealthStatus.Unhealthy).DefaultTimeout();
 
-        Assert.Equal(HealthStatus.Unhealthy, runningEvent.Snapshot.HealthStatus);
-        Assert.Equal("Error calling HealthCheckService.", runningEvent.Snapshot.HealthReports.Single().Description);
+        Assert.AreEqual(HealthStatus.Unhealthy, runningEvent.Snapshot.HealthStatus);
+        Assert.AreEqual("Error calling HealthCheckService.", runningEvent.Snapshot.HealthReports.Single().Description);
 
         await app.StopAsync().DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResourcesWithHealthCheck_StopsAndRestartsMonitoringWithResource()
     {
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
 
         builder.Services.AddHealthChecks().AddCheck("healthcheck_a", () =>
         {
@@ -171,7 +171,7 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
 
         // Verify resource ready event called.
         var e1 = await channel.Reader.ReadAsync().DefaultTimeout();
-        Assert.Equal(resource.Resource, e1.Resource);
+        Assert.AreEqual(resource.Resource, e1.Resource);
 
         var monitor1 = healthService.GetResourceMonitorState("resource")!;
         var monitorStoppedTcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -194,22 +194,22 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         await app.ResourceNotifications.WaitForResourceHealthyAsync("resource").DefaultTimeout();
 
         var monitor2 = healthService.GetResourceMonitorState("resource")!;
-        Assert.NotEqual(monitor1, monitor2);
-        Assert.False(monitor2.CancellationToken.IsCancellationRequested);
+        Assert.AreNotEqual(monitor1, monitor2);
+        Assert.IsFalse(monitor2.CancellationToken.IsCancellationRequested);
 
         // Verify resource ready event called after restart.
         var e2 = await channel.Reader.ReadAsync().DefaultTimeout();
-        Assert.Equal(resource.Resource, e2.Resource);
+        Assert.AreEqual(resource.Resource, e2.Resource);
 
         await app.StopAsync().DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task HealthCheckIntervalSlowsAfterSteadyHealthyState()
     {
         var testSink = new TestSink();
 
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         builder.Services.AddLogging(logging => logging.AddProvider(new TestLoggerProvider(testSink)));
 
         builder.Services.AddHealthChecks().AddCheck("resource_check", () =>
@@ -244,12 +244,12 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync(abortTokenSource.Token).DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task HealthCheckIntervalIncreasesAfterNonHealthyState()
     {
         var testSink = new TestSink();
 
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         builder.Services.AddLogging(logging => logging.AddProvider(new TestLoggerProvider(testSink)));
 
         builder.Services.AddHealthChecks().AddCheck("resource_check", () =>
@@ -287,10 +287,10 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync(abortTokenSource.Token).DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task HealthCheckIntervalDoesNotSlowBeforeSteadyHealthyState()
     {
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
 
         var channel = Channel.CreateUnbounded<DateTimeOffset>();
 
@@ -329,13 +329,13 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync(abortTokenSource.Token).DefaultTimeout();
 
         var duration = thirdCheck - firstCheck;
-        Assert.Equal(TimeSpan.FromSeconds(10), duration);
+        Assert.AreEqual(TimeSpan.FromSeconds(10), duration);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResourcesWithoutHealthCheckAnnotationsGetReadyEventFired()
     {
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
         var resource = builder.AddResource(new ParentResource("resource"));
 
         var blockAssert = new TaskCompletionSource<ResourceReadyEvent>();
@@ -354,16 +354,16 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         }).DefaultTimeout();
 
         var @event = await blockAssert.Task.DefaultTimeout();
-        Assert.Equal(resource.Resource, @event.Resource);
+        Assert.AreEqual(resource.Resource, @event.Resource);
 
         await pendingStart.DefaultTimeout();
         await app.StopAsync().DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task PoorlyImplementedHealthChecksDontCauseMonitoringLoopToCrashout()
     {
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
 
         var hitCount = 0;
         builder.Services.AddHealthChecks().AddCheck("resource_check", (check) =>
@@ -397,10 +397,10 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync().DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResourceHealthCheckServiceDoesNotRunHealthChecksUnlessResourceIsRunning()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testContext);
 
         // The custom resource we are using for our test.
         var hitCount = 0;
@@ -433,7 +433,7 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         var giveUpAfter = DateTime.UtcNow.AddSeconds(5);
         while (!pendingStart.IsCanceled)
         {
-            Assert.Equal(0, hitCount);
+            Assert.AreEqual(0, hitCount);
             await Task.Delay(100);
 
             if (DateTime.UtcNow > giveUpAfter)
@@ -450,16 +450,16 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         // Wait for the ResourceReadyEvent
         checkStatus = HealthCheckResult.Healthy();
         await Task.WhenAll([resourceReadyEventFired.Task]).DefaultTimeout();
-        Assert.True(hitCount > 0);
+        Assert.IsTrue(hitCount > 0);
 
         await pendingStart; // already has a timeout
         await app.StopAsync().DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResourceHealthCheckServiceOnlyRaisesResourceReadyOnce()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testContext);
 
         // The custom resource we are using for our test.
         var healthCheckHits = 0;
@@ -505,16 +505,16 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
             await Task.Delay(100);
         }
 
-        Assert.Equal(1, eventHits);
+        Assert.AreEqual(1, eventHits);
 
         await pendingStart; // already has a timeout
         await app.StopAsync().DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyThatChildResourceWillBecomeHealthyOnceParentBecomesHealthy()
     {
-        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.CreateWithTestContainerRegistry(testContext);
 
         builder.Services.AddHealthChecks().AddCheck("parent_test", () => HealthCheckResult.Healthy());
         var parent = builder.AddResource(new ParentResource("parent"))
@@ -554,10 +554,10 @@ public class ResourceHealthCheckServiceTests(ITestOutputHelper testOutputHelper)
         }).DefaultTimeout();
 
         var parentReadyEvent = await parentReady.Task.DefaultTimeout();
-        Assert.Equal(parentReadyEvent.Resource, parent.Resource);
+        Assert.AreEqual(parentReadyEvent.Resource, parent.Resource);
 
         var childReadyEvent = await childReady.Task.DefaultTimeout();
-        Assert.Equal(childReadyEvent.Resource, child.Resource);
+        Assert.AreEqual(childReadyEvent.Resource, child.Resource);
 
         await pendingStart; // already has a timeout
         await app.StopAsync().DefaultTimeout();

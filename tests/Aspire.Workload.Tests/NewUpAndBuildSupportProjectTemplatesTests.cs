@@ -1,14 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Workload.Tests;
 
-public class NewUpAndBuildSupportProjectTemplates(ITestOutputHelper testOutput) : WorkloadTestsBase(testOutput)
+public class NewUpAndBuildSupportProjectTemplates(TestContext testOutput) : WorkloadTestsBase(testOutput)
 {
-    [Theory]
+    [TestMethod]
     // [MemberData(nameof(TestDataForNewAndBuildTemplateTests), parameters: "aspire-apphost")]
     // [MemberData(nameof(TestDataForNewAndBuildTemplateTests), parameters: "aspire-servicedefaults")]
     [MemberData(nameof(TestDataForNewAndBuildTemplateTests), parameters: "aspire-mstest")]
@@ -58,7 +57,7 @@ public class NewUpAndBuildSupportProjectTemplates(ITestOutputHelper testOutput) 
         }
         catch (ToolCommandException tce) when (error is not null)
         {
-            Assert.NotNull(tce.Result);
+            Assert.IsNotNull(tce.Result);
             Assert.Contains(error, tce.Result.Value.Output);
         }
     }

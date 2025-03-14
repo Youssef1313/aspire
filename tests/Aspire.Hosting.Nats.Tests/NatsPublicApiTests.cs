@@ -3,47 +3,47 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Nats.Tests;
 
+[TestClass]
 public class NatsPublicApiTests
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddNatsShouldThrowWhenBuilderIsNull(bool includePort)
     {
         IDistributedApplicationBuilder builder = null!;
         const string name = "Nats";
 
-        var action = () => includePort ? builder.AddNats(name, 4222) : builder.AddNats(name);
+        Action action = () => _ = includePort ? builder.AddNats(name, 4222) : builder.AddNats(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
+    [TestMethod]
+    [DataRow(true, true)]
+    [DataRow(true, false)]
+    [DataRow(false, true)]
+    [DataRow(false, false)]
     public void AddNatsShouldThrowWhenNameIsNullOrEmpty(bool isNull, bool includePort)
     {
         var builder = TestDistributedApplicationBuilder.Create();
         var name = isNull ? null! : string.Empty;
 
-        var action = () => includePort ? builder.AddNats(name, 4222) : builder.AddNats(name);
+        Action action = () => _ = includePort ? builder.AddNats(name, 4222) : builder.AddNats(name);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddNatsWithParametersShouldThrowWhenBuilderIsNull(bool includePort)
     {
         IDistributedApplicationBuilder builder = null!;
@@ -51,19 +51,19 @@ public class NatsPublicApiTests
         IResourceBuilder<ParameterResource>? userName = null;
         IResourceBuilder<ParameterResource>? password = null;
 
-        var action = () => includePort
+        Action action = () => _ = includePort
             ? builder.AddNats(name, 4222, userName: userName, password: password)
             : builder.AddNats(name, userName: userName, password: password);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
+    [TestMethod]
+    [DataRow(true, true)]
+    [DataRow(true, false)]
+    [DataRow(false, true)]
+    [DataRow(false, false)]
     public void AddNatsWithParametersShouldThrowWhenNameIsNullOrEmpty(bool isNull, bool includePort)
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -71,104 +71,104 @@ public class NatsPublicApiTests
         IResourceBuilder<ParameterResource>? userName = null;
         IResourceBuilder<ParameterResource>? password = null;
 
-        var action = () => includePort
+        Action action = () => _ = includePort
             ? builder.AddNats(name, 4222, userName: userName, password: password)
             : builder.AddNats(name, userName: userName, password: password);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete("This method is obsolete and will be removed in a future version. Use the overload without the srcMountPath parameter and WithDataBindMount extension instead if you want to keep data locally.")]
     public void ObsoleteWithJetStreamShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<NatsServerResource> builder = null!;
         string? srcMountPath = null;
 
-        var action = () => builder.WithJetStream(srcMountPath);
+        Action action = () => builder.WithJetStream(srcMountPath);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithJetStreamShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<NatsServerResource> builder = null!;
 
-        var action = () => builder.WithJetStream();
+        Action action = () => builder.WithJetStream();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataVolumeShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<NatsServerResource> builder = null!;
 
-        var action = () => builder.WithDataVolume();
+        Action action = () => builder.WithDataVolume();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataBindMountShouldThrowWhenBuilderIsNull()
     {
         IResourceBuilder<NatsServerResource> builder = null!;
         const string source = "/data";
 
-        var action = () => builder.WithDataBindMount(source);
+        Action action = () => builder.WithDataBindMount(source);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithDataBindMountShouldThrowWhenSourceIsNullOrEmpty(bool isNull)
     {
         var builder = TestDistributedApplicationBuilder.Create()
             .AddNats("Nats");
         var source = isNull ? null! : string.Empty;
 
-        var action = () => builder.WithDataBindMount(source);
+        Action action = () => builder.WithDataBindMount(source);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(source), exception.ParamName);
+        Assert.AreEqual(nameof(source), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorNatsServerResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
 
-        var action = () => new NatsServerResource(name);
+        Action action = () => new NatsServerResource(name);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true, true, true)]
-    [InlineData(true, true, false)]
-    [InlineData(true, false, true)]
-    [InlineData(true, false, false)]
-    [InlineData(false, true, true)]
-    [InlineData(false, true, false)]
-    [InlineData(false, false, true)]
-    [InlineData(false, false, false)]
+    [TestMethod]
+    [DataRow(true, true, true)]
+    [DataRow(true, true, false)]
+    [DataRow(true, false, true)]
+    [DataRow(true, false, false)]
+    [DataRow(false, true, true)]
+    [DataRow(false, true, false)]
+    [DataRow(false, false, true)]
+    [DataRow(false, false, false)]
     public void CtorNatsServerResourceWithParametersShouldThrowWhenNameIsNullOrEmpty(bool isNull, bool isNullUser, bool isNullPassword)
     {
         var name = isNull ? null! : string.Empty;
@@ -176,11 +176,11 @@ public class NatsPublicApiTests
         var user = isNullUser ? null : builder.AddParameter("user");
         var password = isNullPassword ? null : builder.AddParameter("password");
 
-        var action = () => new NatsServerResource(name, user?.Resource, password?.Resource);
+        Action action = () => new NatsServerResource(name, user?.Resource, password?.Resource);
 
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 }

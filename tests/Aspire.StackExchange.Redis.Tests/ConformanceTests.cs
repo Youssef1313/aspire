@@ -7,10 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
-using Xunit;
 
 namespace Aspire.StackExchange.Redis.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<IConnectionMultiplexer, StackExchangeRedisSettings>, IClassFixture<RedisContainerFixture>
 {
     private readonly RedisContainerFixture _containerFixture;

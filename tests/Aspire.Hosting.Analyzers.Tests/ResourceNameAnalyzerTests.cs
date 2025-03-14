@@ -2,18 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Hosting.ApplicationModel;
-using Xunit;
 using static Microsoft.CodeAnalysis.Testing.DiagnosticResult;
 
 namespace Aspire.Hosting.Analyzers.Tests;
 
+[TestClass]
 public class ResourceNameAnalyzerTests
 {
-    [Theory]
+    [TestMethod]
     [ClassData(typeof(TestData.InvalidModelNames))]
     public async Task ResourceNameInvalid(string resourceName)
     {
-        Assert.False(ModelName.TryValidateName("Resource", resourceName, out var message));
+        Assert.IsFalse(ModelName.TryValidateName("Resource", resourceName, out var message));
 
         var diagnostic = AppHostAnalyzer.Diagnostics.s_modelNameMustBeValid;
 
@@ -29,12 +29,12 @@ public class ResourceNameAnalyzerTests
         await test.RunAsync();
     }
 
-    [Theory]
+    [TestMethod]
     [ClassData(typeof(TestData.InvalidModelNames))]
     public async Task ResourceNameInvalidMultipleParameters(string resourceName)
     {
-        Assert.False(ModelName.TryValidateName("Resource", $"{resourceName}-one", out var message1));
-        Assert.False(ModelName.TryValidateName("Resource", $"{resourceName}-two", out var message2));
+        Assert.IsFalse(ModelName.TryValidateName("Resource", $"{resourceName}-one", out var message1));
+        Assert.IsFalse(ModelName.TryValidateName("Resource", $"{resourceName}-two", out var message2));
 
         var diagnostic = AppHostAnalyzer.Diagnostics.s_modelNameMustBeValid;
 
@@ -64,7 +64,7 @@ public class ResourceNameAnalyzerTests
         await test.RunAsync();
     }
 
-    [Theory]
+    [TestMethod]
     [ClassData(typeof(TestData.ValidModelNames))]
     public async Task ResourceNameValid(string resourceName)
     {
@@ -79,7 +79,7 @@ public class ResourceNameAnalyzerTests
         await test.RunAsync();
     }
 
-    [Theory]
+    [TestMethod]
     [ClassData(typeof(TestData.ValidModelNames))]
     public async Task ResourceNameValidMultipleParameters(string resourceName)
     {

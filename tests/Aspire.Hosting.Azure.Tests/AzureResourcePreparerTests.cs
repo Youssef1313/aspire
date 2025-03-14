@@ -6,13 +6,13 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
 using Azure.Provisioning.Storage;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests;
 
+[TestClass]
 public class AzureResourcePreparerTests
 {
-    [Fact]
+    [TestMethod]
     public void ThrowsExceptionsIfRoleAssignmentUnsupported()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -28,11 +28,11 @@ public class AzureResourcePreparerTests
         Assert.Contains("role assignments", ex.Message);
     }
 
-    [Theory]
-    [InlineData(true, DistributedApplicationOperation.Run)]
-    [InlineData(false, DistributedApplicationOperation.Run)]
-    [InlineData(true, DistributedApplicationOperation.Publish)]
-    [InlineData(false, DistributedApplicationOperation.Publish)]
+    [TestMethod]
+    [DataRow(true, DistributedApplicationOperation.Run)]
+    [DataRow(false, DistributedApplicationOperation.Run)]
+    [DataRow(true, DistributedApplicationOperation.Publish)]
+    [DataRow(false, DistributedApplicationOperation.Publish)]
     public async Task AppliesDefaultRoleAssignmentsInRunModeIfReferenced(bool addContainerAppsInfra, DistributedApplicationOperation operation)
     {
         using var builder = TestDistributedApplicationBuilder.Create(operation);
@@ -50,32 +50,32 @@ public class AzureResourcePreparerTests
         using var app = builder.Build();
         await ExecuteBeforeStartHooksAsync(app, default);
 
-        Assert.True(storage.Resource.TryGetLastAnnotation<DefaultRoleAssignmentsAnnotation>(out var defaultAssignments));
+        Assert.IsTrue(storage.Resource.TryGetLastAnnotation<DefaultRoleAssignmentsAnnotation>(out var defaultAssignments));
 
         if (!addContainerAppsInfra || operation == DistributedApplicationOperation.Run)
         {
             // when AzureContainerAppsInfrastructure is not added, we always apply the default role assignments to AppliedRoleAssignmentsAnnotation.
             // The same applies when in RunMode and we are provisioning Azure resources for F5 local development.
 
-            Assert.True(storage.Resource.TryGetLastAnnotation<AppliedRoleAssignmentsAnnotation>(out var appliedAssignments));
-            Assert.Equal(defaultAssignments.Roles, appliedAssignments.Roles);
+            Assert.IsTrue(storage.Resource.TryGetLastAnnotation<AppliedRoleAssignmentsAnnotation>(out var appliedAssignments));
+            Assert.AreEqual(defaultAssignments.Roles, appliedAssignments.Roles);
         }
         else
         {
             // in PublishMode when AzureContainerAppsInfrastructure is added, we don't use AppliedRoleAssignmentsAnnotation.
             // Instead, the DefaultRoleAssignmentsAnnotation is copied to referencing resources' RoleAssignmentAnnotation.
 
-            Assert.False(storage.Resource.HasAnnotationOfType<AppliedRoleAssignmentsAnnotation>());
+            Assert.IsFalse(storage.Resource.HasAnnotationOfType<AppliedRoleAssignmentsAnnotation>());
 
-            Assert.True(api.Resource.TryGetLastAnnotation<RoleAssignmentAnnotation>(out var apiRoleAssignments));
-            Assert.Equal(storage.Resource, apiRoleAssignments.Target);
-            Assert.Equal(defaultAssignments.Roles, apiRoleAssignments.Roles);
+            Assert.IsTrue(api.Resource.TryGetLastAnnotation<RoleAssignmentAnnotation>(out var apiRoleAssignments));
+            Assert.AreEqual(storage.Resource, apiRoleAssignments.Target);
+            Assert.AreEqual(defaultAssignments.Roles, apiRoleAssignments.Roles);
         }
     }
 
-    [Theory]
-    [InlineData(DistributedApplicationOperation.Run)]
-    [InlineData(DistributedApplicationOperation.Publish)]
+    [TestMethod]
+    [DataRow(DistributedApplicationOperation.Run)]
+    [DataRow(DistributedApplicationOperation.Publish)]
     public async Task AppliesRoleAssignmentsInRunMode(DistributedApplicationOperation operation)
     {
         using var builder = TestDistributedApplicationBuilder.Create(operation);
@@ -100,32 +100,32 @@ public class AzureResourcePreparerTests
             // in RunMode, we apply the role assignments to AppliedRoleAssignmentsAnnotation, so the provisioned resource
             // adds these role assignments for F5 local development.
 
-            Assert.True(storage.Resource.TryGetLastAnnotation<AppliedRoleAssignmentsAnnotation>(out var appliedAssignments));
+            Assert.IsTrue(storage.Resource.TryGetLastAnnotation<AppliedRoleAssignmentsAnnotation>(out var appliedAssignments));
 
-            Assert.Collection(appliedAssignments.Roles,
-                role => Assert.Equal(StorageBuiltInRole.StorageBlobDelegator.ToString(), role.Id),
-                role => Assert.Equal(StorageBuiltInRole.StorageBlobDataReader.ToString(), role.Id),
-                role => Assert.Equal(StorageBuiltInRole.StorageBlobDataContributor.ToString(), role.Id));
+            Assert.That.Collection(appliedAssignments.Roles,
+                role => Assert.AreEqual(StorageBuiltInRole.StorageBlobDelegator.ToString(), role.Id),
+                role => Assert.AreEqual(StorageBuiltInRole.StorageBlobDataReader.ToString(), role.Id),
+                role => Assert.AreEqual(StorageBuiltInRole.StorageBlobDataContributor.ToString(), role.Id));
         }
         else
         {
             // in PublishMode, we don't use AppliedRoleAssignmentsAnnotation.
-            Assert.False(storage.Resource.HasAnnotationOfType<AppliedRoleAssignmentsAnnotation>());
+            Assert.IsFalse(storage.Resource.HasAnnotationOfType<AppliedRoleAssignmentsAnnotation>());
 
-            Assert.True(api.Resource.TryGetLastAnnotation<RoleAssignmentAnnotation>(out var apiRoleAssignments));
-            Assert.Equal(storage.Resource, apiRoleAssignments.Target);
-            Assert.Collection(apiRoleAssignments.Roles,
-                role => Assert.Equal(StorageBuiltInRole.StorageBlobDelegator.ToString(), role.Id),
-                role => Assert.Equal(StorageBuiltInRole.StorageBlobDataReader.ToString(), role.Id));
+            Assert.IsTrue(api.Resource.TryGetLastAnnotation<RoleAssignmentAnnotation>(out var apiRoleAssignments));
+            Assert.AreEqual(storage.Resource, apiRoleAssignments.Target);
+            Assert.That.Collection(apiRoleAssignments.Roles,
+                role => Assert.AreEqual(StorageBuiltInRole.StorageBlobDelegator.ToString(), role.Id),
+                role => Assert.AreEqual(StorageBuiltInRole.StorageBlobDataReader.ToString(), role.Id));
 
-            Assert.True(api2.Resource.TryGetLastAnnotation<RoleAssignmentAnnotation>(out var api2RoleAssignments));
-            Assert.Equal(storage.Resource, api2RoleAssignments.Target);
-            Assert.Single(api2RoleAssignments.Roles,
+            Assert.IsTrue(api2.Resource.TryGetLastAnnotation<RoleAssignmentAnnotation>(out var api2RoleAssignments));
+            Assert.AreEqual(storage.Resource, api2RoleAssignments.Target);
+            Assert.ContainsSingle(api2RoleAssignments.Roles,
                 role => role.Id == StorageBuiltInRole.StorageBlobDataContributor.ToString());
         }
     }
 
-    [Fact]
+    [TestMethod]
     public async Task FindsAzureReferencesFromArguments()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -145,11 +145,11 @@ public class AzureResourcePreparerTests
         using var app = builder.Build();
         await ExecuteBeforeStartHooksAsync(app, default);
 
-        Assert.True(storage.Resource.TryGetLastAnnotation<DefaultRoleAssignmentsAnnotation>(out var defaultAssignments));
+        Assert.IsTrue(storage.Resource.TryGetLastAnnotation<DefaultRoleAssignmentsAnnotation>(out var defaultAssignments));
 
-        Assert.True(api.Resource.TryGetLastAnnotation<RoleAssignmentAnnotation>(out var apiRoleAssignments));
-        Assert.Equal(storage.Resource, apiRoleAssignments.Target);
-        Assert.Equal(defaultAssignments.Roles, apiRoleAssignments.Roles);
+        Assert.IsTrue(api.Resource.TryGetLastAnnotation<RoleAssignmentAnnotation>(out var apiRoleAssignments));
+        Assert.AreEqual(storage.Resource, apiRoleAssignments.Target);
+        Assert.AreEqual(defaultAssignments.Roles, apiRoleAssignments.Roles);
     }
 
     [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "ExecuteBeforeStartHooksAsync")]

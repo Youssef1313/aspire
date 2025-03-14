@@ -21,7 +21,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Xunit;
 
 namespace ConfigurationSchemaGenerator.Tests;
 
@@ -51,107 +50,107 @@ public partial class GeneratorTests
 
     private static readonly JsonSerializerOptions s_testSerializerOptions = new() { WriteIndented = true };
 
-    [Theory]
-    [InlineData("abc\n  def", "abc def")]
-    [InlineData("\n  def", "def")]
-    [InlineData(" \n  def", "def")]
-    [InlineData("  \n  def", "def")]
-    [InlineData("abc\n", "abc")]
-    [InlineData("abc\n ", "abc")]
-    [InlineData("abc\n  ", "abc")]
-    [InlineData("abc\n\n  ", "abc")]
-    [InlineData("\n\n\t  def", "def")]
-    [InlineData("abc\n def  \n ghi", "abc def ghi")]
-    [InlineData("abc\r\n  def", "abc def")]
-    [InlineData("\r\n  def", "def")]
-    [InlineData(" \r\n  def", "def")]
-    [InlineData("  \r\n  def", "def")]
-    [InlineData("abc\r\n", "abc")]
-    [InlineData("abc\r\n ", "abc")]
-    [InlineData("abc\r\n  ", "abc")]
-    [InlineData("abc\t\r\n\r\n  ", "abc")]
-    [InlineData("\r\n\r\n  def", "def")]
-    [InlineData("\r\nabc\r\ndef\r\nghi\r\n", "abc def ghi")]
-    [InlineData("abc\r\n def  \r\n ghi", "abc def ghi")]
-    [InlineData(" \r\n  \r\n ", "")]
-    [InlineData(" abc \n \n def ", "abc\n\ndef")]
+    [TestMethod]
+    [DataRow("abc\n  def", "abc def")]
+    [DataRow("\n  def", "def")]
+    [DataRow(" \n  def", "def")]
+    [DataRow("  \n  def", "def")]
+    [DataRow("abc\n", "abc")]
+    [DataRow("abc\n ", "abc")]
+    [DataRow("abc\n  ", "abc")]
+    [DataRow("abc\n\n  ", "abc")]
+    [DataRow("\n\n\t  def", "def")]
+    [DataRow("abc\n def  \n ghi", "abc def ghi")]
+    [DataRow("abc\r\n  def", "abc def")]
+    [DataRow("\r\n  def", "def")]
+    [DataRow(" \r\n  def", "def")]
+    [DataRow("  \r\n  def", "def")]
+    [DataRow("abc\r\n", "abc")]
+    [DataRow("abc\r\n ", "abc")]
+    [DataRow("abc\r\n  ", "abc")]
+    [DataRow("abc\t\r\n\r\n  ", "abc")]
+    [DataRow("\r\n\r\n  def", "def")]
+    [DataRow("\r\nabc\r\ndef\r\nghi\r\n", "abc def ghi")]
+    [DataRow("abc\r\n def  \r\n ghi", "abc def ghi")]
+    [DataRow(" \r\n  \r\n ", "")]
+    [DataRow(" abc \n \n def ", "abc\n\ndef")]
     public void ShouldRemoveInsignificantWhitespace(string input, string expected)
     {
         var summaryElement = ConvertToSummaryElement(input);
 
         var description = ConfigSchemaEmitter.FormatDescription(summaryElement);
-        Assert.Equal(expected, description);
+        Assert.AreEqual(expected, description);
     }
 
-    [Theory]
-    [InlineData("\n<para>abc</para><p>def</p>\n", "abc\n\ndef")]
-    [InlineData("<para>\nabc\n</para><para>\ndef\n</para>", "abc\n\ndef")]
-    [InlineData("abc<para>def</para>ghi", "abc\n\ndef\n\nghi")]
-    [InlineData("abc\n<para>\ndef\n</para>\nghi", "abc\n\ndef\n\nghi")]
-    [InlineData("abc<br/>def<br/>ghi", "abc\ndef\nghi")]
-    [InlineData("<br/>abc<br/>def<br/>ghi<br/>", "abc\ndef\nghi")]
-    [InlineData("abc\n<br />\ndef", "abc\ndef")]
-    [InlineData("abc\n\ndef", "abc\n\ndef")]
+    [TestMethod]
+    [DataRow("\n<para>abc</para><p>def</p>\n", "abc\n\ndef")]
+    [DataRow("<para>\nabc\n</para><para>\ndef\n</para>", "abc\n\ndef")]
+    [DataRow("abc<para>def</para>ghi", "abc\n\ndef\n\nghi")]
+    [DataRow("abc\n<para>\ndef\n</para>\nghi", "abc\n\ndef\n\nghi")]
+    [DataRow("abc<br/>def<br/>ghi", "abc\ndef\nghi")]
+    [DataRow("<br/>abc<br/>def<br/>ghi<br/>", "abc\ndef\nghi")]
+    [DataRow("abc\n<br />\ndef", "abc\ndef")]
+    [DataRow("abc\n\ndef", "abc\n\ndef")]
     public void ShouldInsertLineBreaks(string input, string expected)
     {
         var summaryElement = ConvertToSummaryElement(input);
 
         var description = ConfigSchemaEmitter.FormatDescription(summaryElement);
-        Assert.Equal(expected, description);
+        Assert.AreEqual(expected, description);
     }
 
-    [Theory]
-    [InlineData("Do <b><i>not</i></b> use!", "Do not use!")]
-    [InlineData("A valid <see cref=\"T:System.Uri\"/>. See remarks.", "A valid 'System.Uri'. See remarks.")]
-    [InlineData("The <see cref=\"T:System.Uri\"/> or <c>null</c>.", "The 'System.Uri' or null.")]
-    [InlineData("Use <example><code>Console.WriteLine();</code></example> to print.", "Use Console.WriteLine(); to print.")]
-    [InlineData("Generic <example><code><![CDATA[List<string>]]></code></example>", "Generic List<string>")]
+    [TestMethod]
+    [DataRow("Do <b><i>not</i></b> use!", "Do not use!")]
+    [DataRow("A valid <see cref=\"T:System.Uri\"/>. See remarks.", "A valid 'System.Uri'. See remarks.")]
+    [DataRow("The <see cref=\"T:System.Uri\"/> or <c>null</c>.", "The 'System.Uri' or null.")]
+    [DataRow("Use <example><code>Console.WriteLine();</code></example> to print.", "Use Console.WriteLine(); to print.")]
+    [DataRow("Generic <example><code><![CDATA[List<string>]]></code></example>", "Generic List<string>")]
     public void ShouldStripHtmlTags(string input, string expected)
     {
         var summaryElement = ConvertToSummaryElement(input);
 
         var description = ConfigSchemaEmitter.FormatDescription(summaryElement);
-        Assert.Equal(expected, description);
+        Assert.AreEqual(expected, description);
     }
 
-    [Theory]
-    [InlineData("<see cref=\"N:System.Diagnostics\"/>", "'System.Diagnostics'")]
-    [InlineData("<see cref=\"T:System.Uri\"/>", "'System.Uri'")]
-    [InlineData("<see cref=\"T:Azure.Core.Extensions.IAzureClientBuilder`2\"/>", "'Azure.Core.Extensions.IAzureClientBuilder`2'")]
-    [InlineData("<see cref=\"F:Azure.Storage.Queues.QueueMessageEncoding.None\"/>", "'Azure.Storage.Queues.QueueMessageEncoding.None'")]
-    [InlineData("<see cref=\"P:Aspire.Azure.Storage.Blobs.AzureStorageBlobsSettings.ConnectionString\"/>", "'Aspire.Azure.Storage.Blobs.AzureStorageBlobsSettings.ConnectionString'")]
-    [InlineData("<see cref=\"M:System.Diagnostics.Debug.Assert(bool)\"/>", "'System.Diagnostics.Debug.Assert(bool)'")]
-    [InlineData("<see cref=\"E:System.Windows.Input.ICommand.CanExecuteChanged\"/>", "'System.Windows.Input.ICommand.CanExecuteChanged'")]
-    [InlineData("<exception cref=\"T:System.InvalidOperationException\" />", "'System.InvalidOperationException'")]
-    [InlineData("<para><exception cref=\"T:System.InvalidOperationException\" /></para>", "'System.InvalidOperationException'")]
+    [TestMethod]
+    [DataRow("<see cref=\"N:System.Diagnostics\"/>", "'System.Diagnostics'")]
+    [DataRow("<see cref=\"T:System.Uri\"/>", "'System.Uri'")]
+    [DataRow("<see cref=\"T:Azure.Core.Extensions.IAzureClientBuilder`2\"/>", "'Azure.Core.Extensions.IAzureClientBuilder`2'")]
+    [DataRow("<see cref=\"F:Azure.Storage.Queues.QueueMessageEncoding.None\"/>", "'Azure.Storage.Queues.QueueMessageEncoding.None'")]
+    [DataRow("<see cref=\"P:Aspire.Azure.Storage.Blobs.AzureStorageBlobsSettings.ConnectionString\"/>", "'Aspire.Azure.Storage.Blobs.AzureStorageBlobsSettings.ConnectionString'")]
+    [DataRow("<see cref=\"M:System.Diagnostics.Debug.Assert(bool)\"/>", "'System.Diagnostics.Debug.Assert(bool)'")]
+    [DataRow("<see cref=\"E:System.Windows.Input.ICommand.CanExecuteChanged\"/>", "'System.Windows.Input.ICommand.CanExecuteChanged'")]
+    [DataRow("<exception cref=\"T:System.InvalidOperationException\" />", "'System.InvalidOperationException'")]
+    [DataRow("<para><exception cref=\"T:System.InvalidOperationException\" /></para>", "'System.InvalidOperationException'")]
     public void ShouldQuoteCrefAttributes(string input, string expected)
     {
         var summaryElement = ConvertToSummaryElement(input);
 
         var description = ConfigSchemaEmitter.FormatDescription(summaryElement);
-        Assert.Equal(expected, description);
+        Assert.AreEqual(expected, description);
     }
 
-    [Theory]
-    [InlineData("<see href=\"https://aka.ms/azsdk/blog/vault-uri\"/>", "https://aka.ms/azsdk/blog/vault-uri")]
-    [InlineData("<see langword=\"true\"/>", "true")]
+    [TestMethod]
+    [DataRow("<see href=\"https://aka.ms/azsdk/blog/vault-uri\"/>", "https://aka.ms/azsdk/blog/vault-uri")]
+    [DataRow("<see langword=\"true\"/>", "true")]
     public void ShouldNotQuoteNonCrefAttributes(string input, string expected)
     {
         var summaryElement = ConvertToSummaryElement(input);
 
         var description = ConfigSchemaEmitter.FormatDescription(summaryElement);
-        Assert.Equal(expected, description);
+        Assert.AreEqual(expected, description);
     }
 
-    [Theory]
-    [InlineData("<param name=\"connectionName\">A name used to retrieve the connection string from the ConnectionStrings configuration section.</param>", "A name used to retrieve the connection string from the ConnectionStrings configuration section.")]
-    [InlineData("<paramref name=\"arg\"/>", "arg")]
+    [TestMethod]
+    [DataRow("<param name=\"connectionName\">A name used to retrieve the connection string from the ConnectionStrings configuration section.</param>", "A name used to retrieve the connection string from the ConnectionStrings configuration section.")]
+    [DataRow("<paramref name=\"arg\"/>", "arg")]
     public void ShouldNotFormatMiscAttributes(string input, string expected)
     {
         var summaryElement = ConvertToSummaryElement(input);
 
         var description = ConfigSchemaEmitter.FormatDescription(summaryElement);
-        Assert.Equal(expected, description);
+        Assert.AreEqual(expected, description);
     }
 
     private static XElement ConvertToSummaryElement(string input)
@@ -163,64 +162,64 @@ public partial class GeneratorTests
         return (XElement)XNode.ReadFrom(reader);
     }
 
-    [Theory]
-    [InlineData("bool",
+    [TestMethod]
+    [DataRow("bool",
         """
         "type": "boolean"
         """)]
-    [InlineData("bool?",
+    [DataRow("bool?",
         """
         "type": "boolean"
         """)]
-    [InlineData("byte",
+    [DataRow("byte",
         """
         "type": "integer"
         """)]
-    [InlineData("sbyte",
+    [DataRow("sbyte",
         """
         "type": "integer"
         """)]
-    [InlineData("char",
+    [DataRow("char",
         """
         "type": "integer"
         """)]
-    [InlineData("int",
+    [DataRow("int",
         """
         "type": "integer"
         """)]
-    [InlineData("uint",
+    [DataRow("uint",
         """
         "type": "integer"
         """)]
-    [InlineData("long",
+    [DataRow("long",
         """
         "type": "integer"
         """)]
-    [InlineData("ulong",
+    [DataRow("ulong",
         """
         "type": "integer"
         """)]
-    [InlineData("short",
+    [DataRow("short",
         """
         "type": "integer"
         """)]
-    [InlineData("ushort",
+    [DataRow("ushort",
         """
         "type": "integer"
         """)]
-    [InlineData("decimal",
+    [DataRow("decimal",
         """
         "type": ["number", "string"]
         """)]
-    [InlineData("double",
+    [DataRow("double",
         """
         "type": ["number", "string"]
         """)]
-    [InlineData("float",
+    [DataRow("float",
         """
         "type": ["number", "string"]
         """)]
-    [InlineData("byte[]?",
+    [DataRow("byte[]?",
         """
         "oneOf": [
           {
@@ -235,46 +234,46 @@ public partial class GeneratorTests
           }
         ]
         """)]
-    [InlineData("object?",
+    [DataRow("object?",
         """
         "type": "object"
         """)]
-    [InlineData("string?",
+    [DataRow("string?",
         """
         "type": "string"
         """)]
-    [InlineData("Version?",
+    [DataRow("Version?",
         """
         "type": "string"
         """)]
-    [InlineData("CultureInfo?",
+    [DataRow("CultureInfo?",
         """
         "type": "string"
         """)]
-    [InlineData("DateTime",
+    [DataRow("DateTime",
         """
         "type": "string"
         """)]
-    [InlineData("DateTimeOffset",
+    [DataRow("DateTimeOffset",
         """
         "type": "string"
         """)]
-    [InlineData("TimeSpan",
+    [DataRow("TimeSpan",
         """
         "type": "string",
         "pattern": "^-?(\\d{1,7}|((\\d{1,7}[\\.:])?(([01]?\\d|2[0-3]):[0-5]?\\d|([01]?\\d|2[0-3]):[0-5]?\\d:[0-5]?\\d)(\\.\\d{1,7})?))$"
         """)]
-    [InlineData("Guid",
+    [DataRow("Guid",
         """
         "type": "string",
         "format": "uuid"
         """)]
-    [InlineData("Uri?",
+    [DataRow("Uri?",
         """
         "type": "string",
         "format": "uri"
         """)]
-    [InlineData("DayOfWeek",
+    [DataRow("DayOfWeek",
         """
         "enum": [
           "Sunday",
@@ -286,70 +285,70 @@ public partial class GeneratorTests
           "Saturday"
         ]
         """)]
-    [InlineData("int[]?",
+    [DataRow("int[]?",
         """
         "type": "array",
         "items": {
          "type": "integer"
         }
         """)]
-    [InlineData("ICollection<int>?",
+    [DataRow("ICollection<int>?",
         """
         "type": "array",
         "items": {
           "type": "integer"
         }
         """)]
-    [InlineData("IDictionary<string, int>?",
+    [DataRow("IDictionary<string, int>?",
         """
         "type": "object",
         "additionalProperties": {
           "type": "integer"
         }
         """)]
-    [InlineData("string[]?",
+    [DataRow("string[]?",
         """
         "type": "array",
         "items": {
          "type": "string"
         }
         """)]
-    [InlineData("IEnumerable<string>?",
+    [DataRow("IEnumerable<string>?",
         """
         "type": "array",
         "items": {
           "type": "string"
         }
         """)]
-    [InlineData("IDictionary<string, string>?",
+    [DataRow("IDictionary<string, string>?",
         """
         "type": "object",
         "additionalProperties": {
           "type": "string"
         }
         """)]
-    [InlineData("object[]?",
+    [DataRow("object[]?",
         """
         "type": "array",
         "items": {
          "type": "object"
         }
         """)]
-    [InlineData("IList<object>?",
+    [DataRow("IList<object>?",
         """
         "type": "array",
         "items": {
           "type": "object"
         }
         """)]
-    [InlineData("IDictionary<string, object>?",
+    [DataRow("IDictionary<string, object>?",
         """
         "type": "object",
         "additionalProperties": {
           "type": "object"
         }
         """)]
-    [InlineData("ChildType?",
+    [DataRow("ChildType?",
         """
         "type": "object",
         "properties": {
@@ -359,7 +358,7 @@ public partial class GeneratorTests
           "Parent": {}
         }
         """)]
-    [InlineData("ChildType[]?",
+    [DataRow("ChildType[]?",
         """
         "type": "array",
         "items": {
@@ -372,7 +371,7 @@ public partial class GeneratorTests
           }
         }
         """)]
-    [InlineData("IList<ChildType>?",
+    [DataRow("IList<ChildType>?",
         """
         "type": "array",
         "items": {
@@ -385,7 +384,7 @@ public partial class GeneratorTests
           }
         }
         """)]
-    [InlineData("IDictionary<string, ChildType>?",
+    [DataRow("IDictionary<string, ChildType>?",
         """
         "type": "object",
         "additionalProperties": {
@@ -398,26 +397,26 @@ public partial class GeneratorTests
           }
         }
         """)]
-    [InlineData("Int128",
+    [DataRow("Int128",
         """
         "type": "integer"
         """)]
-    [InlineData("UInt128",
+    [DataRow("UInt128",
         """
         "type": "integer"
         """)]
-    [InlineData("Half",
+    [DataRow("Half",
         """
         "type": [
           "number",
           "string"
         ]
         """)]
-    [InlineData("DateOnly",
+    [DataRow("DateOnly",
         """
         "type": "string"
         """)]
-    [InlineData("TimeOnly",
+    [DataRow("TimeOnly",
         """
         "type": "string"
         """)]
@@ -474,7 +473,7 @@ public partial class GeneratorTests
           """);
     }
 
-    [Fact]
+    [TestMethod]
     public void ShouldAllowGetOnlyObject()
     {
         var source =
@@ -517,7 +516,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void ShouldAllowGetOnlyCollections()
     {
         var source =
@@ -560,7 +559,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void ShouldAllowFreeFormatViaRecursiveSubtree()
     {
         var source =
@@ -717,7 +716,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void ShouldSkipProperties()
     {
         var source =
@@ -763,7 +762,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void ShouldTakeConfigurationKeyName()
     {
         var source =
@@ -803,7 +802,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void ShouldUseConfigurationKeyNameInExclusionPaths()
     {
         var source =
@@ -831,7 +830,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void ShouldAllowEmptyConfigPath()
     {
         var source =
@@ -868,7 +867,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void ShouldAllowNestedConfigPath()
     {
         var source =
@@ -920,7 +919,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void ShouldAllowSimpleTypeInConfigPath()
     {
         var source =
@@ -953,7 +952,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void MergesPropertiesAtSameConfigPath()
     {
         var source =
@@ -999,7 +998,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void LastUsedCasingOfConfigPathWins()
     {
         var source =
@@ -1058,7 +1057,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void LastUsedTypeDocumentationWins()
     {
         var source =
@@ -1103,7 +1102,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void LastUsedCasingOfPropertyWins()
     {
         var source =
@@ -1139,7 +1138,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void PreservesExistingTypeWhenConfigPathSkipped()
     {
         var source =
@@ -1169,7 +1168,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void PreservesExistingPropertyTypeWhenSkipped()
     {
         var source =
@@ -1211,7 +1210,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void PreservesExistingPropertyWhenSkipped()
     {
         var source =
@@ -1253,7 +1252,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void ReadsInheritDocFromInterfaceInSource()
     {
         var source =
@@ -1302,7 +1301,7 @@ public partial class GeneratorTests
 
     }
 
-    [Fact]
+    [TestMethod]
     public void CanClearInheritDocFromInterfaceInSource()
     {
         var source =
@@ -1329,7 +1328,7 @@ public partial class GeneratorTests
         Assert.DoesNotContain("Gets or sets the name of this app.", schema);
     }
 
-    [Fact]
+    [TestMethod]
     public void ReadsInheritDocFromInterfaceInNuGetPackage()
     {
         // Requires <CopyDocumentationFilesFromPackages>true</CopyDocumentationFilesFromPackages> in csproj.
@@ -1382,7 +1381,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void DetectsBooleanDefaultValueInDocComments()
     {
         var source =
@@ -1440,7 +1439,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void LastUsedCasingOfLogCategoryWins()
     {
         var source =
@@ -1469,7 +1468,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void GeneratesSchemaForNamedOptionsOnAsterisk()
     {
         var source =
@@ -1509,7 +1508,7 @@ public partial class GeneratorTests
             """);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanGenerateSchemaForNamedOptionsWithDefaultOptions()
     {
         var source =
@@ -1561,14 +1560,14 @@ public partial class GeneratorTests
         var sourceSyntaxTree = SyntaxFactory.ParseSyntaxTree(SourceText.From(sourceText));
         var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary).WithNullableContextOptions(NullableContextOptions.Enable);
         var compilation = CSharpCompilation.Create("Test", [s_implicitUsingsSyntaxTree, s_attributesSyntaxTree, sourceSyntaxTree], s_defaultReferences.AddRange(references), compilationOptions);
-        Assert.Empty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity > DiagnosticSeverity.Hidden));
+        Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity > DiagnosticSeverity.Hidden));
 
         var configSchemaInfo = ConfigSchemaGenerator.GetConfigurationSchema(compilation.Assembly);
-        Assert.NotNull(configSchemaInfo);
+        Assert.IsNotNull(configSchemaInfo);
 
         var parser = new ConfigurationBindingGenerator.Parser(configSchemaInfo, new KnownTypeSymbols(compilation));
         var spec = parser.GetSchemaGenerationSpec(CancellationToken.None);
-        Assert.NotNull(spec);
+        Assert.IsNotNull(spec);
 
         var emitter = new ConfigSchemaEmitter(spec, compilation);
         return emitter.GenerateSchema();
@@ -1582,10 +1581,10 @@ public partial class GeneratorTests
         var expectedText = expectedJson.ToJsonString(s_testSerializerOptions);
         var actualText = actualJson.ToJsonString(s_testSerializerOptions);
 
-        Assert.Equal(expectedText, actualText);
+        Assert.AreEqual(expectedText, actualText);
     }
 
-    [Fact]
+    [TestMethod]
     public void IntegrationTest()
     {
         // the 'refs' folder is populated by PreserveCompilationContext in the .csproj
@@ -1601,39 +1600,39 @@ public partial class GeneratorTests
         // Compare the two, normalizing line endings.
         var actual = File.ReadAllText(outputPath).ReplaceLineEndings();
         var baseline = File.ReadAllText(Path.Combine("Baselines", "IntegrationTest.baseline.json")).ReplaceLineEndings();
-        Assert.Equal(baseline, actual);
+        Assert.AreEqual(baseline, actual);
     }
 
     [GeneratedRegex(ConfigSchemaEmitter.TimeSpanRegex)]
     private static partial Regex TimeSpanRegex();
 
-    [Theory]
-    [InlineData("6")]
-    [InlineData("6:12")]
-    [InlineData("6:12:14")]
-    [InlineData("6:12:14.45")]
-    [InlineData("6.12:14:45")]
-    [InlineData("6:12:14:45")]
-    [InlineData("6.12:14:45.3448")]
-    [InlineData("6:12:14:45.3448")]
-    [InlineData("-6:12:14:45.3448")]
-    [InlineData("9999999")]
-    [InlineData("9:7")]
+    [TestMethod]
+    [DataRow("6")]
+    [DataRow("6:12")]
+    [DataRow("6:12:14")]
+    [DataRow("6:12:14.45")]
+    [DataRow("6.12:14:45")]
+    [DataRow("6:12:14:45")]
+    [DataRow("6.12:14:45.3448")]
+    [DataRow("6:12:14:45.3448")]
+    [DataRow("-6:12:14:45.3448")]
+    [DataRow("9999999")]
+    [DataRow("9:7")]
     public void TestTimeSpanRegexValid(string validTimeSpanString)
     {
         Assert.Matches(TimeSpanRegex(), validTimeSpanString);
-        Assert.True(TimeSpan.TryParse(validTimeSpanString, CultureInfo.InvariantCulture, out _));
+        Assert.IsTrue(TimeSpan.TryParse(validTimeSpanString, CultureInfo.InvariantCulture, out _));
     }
 
-    [Theory]
-    [InlineData("24:00")]
-    [InlineData("23:61")]
-    [InlineData("6:12:60")]
-    [InlineData("19999999")]
-    [InlineData("+6:12:14:45.3448")]
+    [TestMethod]
+    [DataRow("24:00")]
+    [DataRow("23:61")]
+    [DataRow("6:12:60")]
+    [DataRow("19999999")]
+    [DataRow("+6:12:14:45.3448")]
     public void TestTimeSpanRegexInvalid(string invalidTimeSpanString)
     {
         Assert.DoesNotMatch(TimeSpanRegex(), invalidTimeSpanString);
-        Assert.False(TimeSpan.TryParse(invalidTimeSpanString, CultureInfo.InvariantCulture, out _));
+        Assert.IsFalse(TimeSpan.TryParse(invalidTimeSpanString, CultureInfo.InvariantCulture, out _));
     }
 }

@@ -9,34 +9,42 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Confluent.Kafka.Tests;
 
-[Collection("Kafka Broker collection")]
+[TestClass]
 public class OtelTracesTests
 {
-    private readonly KafkaContainerFixture? _containerFixture;
-    private readonly ITestOutputHelper _outputHelper;
+    private readonly TestContext _testContext;
 
-    public OtelTracesTests(KafkaContainerFixture? kafkaContainerFixture, ITestOutputHelper outputHelper)
+    public OtelTracesTests(TestContext testContext)
     {
-        _containerFixture = kafkaContainerFixture;
-        _outputHelper = outputHelper;
+        _testContext = testContext;
     }
 
-    [Theory]
+    [ClassInitialize]
+    public static async Task ClassInitialize(TestContext context)
+    {
+        await KafkaContainerFixture.Instance.InitializeAsync();
+    }
+
+    [ClassCleanup(ClassCleanupBehavior.EndOfClass)]
+    public static async Task ClassCleanup(TestContext context)
+    {
+        await KafkaContainerFixture.Instance.DisposeAsync();
+    }
+
+    [TestMethod]
     [RequiresDocker]
-    [InlineData(true)]
-    [InlineData(false)]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task EnsureTracesAreProducedAsync(bool useKeyed)
     {
         List<Activity> activities = new();
         var builder = Host.CreateEmptyApplicationBuilder(null);
         var key = useKeyed ? "messaging" : null;
         builder.Configuration.AddInMemoryCollection([
-            new KeyValuePair<string, string?>("ConnectionStrings:messaging", _containerFixture?.Container?.GetBootstrapAddress()),
+            new KeyValuePair<string, string?>("ConnectionStrings:messaging", KafkaContainerFixture.Instance.Container?.GetBootstrapAddress()),
         ]);
 
         if (useKeyed)
@@ -77,13 +85,13 @@ public class OtelTracesTests
                     Key = $"any_key_{i}",
                     Value = $"any_value_{i}",
                 });
-                _outputHelper.WriteLine("produced message {0}", i);
+                _testContext.WriteLine("produced message {0}", i);
             }
 
             await producer.FlushAsync();
         }
 
-        Assert.Equal(5, activities.Where(x => x.OperationName == $"{topic} publish").Count());
+        Assert.AreEqual(5, activities.Where(x => x.OperationName == $"{topic} publish").Count());
 
         activities.Clear();
 
@@ -107,12 +115,12 @@ public class OtelTracesTests
                     break;
                 }
 
-                _outputHelper.WriteLine("consumed message {0}", j);
+                _testContext.WriteLine("consumed message {0}", j);
                 j++;
             }
         }
 
-        Assert.Equal(5, activities.Where(x => x.OperationName == $"{topic} receive").Count());
+        Assert.AreEqual(5, activities.Where(x => x.OperationName == $"{topic} receive").Count());
 
         await host.StopAsync();
     }

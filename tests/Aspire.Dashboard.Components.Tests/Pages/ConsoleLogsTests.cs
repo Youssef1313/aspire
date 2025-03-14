@@ -18,22 +18,23 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.FluentUI.AspNetCore.Components;
-using Xunit;
-using Xunit.Abstractions;
+
+using TestContext = Microsoft.VisualStudio.TestTools.UnitTesting.TestContext;
 
 namespace Aspire.Dashboard.Components.Tests.Pages;
 
 [UseCulture("en-US")]
-public partial class ConsoleLogsTests : TestContext
+[TestClass]
+public partial class ConsoleLogsTests : Bunit.TestContext
 {
-    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly TestContext _testContext;
 
-    public ConsoleLogsTests(ITestOutputHelper testOutputHelper)
+    public ConsoleLogsTests(TestContext testContext)
     {
-        _testOutputHelper = testOutputHelper;
+        _testContext = testContext;
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResourceName_SubscribeOnLoadAndChange_SubscribeConsoleLogsOnce()
     {
         // Arrange
@@ -87,12 +88,12 @@ public partial class ConsoleLogsTests : TestContext
         cut.WaitForState(() => instance.PageViewModel.Status == loc[nameof(Resources.ConsoleLogs.ConsoleLogsFinishedWatchingLogs)]);
 
         var subscribedResourceName1 = await subscribedResourceNamesChannel.Reader.ReadAsync().DefaultTimeout();
-        Assert.Equal("test-resource", subscribedResourceName1);
+        Assert.AreEqual("test-resource", subscribedResourceName1);
 
         navigationManager.LocationChanged += (sender, e) =>
         {
             var expectedUrl = DashboardUrls.ConsoleLogsUrl(resource: "test-resource2");
-            Assert.EndsWith(expectedUrl, e.Location);
+            StringAssert.EndsWith(e.Location, expectedUrl);
 
             cut.SetParametersAndRender(builder =>
             {
@@ -113,13 +114,13 @@ public partial class ConsoleLogsTests : TestContext
         cut.WaitForState(() => instance.PageViewModel.Status == loc[nameof(Resources.ConsoleLogs.ConsoleLogsWatchingLogs)]);
 
         var subscribedResourceName2 = await subscribedResourceNamesChannel.Reader.ReadAsync().DefaultTimeout();
-        Assert.Equal("test-resource2", subscribedResourceName2);
+        Assert.AreEqual("test-resource2", subscribedResourceName2);
 
         subscribedResourceNamesChannel.Writer.Complete();
-        Assert.False(await subscribedResourceNamesChannel.Reader.WaitToReadAsync().DefaultTimeout());
+        Assert.IsFalse(await subscribedResourceNamesChannel.Reader.WaitToReadAsync().DefaultTimeout());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResourceName_ViaUrlAndResourceLoaded_LogViewerUpdated()
     {
         // Arrange
@@ -160,14 +161,14 @@ public partial class ConsoleLogsTests : TestContext
         cut.WaitForState(() => instance.PageViewModel.Status == loc[nameof(Resources.ConsoleLogs.ConsoleLogsWatchingLogs)]);
 
         var subscribedResource = await subscribedResourceNameTcs.Task;
-        Assert.Equal("test-resource", subscribedResource);
+        Assert.AreEqual("test-resource", subscribedResource);
 
         logger.LogInformation("Log results are added to log viewer.");
         consoleLogsChannel.Writer.TryWrite([new ResourceLogLine(1, "Hello world", IsErrorMessage: false)]);
         cut.WaitForState(() => instance._logEntries.EntriesCount > 0);
     }
 
-    [Fact]
+    [TestMethod]
     public void ClearLogEntries_AllResources_LogsFilteredOut()
     {
         // Arrange
@@ -224,7 +225,7 @@ public partial class ConsoleLogsTests : TestContext
         cut.WaitForState(() => instance._logEntries.EntriesCount > 0);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ConsoleLogsManager_ClearLogs_LogsFilteredOutAsync()
     {
         // Arrange
@@ -257,7 +258,7 @@ public partial class ConsoleLogsTests : TestContext
         var loc = Services.GetRequiredService<IStringLocalizer<Resources.ConsoleLogs>>();
 
         // Assert
-        Assert.Single(consoleLogsManager.GetSubscriptions());
+        Assert.ContainsSingle(consoleLogsManager.GetSubscriptions());
 
         logger.LogInformation("Waiting for selected resource.");
         cut.WaitForState(() => instance.PageViewModel.SelectedResource == testResource);
@@ -280,7 +281,7 @@ public partial class ConsoleLogsTests : TestContext
         cut.WaitForState(() => instance._logEntries.EntriesCount > 0);
     }
 
-    [Fact]
+    [TestMethod]
     public void MenuButtons_SelectedResourceChanged_ButtonsUpdated()
     {
         // Arrange
@@ -324,7 +325,7 @@ public partial class ConsoleLogsTests : TestContext
         cut.WaitForAssertion(() =>
         {
             var highlightedCommands = cut.FindAll(".highlighted-command");
-            Assert.Single(highlightedCommands);
+            Assert.ContainsSingle(highlightedCommands);
         });
 
         // Act 2
@@ -340,7 +341,7 @@ public partial class ConsoleLogsTests : TestContext
         cut.WaitForAssertion(() =>
         {
             var highlightedCommands = cut.FindAll(".highlighted-command");
-            Assert.Empty(highlightedCommands);
+            Assert.IsEmpty(highlightedCommands);
         });
     }
 
@@ -371,7 +372,7 @@ public partial class ConsoleLogsTests : TestContext
         JSInterop.SetupVoid("initializeContinuousScroll");
         JSInterop.SetupVoid("resetContinuousScrollPosition");
 
-        var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(_testOutputHelper);
+        var loggerFactory = IntegrationTestHelpers.CreateLoggerFactory(_testContext);
 
         Services.AddLocalization();
         Services.AddSingleton<ILoggerFactory>(loggerFactory);

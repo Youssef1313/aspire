@@ -3,13 +3,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Hosting.Testing.Tests;
 
+[TestClass]
 public class TestingPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void CtorDistributedApplicationFactoryThrowsWhenEntryPointIsNull()
     {
         Type entryPoint = null!;
@@ -17,10 +17,10 @@ public class TestingPublicApiTests
         var action = () => new DistributedApplicationFactory(entryPoint);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(entryPoint), exception.ParamName);
+        Assert.AreEqual(nameof(entryPoint), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorDistributedApplicationFactoryWithArgsThrowsWhenEntryPointIsNull()
     {
         Type entryPoint = null!;
@@ -29,10 +29,10 @@ public class TestingPublicApiTests
         var action = () => new DistributedApplicationFactory(entryPoint, args);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(entryPoint), exception.ParamName);
+        Assert.AreEqual(nameof(entryPoint), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorDistributedApplicationFactoryWithArgsThrowsWhenArgsIsNull()
     {
         Type entryPoint = typeof(Projects.TestingAppHost1_AppHost);
@@ -41,12 +41,12 @@ public class TestingPublicApiTests
         var action = () => new DistributedApplicationFactory(entryPoint, args);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
+        Assert.AreEqual(nameof(args), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorDistributedApplicationFactoryWithArgsThrowsWhenArgsContainsIsNullOrEmpty(bool isNull)
     {
         Type entryPoint = typeof(Projects.TestingAppHost1_AppHost);
@@ -57,16 +57,16 @@ public class TestingPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
-        Assert.Equal(isNull
+        Assert.AreEqual(nameof(args), exception.ParamName);
+        Assert.AreEqual(isNull
             ? "Array params contains null item: [arg, , arg2] (Parameter 'args')"
             : "Array params contains empty item: [arg, , arg2] (Parameter 'args')",
             exception.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CreateHttpClientThrowsWhenResourceNameIsNullOrEmpty(bool isNull)
     {
         Type entryPoint = typeof(Projects.TestingAppHost1_AppHost);
@@ -78,12 +78,12 @@ public class TestingPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(resourceName), exception.ParamName);
+        Assert.AreEqual(nameof(resourceName), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task GetConnectionStringThrowsWhenResourceNameIsNullOrEmpty(bool isNull)
     {
         Type entryPoint = typeof(Projects.TestingAppHost1_AppHost);
@@ -95,12 +95,12 @@ public class TestingPublicApiTests
         var exception = isNull
             ? await Assert.ThrowsAsync<ArgumentNullException>(action)
             : await Assert.ThrowsAsync<ArgumentException>(action);
-        Assert.Equal(nameof(resourceName), exception.ParamName);
+        Assert.AreEqual(nameof(resourceName), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void GetEndpointThrowsWhenResourceNameIsNullOrEmpty(bool isNull)
     {
         Type entryPoint = typeof(Projects.TestingAppHost1_AppHost);
@@ -112,10 +112,10 @@ public class TestingPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(resourceName), exception.ParamName);
+        Assert.AreEqual(nameof(resourceName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CreateHttpClientThrowsWhenDistributedApplicationIsNull()
     {
         DistributedApplication app = null!;
@@ -124,12 +124,12 @@ public class TestingPublicApiTests
         var action = () => app.CreateHttpClient(resourceName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(app), exception.ParamName);
+        Assert.AreEqual(nameof(app), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CreateHttpClientWithResourceNameThrowsWhenResourceNameIsNullOrEmpty(bool isNull)
     {
         var distributedApplication = DistributedApplication.CreateBuilder().Build();
@@ -140,10 +140,10 @@ public class TestingPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(resourceName), exception.ParamName);
+        Assert.AreEqual(nameof(resourceName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetConnectionStringAsyncThrowsWhenDistributedApplicationIsNull()
     {
         DistributedApplication app = null!;
@@ -152,12 +152,12 @@ public class TestingPublicApiTests
         var action = async () => await app.GetConnectionStringAsync(resourceName);
 
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(action);
-        Assert.Equal(nameof(app), exception.ParamName);
+        Assert.AreEqual(nameof(app), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task GetConnectionStringAsyncWithResourceNameThrowsWhenResourceNameIsNullOrEmpty(bool isNull)
     {
         var distributedApplication = DistributedApplication.CreateBuilder().Build();
@@ -168,10 +168,10 @@ public class TestingPublicApiTests
         var exception = isNull
             ? await Assert.ThrowsAsync<ArgumentNullException>(action)
             : await Assert.ThrowsAsync<ArgumentException>(action);
-        Assert.Equal(nameof(resourceName), exception.ParamName);
+        Assert.AreEqual(nameof(resourceName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetEndpointThrowsWhenDistributedApplicationIsNull()
     {
         DistributedApplication app = null!;
@@ -180,12 +180,12 @@ public class TestingPublicApiTests
         var action = () => app.GetEndpoint(resourceName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(app), exception.ParamName);
+        Assert.AreEqual(nameof(app), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void GetEndpointClientWithResourceNameThrowsWhenResourceNameIsNullOrEmpty(bool isNull)
     {
         var distributedApplication = DistributedApplication.CreateBuilder().Build();
@@ -196,10 +196,10 @@ public class TestingPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(resourceName), exception.ParamName);
+        Assert.AreEqual(nameof(resourceName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CreateAsyncWithEntryPointThrowsWhenEntryPointIsNull()
     {
         Type entryPoint = null!;
@@ -207,10 +207,10 @@ public class TestingPublicApiTests
         var action = () => DistributedApplicationTestingBuilder.CreateAsync(entryPoint);
 
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(action);
-        Assert.Equal(nameof(entryPoint), exception.ParamName);
+        Assert.AreEqual(nameof(entryPoint), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CreateAsyncWithArgsThrowsWhenArgsIsNull()
     {
         string[] args = null!;
@@ -218,12 +218,12 @@ public class TestingPublicApiTests
         var action = () => DistributedApplicationTestingBuilder.CreateAsync<Projects.TestingAppHost1_AppHost>(args);
 
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
+        Assert.AreEqual(nameof(args), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task CreateAsyncWithArgsThrowsWhenArgsContainsIsNullOrEmpty(bool isNull)
     {
         string[] args = ["arg", isNull ? null! : string.Empty, "arg2"];
@@ -233,14 +233,14 @@ public class TestingPublicApiTests
         var exception = isNull
             ? await Assert.ThrowsAsync<ArgumentNullException>(action)
             : await Assert.ThrowsAsync<ArgumentException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
-        Assert.Equal(isNull
+        Assert.AreEqual(nameof(args), exception.ParamName);
+        Assert.AreEqual(isNull
             ? "Array params contains null item: [arg, , arg2] (Parameter 'args')"
             : "Array params contains empty item: [arg, , arg2] (Parameter 'args')",
             exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CreateAsyncWithEntryPointAndArgsThrowsWhenEntryPointIsNull()
     {
         Type entryPoint = null!;
@@ -249,10 +249,10 @@ public class TestingPublicApiTests
         var action = () => DistributedApplicationTestingBuilder.CreateAsync(entryPoint, args);
 
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(action);
-        Assert.Equal(nameof(entryPoint), exception.ParamName);
+        Assert.AreEqual(nameof(entryPoint), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CreateAsyncWithEntryPointAndArgsThrowsWhenArgsIsNull()
     {
         Type entryPoint = typeof(Projects.TestingAppHost1_AppHost);
@@ -261,12 +261,12 @@ public class TestingPublicApiTests
         var action = () => DistributedApplicationTestingBuilder.CreateAsync(entryPoint, args);
 
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
+        Assert.AreEqual(nameof(args), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task CreateAsyncWithEntryPointAndArgsThrowsWhenArgsContainsIsNullOrEmpty(bool isNull)
     {
         Type entryPoint = typeof(Projects.TestingAppHost1_AppHost);
@@ -277,14 +277,14 @@ public class TestingPublicApiTests
         var exception = isNull
             ? await Assert.ThrowsAsync<ArgumentNullException>(action)
             : await Assert.ThrowsAsync<ArgumentException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
-        Assert.Equal(isNull
+        Assert.AreEqual(nameof(args), exception.ParamName);
+        Assert.AreEqual(isNull
             ? "Array params contains null item: [arg, , arg2] (Parameter 'args')"
             : "Array params contains empty item: [arg, , arg2] (Parameter 'args')",
             exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CreateAsyncWithArgsAndConfigureBuilderThrowsWhenArgsIsNull()
     {
         string[] args = null!;
@@ -293,10 +293,10 @@ public class TestingPublicApiTests
         var action = () => DistributedApplicationTestingBuilder.CreateAsync<Projects.TestingAppHost1_AppHost>(args, configureBuilder);
 
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
+        Assert.AreEqual(nameof(args), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CreateAsyncWithArgsAndConfigureBuilderThrowsWhenConfigureBuilderIsNull()
     {
         string[] args = ["arg"];
@@ -305,12 +305,12 @@ public class TestingPublicApiTests
         var action = () => DistributedApplicationTestingBuilder.CreateAsync<Projects.TestingAppHost1_AppHost>(args, configureBuilder);
 
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureBuilder), exception.ParamName);
+        Assert.AreEqual(nameof(configureBuilder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task CreateAsyncWithArgsAndConfigureBuilderThrowsWhenArgsContainsIsNullOrEmpty(bool isNull)
     {
         string[] args = ["arg", isNull ? null! : string.Empty, "arg2"];
@@ -321,14 +321,14 @@ public class TestingPublicApiTests
         var exception = isNull
              ? await Assert.ThrowsAsync<ArgumentNullException>(action)
              : await Assert.ThrowsAsync<ArgumentException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
-        Assert.Equal(isNull
+        Assert.AreEqual(nameof(args), exception.ParamName);
+        Assert.AreEqual(isNull
             ? "Array params contains null item: [arg, , arg2] (Parameter 'args')"
             : "Array params contains empty item: [arg, , arg2] (Parameter 'args')",
             exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CreateAsyncWithEntryPointAndArgsAndConfigureBuilderThrowsWhenEntryPointIsNull()
     {
         Type entryPoint = null!;
@@ -338,10 +338,10 @@ public class TestingPublicApiTests
         var action = () => DistributedApplicationTestingBuilder.CreateAsync(entryPoint, args, configureBuilder);
 
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(action);
-        Assert.Equal(nameof(entryPoint), exception.ParamName);
+        Assert.AreEqual(nameof(entryPoint), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CreateAsyncWithEntryPointAndArgsAndConfigureBuilderThrowsWhenArgsIsNull()
     {
         Type entryPoint = typeof(Projects.TestingAppHost1_AppHost);
@@ -351,10 +351,10 @@ public class TestingPublicApiTests
         var action = () => DistributedApplicationTestingBuilder.CreateAsync(entryPoint, args, configureBuilder);
 
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
+        Assert.AreEqual(nameof(args), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task CreateAsyncWithEntryPointAndArgsAndConfigureBuilderThrowsWhenConfigureBuilderIsNull()
     {
         Type entryPoint = typeof(Projects.TestingAppHost1_AppHost);
@@ -364,12 +364,12 @@ public class TestingPublicApiTests
         var action = () => DistributedApplicationTestingBuilder.CreateAsync(entryPoint, args, configureBuilder);
 
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureBuilder), exception.ParamName);
+        Assert.AreEqual(nameof(configureBuilder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task CreateAsyncWithEntryPointAndArgsAndConfigureBuilderThrowsWhenArgsContainsIsNullOrEmpty(bool isNull)
     {
         Type entryPoint = typeof(Projects.TestingAppHost1_AppHost);
@@ -381,14 +381,14 @@ public class TestingPublicApiTests
         var exception = isNull
              ? await Assert.ThrowsAsync<ArgumentNullException>(action)
              : await Assert.ThrowsAsync<ArgumentException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
-        Assert.Equal(isNull
+        Assert.AreEqual(nameof(args), exception.ParamName);
+        Assert.AreEqual(isNull
             ? "Array params contains null item: [arg, , arg2] (Parameter 'args')"
             : "Array params contains empty item: [arg, , arg2] (Parameter 'args')",
             exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void CreateWithArgsThrowsWhenArgsIsNull()
     {
         string[] args = null!;
@@ -396,12 +396,12 @@ public class TestingPublicApiTests
         var action = () => DistributedApplicationTestingBuilder.Create(args);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
+        Assert.AreEqual(nameof(args), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CreateWithArgsThrowsWhenArgsContainsIsNullOrEmpty(bool isNull)
     {
         string[] args = ["arg", isNull ? null! : string.Empty, "arg2"];
@@ -411,14 +411,14 @@ public class TestingPublicApiTests
         var exception = isNull
              ? Assert.Throws<ArgumentNullException>(action)
              : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
-        Assert.Equal(isNull
+        Assert.AreEqual(nameof(args), exception.ParamName);
+        Assert.AreEqual(isNull
             ? "Array params contains null item: [arg, , arg2] (Parameter 'args')"
             : "Array params contains empty item: [arg, , arg2] (Parameter 'args')",
             exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void CreateWithArgsAndConfigureBuilderThrowsWhenArgsIsNull()
     {
         string[] args = null!;
@@ -427,10 +427,10 @@ public class TestingPublicApiTests
         var action = () => DistributedApplicationTestingBuilder.Create(args, configureBuilder);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
+        Assert.AreEqual(nameof(args), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CreateWithArgsAndConfigureBuilderThrowsWhenConfigureBuilderIsNull()
     {
         string[] args = [];
@@ -439,12 +439,12 @@ public class TestingPublicApiTests
         var action = () => DistributedApplicationTestingBuilder.Create(args, configureBuilder);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureBuilder), exception.ParamName);
+        Assert.AreEqual(nameof(configureBuilder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CreateWithArgsAndConfigureBuilderThrowsWhenArgsContainsIsNullOrEmpty(bool isNull)
     {
         string[] args = ["arg", isNull ? null! : string.Empty, "arg2"];
@@ -455,8 +455,8 @@ public class TestingPublicApiTests
         var exception = isNull
              ? Assert.Throws<ArgumentNullException>(action)
              : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(args), exception.ParamName);
-        Assert.Equal(isNull
+        Assert.AreEqual(nameof(args), exception.ParamName);
+        Assert.AreEqual(isNull
             ? "Array params contains null item: [arg, , arg2] (Parameter 'args')"
             : "Array params contains empty item: [arg, , arg2] (Parameter 'args')",
             exception.Message);

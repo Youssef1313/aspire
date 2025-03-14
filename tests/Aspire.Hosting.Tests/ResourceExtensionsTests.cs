@@ -3,83 +3,83 @@
 
 using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class ResourceExtensionsTests
 {
-    [Fact]
+    [TestMethod]
     public void TryGetAnnotationsOfTypeReturnsFalseWhenNoAnnotations()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         var parent = builder.AddResource(new ParentResource("parent"));
 
-        Assert.False(parent.Resource.HasAnnotationOfType<DummyAnnotation>());
-        Assert.False(parent.Resource.TryGetAnnotationsOfType<DummyAnnotation>(out var annotations));
-        Assert.Null(annotations);
+        Assert.IsFalse(parent.Resource.HasAnnotationOfType<DummyAnnotation>());
+        Assert.IsFalse(parent.Resource.TryGetAnnotationsOfType<DummyAnnotation>(out var annotations));
+        Assert.IsNull(annotations);
     }
 
-    [Fact]
+    [TestMethod]
     public void TryGetAnnotationsOfTypeReturnsFalseWhenOnlyAnnotationsOfOtherTypes()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         var parent = builder.AddResource(new ParentResource("parent"))
                             .WithAnnotation(new AnotherDummyAnnotation());
 
-        Assert.False(parent.Resource.HasAnnotationOfType<DummyAnnotation>());
-        Assert.False(parent.Resource.TryGetAnnotationsOfType<DummyAnnotation>(out var annotations));
-        Assert.Null(annotations);
+        Assert.IsFalse(parent.Resource.HasAnnotationOfType<DummyAnnotation>());
+        Assert.IsFalse(parent.Resource.TryGetAnnotationsOfType<DummyAnnotation>(out var annotations));
+        Assert.IsNull(annotations);
     }
 
-    [Fact]
+    [TestMethod]
     public void TryGetAnnotationsOfTypeReturnsTrueWhenNoAnnotations()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         var parent = builder.AddResource(new ParentResource("parent"))
                             .WithAnnotation(new DummyAnnotation());
 
-        Assert.True(parent.Resource.HasAnnotationOfType<DummyAnnotation>());
-        Assert.True(parent.Resource.TryGetAnnotationsOfType<DummyAnnotation>(out var annotations));
-        Assert.Single(annotations);
+        Assert.IsTrue(parent.Resource.HasAnnotationOfType<DummyAnnotation>());
+        Assert.IsTrue(parent.Resource.TryGetAnnotationsOfType<DummyAnnotation>(out var annotations));
+        Assert.ContainsSingle(annotations);
     }
 
-    [Fact]
+    [TestMethod]
     public void TryGetAnnotationsIncludingAncestorsOfTypeReturnsAnnotationFromParentDirectly()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         var parent = builder.AddResource(new ParentResource("parent"))
                             .WithAnnotation(new DummyAnnotation());
 
-        Assert.True(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
-        Assert.True(parent.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
-        Assert.Single(annotations);
+        Assert.IsTrue(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
+        Assert.IsTrue(parent.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
+        Assert.ContainsSingle(annotations);
     }
 
-    [Fact]
+    [TestMethod]
     public void TryGetAnnotationIncludingAncestorsOfTypeReturnsFalseWhenNoAnnotations()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         var parent = builder.AddResource(new ParentResource("parent"));
 
-        Assert.False(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
-        Assert.False(parent.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
-        Assert.Null(annotations);
+        Assert.IsFalse(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
+        Assert.IsFalse(parent.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
+        Assert.IsNull(annotations);
     }
 
-    [Fact]
+    [TestMethod]
     public void TryGetAnnotationIncludingAncestorsOfTypeReturnsFalseWhenOnlyAnnotationsOfOtherTypes()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         var parent = builder.AddResource(new ParentResource("parent"))
                             .WithAnnotation(new AnotherDummyAnnotation());
 
-        Assert.False(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
-        Assert.False(parent.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
-        Assert.Null(annotations);
+        Assert.IsFalse(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
+        Assert.IsFalse(parent.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
+        Assert.IsNull(annotations);
     }
 
-    [Fact]
+    [TestMethod]
     public void TryGetAnnotationIncludingAncestorsOfTypeReturnsFalseWhenOnlyAnnotationsOfOtherTypesIncludingParent()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -89,12 +89,12 @@ public class ResourceExtensionsTests
         var child = builder.AddResource(new ChildResource("child", parent.Resource))
                            .WithAnnotation(new AnotherDummyAnnotation());
 
-        Assert.False(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
-        Assert.False(child.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
-        Assert.Null(annotations);
+        Assert.IsFalse(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
+        Assert.IsFalse(child.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
+        Assert.IsNull(annotations);
     }
 
-    [Fact]
+    [TestMethod]
     public void TryGetAnnotationsIncludingAncestorsOfTypeReturnsAnnotationFromParent()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -103,12 +103,12 @@ public class ResourceExtensionsTests
 
         var child = builder.AddResource(new ChildResource("child", parent.Resource));
 
-        Assert.True(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
-        Assert.True(child.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
-        Assert.Single(annotations);
+        Assert.IsTrue(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
+        Assert.IsTrue(child.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
+        Assert.ContainsSingle(annotations);
     }
 
-    [Fact]
+    [TestMethod]
     public void TryGetAnnotationsIncludingAncestorsOfTypeCombinesAnnotationsFromParentAndChild()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -118,12 +118,12 @@ public class ResourceExtensionsTests
         var child = builder.AddResource(new ChildResource("child", parent.Resource))
                            .WithAnnotation(new DummyAnnotation());
 
-        Assert.True(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
-        Assert.True(child.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
-        Assert.Equal(2, annotations.Count());
+        Assert.IsTrue(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
+        Assert.IsTrue(child.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
+        Assert.AreEqual(2, annotations.Count());
     }
 
-    [Fact]
+    [TestMethod]
     public void TryGetAnnotationsIncludingAncestorsOfTypeCombinesAnnotationsFromParentAndChildAndGrandchild()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -136,32 +136,32 @@ public class ResourceExtensionsTests
         var grandchild = builder.AddResource(new ChildResource("grandchild", parent: child.Resource))
                                 .WithAnnotation(new DummyAnnotation());
 
-        Assert.True(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
-        Assert.True(grandchild.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
-        Assert.Equal(3, annotations.Count());
+        Assert.IsTrue(parent.Resource.HasAnnotationIncludingAncestorsOfType<DummyAnnotation>());
+        Assert.IsTrue(grandchild.Resource.TryGetAnnotationsIncludingAncestorsOfType<DummyAnnotation>(out var annotations));
+        Assert.AreEqual(3, annotations.Count());
     }
 
-    [Fact]
+    [TestMethod]
     public void TryGetContainerImageNameReturnsCorrectFormatWhenShaSupplied()
     {
         var builder = DistributedApplication.CreateBuilder();
         var container = builder.AddContainer("grafana", "grafana/grafana", "latest").WithImageSHA256("1adbcc2df3866ff5ec1d836e9d2220c904c7f98901b918d3cc5e1118ab1af991");
 
-        Assert.True(container.Resource.TryGetContainerImageName(out var imageName));
-        Assert.Equal("grafana/grafana@sha256:1adbcc2df3866ff5ec1d836e9d2220c904c7f98901b918d3cc5e1118ab1af991", imageName);
+        Assert.IsTrue(container.Resource.TryGetContainerImageName(out var imageName));
+        Assert.AreEqual("grafana/grafana@sha256:1adbcc2df3866ff5ec1d836e9d2220c904c7f98901b918d3cc5e1118ab1af991", imageName);
     }
 
-    [Fact]
+    [TestMethod]
     public void TryGetContainerImageNameReturnsCorrectFormatWhenShaNotSupplied()
     {
         var builder = DistributedApplication.CreateBuilder();
         var container = builder.AddContainer("grafana", "grafana/grafana", "10.3.1");
 
-        Assert.True(container.Resource.TryGetContainerImageName(out var imageName));
-        Assert.Equal("grafana/grafana:10.3.1", imageName);
+        Assert.IsTrue(container.Resource.TryGetContainerImageName(out var imageName));
+        Assert.AreEqual("grafana/grafana:10.3.1", imageName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetEnvironmentVariableValuesAsyncReturnCorrectVariablesInRunMode()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -175,25 +175,25 @@ public class ResourceExtensionsTests
 
         var env = await container.Resource.GetEnvironmentVariableValuesAsync().DefaultTimeout();
 
-        Assert.Collection(env,
+        Assert.That.Collection(env,
             env =>
             {
-                Assert.Equal("discovery.type", env.Key);
-                Assert.Equal("single-node", env.Value);
+                Assert.AreEqual("discovery.type", env.Key);
+                Assert.AreEqual("single-node", env.Value);
             },
             env =>
             {
-                Assert.Equal("xpack.security.enabled", env.Key);
-                Assert.Equal("true", env.Value);
+                Assert.AreEqual("xpack.security.enabled", env.Key);
+                Assert.AreEqual("true", env.Value);
             },
             env =>
             {
-                Assert.Equal("ELASTIC_PASSWORD", env.Key);
-                Assert.Equal("p@ssw0rd1", env.Value);
+                Assert.AreEqual("ELASTIC_PASSWORD", env.Key);
+                Assert.AreEqual("p@ssw0rd1", env.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetEnvironmentVariableValuesAsyncReturnCorrectVariablesUsingValueProviderInRunMode()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -208,25 +208,25 @@ public class ResourceExtensionsTests
 
         var env = await container.Resource.GetEnvironmentVariableValuesAsync().DefaultTimeout();
 
-        Assert.Collection(env,
+        Assert.That.Collection(env,
             env =>
             {
-                Assert.Equal("discovery.type", env.Key);
-                Assert.Equal("single-node", env.Value);
+                Assert.AreEqual("discovery.type", env.Key);
+                Assert.AreEqual("single-node", env.Value);
             },
             env =>
             {
-                Assert.Equal("xpack.security.enabled", env.Key);
-                Assert.Equal("true", env.Value);
+                Assert.AreEqual("xpack.security.enabled", env.Key);
+                Assert.AreEqual("true", env.Value);
             },
             env =>
             {
-                Assert.Equal("ELASTIC_PASSWORD", env.Key);
-                Assert.Equal("p@ssw0rd1", env.Value);
+                Assert.AreEqual("ELASTIC_PASSWORD", env.Key);
+                Assert.AreEqual("p@ssw0rd1", env.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetEnvironmentVariableValuesAsyncReturnCorrectVariablesUsingManifestExpressionProviderInPublishMode()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -241,25 +241,25 @@ public class ResourceExtensionsTests
 
         var env = await container.Resource.GetEnvironmentVariableValuesAsync(DistributedApplicationOperation.Publish).DefaultTimeout();
 
-        Assert.Collection(env,
+        Assert.That.Collection(env,
             env =>
             {
-                Assert.Equal("discovery.type", env.Key);
-                Assert.Equal("single-node", env.Value);
+                Assert.AreEqual("discovery.type", env.Key);
+                Assert.AreEqual("single-node", env.Value);
             },
             env =>
             {
-                Assert.Equal("xpack.security.enabled", env.Key);
-                Assert.Equal("true", env.Value);
+                Assert.AreEqual("xpack.security.enabled", env.Key);
+                Assert.AreEqual("true", env.Value);
             },
             env =>
             {
-                Assert.Equal("{ElasticPassword.value}", env.Value);
-                Assert.False(string.IsNullOrEmpty(env.Value));
+                Assert.AreEqual("{ElasticPassword.value}", env.Value);
+                Assert.IsFalse(string.IsNullOrEmpty(env.Value));
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetArgumentValuesAsync_ReturnsCorrectValuesForSpecialCases()
     {
         var builder = DistributedApplication.CreateBuilder();

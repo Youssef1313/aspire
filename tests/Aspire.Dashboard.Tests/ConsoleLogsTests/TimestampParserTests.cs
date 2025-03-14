@@ -3,64 +3,64 @@
 
 using System.Globalization;
 using Aspire.Dashboard.ConsoleLogs;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.ConsoleLogsTests;
 
+[TestClass]
 public class TimestampParserTests
 {
-    [Theory]
-    [InlineData("")]
-    [InlineData(" ")]
-    [InlineData("This is some text without any timestamp")]
+    [TestMethod]
+    [DataRow("")]
+    [DataRow(" ")]
+    [DataRow("This is some text without any timestamp")]
     public void TryColorizeTimestamp_DoesNotStartWithTimestamp_ReturnsFalse(string input)
     {
         var result = TimestampParser.TryParseConsoleTimestamp(input, out var _);
 
-        Assert.False(result);
+        Assert.IsFalse(result);
     }
 
-    [Theory]
-    [InlineData("2023-10-10T15:05:30.123456789Z", true, "", "2023-10-10T15:05:30.123456789Z")]
-    [InlineData("2023-10-10T15:05:30.123456789Z ", true, "", "2023-10-10T15:05:30.123456789Z")]
-    [InlineData("2023-10-10T15:05:30.123456789Z with some text after it", true, "with some text after it", "2023-10-10T15:05:30.123456789Z")]
-    [InlineData("With some text before it 2023-10-10T15:05:30.123456789Z", false, null, null)]
+    [TestMethod]
+    [DataRow("2023-10-10T15:05:30.123456789Z", true, "", "2023-10-10T15:05:30.123456789Z")]
+    [DataRow("2023-10-10T15:05:30.123456789Z ", true, "", "2023-10-10T15:05:30.123456789Z")]
+    [DataRow("2023-10-10T15:05:30.123456789Z with some text after it", true, "with some text after it", "2023-10-10T15:05:30.123456789Z")]
+    [DataRow("With some text before it 2023-10-10T15:05:30.123456789Z", false, null, null)]
     public void TryColorizeTimestamp_ReturnsCorrectResult(string input, bool expectedResult, string? expectedOutput, string? expectedTimestamp)
     {
         var result = TimestampParser.TryParseConsoleTimestamp(input, out var parseResult);
 
-        Assert.Equal(expectedResult, result);
+        Assert.AreEqual(expectedResult, result);
 
         if (result)
         {
-            Assert.NotNull(parseResult);
-            Assert.Equal(expectedOutput, parseResult.Value.ModifiedText);
-            Assert.Equal(expectedTimestamp != null ? (DateTimeOffset?)DateTimeOffset.Parse(expectedTimestamp, CultureInfo.InvariantCulture) : null, parseResult.Value.Timestamp);
+            Assert.IsNotNull(parseResult);
+            Assert.AreEqual(expectedOutput, parseResult.Value.ModifiedText);
+            Assert.AreEqual(expectedTimestamp != null ? (DateTimeOffset?)DateTimeOffset.Parse(expectedTimestamp, CultureInfo.InvariantCulture) : null, parseResult.Value.Timestamp);
         }
         else
         {
-            Assert.Null(parseResult);
+            Assert.IsNull(parseResult);
         }
     }
 
-    [Theory]
-    [InlineData("2023-10-10T15:05:30.123456789Z")]
-    [InlineData("2023-10-10T15:05:30.12345678Z")]
-    [InlineData("2023-10-10T15:05:30.1234567Z")]
-    [InlineData("2023-10-10T15:05:30.123456Z")]
-    [InlineData("2023-10-10T15:05:30.12345Z")]
-    [InlineData("2023-10-10T15:05:30.1234Z")]
-    [InlineData("2023-10-10T15:05:30.123Z")]
-    [InlineData("2023-10-10T15:05:30.12Z")]
-    [InlineData("2023-10-10T15:05:30.1Z")]
-    [InlineData("2023-10-10T15:05:30Z")]
-    [InlineData("2023-10-10T15:05:30.123456789+12:59")]
-    [InlineData("2023-10-10T15:05:30.123456789-12:59")]
-    [InlineData("2023-10-10T15:05:30.123456789")]
+    [TestMethod]
+    [DataRow("2023-10-10T15:05:30.123456789Z")]
+    [DataRow("2023-10-10T15:05:30.12345678Z")]
+    [DataRow("2023-10-10T15:05:30.1234567Z")]
+    [DataRow("2023-10-10T15:05:30.123456Z")]
+    [DataRow("2023-10-10T15:05:30.12345Z")]
+    [DataRow("2023-10-10T15:05:30.1234Z")]
+    [DataRow("2023-10-10T15:05:30.123Z")]
+    [DataRow("2023-10-10T15:05:30.12Z")]
+    [DataRow("2023-10-10T15:05:30.1Z")]
+    [DataRow("2023-10-10T15:05:30Z")]
+    [DataRow("2023-10-10T15:05:30.123456789+12:59")]
+    [DataRow("2023-10-10T15:05:30.123456789-12:59")]
+    [DataRow("2023-10-10T15:05:30.123456789")]
     public void TryColorizeTimestamp_SupportedTimestampFormats(string input)
     {
         var result = TimestampParser.TryParseConsoleTimestamp(input, out var _);
 
-        Assert.True(result);
+        Assert.IsTrue(result);
     }
 }

@@ -3,17 +3,16 @@
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
-using Xunit.Abstractions;
 
 namespace Aspire.Dashboard.Components.Tests.Shared;
 
 public static class IntegrationTestHelpers
 {
-    public static ILoggerFactory CreateLoggerFactory(ITestOutputHelper testOutputHelper, ITestSink? testSink = null)
+    public static ILoggerFactory CreateLoggerFactory(TestContext testContext, ITestSink? testSink = null)
     {
         return LoggerFactory.Create(builder =>
         {
-            builder.AddXunit(testOutputHelper, LogLevel.Trace, DateTimeOffset.UtcNow);
+            builder.AddMSTest(testContext, LogLevel.Trace, DateTimeOffset.UtcNow);
             builder.SetMinimumLevel(LogLevel.Trace);
             if (testSink != null)
             {

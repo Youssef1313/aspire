@@ -4,7 +4,6 @@
 using Aspire.Hosting.Nats;
 using Aspire.Components.Common.Tests;
 using Testcontainers.Nats;
-using Xunit;
 
 namespace Aspire.NATS.Net.Tests;
 

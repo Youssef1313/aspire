@@ -6,15 +6,15 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Confluent.Kafka.Tests;
 
+[TestClass]
 public class ProducerConfigurationTests
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -38,12 +38,12 @@ public class ProducerConfigurationTests
 
         var config = GetProducerConfig(connectionFactory)!;
 
-        Assert.Equal(CommonHelpers.TestingEndpoint, config.BootstrapServers);
+        Assert.AreEqual(CommonHelpers.TestingEndpoint, config.BootstrapServers);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -68,12 +68,12 @@ public class ProducerConfigurationTests
 
         var config = GetProducerConfig(connectionFactory)!;
 
-        Assert.Equal(CommonHelpers.TestingEndpoint, config.BootstrapServers);
+        Assert.AreEqual(CommonHelpers.TestingEndpoint, config.BootstrapServers);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -100,22 +100,22 @@ public class ProducerConfigurationTests
 
         var config = GetProducerConfig(connectionFactory)!;
 
-        Assert.Equal(CommonHelpers.TestingEndpoint, config.BootstrapServers);
+        Assert.AreEqual(CommonHelpers.TestingEndpoint, config.BootstrapServers);
     }
 
-    [Theory]
-    [InlineData(true, true, false, false)]
-    [InlineData(true, true, true, false)]
-    [InlineData(true, true, false, true)]
-    [InlineData(true, false, false, false)]
-    [InlineData(true, false, true, false)]
-    [InlineData(true, false, false, true)]
-    [InlineData(false, true, false, false)]
-    [InlineData(false, true, true, false)]
-    [InlineData(false, true, false, true)]
-    [InlineData(false, false, false, false)]
-    [InlineData(false, false, true, false)]
-    [InlineData(false, false, false, true)]
+    [TestMethod]
+    [DataRow(true, true, false, false)]
+    [DataRow(true, true, true, false)]
+    [DataRow(true, true, false, true)]
+    [DataRow(true, false, false, false)]
+    [DataRow(true, false, true, false)]
+    [DataRow(true, false, false, true)]
+    [DataRow(false, true, false, false)]
+    [DataRow(false, true, true, false)]
+    [DataRow(false, true, false, true)]
+    [DataRow(false, false, false, false)]
+    [DataRow(false, false, true, false)]
+    [DataRow(false, false, false, true)]
     public void ConfigureProducerBuilder(bool useKeyed, bool useConfigureSettings, bool useConfigureBuilder, bool useConfigureBuilderWithServiceProvider)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -178,15 +178,15 @@ public class ProducerConfigurationTests
 
         if (useConfigureBuilder || useConfigureBuilderWithServiceProvider)
         {
-            Assert.True(configureBuilderIsCalled);
+            Assert.IsTrue(configureBuilderIsCalled);
         }
 
         if (useConfigureSettings)
         {
-            Assert.True(configureSettingsIsCalled);
+            Assert.IsTrue(configureSettingsIsCalled);
         }
 
-        Assert.Equal(CommonHelpers.TestingEndpoint, config.BootstrapServers);
+        Assert.AreEqual(CommonHelpers.TestingEndpoint, config.BootstrapServers);
         return;
 
         void ConfigureBuilder(ProducerBuilder<string, string> _)
@@ -206,7 +206,7 @@ public class ProducerConfigurationTests
         }
     }
 
-    [Fact]
+    [TestMethod]
     public void ProducerConfigOptionsFromConfig()
     {
         static Stream CreateStreamFromString(string data) => new MemoryStream(Encoding.UTF8.GetBytes(data));
@@ -243,11 +243,11 @@ public class ProducerConfigurationTests
 
         var config = GetProducerConfig(connectionFactory)!;
 
-        Assert.Equal(Acks.All, config.Acks);
-        Assert.Equal("user", config.SaslUsername);
-        Assert.Equal("password", config.SaslPassword);
-        Assert.Equal(SaslMechanism.Plain, config.SaslMechanism);
-        Assert.Equal(SecurityProtocol.Plaintext, config.SecurityProtocol);
+        Assert.AreEqual(Acks.All, config.Acks);
+        Assert.AreEqual("user", config.SaslUsername);
+        Assert.AreEqual("password", config.SaslPassword);
+        Assert.AreEqual(SaslMechanism.Plain, config.SaslMechanism);
+        Assert.AreEqual(SecurityProtocol.Plaintext, config.SecurityProtocol);
     }
 
     private static ProducerConfig? GetProducerConfig(object o) => ReflectionHelpers.ProducerConnectionFactoryStringKeyStringValueType.Value.GetProperty("Config")!.GetValue(o) as ProducerConfig;

@@ -3,16 +3,17 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Azure.Tests;
 
-public class AzurePostgresExtensionsTests(ITestOutputHelper output)
+[TestClass]
+public class AzurePostgresExtensionsTests
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task AddAzurePostgresFlexibleServer(bool publishMode)
     {
         using var builder = TestDistributedApplicationBuilder.Create(publishMode ? DistributedApplicationOperation.Publish : DistributedApplicationOperation.Run);
@@ -33,7 +34,7 @@ public class AzurePostgresExtensionsTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ManifestNode.ToString());
 
         var allowAllIpsFirewall = "";
         var allowAllIpsDependsOn = "";
@@ -122,15 +123,15 @@ public class AzurePostgresExtensionsTests(ITestOutputHelper output)
 
             output connectionString string = 'Host=${postgres_data.properties.fullyQualifiedDomainName};Username=${principalName}'
             """;
-        output.WriteLine(manifest.BicepText);
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        TestContext.WriteLine(manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
-    [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
+    [TestMethod]
+    [DataRow(true, true)]
+    [DataRow(true, false)]
+    [DataRow(false, true)]
+    [DataRow(false, false)]
     public async Task AddAzurePostgresWithPasswordAuth(bool specifyUserName, bool specifyPassword)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -157,7 +158,7 @@ public class AzurePostgresExtensionsTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -245,13 +246,13 @@ public class AzurePostgresExtensionsTests(ITestOutputHelper output)
               parent: keyVault
             }
             """;
-        output.WriteLine(manifest.BicepText);
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        TestContext.WriteLine(manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task AddAzurePostgresFlexibleServerRunAsContainerProducesCorrectConnectionString(bool addDbBeforeRunAsContainer)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -277,21 +278,21 @@ public class AzurePostgresExtensionsTests(ITestOutputHelper output)
             db2 = postgres.AddDatabase("db2", "db2Name");
         }
 
-        Assert.True(postgres.Resource.IsContainer(), "The resource should now be a container resource.");
-        Assert.StartsWith("Host=localhost;Port=12455;Username=postgres;Password=", await postgres.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None));
+        Assert.IsTrue(postgres.Resource.IsContainer(), "The resource should now be a container resource.");
+        StringAssert.StartsWith(await postgres.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None), "Host=localhost;Port=12455;Username=postgres;Password=");
 
         var db1ConnectionString = await db1.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None);
-        Assert.StartsWith("Host=localhost;Port=12455;Username=postgres;Password=", db1ConnectionString);
-        Assert.EndsWith("Database=db1", db1ConnectionString);
+        StringAssert.StartsWith(db1ConnectionString, "Host=localhost;Port=12455;Username=postgres;Password=");
+        StringAssert.EndsWith(db1ConnectionString, "Database=db1");
 
         var db2ConnectionString = await db2.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None);
-        Assert.StartsWith("Host=localhost;Port=12455;Username=postgres;Password=", db2ConnectionString);
-        Assert.EndsWith("Database=db2Name", db2ConnectionString);
+        StringAssert.StartsWith(db2ConnectionString, "Host=localhost;Port=12455;Username=postgres;Password=");
+        StringAssert.EndsWith(db2ConnectionString, "Database=db2Name");
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task WithPasswordAuthenticationBeforeAfterRunAsContainer(bool before)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -319,16 +320,16 @@ public class AzurePostgresExtensionsTests(ITestOutputHelper output)
         var db1 = postgres.AddDatabase("db1");
         var db2 = postgres.AddDatabase("db2", "db2Name");
 
-        Assert.Equal("Host=localhost;Port=12455;Username=user;Password=p@ssw0rd1", await postgres.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None));
-        Assert.Equal("Host=localhost;Port=12455;Username=user;Password=p@ssw0rd1;Database=db1", await db1.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None));
-        Assert.Equal("Host=localhost;Port=12455;Username=user;Password=p@ssw0rd1;Database=db2Name", await db2.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None));
+        Assert.AreEqual("Host=localhost;Port=12455;Username=user;Password=p@ssw0rd1", await postgres.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None));
+        Assert.AreEqual("Host=localhost;Port=12455;Username=user;Password=p@ssw0rd1;Database=db1", await db1.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None));
+        Assert.AreEqual("Host=localhost;Port=12455;Username=user;Password=p@ssw0rd1;Database=db2Name", await db2.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None));
     }
 
-    [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
+    [TestMethod]
+    [DataRow(true, true)]
+    [DataRow(true, false)]
+    [DataRow(false, true)]
+    [DataRow(false, false)]
     public void RunAsContainerAppliesAnnotationsCorrectly(bool annotationsBefore, bool addDatabaseBefore)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -372,14 +373,14 @@ public class AzurePostgresExtensionsTests(ITestOutputHelper output)
         var postgresResourceInModel = builder.Resources.Single(r => r.Name == "postgres-data");
         var dbResourceInModel = builder.Resources.Single(r => r.Name == "db1");
 
-        Assert.True(postgresResourceInModel.TryGetAnnotationsOfType<Dummy1Annotation>(out var postgresAnnotations1));
-        Assert.Single(postgresAnnotations1);
+        Assert.IsTrue(postgresResourceInModel.TryGetAnnotationsOfType<Dummy1Annotation>(out var postgresAnnotations1));
+        Assert.ContainsSingle(postgresAnnotations1);
 
-        Assert.True(postgresResourceInModel.TryGetAnnotationsOfType<Dummy2Annotation>(out var postgresAnnotations2));
-        Assert.Single(postgresAnnotations2);
+        Assert.IsTrue(postgresResourceInModel.TryGetAnnotationsOfType<Dummy2Annotation>(out var postgresAnnotations2));
+        Assert.ContainsSingle(postgresAnnotations2);
 
-        Assert.True(dbResourceInModel.TryGetAnnotationsOfType<Dummy1Annotation>(out var dbAnnotations));
-        Assert.Single(dbAnnotations);
+        Assert.IsTrue(dbResourceInModel.TryGetAnnotationsOfType<Dummy1Annotation>(out var dbAnnotations));
+        Assert.ContainsSingle(dbAnnotations);
     }
 
     private sealed class Dummy1Annotation : IResourceAnnotation

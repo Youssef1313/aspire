@@ -9,11 +9,11 @@ using Aspire.ResourceService.Proto.V1;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Xunit;
 using Microsoft.AspNetCore.InternalTesting;
 
 namespace Aspire.Dashboard.Tests.Model;
 
+[TestClass]
 public sealed class DashboardClientTests
 {
     private static readonly BrowserTimeProvider s_timeProvider = new(NullLoggerFactory.Instance);
@@ -38,7 +38,7 @@ public sealed class DashboardClientTests
         _dashboardOptions = Options.Create(options);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SubscribeResources_OnCancel_ChannelRemoved()
     {
         await using var instance = CreateResourceServiceClient();
@@ -48,11 +48,11 @@ public sealed class DashboardClientTests
 
         var cts = new CancellationTokenSource();
 
-        Assert.Equal(0, instance.OutgoingResourceSubscriberCount);
+        Assert.AreEqual(0, instance.OutgoingResourceSubscriberCount);
 
         var (_, subscription) = await client.SubscribeResourcesAsync(CancellationToken.None).DefaultTimeout();
 
-        Assert.Equal(1, instance.OutgoingResourceSubscriberCount);
+        Assert.AreEqual(1, instance.OutgoingResourceSubscriberCount);
 
         var readTask = Task.Run(async () =>
         {
@@ -65,10 +65,10 @@ public sealed class DashboardClientTests
 
         await TaskHelpers.WaitIgnoreCancelAsync(readTask).DefaultTimeout();
 
-        Assert.Equal(0, instance.OutgoingResourceSubscriberCount);
+        Assert.AreEqual(0, instance.OutgoingResourceSubscriberCount);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SubscribeResources_OnDispose_ChannelRemoved()
     {
         await using var instance = CreateResourceServiceClient();
@@ -76,11 +76,11 @@ public sealed class DashboardClientTests
 
         IDashboardClient client = instance;
 
-        Assert.Equal(0, instance.OutgoingResourceSubscriberCount);
+        Assert.AreEqual(0, instance.OutgoingResourceSubscriberCount);
 
         var (_, subscription) = await client.SubscribeResourcesAsync(CancellationToken.None).DefaultTimeout();
 
-        Assert.Equal(1, instance.OutgoingResourceSubscriberCount);
+        Assert.AreEqual(1, instance.OutgoingResourceSubscriberCount);
 
         var readTask = Task.Run(async () =>
         {
@@ -91,12 +91,12 @@ public sealed class DashboardClientTests
 
         await instance.DisposeAsync().DefaultTimeout();
 
-        Assert.Equal(0, instance.OutgoingResourceSubscriberCount);
+        Assert.AreEqual(0, instance.OutgoingResourceSubscriberCount);
 
         await TaskHelpers.WaitIgnoreCancelAsync(readTask).DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SubscribeResources_ThrowsIfDisposed()
     {
         await using IDashboardClient client = CreateResourceServiceClient();
@@ -106,7 +106,7 @@ public sealed class DashboardClientTests
         await Assert.ThrowsAsync<ObjectDisposedException>(() => client.SubscribeResourcesAsync(CancellationToken.None)).DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SubscribeResources_IncreasesSubscriberCount()
     {
         await using var instance = CreateResourceServiceClient();
@@ -114,18 +114,18 @@ public sealed class DashboardClientTests
 
         IDashboardClient client = instance;
 
-        Assert.Equal(0, instance.OutgoingResourceSubscriberCount);
+        Assert.AreEqual(0, instance.OutgoingResourceSubscriberCount);
 
         _ = await client.SubscribeResourcesAsync(CancellationToken.None).DefaultTimeout();
 
-        Assert.Equal(1, instance.OutgoingResourceSubscriberCount);
+        Assert.AreEqual(1, instance.OutgoingResourceSubscriberCount);
 
         await instance.DisposeAsync().DefaultTimeout();
 
-        Assert.Equal(0, instance.OutgoingResourceSubscriberCount);
+        Assert.AreEqual(0, instance.OutgoingResourceSubscriberCount);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SubscribeResources_HasInitialData_InitialDataReturned()
     {
         await using var instance = CreateResourceServiceClient();
@@ -136,8 +136,8 @@ public sealed class DashboardClientTests
 
         var subscribeTask = client.SubscribeResourcesAsync(CancellationToken.None);
 
-        Assert.False(subscribeTask.IsCompleted);
-        Assert.Equal(0, instance.OutgoingResourceSubscriberCount);
+        Assert.IsFalse(subscribeTask.IsCompleted);
+        Assert.AreEqual(0, instance.OutgoingResourceSubscriberCount);
 
         instance.SetInitialDataReceived([new Resource
         {
@@ -147,7 +147,7 @@ public sealed class DashboardClientTests
 
         var (initialData, subscription) = await subscribeTask.DefaultTimeout();
 
-        Assert.Single(initialData);
+        Assert.ContainsSingle(initialData);
     }
 
     private DashboardClient CreateResourceServiceClient()

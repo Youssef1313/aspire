@@ -1,16 +1,15 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
-
 namespace Aspire.Cli.Tests;
 
+[TestClass]
 public class CliSmokeTests
 {
-    [Fact]
+    [TestMethod]
     public async Task NoArgsReturnsExitCode1()
     {
         var exitCode = await Aspire.Cli.Program.Main([]);
-        Assert.Equal(ExitCodeConstants.InvalidCommand, exitCode);
+        Assert.AreEqual(ExitCodeConstants.InvalidCommand, exitCode);
     }
 }

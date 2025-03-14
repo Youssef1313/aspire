@@ -5,13 +5,13 @@ using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class WithEnvironmentTests
 {
-    [Fact]
+    [TestMethod]
     public async Task BuiltApplicationHasAccessToIServiceProviderViaEnvironmentCallbackContext()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -32,10 +32,10 @@ public class WithEnvironmentTests
             serviceProvider: serviceProvider
             ).DefaultTimeout();
 
-        Assert.Equal("true", config["SP_AVAILABLE"]);
+        Assert.AreEqual("true", config["SP_AVAILABLE"]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnvironmentReferencingEndpointPopulatesWithBindingUrl()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -52,10 +52,10 @@ public class WithEnvironmentTests
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(projectB.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
-        Assert.Equal("https://localhost:2000", config["myName"]);
+        Assert.AreEqual("https://localhost:2000", config["myName"]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SimpleEnvironmentWithNameAndValue()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -65,10 +65,10 @@ public class WithEnvironmentTests
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(project.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
-        Assert.Equal("value", config["myName"]);
+        Assert.AreEqual("value", config["myName"]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SimpleEnvironmentWithNameAndReferenceExpressionValue()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -81,10 +81,10 @@ public class WithEnvironmentTests
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(project.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
-        Assert.Equal("value", config["myName"]);
+        Assert.AreEqual("value", config["myName"]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnvironmentCallbackPopulatesValueWhenCalled()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -97,10 +97,10 @@ public class WithEnvironmentTests
         // Call environment variable callbacks.
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(projectA.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
-        Assert.Equal("value2", config["myName"]);
+        Assert.AreEqual("value2", config["myName"]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnvironmentCallbackPopulatesValueWhenParameterResourceProvided()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -114,10 +114,10 @@ public class WithEnvironmentTests
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(projectA.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
-        Assert.Equal("MY_PARAMETER_VALUE", config["MY_PARAMETER"]);
+        Assert.AreEqual("MY_PARAMETER_VALUE", config["MY_PARAMETER"]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnvironmentCallbackPopulatesWithExpressionPlaceholderWhenPublishingManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -130,10 +130,10 @@ public class WithEnvironmentTests
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(projectA.Resource,
             DistributedApplicationOperation.Publish).DefaultTimeout();
 
-        Assert.Equal("{parameter.value}", config["MY_PARAMETER"]);
+        Assert.AreEqual("{parameter.value}", config["MY_PARAMETER"]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnvironmentCallbackThrowsWhenParameterValueMissingInDcpMode()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -149,10 +149,10 @@ public class WithEnvironmentTests
             TestServiceProvider.Instance
          )).DefaultTimeout();
 
-        Assert.Equal("Parameter resource could not be used because configuration key 'Parameters:parameter' is missing and the Parameter has no default value.", exception.Message);
+        Assert.AreEqual("Parameter resource could not be used because configuration key 'Parameters:parameter' is missing and the Parameter has no default value.", exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ComplexEnvironmentCallbackPopulatesValueWhenCalled()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -169,10 +169,10 @@ public class WithEnvironmentTests
         // Call environment variable callbacks.
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(projectA.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance).DefaultTimeout();
 
-        Assert.Equal("value2", config["myName"]);
+        Assert.AreEqual("value2", config["myName"]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnvironmentVariableExpressions()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -197,20 +197,20 @@ public class WithEnvironmentTests
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerB.Resource).DefaultTimeout();
         var manifestConfig = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerB.Resource, DistributedApplicationOperation.Publish).DefaultTimeout();
 
-        Assert.Equal(4, config.Count);
-        Assert.Equal($"http://container1:10005/foo", config["URL"]);
-        Assert.Equal("90", config["PORT"]);
-        Assert.Equal("10005", config["TARGET_PORT"]);
-        Assert.Equal("connectionString;name=1", config["HOST"]);
+        Assert.AreEqual(4, config.Count);
+        Assert.AreEqual($"http://container1:10005/foo", config["URL"]);
+        Assert.AreEqual("90", config["PORT"]);
+        Assert.AreEqual("10005", config["TARGET_PORT"]);
+        Assert.AreEqual("connectionString;name=1", config["HOST"]);
 
-        Assert.Equal(4, manifestConfig.Count);
-        Assert.Equal("{container1.bindings.primary.url}/foo", manifestConfig["URL"]);
-        Assert.Equal("{container1.bindings.primary.port}", manifestConfig["PORT"]);
-        Assert.Equal("{container1.bindings.primary.targetPort}", manifestConfig["TARGET_PORT"]);
-        Assert.Equal("{test.connectionString};name=1", manifestConfig["HOST"]);
+        Assert.AreEqual(4, manifestConfig.Count);
+        Assert.AreEqual("{container1.bindings.primary.url}/foo", manifestConfig["URL"]);
+        Assert.AreEqual("{container1.bindings.primary.port}", manifestConfig["PORT"]);
+        Assert.AreEqual("{container1.bindings.primary.targetPort}", manifestConfig["TARGET_PORT"]);
+        Assert.AreEqual("{test.connectionString};name=1", manifestConfig["HOST"]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnvironmentVariableWithDynamicTargetPort()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -229,12 +229,12 @@ public class WithEnvironmentTests
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerB.Resource).DefaultTimeout();
 
-        var pair = Assert.Single(config);
-        Assert.Equal("TARGET_PORT", pair.Key);
-        Assert.Equal("""{{- portForServing "container1_primary" -}}""", pair.Value);
+        var pair = Assert.ContainsSingle(config);
+        Assert.AreEqual("TARGET_PORT", pair.Key);
+        Assert.AreEqual("""{{- portForServing "container1_primary" -}}""", pair.Value);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnvironmentWithConnectionStringSetsProperEnvironmentVariable()
     {
         // Arrange
@@ -254,13 +254,13 @@ public class WithEnvironmentTests
         var runConfig = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(targetBuilder.Resource, DistributedApplicationOperation.Run).DefaultTimeout();
 
         // Assert
-        Assert.Single(runConfig, kvp => kvp.Key == envVarName && kvp.Value == sourceCon);
+        Assert.ContainsSingle(runConfig, kvp => kvp.Key == envVarName && kvp.Value == sourceCon);
 
         // Call environment variable callbacks for the Publish operation.
         var publishConfig = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(targetBuilder.Resource, DistributedApplicationOperation.Publish).DefaultTimeout();
 
         // Assert
-        Assert.Single(publishConfig, kvp => kvp.Key == envVarName && kvp.Value == "{sourceService.connectionString}");
+        Assert.ContainsSingle(publishConfig, kvp => kvp.Key == envVarName && kvp.Value == "{sourceService.connectionString}");
     }
 
     private sealed class TestResource(string name, string connectionString) : Resource(name), IResourceWithConnectionString

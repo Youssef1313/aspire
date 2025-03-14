@@ -5,13 +5,13 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Containers.Tests;
 
+[TestClass]
 public class ContainerResourceTests
 {
-    [Fact]
+    [TestMethod]
     public void AddContainerAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -22,15 +22,15 @@ public class ContainerResourceTests
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var containerResources = appModel.GetContainerResources();
 
-        var containerResource = Assert.Single(containerResources);
-        Assert.Equal("container", containerResource.Name);
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal("latest", containerAnnotation.Tag);
-        Assert.Equal("none", containerAnnotation.Image);
-        Assert.Null(containerAnnotation.Registry);
+        var containerResource = Assert.ContainsSingle(containerResources);
+        Assert.AreEqual("container", containerResource.Name);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual("latest", containerAnnotation.Tag);
+        Assert.AreEqual("none", containerAnnotation.Image);
+        Assert.IsNull(containerAnnotation.Registry);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddContainerAddsAnnotationMetadataWithTag()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -41,15 +41,15 @@ public class ContainerResourceTests
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var containerResources = appModel.GetContainerResources();
 
-        var containerResource = Assert.Single(containerResources);
-        Assert.Equal("container", containerResource.Name);
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal("nightly", containerAnnotation.Tag);
-        Assert.Equal("none", containerAnnotation.Image);
-        Assert.Null(containerAnnotation.Registry);
+        var containerResource = Assert.ContainsSingle(containerResources);
+        Assert.AreEqual("container", containerResource.Name);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual("nightly", containerAnnotation.Tag);
+        Assert.AreEqual("none", containerAnnotation.Image);
+        Assert.IsNull(containerAnnotation.Registry);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddContainerWithTagInImage()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -60,16 +60,16 @@ public class ContainerResourceTests
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var containerResources = appModel.GetContainerResources();
 
-        var containerResource = Assert.Single(containerResources);
-        Assert.Equal("container", containerResource.Name);
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal("tag", containerAnnotation.Tag);
-        Assert.Equal("image", containerAnnotation.Image);
-        Assert.Null(containerAnnotation.SHA256);
-        Assert.Null(containerAnnotation.Registry);
+        var containerResource = Assert.ContainsSingle(containerResources);
+        Assert.AreEqual("container", containerResource.Name);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual("tag", containerAnnotation.Tag);
+        Assert.AreEqual("image", containerAnnotation.Image);
+        Assert.IsNull(containerAnnotation.SHA256);
+        Assert.IsNull(containerAnnotation.Registry);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddContainerWithSha256InImage()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -80,16 +80,16 @@ public class ContainerResourceTests
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var containerResources = appModel.GetContainerResources();
 
-        var containerResource = Assert.Single(containerResources);
-        Assert.Equal("container", containerResource.Name);
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal("01234567890abcdef01234567890abcdef01234567890abcdef01234567890ab", containerAnnotation.SHA256);
-        Assert.Equal("imagewithdigest", containerAnnotation.Image);
-        Assert.Null(containerAnnotation.Tag);
-        Assert.Null(containerAnnotation.Registry);
+        var containerResource = Assert.ContainsSingle(containerResources);
+        Assert.AreEqual("container", containerResource.Name);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual("01234567890abcdef01234567890abcdef01234567890abcdef01234567890ab", containerAnnotation.SHA256);
+        Assert.AreEqual("imagewithdigest", containerAnnotation.Image);
+        Assert.IsNull(containerAnnotation.Tag);
+        Assert.IsNull(containerAnnotation.Registry);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddContainerWithArgs()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -115,10 +115,10 @@ public class ContainerResourceTests
 
         var args = await ArgumentEvaluator.GetArgumentListAsync(c2.Resource);
 
-        Assert.Collection(args,
-            arg => Assert.Equal("arg1", arg),
-            arg => Assert.Equal("http://c1:1234", arg), // this is the container hostname
-            arg => Assert.Equal("connectionString", arg));
+        Assert.That.Collection(args,
+            arg => Assert.AreEqual("arg1", arg),
+            arg => Assert.AreEqual("http://c1:1234", arg), // this is the container hostname
+            arg => Assert.AreEqual("connectionString", arg));
 
         var manifest = await ManifestUtils.GetManifest(c2.Resource);
 
@@ -135,10 +135,10 @@ public class ContainerResourceTests
         }
         """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnsureContainerWithEndpointsEmitsContainerPort()
     {
         var builder = DistributedApplication.CreateBuilder(["--publisher", "manifest"]);
@@ -148,7 +148,7 @@ public class ContainerResourceTests
 
         using var app = builder.Build();
 
-        var containerResource = Assert.Single(app.Services.GetRequiredService<DistributedApplicationModel>().GetContainerResources());
+        var containerResource = Assert.ContainsSingle(app.Services.GetRequiredService<DistributedApplicationModel>().GetContainerResources());
 
         var manifest = await ManifestUtils.GetManifest(containerResource);
 
@@ -168,10 +168,10 @@ public class ContainerResourceTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnsureContainerWithCustomEntrypointEmitsEntrypoint()
     {
         var builder = DistributedApplication.CreateBuilder(["--publisher", "manifest"]);
@@ -182,7 +182,7 @@ public class ContainerResourceTests
         // Build AppHost so that publisher can be resolved.
         using var app = builder.Build();
 
-        var containerResource = Assert.Single(app.Services.GetRequiredService<DistributedApplicationModel>().GetContainerResources());
+        var containerResource = Assert.ContainsSingle(app.Services.GetRequiredService<DistributedApplicationModel>().GetContainerResources());
 
         var manifest = await ManifestUtils.GetManifest(containerResource);
 
@@ -195,10 +195,10 @@ public class ContainerResourceTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void AddBindMountResolvesRelativePathsRelativeToTheAppHostDirectory()
     {
         var basePath = OperatingSystem.IsWindows() ? @"C:\root\volumes" : "/root/volumes";
@@ -210,14 +210,14 @@ public class ContainerResourceTests
 
         using var app = appBuilder.Build();
 
-        var containerResource = Assert.Single(app.Services.GetRequiredService<DistributedApplicationModel>().GetContainerResources());
+        var containerResource = Assert.ContainsSingle(app.Services.GetRequiredService<DistributedApplicationModel>().GetContainerResources());
 
-        Assert.True(containerResource.TryGetLastAnnotation<ContainerMountAnnotation>(out var mountAnnotation));
+        Assert.IsTrue(containerResource.TryGetLastAnnotation<ContainerMountAnnotation>(out var mountAnnotation));
 
-        Assert.Equal(Path.Combine(basePath, "source"), mountAnnotation.Source);
+        Assert.AreEqual(Path.Combine(basePath, "source"), mountAnnotation.Source);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnsureContainerWithVolumesEmitsVolumes()
     {
         var builder = DistributedApplication.CreateBuilder(["--publisher", "manifest"]);
@@ -229,7 +229,7 @@ public class ContainerResourceTests
 
         using var app = builder.Build();
 
-        var containerResource = Assert.Single(app.Services.GetRequiredService<DistributedApplicationModel>().GetContainerResources());
+        var containerResource = Assert.ContainsSingle(app.Services.GetRequiredService<DistributedApplicationModel>().GetContainerResources());
 
         var manifest = await ManifestUtils.GetManifest(containerResource);
 
@@ -256,10 +256,10 @@ public class ContainerResourceTests
             }
             """;
 
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EnsureContainerWithBindMountsEmitsBindMounts()
     {
         var appHostPath = OperatingSystem.IsWindows() ? @"C:\projects\apphost" : "/projects/apphost";
@@ -278,7 +278,7 @@ public class ContainerResourceTests
 
         using var app = builder.Build();
 
-        var containerResource = Assert.Single(app.Services.GetRequiredService<DistributedApplicationModel>().GetContainerResources());
+        var containerResource = Assert.ContainsSingle(app.Services.GetRequiredService<DistributedApplicationModel>().GetContainerResources());
 
         var manifest = await ManifestUtils.GetManifest(containerResource, manifestDirectory: appHostPath);
 
@@ -311,8 +311,8 @@ public class ContainerResourceTests
             }
             """;
 
-        Assert.Equal("containerwithbindmounts", containerResource.Name);
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual("containerwithbindmounts", containerResource.Name);
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
     private sealed class TestResource(string name, string connectionString) : Resource(name), IResourceWithConnectionString

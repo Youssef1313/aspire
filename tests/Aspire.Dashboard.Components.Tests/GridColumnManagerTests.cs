@@ -5,13 +5,13 @@ using Aspire.Dashboard.Components.Resize;
 using Aspire.Dashboard.Model;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Dashboard.Components.Tests;
 
-public class GridColumnManagerTests : TestContext
+[TestClass]
+public class GridColumnManagerTests : Bunit.TestContext
 {
-    [Fact]
+    [TestMethod]
     public void Returns_Correct_TemplateColumn_String()
     {
         var dimensionManager = new DimensionManager();
@@ -33,13 +33,13 @@ public class GridColumnManagerTests : TestContext
         });
         var manager = cut.Instance;
 
-        Assert.Equal("1fr 1fr 3fr", manager.GetGridTemplateColumns());
+        Assert.AreEqual("1fr 1fr 3fr", manager.GetGridTemplateColumns());
 
         dimensionManager.InvokeOnViewportInformationChanged(new ViewportInformation(IsDesktop: false, IsUltraLowHeight: true, IsUltraLowWidth: false));
-        Assert.Equal("1fr 0.5fr 2fr 4fr", manager.GetGridTemplateColumns());
+        Assert.AreEqual("1fr 0.5fr 2fr 4fr", manager.GetGridTemplateColumns());
     }
 
-    [Fact]
+    [TestMethod]
     public void Returns_Right_Columns_IsVisible()
     {
         var dimensionManager = new DimensionManager();
@@ -61,21 +61,21 @@ public class GridColumnManagerTests : TestContext
         });
         var manager = cut.Instance;
 
-        Assert.True(manager.IsColumnVisible("NoMobile"));
-        Assert.True(manager.IsColumnVisible("Both1"));
-        Assert.True(manager.IsColumnVisible("Both2"));
-        Assert.False(manager.IsColumnVisible("NoDesktop"));
+        Assert.IsTrue(manager.IsColumnVisible("NoMobile"));
+        Assert.IsTrue(manager.IsColumnVisible("Both1"));
+        Assert.IsTrue(manager.IsColumnVisible("Both2"));
+        Assert.IsFalse(manager.IsColumnVisible("NoDesktop"));
 
         dimensionManager.InvokeOnViewportInformationChanged(new ViewportInformation(IsDesktop: false, IsUltraLowHeight: true, IsUltraLowWidth: false));
-        Assert.False(manager.IsColumnVisible("NoMobile"));
-        Assert.True(manager.IsColumnVisible("Both1"));
-        Assert.True(manager.IsColumnVisible("Both2"));
-        Assert.True(manager.IsColumnVisible("NoDesktop"));
-        Assert.False(manager.IsColumnVisible("NoDesktopWithIsVisibleFalse"));
-        Assert.True(manager.IsColumnVisible("NoDesktopWithIsVisibleTrue"));
+        Assert.IsFalse(manager.IsColumnVisible("NoMobile"));
+        Assert.IsTrue(manager.IsColumnVisible("Both1"));
+        Assert.IsTrue(manager.IsColumnVisible("Both2"));
+        Assert.IsTrue(manager.IsColumnVisible("NoDesktop"));
+        Assert.IsFalse(manager.IsColumnVisible("NoDesktopWithIsVisibleFalse"));
+        Assert.IsTrue(manager.IsColumnVisible("NoDesktopWithIsVisibleTrue"));
     }
 
-    [Fact]
+    [TestMethod]
     public void WidthFraction_MobileViewOnResize()
     {
         var dimensionManager = new DimensionManager();
@@ -98,14 +98,14 @@ public class GridColumnManagerTests : TestContext
         });
         var manager = cut.Instance;
 
-        Assert.Equal("1fr 1fr 3fr", manager.GetGridTemplateColumns());
+        Assert.AreEqual("1fr 1fr 3fr", manager.GetGridTemplateColumns());
 
         // Fraction reduces grid view port to mobile size.
         manager.SetWidthFraction(0.5f);
-        Assert.Equal("1fr 0.5fr 2fr 4fr", manager.GetGridTemplateColumns());
+        Assert.AreEqual("1fr 0.5fr 2fr 4fr", manager.GetGridTemplateColumns());
 
         // Increase browser size so grid view port is desktop size.
         dimensionManager.InvokeOnViewportSizeChanged(new ViewportSize((ViewportInformation.MobileCutoffPixelWidth + 1) * 2, 1000));
-        Assert.Equal("1fr 1fr 3fr", manager.GetGridTemplateColumns());
+        Assert.AreEqual("1fr 1fr 3fr", manager.GetGridTemplateColumns());
     }
 }

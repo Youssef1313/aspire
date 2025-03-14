@@ -6,17 +6,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using OpenAI;
-using Xunit;
 
 namespace Aspire.OpenAI.Tests;
 
+[TestClass]
 public class AspireOpenAIExtensionsTests
 {
     private const string ConnectionString = "Endpoint=https://api.openai.com/;Key=fake";
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -38,13 +38,13 @@ public class AspireOpenAIExtensionsTests
             host.Services.GetRequiredKeyedService<OpenAIClient>("openai") :
             host.Services.GetRequiredService<OpenAIClient>();
 
-        Assert.NotNull(client);
+        Assert.IsNotNull(client);
         Assert.IsType<OpenAIClient>(client);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var uri = new Uri("https://api.openai.com/");
@@ -65,12 +65,12 @@ public class AspireOpenAIExtensionsTests
             host.Services.GetRequiredKeyedService<OpenAIClient>("openai") :
             host.Services.GetRequiredService<OpenAIClient>();
 
-        Assert.NotNull(client);
+        Assert.IsNotNull(client);
     }
 
-    [Theory]
-    [InlineData("Endpoint=http://domain.com:12345;Key=abc123")]
-    [InlineData("Key=abc123")]
+    [TestMethod]
+    [DataRow("Endpoint=http://domain.com:12345;Key=abc123")]
+    [DataRow("Key=abc123")]
     public void ReadsFromConnectionStringsFormats(string connectionString)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -83,12 +83,12 @@ public class AspireOpenAIExtensionsTests
         using var host = builder.Build();
         var client = host.Services.GetRequiredService<OpenAIClient>();
 
-        Assert.NotNull(client);
+        Assert.IsNotNull(client);
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData("Endpoint=http://domain.com:12345")]
+    [TestMethod]
+    [DataRow("")]
+    [DataRow("Endpoint=http://domain.com:12345")]
     public void ThrowsWhitInvalidConnectionString(string connectionString)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -102,12 +102,12 @@ public class AspireOpenAIExtensionsTests
 
         var exception = Assert.Throws<InvalidOperationException>(host.Services.GetRequiredService<OpenAIClient>);
 
-        Assert.NotNull(exception);
-        Assert.Equal("An OpenAIClient could not be configured. Ensure valid connection information was provided in " +
+        Assert.IsNotNull(exception);
+        Assert.AreEqual("An OpenAIClient could not be configured. Ensure valid connection information was provided in " +
             "'ConnectionStrings:openai' or specify a Key in the 'Aspire:OpenAI' configuration section.", exception.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -128,12 +128,12 @@ public class AspireOpenAIExtensionsTests
         var client2 = host.Services.GetRequiredKeyedService<OpenAIClient>("openai2");
         var client3 = host.Services.GetRequiredKeyedService<OpenAIClient>("openai3");
 
-        Assert.NotSame(client1, client2);
-        Assert.NotSame(client1, client3);
-        Assert.NotSame(client2, client3);
+        Assert.AreNotSame(client1, client2);
+        Assert.AreNotSame(client1, client3);
+        Assert.AreNotSame(client2, client3);
     }
 
-    [Fact]
+    [TestMethod]
     public void BindsSettingsAndInvokesCallback()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -150,12 +150,12 @@ public class AspireOpenAIExtensionsTests
             localSettings = settings;
         });
 
-        Assert.NotNull(localSettings);
-        Assert.True(localSettings.DisableMetrics);
-        Assert.True(localSettings.DisableTracing);
+        Assert.IsNotNull(localSettings);
+        Assert.IsTrue(localSettings.DisableMetrics);
+        Assert.IsTrue(localSettings.DisableTracing);
     }
 
-    [Fact]
+    [TestMethod]
     public void BindsOptionsAndInvokesCallback()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -173,12 +173,12 @@ public class AspireOpenAIExtensionsTests
 
         var options = host.Services.GetRequiredService<IOptions<OpenAIClientOptions>>().Value;
 
-        Assert.NotNull(options);
-        Assert.Equal("myproject", options.ProjectId);
-        Assert.Equal("myapplication", options.UserAgentApplicationId);
+        Assert.IsNotNull(options);
+        Assert.AreEqual("myproject", options.ProjectId);
+        Assert.AreEqual("myapplication", options.UserAgentApplicationId);
     }
 
-    [Fact]
+    [TestMethod]
     public void BindsToNamedClientOptions()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -193,7 +193,7 @@ public class AspireOpenAIExtensionsTests
 
         var options = host.Services.GetRequiredService<IOptions<OpenAIClientOptions>>().Value;
 
-        Assert.NotNull(options);
-        Assert.Equal("myproject2", options.ProjectId);
+        Assert.IsNotNull(options);
+        Assert.AreEqual("myproject2", options.ProjectId);
     }
 }

@@ -6,13 +6,13 @@ using Aspire.Hosting.Eventing;
 using Aspire.Hosting.Utils;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Tests.Eventing;
 
+[TestClass]
 public class DistributedApplicationBuilderEventingTests
 {
-    [Fact]
+    [TestMethod]
     public async Task EventsCanBePublishedBlockSequential()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -37,13 +37,13 @@ public class DistributedApplicationBuilderEventingTests
         var pendingPublish = builder.Eventing.PublishAsync(new DummyEvent(), EventDispatchBehavior.BlockingSequential);
 
         await blockAssertionTcs.Task.DefaultTimeout();
-        Assert.Equal(1, hitCount);
+        Assert.AreEqual(1, hitCount);
         blockFirstSubscriptionTcs.SetResult();
         await pendingPublish.DefaultTimeout();
-        Assert.Equal(2, hitCount);
+        Assert.AreEqual(2, hitCount);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EventsCanBePublishedBlockConcurrent()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -70,12 +70,12 @@ public class DistributedApplicationBuilderEventingTests
         var pendingPublish = builder.Eventing.PublishAsync(new DummyEvent(), EventDispatchBehavior.BlockingConcurrent);
 
         await Task.WhenAll(blockAssertionSub1.Task, blockAssertionSub2.Task).DefaultTimeout();
-        Assert.Equal(2, hitCount);
+        Assert.AreEqual(2, hitCount);
         blockSubscriptionCompletion.SetResult();
         await pendingPublish.DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EventsCanBePublishedNonBlockingConcurrent()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -103,10 +103,10 @@ public class DistributedApplicationBuilderEventingTests
 
         blockSubscriptionExecution.SetResult();
         await Task.WhenAll(blockAssertionSub1.Task, blockAssertionSub2.Task).DefaultTimeout();
-        Assert.Equal(2, hitCount);
+        Assert.AreEqual(2, hitCount);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task EventsCanBePublishedNonBlockingSequential()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -139,38 +139,38 @@ public class DistributedApplicationBuilderEventingTests
         // Make sure that we are zero when we enter
         // the first handler.
         await blockAssert1.Task.DefaultTimeout();
-        Assert.Equal(0, hitCount);
+        Assert.AreEqual(0, hitCount);
 
         // Give the second handler a chance to run,
         // it shouldn't and hit count should
         // still be zero.
         await Task.Delay(1000);
-        Assert.Equal(0, hitCount);
+        Assert.AreEqual(0, hitCount);
 
         // After we unblock the first sub
         // we update the hit count and verify
         // that it has moved to 1.
         blockEventSub1.SetResult();
         await blockAssert2.Task.DefaultTimeout();
-        Assert.Equal(1, hitCount);
+        Assert.AreEqual(1, hitCount);
         blockEventSub2.SetResult();
 
         // Now block until the second handler has
         // run and make sure it has incremented.
         await blockAssert3.Task.DefaultTimeout();
-        Assert.Equal(2, hitCount);
+        Assert.AreEqual(2, hitCount);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanResolveIDistributedApplicationEventingFromDI()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         using var app = builder.Build();
         var eventing = app.Services.GetRequiredService<IDistributedApplicationEventing>();
-        Assert.Equal(builder.Eventing, eventing);
+        Assert.AreEqual(builder.Eventing, eventing);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task ResourceEventsForContainersFireForSpecificResources()
     {
@@ -181,8 +181,8 @@ public class DistributedApplicationBuilderEventingTests
 
         builder.Eventing.Subscribe<BeforeResourceStartedEvent>(redis.Resource, (e, ct) =>
         {
-            Assert.NotNull(e.Services);
-            Assert.NotNull(e.Resource);
+            Assert.IsNotNull(e.Services);
+            Assert.IsNotNull(e.Resource);
             beforeResourceStartedTcs.TrySetResult();
             return Task.CompletedTask;
         });
@@ -195,7 +195,7 @@ public class DistributedApplicationBuilderEventingTests
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task ResourceEventsForContainersFireForAllResources()
     {
@@ -208,8 +208,8 @@ public class DistributedApplicationBuilderEventingTests
         // Should be called twice ... once for each event.
         builder.Eventing.Subscribe<BeforeResourceStartedEvent>((e, ct) =>
         {
-            Assert.NotNull(e.Services);
-            Assert.NotNull(e.Resource);
+            Assert.IsNotNull(e.Services);
+            Assert.IsNotNull(e.Resource);
             countdownEvent.Signal();
             return Task.CompletedTask;
         });
@@ -219,11 +219,11 @@ public class DistributedApplicationBuilderEventingTests
 
         var fired = countdownEvent.Wait(TimeSpan.FromSeconds(10));
 
-        Assert.True(fired);
+        Assert.IsTrue(fired);
         await app.StopAsync().DefaultTimeout(TestConstants.DefaultOrchestratorTestLongTimeout);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task LifeycleHookAnalogousEventsFire()
     {
         var beforeStartEventFired = new ManualResetEventSlim();
@@ -233,22 +233,22 @@ public class DistributedApplicationBuilderEventingTests
         using var builder = TestDistributedApplicationBuilder.Create();
         builder.Eventing.Subscribe<BeforeStartEvent>((e, ct) =>
         {
-            Assert.NotNull(e.Services);
-            Assert.NotNull(e.Model);
+            Assert.IsNotNull(e.Services);
+            Assert.IsNotNull(e.Model);
             beforeStartEventFired.Set();
             return Task.CompletedTask;
         });
         builder.Eventing.Subscribe<AfterEndpointsAllocatedEvent>((e, ct) =>
         {
-            Assert.NotNull(e.Services);
-            Assert.NotNull(e.Model);
+            Assert.IsNotNull(e.Services);
+            Assert.IsNotNull(e.Model);
             afterEndpointsAllocatedEventFired.Set();
             return Task.CompletedTask;
         });
         builder.Eventing.Subscribe<AfterResourcesCreatedEvent>((e, ct) =>
         {
-            Assert.NotNull(e.Services);
-            Assert.NotNull(e.Model);
+            Assert.IsNotNull(e.Services);
+            Assert.IsNotNull(e.Model);
             afterResourcesCreatedEventFired.Set();
             return Task.CompletedTask;
         });
@@ -261,7 +261,7 @@ public class DistributedApplicationBuilderEventingTests
             TimeSpan.FromSeconds(10)
             );
 
-        Assert.True(allFired);
+        Assert.IsTrue(allFired);
         await app.StopAsync();
     }
 

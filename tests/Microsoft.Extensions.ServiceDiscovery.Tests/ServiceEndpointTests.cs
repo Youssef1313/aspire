@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net;
-using Xunit;
 
 namespace Microsoft.Extensions.ServiceDiscovery.Tests;
 
@@ -22,7 +21,7 @@ public class ServiceEndpointTests
         new UriEndPoint(new Uri("https://microsoft.com:8443"))
     };
 
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(ZeroPortEndPoints))]
     public void ServiceEndpointToStringOmitsUnspecifiedPort(EndPoint endpoint)
     {
@@ -31,7 +30,7 @@ public class ServiceEndpointTests
         Assert.DoesNotContain(":0", epString);
     }
 
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(NonZeroPortEndPoints))]
     public void ServiceEndpointToStringContainsSpecifiedPort(EndPoint endpoint)
     {

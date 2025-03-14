@@ -15,7 +15,7 @@ internal static class DistributedApplicationTestFactory
     /// <summary>
     /// Creates an <see cref="IDistributedApplicationTestingBuilder"/> for the specified app host assembly.
     /// </summary>
-    public static async Task<IDistributedApplicationTestingBuilder> CreateAsync(Type appHostProgramType, ITestOutputHelper? testOutput)
+    public static async Task<IDistributedApplicationTestingBuilder> CreateAsync(Type appHostProgramType, TestContext? testOutput)
     {
         var builder = await DistributedApplicationTestingBuilder.CreateAsync(appHostProgramType);
 
@@ -37,7 +37,7 @@ internal static class DistributedApplicationTestFactory
             logging.AddFakeLogging();
             if (testOutput is not null)
             {
-                logging.AddXunit(testOutput);
+                logging.AddMSTest(testOutput);
             }
             logging.SetMinimumLevel(LogLevel.Trace);
             logging.AddFilter("Aspire", LogLevel.Trace);

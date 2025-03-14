@@ -1,30 +1,30 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 using static Aspire.Hosting.Utils.CommandLineArgsParser;
 
 namespace Aspire.Hosting.Tests.Utils;
 
+[TestClass]
 public class CommandLineArgsParserTests
 {
-    [Theory]
-    [InlineData("", new string[] { })]
-    [InlineData("single", new[] { "single" })]
-    [InlineData("hello world", new[] { "hello", "world" })]
-    [InlineData("foo bar baz", new[] { "foo", "bar", "baz" })]
-    [InlineData("foo\tbar\tbaz", new[] { "foo", "bar", "baz" })]
-    [InlineData("\"quoted string\"", new[] { "quoted string" })]
-    [InlineData("\"quoted\tstring\"", new[] { "quoted\tstring" })]
-    [InlineData("\"quoted \"\" string\"", new[] { "quoted \" string" })]
+    [TestMethod]
+    [DataRow("", new string[] { })]
+    [DataRow("single", new[] { "single" })]
+    [DataRow("hello world", new[] { "hello", "world" })]
+    [DataRow("foo bar baz", new[] { "foo", "bar", "baz" })]
+    [DataRow("foo\tbar\tbaz", new[] { "foo", "bar", "baz" })]
+    [DataRow("\"quoted string\"", new[] { "quoted string" })]
+    [DataRow("\"quoted\tstring\"", new[] { "quoted\tstring" })]
+    [DataRow("\"quoted \"\" string\"", new[] { "quoted \" string" })]
     // Single quotes are not treated as string delimiters
-    [InlineData("\"hello 'world'\"", new[] { "hello 'world'" })]
-    [InlineData("'single quoted'", new[] { "'single", "quoted'" })]
-    [InlineData("'foo \"bar\" baz'", new[] { "'foo", "bar", "baz'" })]
+    [DataRow("\"hello 'world'\"", new[] { "hello 'world'" })]
+    [DataRow("'single quoted'", new[] { "'single", "quoted'" })]
+    [DataRow("'foo \"bar\" baz'", new[] { "'foo", "bar", "baz'" })]
     public void TestParse(string commandLine, string[] expectedParsed)
     {
         var actualParsed = Parse(commandLine);
 
-        Assert.Equal(expectedParsed, actualParsed.ToArray());
+        Assert.AreEqual(expectedParsed, actualParsed.ToArray());
     }
 }

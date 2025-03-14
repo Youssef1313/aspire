@@ -4,14 +4,15 @@
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
 using Azure.Provisioning.AppContainers;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Azure.Tests;
 
-public class AzureProvisioningResourceExtensionsTests(ITestOutputHelper output)
+[TestClass]
+public class AzureProvisioningResourceExtensionsTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     public async Task AsProvisioningParameterTests()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -59,7 +60,7 @@ public class AzureProvisioningResourceExtensionsTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -92,8 +93,8 @@ public class AzureProvisioningResourceExtensionsTests(ITestOutputHelper output)
               }
             }
             """;
-        output.WriteLine(manifest.BicepText);
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        TestContext.WriteLine(manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
     private sealed class Project : IProjectMetadata

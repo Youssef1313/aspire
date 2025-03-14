@@ -11,13 +11,15 @@ using Microsoft.Azure.SignalR.Management;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Polly;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Azure.Tests;
-public class AzureSignalREmulatorFunctionalTest(ITestOutputHelper testOutputHelper)
+
+[TestClass]
+public class AzureSignalREmulatorFunctionalTest
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     public async Task VerifyAzureSignalRConnectionString()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -27,22 +29,22 @@ public class AzureSignalREmulatorFunctionalTest(ITestOutputHelper testOutputHelp
             e.WithEndpoint("emulator", e => e.AllocatedEndpoint = new AllocatedEndpoint(e, "localhost", 10001));
         });
 
-        Assert.True(signalR.Resource.IsEmulator);
+        Assert.IsTrue(signalR.Resource.IsEmulator);
 
         var connectionStringExpr = signalR.Resource.ConnectionStringExpression;
         var connectionString = await connectionStringExpr.GetValueAsync(CancellationToken.None);
         var postfix = ";AccessKey=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGH;Version=1.0;";
-        Assert.Equal("Endpoint={signalr.bindings.emulator.url}" + postfix, connectionStringExpr.ValueExpression);
-        Assert.Equal("Endpoint=http://localhost:10001" + postfix, connectionString);
-        Assert.Equal(connectionString, await ((IResourceWithConnectionString)signalR.Resource).GetConnectionStringAsync());
+        Assert.AreEqual("Endpoint={signalr.bindings.emulator.url}" + postfix, connectionStringExpr.ValueExpression);
+        Assert.AreEqual("Endpoint=http://localhost:10001" + postfix, connectionString);
+        Assert.AreEqual(connectionString, await ((IResourceWithConnectionString)signalR.Resource).GetConnectionStringAsync());
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyWaitForOnAzureSignalREmulatorBlocksDependentResources()
     {
         var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(TestContext);
 
         var healthCheckTcs = new TaskCompletionSource<HealthCheckResult>();
         builder.Services.AddHealthChecks().AddAsyncCheck("blocking_check", () =>
@@ -73,7 +75,7 @@ public class AzureSignalREmulatorFunctionalTest(ITestOutputHelper testOutputHelp
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task VerifyAzureSignalREmulatorResource()
     {
@@ -83,11 +85,11 @@ public class AzureSignalREmulatorFunctionalTest(ITestOutputHelper testOutputHelp
             {
                 MaxRetryAttempts = 10,
                 Delay = TimeSpan.FromSeconds(10),
-                BackoffType = DelayBackoffType.Linear,
+                BackoffType = Polly.DelayBackoffType.Linear,
                 ShouldHandle = new PredicateBuilder().Handle<AzureSignalRException>()
             })
             .Build();
-        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create().WithTestAndResourceLogging(TestContext);
         var signalR = builder
             .AddAzureSignalR("signalR")
             .RunAsEmulator();
@@ -101,7 +103,7 @@ public class AzureSignalREmulatorFunctionalTest(ITestOutputHelper testOutputHelp
             var serviceManager = new ServiceManagerBuilder()
                 .WithOptions(option => { option.ConnectionString = connectionString; })
                 .BuildServiceManager();
-            Assert.True(await serviceManager.IsServiceHealthy(default));
+            Assert.IsTrue(await serviceManager.IsServiceHealthy(default));
 
             // Get negotiate URL to init a signalR connection
             var serviceHubContext = await serviceManager.CreateHubContextAsync("hub1", default);
@@ -122,7 +124,7 @@ public class AzureSignalREmulatorFunctionalTest(ITestOutputHelper testOutputHelp
             await serviceHubContext.Clients.All.SendAsync("broadcast", sentMessage, token);
 
             // Verify that received message is the same as sent message
-            Assert.Equal(sentMessage, await messageTcs.Task);
+            Assert.AreEqual(sentMessage, await messageTcs.Task);
         }, cts.Token);
         
         await app.StopAsync();

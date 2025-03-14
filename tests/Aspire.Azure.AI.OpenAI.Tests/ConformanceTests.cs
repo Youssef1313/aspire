@@ -8,10 +8,10 @@ using Microsoft.DotNet.RemoteExecutor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.AI.OpenAI.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<AzureOpenAIClient, AzureOpenAISettings>
 {
     protected const string Endpoint = "https://aspireopenaitests.openai.azure.com/";
@@ -82,11 +82,11 @@ public class ConformanceTests : ConformanceTests<AzureOpenAIClient, AzureOpenAIS
         }
     }
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: null), EnableTelemetry()).Dispose();
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource_Keyed()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: "key"), EnableTelemetry()).Dispose();
 

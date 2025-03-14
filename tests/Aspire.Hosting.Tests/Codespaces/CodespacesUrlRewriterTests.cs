@@ -4,17 +4,16 @@
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Tests.Codespaces;
 
-public class CodespacesUrlRewriterTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class CodespacesUrlRewriterTests(TestContext testContext)
 {
-    [Fact]
+    [TestMethod]
     public async Task VerifyUrlsRewriterStopsWhenNotInCodespaces()
     {
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
 
         // Explicitly disable codespace behavior for this test.
         builder.Configuration["CODESPACES"] = "false";
@@ -22,7 +21,7 @@ public class CodespacesUrlRewriterTests(ITestOutputHelper testOutputHelper)
         builder.Services.AddLogging(logging =>
         {
             logging.AddFakeLogging();
-            logging.AddXunit(testOutputHelper);
+            logging.AddMSTest(testContext);
         });
 
         var resource = builder.AddResource(new CustomResource("resource"));
@@ -47,16 +46,16 @@ public class CodespacesUrlRewriterTests(ITestOutputHelper testOutputHelper)
             }
         }
 
-        Assert.True(urlRewriterStopped);
+        Assert.IsTrue(urlRewriterStopped);
 
         await app.StopAsync(abortToken.Token);
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/6648")]
     public async Task VerifyUrlsRewrittenWhenInCodespaces()
     {
-        using var builder = TestDistributedApplicationBuilder.Create(testOutputHelper);
+        using var builder = TestDistributedApplicationBuilder.Create(testContext);
 
         builder.Configuration["CODESPACES"] = "true";
         builder.Configuration["GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN"] = "app.github.dev";
@@ -87,13 +86,13 @@ public class CodespacesUrlRewriterTests(ITestOutputHelper testOutputHelper)
             },
             abortToken.Token);
 
-        Assert.Collection(
+        Assert.That.Collection(
             resourceEvent.Snapshot.Urls,
             u =>
             {
-                Assert.Equal("Test", u.Name);
-                Assert.Equal("http://test-codespace-1234.app.github.dev/", u.Url);
-                Assert.False(u.IsInternal);
+                Assert.AreEqual("Test", u.Name);
+                Assert.AreEqual("http://test-codespace-1234.app.github.dev/", u.Url);
+                Assert.IsFalse(u.IsInternal);
             }
             );
 

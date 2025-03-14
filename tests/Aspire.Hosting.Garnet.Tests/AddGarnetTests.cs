@@ -6,13 +6,13 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Garnet.Tests;
 
+[TestClass]
 public class AddGarnetTests
 {
-    [Fact]
+    [TestMethod]
     public void AddGarnetContainerWithDefaultsAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -22,25 +22,25 @@ public class AddGarnetTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<GarnetResource>());
-        Assert.Equal("myGarnet", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<GarnetResource>());
+        Assert.AreEqual("myGarnet", containerResource.Name);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(6379, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(6379, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(GarnetContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(GarnetContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(GarnetContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(GarnetContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(GarnetContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(GarnetContainerImageTags.Registry, containerAnnotation.Registry);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddGarnetContainerAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -50,25 +50,25 @@ public class AddGarnetTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<GarnetResource>());
-        Assert.Equal("myGarnet", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<GarnetResource>());
+        Assert.AreEqual("myGarnet", containerResource.Name);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(6379, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Equal(8813, endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(6379, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.AreEqual(8813, endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(GarnetContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(GarnetContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(GarnetContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(GarnetContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(GarnetContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(GarnetContainerImageTags.Registry, containerAnnotation.Registry);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GarnetCreatesConnectionString()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -79,13 +79,13 @@ public class AddGarnetTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<IResourceWithConnectionString>());
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<IResourceWithConnectionString>());
         var connectionString = await connectionStringResource.GetConnectionStringAsync(default);
-        Assert.Equal("{myGarnet.bindings.tcp.host}:{myGarnet.bindings.tcp.port},password={myGarnet-password.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
-        Assert.StartsWith("localhost:2000", connectionString);
+        Assert.AreEqual("{myGarnet.bindings.tcp.host}:{myGarnet.bindings.tcp.port},password={myGarnet-password.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        StringAssert.StartsWith(connectionString, "localhost:2000");
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyWithoutPasswordManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -116,10 +116,10 @@ public class AddGarnetTests
                                    }
                                  }
                                  """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyWithPasswordManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -156,10 +156,10 @@ public class AddGarnetTests
                                    }
                                  }
                                  """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithPersistence()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -192,13 +192,13 @@ public class AddGarnetTests
                                    }
                                  }
                                  """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithDataVolumeAddsVolumeAnnotation(bool? isReadOnly)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -214,16 +214,16 @@ public class AddGarnetTests
 
         var volumeAnnotation = garnet.Resource.Annotations.OfType<ContainerMountAnnotation>().Single();
 
-        Assert.Equal($"{builder.GetVolumePrefix()}-myGarnet-data", volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.Volume, volumeAnnotation.Type);
-        Assert.Equal(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
+        Assert.AreEqual($"{builder.GetVolumePrefix()}-myGarnet-data", volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.Volume, volumeAnnotation.Type);
+        Assert.AreEqual(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithDataBindMountAddsMountAnnotation(bool? isReadOnly)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -239,26 +239,26 @@ public class AddGarnetTests
 
         var volumeAnnotation = garnet.Resource.Annotations.OfType<ContainerMountAnnotation>().Single();
 
-        Assert.Equal(Path.Combine(builder.AppHostDirectory, "mygarnetdata"), volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.BindMount, volumeAnnotation.Type);
-        Assert.Equal(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
+        Assert.AreEqual(Path.Combine(builder.AppHostDirectory, "mygarnetdata"), volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.BindMount, volumeAnnotation.Type);
+        Assert.AreEqual(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDataVolumeAddsPersistenceAnnotation()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         var garnet = builder.AddGarnet("myGarnet")
                               .WithDataVolume();
 
-        Assert.True(garnet.Resource.TryGetAnnotationsOfType<CommandLineArgsCallbackAnnotation>(out var argsCallbacks));
+        Assert.IsTrue(garnet.Resource.TryGetAnnotationsOfType<CommandLineArgsCallbackAnnotation>(out var argsCallbacks));
 
         var args = await GetCommandLineArgs(garnet);
         Assert.Contains("--checkpointdir /data/checkpoints --recover --aof --aof-commit-freq 60000", args);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDataVolumeDoesNotAddPersistenceAnnotationIfIsReadOnly()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -269,14 +269,14 @@ public class AddGarnetTests
         Assert.DoesNotContain("--checkpointdir", args);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDataBindMountAddsPersistenceAnnotation()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         var garnet = builder.AddGarnet("myGarnet")
                            .WithDataBindMount("mygarnetdata");
 
-        Assert.True(garnet.Resource.TryGetAnnotationsOfType<CommandLineArgsCallbackAnnotation>(out var argsCallbacks));
+        Assert.IsTrue(garnet.Resource.TryGetAnnotationsOfType<CommandLineArgsCallbackAnnotation>(out var argsCallbacks));
 
         var args = await GetCommandLineArgs(garnet);
         Assert.Contains("--checkpointdir /data/checkpoints --recover --aof --aof-commit-freq 60000", args);
@@ -288,7 +288,7 @@ public class AddGarnetTests
         return string.Join(" ", args);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDataBindMountDoesNotAddPersistenceAnnotationIfIsReadOnly()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -299,7 +299,7 @@ public class AddGarnetTests
         Assert.DoesNotContain("--checkpointdir", args);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithPersistenceReplacesPreviousAnnotationInstances()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -307,7 +307,7 @@ public class AddGarnetTests
                            .WithDataVolume()
                            .WithPersistence(TimeSpan.FromSeconds(10));
 
-        Assert.True(garnet.Resource.TryGetAnnotationsOfType<CommandLineArgsCallbackAnnotation>(out var argsCallbacks));
+        Assert.IsTrue(garnet.Resource.TryGetAnnotationsOfType<CommandLineArgsCallbackAnnotation>(out var argsCallbacks));
 
         var args = await GetCommandLineArgs(garnet);
         Assert.Contains("--checkpointdir /data/checkpoints --recover --aof --aof-commit-freq 10000", args);
@@ -317,18 +317,18 @@ public class AddGarnetTests
         Assert.DoesNotContain("--checkpointdir", args.Substring(saveIndex + 1));
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPersistenceAddsCommandLineArgsAnnotation()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         var garnet = builder.AddGarnet("myGarnet")
                            .WithPersistence(TimeSpan.FromSeconds(60));
 
-        Assert.True(garnet.Resource.TryGetAnnotationsOfType<CommandLineArgsCallbackAnnotation>(out var argsAnnotations));
-        Assert.NotNull(argsAnnotations.SingleOrDefault());
+        Assert.IsTrue(garnet.Resource.TryGetAnnotationsOfType<CommandLineArgsCallbackAnnotation>(out var argsAnnotations));
+        Assert.IsNotNull(argsAnnotations.SingleOrDefault());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddGarnetContainerWithPasswordAnnotationMetadata()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -343,15 +343,15 @@ public class AddGarnetTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<GarnetResource>());
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<GarnetResource>());
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<IResourceWithConnectionString>());
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<IResourceWithConnectionString>());
         var connectionString = await connectionStringResource.GetConnectionStringAsync(default);
-        Assert.Equal("{myGarnet.bindings.tcp.host}:{myGarnet.bindings.tcp.port},password={pass.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
-        Assert.StartsWith($"localhost:5001,password={password}", connectionString);
+        Assert.AreEqual("{myGarnet.bindings.tcp.host}:{myGarnet.bindings.tcp.port},password={pass.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        StringAssert.StartsWith(connectionString, $"localhost:5001,password={password}");
     }
 
-    [Fact]
+    [TestMethod]
     public void GarnetCreatesConnectionStringWithPassword()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -364,11 +364,11 @@ public class AddGarnetTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<IResourceWithConnectionString>());
-        Assert.Equal("{myGarnet.bindings.tcp.host}:{myGarnet.bindings.tcp.port},password={pass.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<IResourceWithConnectionString>());
+        Assert.AreEqual("{myGarnet.bindings.tcp.host}:{myGarnet.bindings.tcp.port},password={pass.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public void GarnetCreatesConnectionStringWithPasswordAndPort()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -381,7 +381,7 @@ public class AddGarnetTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<IResourceWithConnectionString>());
-        Assert.Equal("{myGarnet.bindings.tcp.host}:{myGarnet.bindings.tcp.port},password={pass.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<IResourceWithConnectionString>());
+        Assert.AreEqual("{myGarnet.bindings.tcp.host}:{myGarnet.bindings.tcp.port},password={pass.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
     }
 }

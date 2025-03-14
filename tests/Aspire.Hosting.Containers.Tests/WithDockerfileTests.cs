@@ -9,19 +9,20 @@ using Aspire.Hosting.Testing;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Containers.Tests;
 
-public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class WithDockerfileTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     [RequiresDocker]
     public async Task WithBuildSecretPopulatesSecretFilesCorrectly()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync(includeSecrets: true);
 
@@ -41,12 +42,12 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
         using var client = app.CreateHttpClient("testcontainer", "http");
 
         var envSecretMessage = await client.GetStringAsync("/ENV_SECRET.txt");
-        Assert.Equal("open sesame from env", envSecretMessage);
+        Assert.AreEqual("open sesame from env", envSecretMessage);
 
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task ContainerBuildLogsAreStreamedToAppHost()
     {
@@ -54,7 +55,7 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
         builder.Services.AddLogging(logging =>
         {
             logging.AddFakeLogging();
-            logging.AddXunit(testOutputHelper);
+            logging.AddMSTest(TestContext);
         });
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
@@ -83,91 +84,91 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
         await app.StopAsync();
     }
 
-    [Theory]
-    [InlineData("testcontainer")]
-    [InlineData("TestContainer")]
-    [InlineData("test-Container")]
-    [InlineData("TEST-234-CONTAINER")]
+    [TestMethod]
+    [DataRow("testcontainer")]
+    [DataRow("TestContainer")]
+    [DataRow("test-Container")]
+    [DataRow("TEST-234-CONTAINER")]
     public async Task AddDockerfileUsesLowercaseResourceNameAsImageName(string resourceName)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
         var dockerFile = builder.AddDockerfile(resourceName, tempContextPath, tempDockerfilePath);
 
-        Assert.True(dockerFile.Resource.TryGetLastAnnotation<ContainerImageAnnotation>(out var containerImageAnnotation));
-        Assert.Equal(resourceName.ToLowerInvariant(), containerImageAnnotation.Image);
+        Assert.IsTrue(dockerFile.Resource.TryGetLastAnnotation<ContainerImageAnnotation>(out var containerImageAnnotation));
+        Assert.AreEqual(resourceName.ToLowerInvariant(), containerImageAnnotation.Image);
     }
 
-    [Theory]
-    [InlineData("testcontainer")]
-    [InlineData("TestContainer")]
-    [InlineData("test-Container")]
-    [InlineData("TEST-234-CONTAINER")]
+    [TestMethod]
+    [DataRow("testcontainer")]
+    [DataRow("TestContainer")]
+    [DataRow("test-Container")]
+    [DataRow("TEST-234-CONTAINER")]
     public async Task WithDockerfileUsesLowercaseResourceNameAsImageName(string resourceName)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
         var dockerFile = builder.AddContainer(resourceName, "someimagename")
             .WithDockerfile(tempContextPath, tempDockerfilePath);
 
-        Assert.True(dockerFile.Resource.TryGetLastAnnotation<ContainerImageAnnotation>(out var containerImageAnnotation));
-        Assert.Equal(resourceName.ToLowerInvariant(), containerImageAnnotation.Image);
+        Assert.IsTrue(dockerFile.Resource.TryGetLastAnnotation<ContainerImageAnnotation>(out var containerImageAnnotation));
+        Assert.AreEqual(resourceName.ToLowerInvariant(), containerImageAnnotation.Image);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDockerfileUsesGeneratesDifferentHashForImageTagOnEachCall()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
         var dockerFile = builder.AddContainer("testcontainer", "someimagename")
             .WithDockerfile(tempContextPath, tempDockerfilePath);
-        Assert.True(dockerFile.Resource.TryGetLastAnnotation<ContainerImageAnnotation>(out var containerImageAnnotation1));
+        Assert.IsTrue(dockerFile.Resource.TryGetLastAnnotation<ContainerImageAnnotation>(out var containerImageAnnotation1));
         var tag1 = containerImageAnnotation1.Tag;
 
         dockerFile.WithDockerfile(tempContextPath, tempDockerfilePath);
-        Assert.True(dockerFile.Resource.TryGetLastAnnotation<ContainerImageAnnotation>(out var containerImageAnnotation2));
+        Assert.IsTrue(dockerFile.Resource.TryGetLastAnnotation<ContainerImageAnnotation>(out var containerImageAnnotation2));
         var tag2 = containerImageAnnotation2.Tag;
 
-        Assert.NotEqual(tag1, tag2);
+        Assert.AreNotEqual(tag1, tag2);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDockerfileGeneratedImageTagCanBeOverridden()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
         var dockerFile = builder.AddContainer("testcontainer", "someimagename")
             .WithDockerfile(tempContextPath, tempDockerfilePath);
 
-        Assert.True(dockerFile.Resource.TryGetLastAnnotation<ContainerImageAnnotation>(out var containerImageAnnotation1));
+        Assert.IsTrue(dockerFile.Resource.TryGetLastAnnotation<ContainerImageAnnotation>(out var containerImageAnnotation1));
         var generatedTag = containerImageAnnotation1.Tag;
 
         dockerFile.WithImageTag("latest");
-        Assert.True(dockerFile.Resource.TryGetLastAnnotation<ContainerImageAnnotation>(out var containerImageAnnotation2));
+        Assert.IsTrue(dockerFile.Resource.TryGetLastAnnotation<ContainerImageAnnotation>(out var containerImageAnnotation2));
         var overriddenTag = containerImageAnnotation2.Tag;
 
-        Assert.NotEqual(generatedTag, overriddenTag);
-        Assert.Equal("latest", overriddenTag);
+        Assert.AreNotEqual(generatedTag, overriddenTag);
+        Assert.AreEqual("latest", overriddenTag);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task WithDockerfileLaunchesContainerSuccessfully()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
@@ -184,24 +185,24 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
 
         var message = await client.GetStringAsync("/aspire.html");
 
-        Assert.Equal($"{DefaultMessage}\n", message);
+        Assert.AreEqual($"{DefaultMessage}\n", message);
 
         var kubernetes = app.Services.GetRequiredService<IKubernetesService>();
         var containers = await kubernetes.ListAsync<Container>();
 
-        var container = Assert.Single(containers);
-        Assert.Equal(tempContextPath, container!.Spec!.Build!.Context);
-        Assert.Equal(tempDockerfilePath, container!.Spec!.Build!.Dockerfile);
+        var container = Assert.ContainsSingle(containers);
+        Assert.AreEqual(tempContextPath, container!.Spec!.Build!.Context);
+        Assert.AreEqual(tempDockerfilePath, container!.Spec!.Build!.Dockerfile);
 
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task AddDockerfileLaunchesContainerSuccessfully()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
@@ -216,19 +217,19 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
         using var client = app.CreateHttpClient("testcontainer", "http");
         var message = await client.GetStringAsync("/aspire.html");
 
-        Assert.Equal($"{DefaultMessage}\n", message);
+        Assert.AreEqual($"{DefaultMessage}\n", message);
 
         var kubernetes = app.Services.GetRequiredService<IKubernetesService>();
         var containers = await kubernetes.ListAsync<Container>();
 
-        var container = Assert.Single<Container>(containers);
-        Assert.Equal(tempContextPath, container!.Spec!.Build!.Context);
-        Assert.Equal(tempDockerfilePath, container!.Spec!.Build!.Dockerfile);
+        var container = Assert.ContainsSingle<Container>(containers);
+        Assert.AreEqual(tempContextPath, container!.Spec!.Build!.Context);
+        Assert.AreEqual(tempDockerfilePath, container!.Spec!.Build!.Dockerfile);
 
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDockerfileResultsInBuildAttributeBeingAddedToManifest()
     {
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
@@ -237,7 +238,7 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
         {
             Args = ["--publisher", "manifest", "--output-path", manifestOutputPath],
         });
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         builder.Configuration["Parameters:message"] = "hello";
         var parameter = builder.AddParameter("message");
@@ -273,10 +274,10 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddDockerfileResultsInBuildAttributeBeingAddedToManifest()
     {
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
@@ -285,7 +286,7 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
         {
             Args = ["--publisher", "manifest", "--output-path", manifestOutputPath],
         });
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         builder.Configuration["Parameters:message"] = "hello";
         var parameter = builder.AddParameter("message");
@@ -320,10 +321,10 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDockerfileWithBuildSecretResultsInManifestReferencingSecretParameter()
     {
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
@@ -332,7 +333,7 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
         {
             Args = ["--publisher", "manifest", "--output-path", manifestOutputPath],
         });
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         builder.Configuration["Parameters:secret"] = "open sesame";
         var parameter = builder.AddParameter("secret", secret: true);
@@ -366,10 +367,10 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddDockerfileWithBuildSecretResultsInManifestReferencingSecretParameter()
     {
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
@@ -378,7 +379,7 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
         {
             Args = ["--publisher", "manifest", "--output-path", manifestOutputPath],
         });
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         builder.Configuration["Parameters:secret"] = "open sesame";
         var parameter = builder.AddParameter("secret", secret: true);
@@ -411,15 +412,15 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task WithDockerfileWithParameterLaunchesContainerSuccessfully()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
@@ -444,53 +445,53 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
 
         var message = await client.GetStringAsync("/aspire.html");
 
-        Assert.Equal($"hello\n", message);
+        Assert.AreEqual($"hello\n", message);
 
         var kubernetes = app.Services.GetRequiredService<IKubernetesService>();
         var containers = await kubernetes.ListAsync<Container>();
 
-        var container = Assert.Single<Container>(containers);
-        Assert.Equal(tempContextPath, container!.Spec!.Build!.Context);
-        Assert.Equal(tempDockerfilePath, container!.Spec!.Build!.Dockerfile);
-        Assert.Null(container!.Spec!.Build!.Stage);
-        Assert.Collection(
+        var container = Assert.ContainsSingle<Container>(containers);
+        Assert.AreEqual(tempContextPath, container!.Spec!.Build!.Context);
+        Assert.AreEqual(tempDockerfilePath, container!.Spec!.Build!.Dockerfile);
+        Assert.IsNull(container!.Spec!.Build!.Stage);
+        Assert.That.Collection(
             container!.Spec!.Build!.Args!,
             arg =>
             {
-                Assert.Equal("MESSAGE", arg.Name);
-                Assert.Equal("hello", arg.Value);
+                Assert.AreEqual("MESSAGE", arg.Name);
+                Assert.AreEqual("hello", arg.Value);
             },
             arg =>
             {
-                Assert.Equal("stringParam", arg.Name);
-                Assert.Equal("a string", arg.Value);
+                Assert.AreEqual("stringParam", arg.Name);
+                Assert.AreEqual("a string", arg.Value);
             },
             arg =>
             {
-                Assert.Equal("intParam", arg.Name);
-                Assert.Equal("42", arg.Value);
+                Assert.AreEqual("intParam", arg.Name);
+                Assert.AreEqual("42", arg.Value);
             },
             arg =>
             {
-                Assert.Equal("boolParamTrue", arg.Name);
-                Assert.Equal("true", arg.Value);
+                Assert.AreEqual("boolParamTrue", arg.Name);
+                Assert.AreEqual("true", arg.Value);
             },
             arg =>
             {
-                Assert.Equal("boolParamFalse", arg.Name);
-                Assert.Equal("false", arg.Value);
+                Assert.AreEqual("boolParamFalse", arg.Name);
+                Assert.AreEqual("false", arg.Value);
             }
             );
 
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public async Task AddDockerfileWithParameterLaunchesContainerSuccessfully()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
@@ -514,52 +515,52 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
 
         var message = await client.GetStringAsync("/aspire.html");
 
-        Assert.Equal($"hello\n", message);
+        Assert.AreEqual($"hello\n", message);
 
         var kubernetes = app.Services.GetRequiredService<IKubernetesService>();
         var containers = await kubernetes.ListAsync<Container>();
 
-        var container = Assert.Single<Container>(containers);
-        Assert.Equal(tempContextPath, container!.Spec!.Build!.Context);
-        Assert.Equal(tempDockerfilePath, container!.Spec!.Build!.Dockerfile);
-        Assert.Null(container!.Spec!.Build!.Stage);
-        Assert.Collection(
+        var container = Assert.ContainsSingle<Container>(containers);
+        Assert.AreEqual(tempContextPath, container!.Spec!.Build!.Context);
+        Assert.AreEqual(tempDockerfilePath, container!.Spec!.Build!.Dockerfile);
+        Assert.IsNull(container!.Spec!.Build!.Stage);
+        Assert.That.Collection(
             container!.Spec!.Build!.Args!,
             arg =>
             {
-                Assert.Equal("MESSAGE", arg.Name);
-                Assert.Equal("hello", arg.Value);
+                Assert.AreEqual("MESSAGE", arg.Name);
+                Assert.AreEqual("hello", arg.Value);
             },
             arg =>
             {
-                Assert.Equal("stringParam", arg.Name);
-                Assert.Equal("a string", arg.Value);
+                Assert.AreEqual("stringParam", arg.Name);
+                Assert.AreEqual("a string", arg.Value);
             },
             arg =>
             {
-                Assert.Equal("intParam", arg.Name);
-                Assert.Equal("42", arg.Value);
+                Assert.AreEqual("intParam", arg.Name);
+                Assert.AreEqual("42", arg.Value);
             },
             arg =>
             {
-                Assert.Equal("boolParamTrue", arg.Name);
-                Assert.Equal("true", arg.Value);
+                Assert.AreEqual("boolParamTrue", arg.Name);
+                Assert.AreEqual("true", arg.Value);
             },
             arg =>
             {
-                Assert.Equal("boolParamFalse", arg.Name);
-                Assert.Equal("false", arg.Value);
+                Assert.AreEqual("boolParamFalse", arg.Name);
+                Assert.AreEqual("false", arg.Value);
             }
             );
 
         await app.StopAsync();
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDockerfileWithEmptyContextPathThrows()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var ex = Assert.Throws<ArgumentException>(() =>
         {
@@ -567,10 +568,10 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
                    .WithDockerfile(string.Empty);
         });
 
-        Assert.Equal("contextPath", ex.ParamName);
+        Assert.AreEqual("contextPath", ex.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddDockerfileWithEmptyContextPathThrows()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -581,14 +582,14 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
                    .WithDockerfile(string.Empty);
         });
 
-        Assert.Equal("contextPath", ex.ParamName);
+        Assert.AreEqual("contextPath", ex.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithBuildArgsBeforeWithDockerfileThrows()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var container = builder.AddContainer("mycontainer", "myimage");
 
@@ -597,134 +598,134 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
             container.WithBuildArg("MESSAGE", "hello");
         });
 
-        Assert.Equal(
+        Assert.AreEqual(
             "The resource does not have a Dockerfile build annotation. Call WithDockerfile before calling WithBuildArg.",
             ex.Message
             );
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDockerfileWithValidContextPathValidDockerfileWithImplicitDefaultNameSucceeds()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
         var container = builder.AddContainer("mycontainer", "myimage")
                                .WithDockerfile(tempContextPath);
 
-        var annotation = Assert.Single(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
-        Assert.Equal(tempContextPath, annotation.ContextPath);
-        Assert.Equal(tempDockerfilePath, annotation.DockerfilePath);
+        var annotation = Assert.ContainsSingle(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
+        Assert.AreEqual(tempContextPath, annotation.ContextPath);
+        Assert.AreEqual(tempDockerfilePath, annotation.DockerfilePath);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddDockerfileWithValidContextPathValidDockerfileWithImplicitDefaultNameSucceeds()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
         var container = builder.AddDockerfile("mycontainer", tempContextPath);
 
-        var annotation = Assert.Single(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
-        Assert.Equal(tempContextPath, annotation.ContextPath);
-        Assert.Equal(tempDockerfilePath, annotation.DockerfilePath);
+        var annotation = Assert.ContainsSingle(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
+        Assert.AreEqual(tempContextPath, annotation.ContextPath);
+        Assert.AreEqual(tempDockerfilePath, annotation.DockerfilePath);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDockerfileWithValidContextPathValidDockerfileWithExplicitDefaultNameSucceeds()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
         var container = builder.AddContainer("mycontainer", "myimage")
                                .WithDockerfile(tempContextPath, "Dockerfile");
 
-        var annotation = Assert.Single(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
-        Assert.Equal(tempContextPath, annotation.ContextPath);
-        Assert.Equal(tempDockerfilePath, annotation.DockerfilePath);
+        var annotation = Assert.ContainsSingle(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
+        Assert.AreEqual(tempContextPath, annotation.ContextPath);
+        Assert.AreEqual(tempDockerfilePath, annotation.DockerfilePath);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddDockerfileWithValidContextPathValidDockerfileWithExplicitDefaultNameSucceeds()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
         var container = builder.AddDockerfile("mycontainer", tempContextPath, "Dockerfile");
 
-        var annotation = Assert.Single(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
-        Assert.Equal(tempContextPath, annotation.ContextPath);
-        Assert.Equal(tempDockerfilePath, annotation.DockerfilePath);
+        var annotation = Assert.ContainsSingle(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
+        Assert.AreEqual(tempContextPath, annotation.ContextPath);
+        Assert.AreEqual(tempDockerfilePath, annotation.DockerfilePath);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDockerfileWithValidContextPathValidDockerfileWithExplicitNonDefaultNameSucceeds()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync("Otherdockerfile");
 
         var container = builder.AddContainer("mycontainer", "myimage")
                                .WithDockerfile(tempContextPath, "Otherdockerfile");
 
-        var annotation = Assert.Single(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
-        Assert.Equal(tempContextPath, annotation.ContextPath);
-        Assert.Equal(tempDockerfilePath, annotation.DockerfilePath);
+        var annotation = Assert.ContainsSingle(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
+        Assert.AreEqual(tempContextPath, annotation.ContextPath);
+        Assert.AreEqual(tempDockerfilePath, annotation.DockerfilePath);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddDockerfileWithValidContextPathValidDockerfileWithExplicitNonDefaultNameSucceeds()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync("Otherdockerfile");
 
         var container = builder.AddDockerfile("mycontainer", tempContextPath, "Otherdockerfile");
 
-        var annotation = Assert.Single(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
-        Assert.Equal(tempContextPath, annotation.ContextPath);
-        Assert.Equal(tempDockerfilePath, annotation.DockerfilePath);
+        var annotation = Assert.ContainsSingle(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
+        Assert.AreEqual(tempContextPath, annotation.ContextPath);
+        Assert.AreEqual(tempDockerfilePath, annotation.DockerfilePath);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDockerfileWithValidContextPathValidDockerfileWithExplicitAbsoluteDefaultNameSucceeds()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
         var container = builder.AddContainer("mycontainer", "myimage")
                                .WithDockerfile(tempContextPath, tempDockerfilePath);
 
-        var annotation = Assert.Single(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
-        Assert.Equal(tempContextPath, annotation.ContextPath);
-        Assert.Equal(tempDockerfilePath, annotation.DockerfilePath);
+        var annotation = Assert.ContainsSingle(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
+        Assert.AreEqual(tempContextPath, annotation.ContextPath);
+        Assert.AreEqual(tempDockerfilePath, annotation.DockerfilePath);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddDockerfileWithValidContextPathValidDockerfileWithExplicitAbsoluteDefaultNameSucceeds()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
-        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+        builder.Services.AddLogging(b => b.AddMSTest(TestContext));
 
         var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync();
 
         var container = builder.AddDockerfile("mycontainer", tempContextPath, tempDockerfilePath);
 
-        var annotation = Assert.Single(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
-        Assert.Equal(tempContextPath, annotation.ContextPath);
-        Assert.Equal(tempDockerfilePath, annotation.DockerfilePath);
+        var annotation = Assert.ContainsSingle(container.Resource.Annotations.OfType<DockerfileBuildAnnotation>());
+        Assert.AreEqual(tempContextPath, annotation.ContextPath);
+        Assert.AreEqual(tempDockerfilePath, annotation.DockerfilePath);
     }
 
     private static async Task<(string ContextPath, string DockerfilePath)> CreateTemporaryDockerfileAsync(string dockerfileName = "Dockerfile", bool createDockerfile = true, bool includeSecrets = false)

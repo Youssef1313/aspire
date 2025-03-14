@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Components.Common.Tests;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Workload.Tests;
@@ -11,13 +10,13 @@ public class EmptyTemplateRunTests : WorkloadTestsBase, IClassFixture<EmptyTempl
 {
     private readonly EmptyTemplateRunFixture _testFixture;
 
-    public EmptyTemplateRunTests(EmptyTemplateRunFixture fixture, ITestOutputHelper testOutput)
+    public EmptyTemplateRunTests(EmptyTemplateRunFixture fixture, TestContext testOutput)
         : base(testOutput)
     {
         _testFixture = fixture;
     }
 
-    [Fact]
+    [TestMethod]
     [ActiveIssue("https://github.com/dotnet/aspire/issues/4623", typeof(PlaywrightProvider), nameof(PlaywrightProvider.DoesNotHavePlaywrightSupport))]
     [RequiresSSLCertificate("Needed for dashboard access")]
     public async Task ResourcesShowUpOnDashboad()

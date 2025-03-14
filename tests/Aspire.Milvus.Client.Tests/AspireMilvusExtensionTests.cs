@@ -7,9 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Milvus.Client;
-using Xunit;
 
 namespace Aspire.Milvus.Client.Tests;
+
+[TestClass]
 public class AspireMilvusExtensionTests : IClassFixture<MilvusContainerFixture>
 {
     private readonly MilvusContainerFixture _containerFixture;
@@ -25,9 +26,9 @@ public class AspireMilvusExtensionTests : IClassFixture<MilvusContainerFixture>
     public AspireMilvusExtensionTests(MilvusContainerFixture containerFixture)
         => _containerFixture = containerFixture;
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ReadsFromConnectionStringsCorrectly(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -50,12 +51,12 @@ public class AspireMilvusExtensionTests : IClassFixture<MilvusContainerFixture>
             host.Services.GetRequiredKeyedService<MilvusClient>(DefaultKeyName) :
             host.Services.GetRequiredService<MilvusClient>();
 
-        Assert.Equal(NormalizedConnectionString, $"Endpoint=http://{dataSource.Address}/;Key={DefaultApiKey}");
+        Assert.AreEqual(NormalizedConnectionString, $"Endpoint=http://{dataSource.Address}/;Key={DefaultApiKey}");
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionStringCanBeSetInCode(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -74,12 +75,12 @@ public class AspireMilvusExtensionTests : IClassFixture<MilvusContainerFixture>
             host.Services.GetRequiredKeyedService<MilvusClient>(DefaultKeyName) :
             host.Services.GetRequiredService<MilvusClient>();
 
-        Assert.NotNull(client);
+        Assert.IsNotNull(client);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ConnectionNameWinsOverConfigSection(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -104,14 +105,14 @@ public class AspireMilvusExtensionTests : IClassFixture<MilvusContainerFixture>
             host.Services.GetRequiredKeyedService<MilvusClient>(DefaultKeyName) :
             host.Services.GetRequiredService<MilvusClient>();
 
-        Assert.Equal(ConnectionString, $"Endpoint=http://{connection.Address}/;Key={DefaultApiKey}");
+        Assert.AreEqual(ConnectionString, $"Endpoint=http://{connection.Address}/;Key={DefaultApiKey}");
         // the connection string from config should not be used since it was found in ConnectionStrings
         Assert.DoesNotContain("unused", connection.Address);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task AddMilvusClient_HealthCheckShouldBeRegisteredByDefault(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -141,9 +142,9 @@ public class AspireMilvusExtensionTests : IClassFixture<MilvusContainerFixture>
         Assert.Contains(healthCheckReport.Entries, x => x.Key == healthCheckName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddMilvusClient_HealthCheckShouldNotBeRegisteredWhenDisabled(bool useKeyed)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -167,6 +168,6 @@ public class AspireMilvusExtensionTests : IClassFixture<MilvusContainerFixture>
 
         var healthCheckService = host.Services.GetService<HealthCheckService>();
 
-        Assert.Null(healthCheckService);
+        Assert.IsNull(healthCheckService);
     }
 }

@@ -3,16 +3,16 @@
 
 using System.Diagnostics;
 using System.Text;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class MSBuildTests
 {
     /// <summary>
     /// Tests that when an AppHost has a ProjectReference to a library project, a warning is emitted.
     /// </summary>
-    [Fact]
+    [TestMethod]
     public void EnsureWarningsAreEmittedWhenProjectReferencingLibraries()
     {
         var repoRoot = MSBuildUtils.GetRepoRoot();
@@ -116,10 +116,10 @@ builder.Build().Run();
             process.Start();
             process.BeginOutputReadLine();
 
-            Assert.True(process.WaitForExit(milliseconds: 180_000), "dotnet build command timed out after 3 minutes.");
-            Assert.True(process.ExitCode == 0, $"Build failed: {Environment.NewLine}{output}");
+            Assert.IsTrue(process.WaitForExit(milliseconds: 180_000), "dotnet build command timed out after 3 minutes.");
+            Assert.IsTrue(process.ExitCode == 0, $"Build failed: {Environment.NewLine}{output}");
 
-            Assert.True(outputDone.WaitOne(millisecondsTimeout: 60_000), "Timed out waiting for output to complete.");
+            Assert.IsTrue(outputDone.WaitOne(millisecondsTimeout: 60_000), "Timed out waiting for output to complete.");
 
             // Ensure a warning is emitted when an AppHost references a Library project
             Assert.Contains("warning ASPIRE004", output.ToString());

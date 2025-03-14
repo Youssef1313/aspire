@@ -3,20 +3,20 @@
 
 using System.Reflection;
 using Aspire.Dashboard.Extensions;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests;
 
+[TestClass]
 public class AssemblyExtensionsTests
 {
-    [Theory]
-    [InlineData("8.0.0-preview.1", "8.0.0-preview.1")]
-    [InlineData("8.0.0-preview.1+asdlkjfdijee", "8.0.0-preview.1")]
-    [InlineData("8.0.0-preview.1+asdlkjfdijee+someothersuffix", "8.0.0-preview.1")]
-    [InlineData("8.0.0", "8.0.0")]
-    [InlineData("Plain old text", "Plain old text")]
-    [InlineData("", "")]
-    [InlineData(null, null)]
+    [TestMethod]
+    [DataRow("8.0.0-preview.1", "8.0.0-preview.1")]
+    [DataRow("8.0.0-preview.1+asdlkjfdijee", "8.0.0-preview.1")]
+    [DataRow("8.0.0-preview.1+asdlkjfdijee+someothersuffix", "8.0.0-preview.1")]
+    [DataRow("8.0.0", "8.0.0")]
+    [DataRow("Plain old text", "Plain old text")]
+    [DataRow("", "")]
+    [DataRow(null, null)]
     public void GetDisplayVersionUsesInformationalVersionWhenPresent(string? attributeValue, string? expectedDisplayVersion)
     {
         var assembly = new TestingAssembly();
@@ -29,15 +29,15 @@ public class AssemblyExtensionsTests
 
         var actualDisplayVersion = assembly.GetDisplayVersion();
 
-        Assert.Equal(expectedDisplayVersion, actualDisplayVersion);
+        Assert.AreEqual(expectedDisplayVersion, actualDisplayVersion);
     }
 
-    [Theory]
-    [InlineData("8.0.0.1", "8.0.0.1")]
-    [InlineData("8.0.0.1+asdlkjfdijee", "8.0.0.1+asdlkjfdijee")]
-    [InlineData("Plain old text", "Plain old text")]
-    [InlineData("", "")]
-    [InlineData(null, null)]
+    [TestMethod]
+    [DataRow("8.0.0.1", "8.0.0.1")]
+    [DataRow("8.0.0.1+asdlkjfdijee", "8.0.0.1+asdlkjfdijee")]
+    [DataRow("Plain old text", "Plain old text")]
+    [DataRow("", "")]
+    [DataRow(null, null)]
     public void GetDisplayVersionUsesFileVersionWhenPresentAndInformationalVersionIsMissing(string? attributeValue, string? expectedDisplayVersion)
     {
         var assembly = new TestingAssembly();
@@ -49,15 +49,15 @@ public class AssemblyExtensionsTests
 
         var actualDisplayVersion = assembly.GetDisplayVersion();
 
-        Assert.Equal(expectedDisplayVersion, actualDisplayVersion);
+        Assert.AreEqual(expectedDisplayVersion, actualDisplayVersion);
     }
 
-    [Theory]
-    [InlineData("8.0.0.1", "8.0.0.1")]
-    [InlineData("8.0.0.1+asdlkjfdijee", "8.0.0.1+asdlkjfdijee")]
-    [InlineData("Plain old text", "Plain old text")]
-    [InlineData("", "")]
-    [InlineData(null, null)]
+    [TestMethod]
+    [DataRow("8.0.0.1", "8.0.0.1")]
+    [DataRow("8.0.0.1+asdlkjfdijee", "8.0.0.1+asdlkjfdijee")]
+    [DataRow("Plain old text", "Plain old text")]
+    [DataRow("", "")]
+    [DataRow(null, null)]
     public void GetDisplayVersionUsesAssemblyVersionWhenPresentAndInformationalVersionAndFileVersionAreaMissing(string? attributeValue, string? expectedDisplayVersion)
     {
         var assembly = new TestingAssembly();
@@ -68,7 +68,7 @@ public class AssemblyExtensionsTests
 
         var actualDisplayVersion = assembly.GetDisplayVersion();
 
-        Assert.Equal(expectedDisplayVersion, actualDisplayVersion);
+        Assert.AreEqual(expectedDisplayVersion, actualDisplayVersion);
     }
 }
 

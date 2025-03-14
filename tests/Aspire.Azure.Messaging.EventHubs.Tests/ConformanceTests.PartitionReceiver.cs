@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Aspire.Azure.Messaging.EventHubs.Tests;
 
+[TestClass]
 public class ConformanceTests_PartitionReceiver : ConformanceTestsBase<PartitionReceiver, AzureMessagingEventHubsPartitionReceiverSettings>
 {
     protected override void SetHealthCheck(AzureMessagingEventHubsPartitionReceiverSettings options, bool enabled)

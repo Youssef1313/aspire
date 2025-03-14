@@ -8,10 +8,10 @@ using Microsoft.DotNet.RemoteExecutor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Storage.Queues.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<QueueServiceClient, AzureStorageQueuesSettings>
 {
     // Authentication method: Azure AD User Account
@@ -113,11 +113,11 @@ public class ConformanceTests : ConformanceTests<QueueServiceClient, AzureStorag
         service.DeleteQueue(queueName);
     }
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: null)).Dispose();
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource_Keyed()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: "key")).Dispose();
 

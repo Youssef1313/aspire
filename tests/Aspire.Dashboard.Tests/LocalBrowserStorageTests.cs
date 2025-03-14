@@ -8,16 +8,16 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests;
 
+[TestClass]
 public class LocalBrowserStorageTests
 {
-    [Theory]
-    [InlineData(123, "123")]
-    [InlineData("Hello world", @"""Hello world""")]
-    [InlineData(null, "null")]
+    [TestMethod]
+    [DataRow(123, "123")]
+    [DataRow("Hello world", @"""Hello world""")]
+    [DataRow(null, "null")]
     public async Task SetUnprotectedAsync_JSInvokedWithJson(object? value, string result)
     {
         // Arrange
@@ -36,13 +36,13 @@ public class LocalBrowserStorageTests
         await localStorage.SetUnprotectedAsync("MyKey", value).DefaultTimeout();
 
         // Assert
-        Assert.Equal("localStorage.setItem", identifier);
-        Assert.NotNull(args);
-        Assert.Equal("MyKey", args[0]);
-        Assert.Equal(result, args[1]);
+        Assert.AreEqual("localStorage.setItem", identifier);
+        Assert.IsNotNull(args);
+        Assert.AreEqual("MyKey", args[0]);
+        Assert.AreEqual(result, args[1]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetUnprotectedAsync_HasValue_Success()
     {
         // Arrange
@@ -61,14 +61,14 @@ public class LocalBrowserStorageTests
         var result = await localStorage.GetUnprotectedAsync<int>("MyKey").DefaultTimeout();
 
         // Assert
-        Assert.True(result.Success);
-        Assert.Equal(123, result.Value);
-        Assert.Equal("localStorage.getItem", identifier);
-        Assert.NotNull(args);
-        Assert.Equal("MyKey", args[0]);
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(123, result.Value);
+        Assert.AreEqual("localStorage.getItem", identifier);
+        Assert.IsNotNull(args);
+        Assert.AreEqual("MyKey", args[0]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetUnprotectedAsync_NoValue_Failure()
     {
         // Arrange
@@ -87,13 +87,13 @@ public class LocalBrowserStorageTests
         var result = await localStorage.GetUnprotectedAsync<int>("MyKey").DefaultTimeout();
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Equal("localStorage.getItem", identifier);
-        Assert.NotNull(args);
-        Assert.Equal("MyKey", args[0]);
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual("localStorage.getItem", identifier);
+        Assert.IsNotNull(args);
+        Assert.AreEqual("MyKey", args[0]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task GetUnprotectedAsync_InvalidValue_Failure()
     {
         // Arrange
@@ -112,10 +112,10 @@ public class LocalBrowserStorageTests
         var result = await localStorage.GetUnprotectedAsync<int>("MyKey").DefaultTimeout();
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Equal("localStorage.getItem", identifier);
-        Assert.NotNull(args);
-        Assert.Equal("MyKey", args[0]);
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual("localStorage.getItem", identifier);
+        Assert.IsNotNull(args);
+        Assert.AreEqual("MyKey", args[0]);
     }
 
     private static LocalBrowserStorage CreateBrowserLocalStorage(TestJSRuntime testJsonRuntime)

@@ -5,16 +5,16 @@ using System.Globalization;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests;
 
+[TestClass]
 public class AzureCosmosDBExtensionsTests
 {
-    [Theory]
-    [InlineData(null)]
-    [InlineData(8081)]
-    [InlineData(9007)]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(8081)]
+    [DataRow(9007)]
     public void AddAzureCosmosDBWithEmulatorGetsExpectedPort(int? port = null)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -27,15 +27,15 @@ public class AzureCosmosDBExtensionsTests
         });
 
         var endpointAnnotation = cosmos.Resource.Annotations.OfType<EndpointAnnotation>().FirstOrDefault();
-        Assert.NotNull(endpointAnnotation);
+        Assert.IsNotNull(endpointAnnotation);
 
         var actualPort = endpointAnnotation.Port;
-        Assert.Equal(port, actualPort);
+        Assert.AreEqual(port, actualPort);
     }
 
-    [Theory]
-    [InlineData("2.3.97-preview")]
-    [InlineData("1.0.7")]
+    [TestMethod]
+    [DataRow("2.3.97-preview")]
+    [DataRow("1.0.7")]
     public void AddAzureCosmosDBWithEmulatorGetsExpectedImageTag(string imageTag)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -48,15 +48,15 @@ public class AzureCosmosDBExtensionsTests
         });
 
         var containerImageAnnotation = cosmos.Resource.Annotations.OfType<ContainerImageAnnotation>().FirstOrDefault();
-        Assert.NotNull(containerImageAnnotation);
+        Assert.IsNotNull(containerImageAnnotation);
 
         var actualTag = containerImageAnnotation.Tag;
-        Assert.Equal(imageTag ?? "latest", actualTag);
+        Assert.AreEqual(imageTag ?? "latest", actualTag);
     }
 
-    [Theory]
-    [InlineData(30)]
-    [InlineData(12)]
+    [TestMethod]
+    [DataRow(30)]
+    [DataRow(12)]
     public async Task AddAzureCosmosDBWithPartitionCountCanOverrideNumberOfPartitions(int partitionCount)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -66,10 +66,10 @@ public class AzureCosmosDBExtensionsTests
         cosmos.RunAsEmulator(r => r.WithPartitionCount(partitionCount));
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(cosmos.Resource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
-        Assert.Equal(partitionCount.ToString(CultureInfo.InvariantCulture), config["AZURE_COSMOS_EMULATOR_PARTITION_COUNT"]);
+        Assert.AreEqual(partitionCount.ToString(CultureInfo.InvariantCulture), config["AZURE_COSMOS_EMULATOR_PARTITION_COUNT"]);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureCosmosDBWithDataExplorer()
     {
 #pragma warning disable ASPIRECOSMOSDB001 // RunAsPreviewEmulator is experimental
@@ -79,8 +79,8 @@ public class AzureCosmosDBExtensionsTests
         cosmos.RunAsPreviewEmulator(e => e.WithDataExplorer());
 
         var endpoint = cosmos.GetEndpoint("data-explorer");
-        Assert.NotNull(endpoint);
-        Assert.Equal(1234, endpoint.TargetPort);
+        Assert.IsNotNull(endpoint);
+        Assert.AreEqual(1234, endpoint.TargetPort);
 
         // WithDataExplorer doesn't work against the non-preview emulator
         var cosmos2 = builder.AddAzureCosmosDB("cosmos2");
@@ -88,7 +88,7 @@ public class AzureCosmosDBExtensionsTests
 #pragma warning restore ASPIRECOSMOSDB001 // RunAsPreviewEmulator is experimental
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureCosmosDBHasCorrectConnectionStrings()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -99,12 +99,12 @@ public class AzureCosmosDBExtensionsTests
 
         // database and container should have the same connection string as the cosmos account, for now.
         // In the future, we can add the database and container info to the connection string.
-        Assert.Equal("{cosmos.outputs.connectionString}", cosmos.Resource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal("{cosmos.outputs.connectionString}", db1.Resource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal("{cosmos.outputs.connectionString}", container1.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{cosmos.outputs.connectionString}", cosmos.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{cosmos.outputs.connectionString}", db1.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{cosmos.outputs.connectionString}", container1.Resource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public void AzureCosmosDBAppliesAzureFunctionsConfiguration()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -115,23 +115,23 @@ public class AzureCosmosDBExtensionsTests
 
         var target = new Dictionary<string, object>();
         ((IResourceWithAzureFunctionsConfig)cosmos.Resource).ApplyAzureFunctionsConfiguration(target, "cosmos");
-        Assert.Collection(target.Keys.OrderBy(k => k),
-            k => Assert.Equal("Aspire__Microsoft__Azure__Cosmos__cosmos__AccountEndpoint", k),
-            k => Assert.Equal("Aspire__Microsoft__EntityFrameworkCore__Cosmos__cosmos__AccountEndpoint", k),
-            k => Assert.Equal("cosmos__accountEndpoint", k));
+        Assert.That.Collection(target.Keys.OrderBy(k => k),
+            k => Assert.AreEqual("Aspire__Microsoft__Azure__Cosmos__cosmos__AccountEndpoint", k),
+            k => Assert.AreEqual("Aspire__Microsoft__EntityFrameworkCore__Cosmos__cosmos__AccountEndpoint", k),
+            k => Assert.AreEqual("cosmos__accountEndpoint", k));
 
         target.Clear();
         ((IResourceWithAzureFunctionsConfig)db1.Resource).ApplyAzureFunctionsConfiguration(target, "db1");
-        Assert.Collection(target.Keys.OrderBy(k => k),
-            k => Assert.Equal("Aspire__Microsoft__Azure__Cosmos__db1__AccountEndpoint", k),
-            k => Assert.Equal("Aspire__Microsoft__EntityFrameworkCore__Cosmos__db1__AccountEndpoint", k),
-            k => Assert.Equal("db1__accountEndpoint", k));
+        Assert.That.Collection(target.Keys.OrderBy(k => k),
+            k => Assert.AreEqual("Aspire__Microsoft__Azure__Cosmos__db1__AccountEndpoint", k),
+            k => Assert.AreEqual("Aspire__Microsoft__EntityFrameworkCore__Cosmos__db1__AccountEndpoint", k),
+            k => Assert.AreEqual("db1__accountEndpoint", k));
 
         target.Clear();
         ((IResourceWithAzureFunctionsConfig)container1.Resource).ApplyAzureFunctionsConfiguration(target, "container1");
-        Assert.Collection(target.Keys.OrderBy(k => k),
-            k => Assert.Equal("Aspire__Microsoft__Azure__Cosmos__container1__AccountEndpoint", k),
-            k => Assert.Equal("Aspire__Microsoft__EntityFrameworkCore__Cosmos__container1__AccountEndpoint", k),
-            k => Assert.Equal("container1__accountEndpoint", k));
+        Assert.That.Collection(target.Keys.OrderBy(k => k),
+            k => Assert.AreEqual("Aspire__Microsoft__Azure__Cosmos__container1__AccountEndpoint", k),
+            k => Assert.AreEqual("Aspire__Microsoft__EntityFrameworkCore__Cosmos__container1__AccountEndpoint", k),
+            k => Assert.AreEqual("container1__accountEndpoint", k));
     }
 }

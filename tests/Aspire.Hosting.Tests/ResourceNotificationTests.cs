@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class ResourceNotificationTests
 {
-    [Fact]
+    [TestMethod]
     public void InitialStateCanBeSpecified()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -28,20 +28,20 @@ public class ResourceNotificationTests
 
         var annotation = custom.Resource.Annotations.OfType<ResourceSnapshotAnnotation>().SingleOrDefault();
 
-        Assert.NotNull(annotation);
+        Assert.IsNotNull(annotation);
 
         var state = annotation.InitialSnapshot;
 
-        Assert.Equal("MyResource", state.ResourceType);
-        Assert.Empty(state.EnvironmentVariables);
-        Assert.Collection(state.Properties, c =>
+        Assert.AreEqual("MyResource", state.ResourceType);
+        Assert.IsEmpty(state.EnvironmentVariables);
+        Assert.That.Collection(state.Properties, c =>
         {
-            Assert.Equal("A", c.Name);
-            Assert.Equal("B", c.Value);
+            Assert.AreEqual("A", c.Name);
+            Assert.AreEqual("B", c.Value);
         });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ResourceUpdatesAreQueued()
     {
         var resource = new CustomResource("myResource");
@@ -74,26 +74,26 @@ public class ResourceNotificationTests
 
         var values = await enumerableTask.DefaultTimeout();
 
-        Assert.Collection(values,
+        Assert.That.Collection(values,
             c =>
             {
-                Assert.Equal(resource, c.Resource);
-                Assert.Equal("myResource", c.ResourceId);
-                Assert.Equal("CustomResource", c.Snapshot.ResourceType);
-                Assert.Equal("value", c.Snapshot.Properties.Single(p => p.Name == "A").Value);
-                Assert.Null(c.Snapshot.HealthStatus);
+                Assert.AreEqual(resource, c.Resource);
+                Assert.AreEqual("myResource", c.ResourceId);
+                Assert.AreEqual("CustomResource", c.Snapshot.ResourceType);
+                Assert.AreEqual("value", c.Snapshot.Properties.Single(p => p.Name == "A").Value);
+                Assert.IsNull(c.Snapshot.HealthStatus);
             },
             c =>
             {
-                Assert.Equal(resource, c.Resource);
-                Assert.Equal("myResource", c.ResourceId);
-                Assert.Equal("CustomResource", c.Snapshot.ResourceType);
-                Assert.Equal("value", c.Snapshot.Properties.Single(p => p.Name == "B").Value);
-                Assert.Null(c.Snapshot.HealthStatus);
+                Assert.AreEqual(resource, c.Resource);
+                Assert.AreEqual("myResource", c.ResourceId);
+                Assert.AreEqual("CustomResource", c.Snapshot.ResourceType);
+                Assert.AreEqual("value", c.Snapshot.Properties.Single(p => p.Name == "B").Value);
+                Assert.IsNull(c.Snapshot.HealthStatus);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WatchingAllResourcesNotifiesOfAnyResourceChange()
     {
         var resource1 = new CustomResource("myResource1");
@@ -129,31 +129,31 @@ public class ResourceNotificationTests
 
         var values = await enumerableTask.DefaultTimeout();
 
-        Assert.Collection(values,
+        Assert.That.Collection(values,
             c =>
             {
-                Assert.Equal(resource1, c.Resource);
-                Assert.Equal("myResource1", c.ResourceId);
-                Assert.Equal("CustomResource", c.Snapshot.ResourceType);
-                Assert.Equal("value", c.Snapshot.Properties.Single(p => p.Name == "A").Value);
+                Assert.AreEqual(resource1, c.Resource);
+                Assert.AreEqual("myResource1", c.ResourceId);
+                Assert.AreEqual("CustomResource", c.Snapshot.ResourceType);
+                Assert.AreEqual("value", c.Snapshot.Properties.Single(p => p.Name == "A").Value);
             },
             c =>
             {
-                Assert.Equal(resource2, c.Resource);
-                Assert.Equal("myResource2", c.ResourceId);
-                Assert.Equal("CustomResource", c.Snapshot.ResourceType);
-                Assert.Equal("value", c.Snapshot.Properties.Single(p => p.Name == "B").Value);
+                Assert.AreEqual(resource2, c.Resource);
+                Assert.AreEqual("myResource2", c.ResourceId);
+                Assert.AreEqual("CustomResource", c.Snapshot.ResourceType);
+                Assert.AreEqual("value", c.Snapshot.Properties.Single(p => p.Name == "B").Value);
             },
             c =>
             {
-                Assert.Equal(resource1, c.Resource);
-                Assert.Equal("replica1", c.ResourceId);
-                Assert.Equal("CustomResource", c.Snapshot.ResourceType);
-                Assert.Equal("value", c.Snapshot.Properties.Single(p => p.Name == "C").Value);
+                Assert.AreEqual(resource1, c.Resource);
+                Assert.AreEqual("replica1", c.ResourceId);
+                Assert.AreEqual("CustomResource", c.Snapshot.ResourceType);
+                Assert.AreEqual("value", c.Snapshot.Properties.Single(p => p.Name == "C").Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WaitingOnResourceReturnsWhenResourceReachesTargetState()
     {
         var resource1 = new CustomResource("myResource1");
@@ -165,10 +165,10 @@ public class ResourceNotificationTests
         await notificationService.PublishUpdateAsync(resource1, snapshot => snapshot with { State = "SomeState" }).DefaultTimeout();
         await waitTask.DefaultTimeout();
 
-        Assert.True(waitTask.IsCompletedSuccessfully);
+        Assert.IsTrue(waitTask.IsCompletedSuccessfully);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WaitingOnResourceReturnsWhenResourceReachesTargetStateWithDifferentCasing()
     {
         var resource1 = new CustomResource("myResource1");
@@ -181,10 +181,10 @@ public class ResourceNotificationTests
         await notificationService.PublishUpdateAsync(resource1, snapshot => snapshot with { State = "SomeState" }).DefaultTimeout();
         await waitTask.DefaultTimeout();
 
-        Assert.True(waitTask.IsCompletedSuccessfully);
+        Assert.IsTrue(waitTask.IsCompletedSuccessfully);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WaitingOnResourceReturnsImmediatelyWhenResourceIsInTargetStateAlready()
     {
         var resource1 = new CustomResource("myResource1");
@@ -196,10 +196,10 @@ public class ResourceNotificationTests
 
         var waitTask = notificationService.WaitForResourceAsync("myResource1", "SomeState");
 
-        Assert.True(waitTask.IsCompletedSuccessfully);
+        Assert.IsTrue(waitTask.IsCompletedSuccessfully);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WaitingOnResourceReturnsWhenResourceReachesRunningStateIfNoTargetStateSupplied()
     {
         var resource1 = new CustomResource("myResource1");
@@ -211,10 +211,10 @@ public class ResourceNotificationTests
         await notificationService.PublishUpdateAsync(resource1, snapshot => snapshot with { State = KnownResourceStates.Running }).DefaultTimeout();
         await waitTask.DefaultTimeout();
 
-        Assert.True(waitTask.IsCompletedSuccessfully);
+        Assert.IsTrue(waitTask.IsCompletedSuccessfully);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WaitingOnResourceReturnsCorrectStateWhenResourceReachesOneOfTargetStatesBeforeCancellation()
     {
         var resource1 = new CustomResource("myResource1");
@@ -226,10 +226,10 @@ public class ResourceNotificationTests
         await notificationService.PublishUpdateAsync(resource1, snapshot => snapshot with { State = "SomeOtherState" }).DefaultTimeout();
         var reachedState = await waitTask.DefaultTimeout();
 
-        Assert.Equal("SomeOtherState", reachedState);
+        Assert.AreEqual("SomeOtherState", reachedState);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WaitingOnResourceReturnsCorrectStateWhenResourceReachesOneOfTargetStates()
     {
         var resource1 = new CustomResource("myResource1");
@@ -241,10 +241,10 @@ public class ResourceNotificationTests
         await notificationService.PublishUpdateAsync(resource1, snapshot => snapshot with { State = "SomeOtherState" }).DefaultTimeout();
         var reachedState = await waitTask.DefaultTimeout();
 
-        Assert.Equal("SomeOtherState", reachedState);
+        Assert.AreEqual("SomeOtherState", reachedState);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WaitingOnResourceReturnsItReachesStateAfterApplicationStoppingCancellationTokenSignaled()
     {
         var resource1 = new CustomResource("myResource1");
@@ -259,10 +259,10 @@ public class ResourceNotificationTests
 
         await waitTask.DefaultTimeout();
 
-        Assert.True(waitTask.IsCompletedSuccessfully);
+        Assert.IsTrue(waitTask.IsCompletedSuccessfully);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WaitingOnResourceThrowsOperationCanceledExceptionIfResourceDoesntReachStateBeforeCancellationTokenSignaled()
     {
         var notificationService = ResourceNotificationServiceTestHelpers.Create();
@@ -278,7 +278,7 @@ public class ResourceNotificationTests
         }).DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WaitingOnResourceThrowsOperationCanceledExceptionIfResourceDoesntReachStateBeforeServiceIsDisposed()
     {
         var notificationService = ResourceNotificationServiceTestHelpers.Create();
@@ -293,7 +293,7 @@ public class ResourceNotificationTests
         }).DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WaitingOnResourceThrowsOperationCanceledExceptionIfResourceDoesntReachStateBeforeCancellationTokenSignalledWhenApplicationStoppingTokenExists()
     {
         using var hostApplicationLifetime = new TestHostApplicationLifetime();
@@ -310,7 +310,7 @@ public class ResourceNotificationTests
         }).DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task PublishLogsStateTextChangesCorrectly()
     {
         var resource1 = new CustomResource("resource1");
@@ -322,7 +322,7 @@ public class ResourceNotificationTests
         var logs = logger.Collector.GetSnapshot();
 
         // Initial state text, log just the new state
-        Assert.Single(logs.Where(l => l.Level == LogLevel.Debug));
+        Assert.ContainsSingle(logs.Where(l => l.Level == LogLevel.Debug));
         Assert.Contains(logs, l => l.Level == LogLevel.Debug && l.Message.Contains("Resource resource1/resource1 changed state: SomeState"));
 
         logger.Collector.Clear();
@@ -342,7 +342,7 @@ public class ResourceNotificationTests
 
         logs = logger.Collector.GetSnapshot();
 
-        Assert.Single(logs.Where(l => l.Level == LogLevel.Debug));
+        Assert.ContainsSingle(logs.Where(l => l.Level == LogLevel.Debug));
         Assert.Contains(logs, l => l.Level == LogLevel.Debug && l.Message.Contains("Resource resource1/resource1 changed state: SomeState -> NewState"));
 
         logger.Collector.Clear();
@@ -378,7 +378,7 @@ public class ResourceNotificationTests
         logger.Collector.Clear();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task PublishLogsTraceStateDetailsCorrectly()
     {
         var resource1 = new CustomResource("resource1");
@@ -392,8 +392,8 @@ public class ResourceNotificationTests
 
         var logs = logger.Collector.GetSnapshot();
 
-        Assert.Single(logs.Where(l => l.Level == LogLevel.Debug));
-        Assert.Equal(3, logs.Where(l => l.Level == LogLevel.Trace).Count());
+        Assert.ContainsSingle(logs.Where(l => l.Level == LogLevel.Debug));
+        Assert.AreEqual(3, logs.Where(l => l.Level == LogLevel.Trace).Count());
         Assert.Contains(logs, l => l.Level == LogLevel.Trace && l.Message.Contains("Resource resource1/resource1 update published:") && l.Message.Contains($"CreationTimeStamp = {createdDate:s}"));
         Assert.Contains(logs, l => l.Level == LogLevel.Trace && l.Message.Contains("Resource resource1/resource1 update published:") && l.Message.Contains("State = { Text = SomeState"));
         Assert.Contains(logs, l => l.Level == LogLevel.Trace && l.Message.Contains("Resource resource1/resource1 update published:") && l.Message.Contains("ExitCode = 0"));

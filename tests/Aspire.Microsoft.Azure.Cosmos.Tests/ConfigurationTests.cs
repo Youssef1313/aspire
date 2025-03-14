@@ -1,17 +1,17 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 
 namespace Aspire.Microsoft.Azure.Cosmos.Tests;
 
+[TestClass]
 public class ConfigurationTests
 {
-    [Fact]
+    [TestMethod]
     public void ConnectionStringIsNullByDefault()
-        => Assert.Null(new MicrosoftAzureCosmosSettings().ConnectionString);
+        => Assert.IsNull(new MicrosoftAzureCosmosSettings().ConnectionString);
 
-    [Fact]
+    [TestMethod]
     public void TracingIsEnabledByDefault()
-        => Assert.False(new MicrosoftAzureCosmosSettings().DisableTracing);
+        => Assert.IsFalse(new MicrosoftAzureCosmosSettings().DisableTracing);
 }

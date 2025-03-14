@@ -6,33 +6,33 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Oracle.Tests;
 
+[TestClass]
 public class AddOracleTests
 {
-    [Fact]
+    [TestMethod]
     public void AddOracleAddsGeneratedPasswordParameterWithUserSecretsParameterDefaultInRunMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
 
         var orcl = appBuilder.AddOracle("orcl");
 
-        Assert.Equal("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", orcl.Resource.PasswordParameter.Default?.GetType().FullName);
+        Assert.AreEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", orcl.Resource.PasswordParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddOracleDoesNotAddGeneratedPasswordParameterWithUserSecretsParameterDefaultInPublishMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
 
         var orcl = appBuilder.AddOracle("orcl");
 
-        Assert.NotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", orcl.Resource.PasswordParameter.Default?.GetType().FullName);
+        Assert.AreNotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", orcl.Resource.PasswordParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddOracleWithDefaultsAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -42,34 +42,34 @@ public class AddOracleTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.GetContainerResources());
-        Assert.Equal("orcl", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.GetContainerResources());
+        Assert.AreEqual("orcl", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(OracleContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(OracleContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(OracleContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(OracleContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(OracleContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(OracleContainerImageTags.Registry, containerAnnotation.Registry);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(1521, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(1521, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("ORACLE_PWD", env.Key);
-                Assert.False(string.IsNullOrEmpty(env.Value));
+                Assert.AreEqual("ORACLE_PWD", env.Key);
+                Assert.IsFalse(string.IsNullOrEmpty(env.Value));
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddOracleAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -81,34 +81,34 @@ public class AddOracleTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.GetContainerResources());
-        Assert.Equal("orcl", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.GetContainerResources());
+        Assert.AreEqual("orcl", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(OracleContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(OracleContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(OracleContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(OracleContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(OracleContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(OracleContainerImageTags.Registry, containerAnnotation.Registry);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(1521, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Equal(1234, endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(1521, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.AreEqual(1234, endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("ORACLE_PWD", env.Key);
-                Assert.Equal("pass", env.Value);
+                Assert.AreEqual("ORACLE_PWD", env.Key);
+                Assert.AreEqual("pass", env.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task OracleCreatesConnectionString()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -119,15 +119,15 @@ public class AddOracleTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<IResourceWithConnectionString>());
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<IResourceWithConnectionString>());
         var connectionString = await connectionStringResource.GetConnectionStringAsync(default);
 
-        Assert.Equal("user id=system;password={orcl-password.value};data source={orcl.bindings.tcp.host}:{orcl.bindings.tcp.port}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("user id=system;password={orcl-password.value};data source={orcl.bindings.tcp.host}:{orcl.bindings.tcp.port}", connectionStringResource.ConnectionStringExpression.ValueExpression);
         Assert.StartsWith("user id=system;password=", connectionString);
         Assert.EndsWith(";data source=localhost:2000", connectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task OracleCreatesConnectionStringWithDatabase()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -139,18 +139,18 @@ public class AddOracleTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var oracleResource = Assert.Single(appModel.Resources.OfType<OracleDatabaseServerResource>());
+        var oracleResource = Assert.ContainsSingle(appModel.Resources.OfType<OracleDatabaseServerResource>());
         var oracleConnectionStringResource = (IResourceWithConnectionString)oracleResource;
         var oracleConnectionString = oracleConnectionStringResource.GetConnectionStringAsync();
-        var oracleDatabaseResource = Assert.Single(appModel.Resources.OfType<OracleDatabaseResource>());
+        var oracleDatabaseResource = Assert.ContainsSingle(appModel.Resources.OfType<OracleDatabaseResource>());
         var oracleDatabaseConnectionStringResource = (IResourceWithConnectionString)oracleDatabaseResource;
         var dbConnectionString = await oracleDatabaseConnectionStringResource.GetConnectionStringAsync();
 
-        Assert.Equal("{orcl.connectionString}/db", oracleDatabaseConnectionStringResource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal(oracleConnectionString + "/db", dbConnectionString);
+        Assert.AreEqual("{orcl.connectionString}/db", oracleDatabaseConnectionStringResource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual(oracleConnectionString + "/db", dbConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddDatabaseToOracleDatabaseAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -163,34 +163,34 @@ public class AddOracleTests
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
         var containerResources = appModel.GetContainerResources();
 
-        var containerResource = Assert.Single(containerResources);
-        Assert.Equal("oracle", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(containerResources);
+        Assert.AreEqual("oracle", containerResource.Name);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(OracleContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(OracleContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(OracleContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(OracleContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(OracleContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(OracleContainerImageTags.Registry, containerAnnotation.Registry);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(1521, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Equal(1234, endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(1521, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.AreEqual(1234, endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("ORACLE_PWD", env.Key);
-                Assert.Equal("pass", env.Value);
+                Assert.AreEqual("ORACLE_PWD", env.Key);
+                Assert.AreEqual("pass", env.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -218,7 +218,7 @@ public class AddOracleTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, serverManifest.ToString());
+        Assert.AreEqual(expectedManifest, serverManifest.ToString());
 
         expectedManifest = """
             {
@@ -226,10 +226,10 @@ public class AddOracleTests
               "connectionString": "{oracle.connectionString}/db"
             }
             """;
-        Assert.Equal(expectedManifest, dbManifest.ToString());
+        Assert.AreEqual(expectedManifest, dbManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithPasswordParameter()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -256,10 +256,10 @@ public class AddOracleTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, serverManifest.ToString());
+        Assert.AreEqual(expectedManifest, serverManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void ThrowsWithIdenticalChildResourceNames()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -270,7 +270,7 @@ public class AddOracleTests
         Assert.Throws<DistributedApplicationException>(() => db.AddDatabase("db"));
     }
 
-    [Fact]
+    [TestMethod]
     public void ThrowsWithIdenticalChildResourceNamesDifferentParents()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -282,7 +282,7 @@ public class AddOracleTests
         Assert.Throws<DistributedApplicationException>(() => db.AddDatabase("db"));
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddDatabasesWithDifferentNamesOnSingleServer()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -292,14 +292,14 @@ public class AddOracleTests
         var db1 = oracle1.AddDatabase("db1", "customers1");
         var db2 = oracle1.AddDatabase("db2", "customers2");
 
-        Assert.Equal("customers1", db1.Resource.DatabaseName);
-        Assert.Equal("customers2", db2.Resource.DatabaseName);
+        Assert.AreEqual("customers1", db1.Resource.DatabaseName);
+        Assert.AreEqual("customers2", db2.Resource.DatabaseName);
 
-        Assert.Equal("{oracle1.connectionString}/customers1", db1.Resource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal("{oracle1.connectionString}/customers2", db2.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{oracle1.connectionString}/customers1", db1.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{oracle1.connectionString}/customers2", db2.Resource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddDatabasesWithTheSameNameOnMultipleServers()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -310,10 +310,10 @@ public class AddOracleTests
         var db2 = builder.AddOracle("oracle2")
             .AddDatabase("db2", "imports");
 
-        Assert.Equal("imports", db1.Resource.DatabaseName);
-        Assert.Equal("imports", db2.Resource.DatabaseName);
+        Assert.AreEqual("imports", db1.Resource.DatabaseName);
+        Assert.AreEqual("imports", db2.Resource.DatabaseName);
 
-        Assert.Equal("{oracle1.connectionString}/imports", db1.Resource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal("{oracle2.connectionString}/imports", db2.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{oracle1.connectionString}/imports", db1.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{oracle2.connectionString}/imports", db2.Resource.ConnectionStringExpression.ValueExpression);
     }
 }

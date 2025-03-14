@@ -4,25 +4,24 @@
 using System.Net;
 using Aspire.Hosting;
 using Microsoft.AspNetCore.InternalTesting;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Dashboard.Tests.Integration;
 
+[TestClass]
 public class OtlpCorsHttpServiceTests
 {
-    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly TestContext _testContext;
 
-    public OtlpCorsHttpServiceTests(ITestOutputHelper testOutputHelper)
+    public OtlpCorsHttpServiceTests(TestContext testContext)
     {
-        _testOutputHelper = testOutputHelper;
+        _testContext = testContext;
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ReceivePreflight_OtlpHttpEndPoint_NoCorsConfiguration_NotFound()
     {
         // Arrange
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper);
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext);
         await app.StartAsync().DefaultTimeout();
 
         using var httpClient = IntegrationTestHelpers.CreateHttpClient($"http://{app.OtlpServiceHttpEndPointAccessor().EndPoint}");
@@ -36,14 +35,14 @@ public class OtlpCorsHttpServiceTests
         var responseMessage = await httpClient.SendAsync(preflightRequest).DefaultTimeout();
 
         // Assert
-        Assert.Equal(HttpStatusCode.NotFound, responseMessage.StatusCode);
+        Assert.AreEqual(HttpStatusCode.NotFound, responseMessage.StatusCode);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ReceivePreflight_OtlpHttpEndPoint_ValidCorsOrigin_Success()
     {
         // Arrange
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper, config =>
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext, config =>
         {
             config[DashboardConfigNames.DashboardOtlpCorsAllowedOriginsKeyName.ConfigKey] = "http://localhost:8000, http://localhost:8001";
         });
@@ -60,10 +59,10 @@ public class OtlpCorsHttpServiceTests
         var responseMessage1 = await httpClient.SendAsync(preflightRequest1).DefaultTimeout();
 
         // Assert 1
-        Assert.Equal(HttpStatusCode.NoContent, responseMessage1.StatusCode);
-        Assert.Equal("http://localhost:8000", responseMessage1.Headers.GetValues("Access-Control-Allow-Origin").Single());
-        Assert.Equal("POST", responseMessage1.Headers.GetValues("Access-Control-Allow-Methods").Single());
-        Assert.Equal("X-Requested-With", responseMessage1.Headers.GetValues("Access-Control-Allow-Headers").Single());
+        Assert.AreEqual(HttpStatusCode.NoContent, responseMessage1.StatusCode);
+        Assert.AreEqual("http://localhost:8000", responseMessage1.Headers.GetValues("Access-Control-Allow-Origin").Single());
+        Assert.AreEqual("POST", responseMessage1.Headers.GetValues("Access-Control-Allow-Methods").Single());
+        Assert.AreEqual("X-Requested-With", responseMessage1.Headers.GetValues("Access-Control-Allow-Headers").Single());
 
         // Act 2
         var preflightRequest2 = new HttpRequestMessage(HttpMethod.Options, "/v1/logs");
@@ -74,17 +73,17 @@ public class OtlpCorsHttpServiceTests
         var responseMessage2 = await httpClient.SendAsync(preflightRequest2).DefaultTimeout();
 
         // Assert 2
-        Assert.Equal(HttpStatusCode.NoContent, responseMessage2.StatusCode);
-        Assert.Equal("http://localhost:8001", responseMessage2.Headers.GetValues("Access-Control-Allow-Origin").Single());
-        Assert.Equal("POST", responseMessage2.Headers.GetValues("Access-Control-Allow-Methods").Single());
-        Assert.Equal("X-Requested-With", responseMessage2.Headers.GetValues("Access-Control-Allow-Headers").Single());
+        Assert.AreEqual(HttpStatusCode.NoContent, responseMessage2.StatusCode);
+        Assert.AreEqual("http://localhost:8001", responseMessage2.Headers.GetValues("Access-Control-Allow-Origin").Single());
+        Assert.AreEqual("POST", responseMessage2.Headers.GetValues("Access-Control-Allow-Methods").Single());
+        Assert.AreEqual("X-Requested-With", responseMessage2.Headers.GetValues("Access-Control-Allow-Headers").Single());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ReceivePreflight_OtlpHttpEndPoint_InvalidCorsOrigin_NoCorsHeadersReturned()
     {
         // Arrange
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper, config =>
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext, config =>
         {
             config[DashboardConfigNames.DashboardOtlpCorsAllowedOriginsKeyName.ConfigKey] = "http://localhost:8000";
         });
@@ -101,17 +100,17 @@ public class OtlpCorsHttpServiceTests
         var responseMessage = await httpClient.SendAsync(preflightRequest).DefaultTimeout();
 
         // Assert
-        Assert.Equal(HttpStatusCode.NoContent, responseMessage.StatusCode);
-        Assert.False(responseMessage.Headers.Contains("Access-Control-Allow-Origin"));
-        Assert.False(responseMessage.Headers.Contains("Access-Control-Allow-Methods"));
-        Assert.False(responseMessage.Headers.Contains("Access-Control-Allow-Headers"));
+        Assert.AreEqual(HttpStatusCode.NoContent, responseMessage.StatusCode);
+        Assert.IsFalse(responseMessage.Headers.Contains("Access-Control-Allow-Origin"));
+        Assert.IsFalse(responseMessage.Headers.Contains("Access-Control-Allow-Methods"));
+        Assert.IsFalse(responseMessage.Headers.Contains("Access-Control-Allow-Headers"));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task ReceivePreflight_OtlpHttpEndPoint_AnyOrigin_Success()
     {
         // Arrange
-        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testOutputHelper, config =>
+        await using var app = IntegrationTestHelpers.CreateDashboardWebApplication(_testContext, config =>
         {
             config[DashboardConfigNames.DashboardOtlpCorsAllowedOriginsKeyName.ConfigKey] = "*";
             config[DashboardConfigNames.DashboardOtlpCorsAllowedHeadersKeyName.ConfigKey] = "*";
@@ -129,9 +128,9 @@ public class OtlpCorsHttpServiceTests
         var responseMessage = await httpClient.SendAsync(preflightRequest).DefaultTimeout();
 
         // Assert
-        Assert.Equal(HttpStatusCode.NoContent, responseMessage.StatusCode);
-        Assert.Equal("*", responseMessage.Headers.GetValues("Access-Control-Allow-Origin").Single());
-        Assert.Equal("POST", responseMessage.Headers.GetValues("Access-Control-Allow-Methods").Single());
-        Assert.Equal("x-requested-with,x-custom,Content-Type", responseMessage.Headers.GetValues("Access-Control-Allow-Headers").Single());
+        Assert.AreEqual(HttpStatusCode.NoContent, responseMessage.StatusCode);
+        Assert.AreEqual("*", responseMessage.Headers.GetValues("Access-Control-Allow-Origin").Single());
+        Assert.AreEqual("POST", responseMessage.Headers.GetValues("Access-Control-Allow-Methods").Single());
+        Assert.AreEqual("x-requested-with,x-custom,Content-Type", responseMessage.Headers.GetValues("Access-Control-Allow-Headers").Single());
     }
 }

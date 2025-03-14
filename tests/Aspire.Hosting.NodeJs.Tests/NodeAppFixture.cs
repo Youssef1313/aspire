@@ -5,9 +5,6 @@ using System.Globalization;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
 using Aspire.Hosting.Utils;
-using Xunit;
-using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace Aspire.Hosting.NodeJs.Tests;
 
@@ -113,7 +110,7 @@ public class NodeAppFixture(IMessageSink diagnosticMessageSink) : IAsyncLifetime
         await client.GetStringAsync("/", cancellationToken);
     }
 
-    private sealed class TestOutputWrapper(IMessageSink messageSink) : ITestOutputHelper
+    private sealed class TestOutputWrapper : TestContext
     {
         public void WriteLine(string message)
         {

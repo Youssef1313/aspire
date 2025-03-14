@@ -1,13 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 
 namespace Aspire.Hosting.Tests.Utils;
 
+[TestClass]
 public class WithAnnotationTests
 {
-    [Fact]
+    [TestMethod]
     public void WithAnnotationWithTypeParameterAndNoExplicitBehaviorAppends()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -17,11 +17,11 @@ public class WithAnnotationTests
 
         var dummyAnnotations = redis.Resource.Annotations.OfType<DummyAnnotation>();
 
-        Assert.Equal(2, dummyAnnotations.Count());
-        Assert.NotEqual(dummyAnnotations.First(), dummyAnnotations.Last());
+        Assert.AreEqual(2, dummyAnnotations.Count());
+        Assert.AreNotEqual(dummyAnnotations.First(), dummyAnnotations.Last());
     }
 
-    [Fact]
+    [TestMethod]
     public void WithAnnotationWithTypeParameterAndArgumentAndNoExplicitBehaviorAppends()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -31,11 +31,11 @@ public class WithAnnotationTests
 
         var dummyAnnotations = redis.Resource.Annotations.OfType<DummyAnnotation>();
 
-        Assert.Equal(2, dummyAnnotations.Count());
-        Assert.NotEqual(dummyAnnotations.First(), dummyAnnotations.Last());
+        Assert.AreEqual(2, dummyAnnotations.Count());
+        Assert.AreNotEqual(dummyAnnotations.First(), dummyAnnotations.Last());
     }
 
-    [Fact]
+    [TestMethod]
     public void WithAnnotationWithTypeParameterAndArgumentAndAddReplaceBehaviorReplaces()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -47,7 +47,7 @@ public class WithAnnotationTests
 
         var secondAnnotation = redis.Resource.Annotations.OfType<DummyAnnotation>().Single();
 
-        Assert.NotEqual(firstAnnotation, secondAnnotation);
+        Assert.AreNotEqual(firstAnnotation, secondAnnotation);
     }
 }
 

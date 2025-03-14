@@ -4,15 +4,15 @@
 using System.Text.Json.Nodes;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
 
 namespace Aspire.Hosting.Azure.Tests.PublicApiTests;
 
+[TestClass]
 public class EventHubsPublicApiTests
 {
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureEventHubConsumerGroupResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -26,12 +26,12 @@ public class EventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureEventHubConsumerGroupResourceShouldThrowWhenConsumerGroupNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -45,10 +45,10 @@ public class EventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(consumerGroupName), exception.ParamName);
+        Assert.AreEqual(nameof(consumerGroupName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureEventHubConsumerGroupResourceShouldThrowWhenParentIsNullOrEmpty()
     {
         const string name = "consumer";
@@ -58,12 +58,12 @@ public class EventHubsPublicApiTests
         var action = () => new AzureEventHubConsumerGroupResource(name, consumerGroupName, parent);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(parent), exception.ParamName);
+        Assert.AreEqual(nameof(parent), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureEventHubResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
@@ -75,12 +75,12 @@ public class EventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureEventHubResourceShouldThrowWhenHubNameIsNullOrEmpty(bool isNull)
     {
         const string name = "hub";
@@ -92,10 +92,10 @@ public class EventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(hubName), exception.ParamName);
+        Assert.AreEqual(nameof(hubName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureEventHubResourceShouldThrowWhenParentIsNullOrEmpty()
     {
         const string name = "hub";
@@ -105,10 +105,10 @@ public class EventHubsPublicApiTests
         var action = () => new AzureEventHubResource(name, hubName, parent);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(parent), exception.ParamName);
+        Assert.AreEqual(nameof(parent), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureEventHubsEmulatorResourceShouldThrowWhenInnerResourceIsNullOrEmpty()
     {
         AzureEventHubsResource innerResource = null!;
@@ -116,10 +116,10 @@ public class EventHubsPublicApiTests
         var action = () => new AzureEventHubsEmulatorResource(innerResource);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(innerResource), exception.ParamName);
+        Assert.AreEqual(nameof(innerResource), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddAzureEventHubsShouldThrowWhenBuilderIsNullOrEmpty()
     {
         IDistributedApplicationBuilder builder = null!;
@@ -128,12 +128,12 @@ public class EventHubsPublicApiTests
         var action = () => builder.AddAzureEventHubs(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddAzureEventHubsShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -144,10 +144,10 @@ public class EventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete($"This method is obsolete because it has the wrong return type and will be removed in a future version. Use AddHub instead to add an Azure Event Hub.")]
     public void AddEventHubShouldThrowWhenBuilderIsNullOrEmpty()
     {
@@ -157,12 +157,12 @@ public class EventHubsPublicApiTests
         var action = () => builder.AddEventHub(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     [Obsolete($"This method is obsolete because it has the wrong return type and will be removed in a future version. Use AddHub instead to add an Azure Event Hub.")]
     public void AddEventHubShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
@@ -175,10 +175,10 @@ public class EventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddHubShouldThrowWhenBuilderIsNullOrEmpty()
     {
         IResourceBuilder<AzureEventHubsResource> builder = null!;
@@ -187,12 +187,12 @@ public class EventHubsPublicApiTests
         var action = () => builder.AddHub(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddHubShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var hostBuilder = TestDistributedApplicationBuilder.Create();
@@ -204,10 +204,10 @@ public class EventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPropertiesShouldThrowWhenBuilderIsNullOrEmpty()
     {
         IResourceBuilder<AzureEventHubResource> builder = null!;
@@ -216,10 +216,10 @@ public class EventHubsPublicApiTests
         var action = () => builder.WithProperties(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPropertiesShouldThrowWhenConfigureIsNullOrEmpty()
     {
         using var hostBuilder = TestDistributedApplicationBuilder.Create();
@@ -229,10 +229,10 @@ public class EventHubsPublicApiTests
         var action = () => builder.WithProperties(configure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configure), exception.ParamName);
+        Assert.AreEqual(nameof(configure), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddConsumerGroupShouldThrowWhenBuilderIsNullOrEmpty()
     {
         IResourceBuilder<AzureEventHubResource> builder = null!;
@@ -241,12 +241,12 @@ public class EventHubsPublicApiTests
         var action = () => builder.AddConsumerGroup(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void AddConsumerGroupShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var hostBuilder = TestDistributedApplicationBuilder.Create();
@@ -258,10 +258,10 @@ public class EventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void RunAsEmulatorShouldThrowWhenBuilderIsNullOrEmpty()
     {
         IResourceBuilder<AzureEventHubsResource> builder = null!;
@@ -269,10 +269,10 @@ public class EventHubsPublicApiTests
         var action = () => builder.RunAsEmulator();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataBindMountShouldThrowWhenBuilderIsNullOrEmpty()
     {
         IResourceBuilder<AzureEventHubsEmulatorResource> builder = null!;
@@ -280,10 +280,10 @@ public class EventHubsPublicApiTests
         var action = () => builder.WithDataBindMount();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithDataVolumeShouldThrowWhenBuilderIsNullOrEmpty()
     {
         IResourceBuilder<AzureEventHubsEmulatorResource> builder = null!;
@@ -291,10 +291,10 @@ public class EventHubsPublicApiTests
         var action = () => builder.WithDataVolume();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     [Obsolete("Use WithHostPort instead.")]
     public void WithGatewayPortShouldThrowWhenBuilderIsNullOrEmpty()
     {
@@ -304,10 +304,10 @@ public class EventHubsPublicApiTests
         var action = () => builder.WithGatewayPort(port);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithHostPortShouldThrowWhenBuilderIsNullOrEmpty()
     {
         IResourceBuilder<AzureEventHubsEmulatorResource> builder = null!;
@@ -316,10 +316,10 @@ public class EventHubsPublicApiTests
         var action = () => builder.WithHostPort(port);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithConfigurationFileShouldThrowWhenBuilderIsNullOrEmpty()
     {
         IResourceBuilder<AzureEventHubsEmulatorResource> builder = null!;
@@ -328,12 +328,12 @@ public class EventHubsPublicApiTests
         var action = () => builder.WithConfigurationFile(path);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void WithConfigurationFileShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         using var hostBuilder = TestDistributedApplicationBuilder.Create();
@@ -346,10 +346,10 @@ public class EventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(path), exception.ParamName);
+        Assert.AreEqual(nameof(path), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithConfigurationShouldThrowWhenBuilderIsNullOrEmpty()
     {
         IResourceBuilder<AzureEventHubsEmulatorResource> builder = null!;
@@ -358,10 +358,10 @@ public class EventHubsPublicApiTests
         var action = () => builder.WithConfiguration(configJson);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithConfigurationShouldThrowWhenConfigJsonIsNullOrEmpty()
     {
         using var hostBuilder = TestDistributedApplicationBuilder.Create();
@@ -371,12 +371,12 @@ public class EventHubsPublicApiTests
         var action = () => builder.RunAsEmulator(configure => configure.WithConfiguration(configJson));
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configJson), exception.ParamName);
+        Assert.AreEqual(nameof(configJson), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
     public void CtorAzureEventHubsResourceShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var name = isNull ? null! : string.Empty;
@@ -387,10 +387,10 @@ public class EventHubsPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void CtorAzureEventHubsResourceShouldThrowWhenConfigureInfrastructureIsNullOrEmpty()
     {
         const string name = "hub";
@@ -399,6 +399,6 @@ public class EventHubsPublicApiTests
         var action = () => new AzureEventHubsResource(name, configureInfrastructure);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(configureInfrastructure), exception.ParamName);
+        Assert.AreEqual(nameof(configureInfrastructure), exception.ParamName);
     }
 }

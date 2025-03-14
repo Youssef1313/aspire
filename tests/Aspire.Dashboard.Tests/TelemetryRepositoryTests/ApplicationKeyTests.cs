@@ -2,16 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Aspire.Dashboard.Otlp.Storage;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.TelemetryRepositoryTests;
 
+[TestClass]
 public class ApplicationKeyTests
 {
-    [Theory]
-    [InlineData("name", "instanceid", "name-instanceid")]
-    [InlineData("name", "instanceid", "NAME-INSTANCEID")]
-    [InlineData("name", "752e1688-ca3c-45da-b48b-b2163296ac91", "name-752e1688-ca3c-45da-b48b-b2163296ac91")]
+    [TestMethod]
+    [DataRow("name", "instanceid", "name-instanceid")]
+    [DataRow("name", "instanceid", "NAME-INSTANCEID")]
+    [DataRow("name", "752e1688-ca3c-45da-b48b-b2163296ac91", "name-752e1688-ca3c-45da-b48b-b2163296ac91")]
     public void EqualsCompositeName_Success(string name, string instanceId, string compositeName)
     {
         // Arrange
@@ -21,16 +21,16 @@ public class ApplicationKeyTests
         var result = key.EqualsCompositeName(compositeName);
 
         // Assert
-        Assert.True(result);
+        Assert.IsTrue(result);
     }
 
-    [Theory]
-    [InlineData("name", "instanceid", null)]
-    [InlineData("name", "instanceid", "")]
-    [InlineData("name", "instanceid", "name")]
-    [InlineData("name", "instanceid", "instanceid")]
-    [InlineData("name", "instanceid", "name_instanceid")]
-    [InlineData("name", "instanceid", "instanceid-name")]
+    [TestMethod]
+    [DataRow("name", "instanceid", null)]
+    [DataRow("name", "instanceid", "")]
+    [DataRow("name", "instanceid", "name")]
+    [DataRow("name", "instanceid", "instanceid")]
+    [DataRow("name", "instanceid", "name_instanceid")]
+    [DataRow("name", "instanceid", "instanceid-name")]
     public void EqualsCompositeName_Failure(string name, string instanceId, string? compositeName)
     {
         // Arrange
@@ -40,6 +40,6 @@ public class ApplicationKeyTests
         var result = key.EqualsCompositeName(compositeName!);
 
         // Assert
-        Assert.False(result);
+        Assert.IsFalse(result);
     }
 }

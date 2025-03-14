@@ -10,15 +10,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Oracle.EntityFrameworkCore;
 using Oracle.EntityFrameworkCore.Infrastructure.Internal;
-using Xunit;
 
 namespace Aspire.Oracle.EntityFrameworkCore.Tests;
 
+[TestClass]
 public class AspireOracleEFCoreDatabaseExtensionsTests
 {
     private const string ConnectionString = "Data Source=fake";
 
-    [Fact]
+    [TestMethod]
     public void ReadsFromConnectionStringsCorrectly()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -31,10 +31,10 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
         using var host = builder.Build();
         var context = host.Services.GetRequiredService<TestDbContext>();
 
-        Assert.Equal(ConnectionString, context.Database.GetDbConnection().ConnectionString);
+        Assert.AreEqual(ConnectionString, context.Database.GetDbConnection().ConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void ConnectionStringCanBeSetInCode()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -48,12 +48,12 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
         var context = host.Services.GetRequiredService<TestDbContext>();
 
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
         // the connection string from config should not be used since code set it explicitly
         Assert.DoesNotContain("unused", actualConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void ConnectionNameWinsOverConfigSection()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -68,12 +68,12 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
         var context = host.Services.GetRequiredService<TestDbContext>();
 
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
         // the connection string from config should not be used since it was found in ConnectionStrings
         Assert.DoesNotContain("unused", actualConnectionString);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanConfigureDbContextOptions()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -97,28 +97,28 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<OracleOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the min batch size was respected
-        Assert.Equal(123, extension.MinBatchSize);
+        Assert.AreEqual(123, extension.MinBatchSize);
 
         // ensure the connection string from config was respected
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
 
         // ensure the retry strategy is enabled and set to its default value
-        Assert.NotNull(extension.ExecutionStrategyFactory);
+        Assert.IsNotNull(extension.ExecutionStrategyFactory);
         var executionStrategy = extension.ExecutionStrategyFactory(new ExecutionStrategyDependencies(new CurrentDbContext(context), context.Options, null!));
         var retryStrategy = Assert.IsType<OracleRetryingExecutionStrategy>(executionStrategy);
-        Assert.Equal(new WorkaroundToReadProtectedField(context).MaxRetryCount, retryStrategy.MaxRetryCount);
+        Assert.AreEqual(new WorkaroundToReadProtectedField(context).MaxRetryCount, retryStrategy.MaxRetryCount);
 
         // ensure the command timeout from config was respected
-        Assert.Equal(608, extension.CommandTimeout);
+        Assert.AreEqual(608, extension.CommandTimeout);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Fact]
+    [TestMethod]
     public void CanConfigureDbContextOptionsWithoutRetry()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -141,24 +141,24 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<OracleOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout was respected
-        Assert.Equal(123, extension.CommandTimeout);
+        Assert.AreEqual(123, extension.CommandTimeout);
 
         // ensure the connection string from config was respected
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
 
         // ensure no retry strategy was registered
-        Assert.Null(extension.ExecutionStrategyFactory);
+        Assert.IsNull(extension.ExecutionStrategyFactory);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CanConfigureCommandTimeout(bool useSettings)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -182,17 +182,17 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<OracleOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout was respected
-        Assert.Equal(608, extension.CommandTimeout);
+        Assert.AreEqual(608, extension.CommandTimeout);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CommandTimeoutFromBuilderWinsOverOthers(bool useSettings)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -217,10 +217,10 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
 #pragma warning disable EF1001 // Internal EF Core API usage.
 
         var extension = context.Options.FindExtension<OracleOptionsExtension>();
-        Assert.NotNull(extension);
+        Assert.IsNotNull(extension);
 
         // ensure the command timeout from builder was respected
-        Assert.Equal(123, extension.CommandTimeout);
+        Assert.AreEqual(123, extension.CommandTimeout);
 
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
@@ -228,7 +228,7 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
     /// <summary>
     /// Verifies that two different DbContexts can be registered with different connection strings.
     /// </summary>
-    [Fact]
+    [TestMethod]
     public void CanHave2DbContexts()
     {
         const string connectionString2 = "Data Source=fake2";
@@ -247,15 +247,15 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
         var context2 = host.Services.GetRequiredService<TestDbContext2>();
 
         var actualConnectionString = context.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(ConnectionString, actualConnectionString);
+        Assert.AreEqual(ConnectionString, actualConnectionString);
 
         actualConnectionString = context2.Database.GetDbConnection().ConnectionString;
-        Assert.Equal(connectionString2, actualConnectionString);
+        Assert.AreEqual(connectionString2, actualConnectionString);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void ThrowsWhenDbContextIsRegisteredBeforeAspireComponent(bool useServiceType)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = Environments.Development });
@@ -273,12 +273,12 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
         }
 
         var exception = Assert.Throws<InvalidOperationException>(() => builder.AddOracleDatabaseDbContext<TestDbContext>("orclconnection"));
-        Assert.Equal("DbContext<TestDbContext> is already registered. Please ensure 'services.AddDbContext<TestDbContext>()' is not used when calling 'AddOracleDatabaseDbContext()' or use the corresponding 'Enrich' method.", exception.Message);
+        Assert.AreEqual("DbContext<TestDbContext> is already registered. Please ensure 'services.AddDbContext<TestDbContext>()' is not used when calling 'AddOracleDatabaseDbContext()' or use the corresponding 'Enrich' method.", exception.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void DoesntThrowWhenDbContextIsRegisteredBeforeAspireComponentProduction(bool useServiceType)
     {
         var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = Environments.Production });
@@ -297,10 +297,10 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
 
         var exception = Record.Exception(() => builder.AddOracleDatabaseDbContext<TestDbContext>("orclconnection"));
 
-        Assert.Null(exception);
+        Assert.IsNull(exception);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanPassNoInstrumentationSettingsToDbContext()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -313,10 +313,10 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
         using var host = builder.Build();
         var context = host.Services.GetRequiredService<TestDbContext>();
 
-        Assert.NotNull(context);
+        Assert.IsNotNull(context);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanPassSettingsToDbContext()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -329,10 +329,10 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
         using var host = builder.Build();
         var context = host.Services.GetRequiredService<TestDbContext>();
 
-        Assert.NotNull(context);
+        Assert.IsNotNull(context);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddOracleDatabaseDbContext_WithConnectionNameAndSettings_AppliesConnectionSpecificSettings()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -352,12 +352,12 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
             capturedSettings = settings;
         });
 
-        Assert.NotNull(capturedSettings);
-        Assert.Equal(60, capturedSettings.CommandTimeout);
-        Assert.True(capturedSettings.DisableTracing);
+        Assert.IsNotNull(capturedSettings);
+        Assert.AreEqual(60, capturedSettings.CommandTimeout);
+        Assert.IsTrue(capturedSettings.DisableTracing);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddOracleDatabaseDbContext_WithConnectionSpecificAndContextSpecificSettings_PrefersContextSpecific()
     {
         // Arrange
@@ -380,8 +380,8 @@ public class AspireOracleEFCoreDatabaseExtensionsTests
             capturedSettings = settings;
         });
 
-        Assert.NotNull(capturedSettings);
-        Assert.Equal(120, capturedSettings.CommandTimeout);
+        Assert.IsNotNull(capturedSettings);
+        Assert.AreEqual(120, capturedSettings.CommandTimeout);
     }
 
     public class TestDbContext2 : DbContext

@@ -6,21 +6,21 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Redis.Tests;
 
+[TestClass]
 public class AddRedisTests
 {
-    [Fact]
+    [TestMethod]
     public void AddRedisAddsHealthCheckAnnotationToResource()
     {
         var builder = DistributedApplication.CreateBuilder();
         var redis = builder.AddRedis("redis");
-        Assert.Single(redis.Resource.Annotations, a => a is HealthCheckAnnotation hca && hca.Key == "redis_check");
+        Assert.ContainsSingle(redis.Resource.Annotations, a => a is HealthCheckAnnotation hca && hca.Key == "redis_check");
     }
 
-    [Fact]
+    [TestMethod]
     public void AddRedisContainerWithDefaultsAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -30,25 +30,25 @@ public class AddRedisTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<RedisResource>());
-        Assert.Equal("myRedis", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<RedisResource>());
+        Assert.AreEqual("myRedis", containerResource.Name);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(6379, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(6379, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(RedisContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(RedisContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(RedisContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(RedisContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(RedisContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(RedisContainerImageTags.Registry, containerAnnotation.Registry);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddRedisContainerAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -58,25 +58,25 @@ public class AddRedisTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<RedisResource>());
-        Assert.Equal("myRedis", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<RedisResource>());
+        Assert.AreEqual("myRedis", containerResource.Name);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(6379, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Equal(9813, endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(6379, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.AreEqual(9813, endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(RedisContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(RedisContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(RedisContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(RedisContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(RedisContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(RedisContainerImageTags.Registry, containerAnnotation.Registry);
     }
 
-    [Fact]
+    [TestMethod]
     public void RedisCreatesConnectionStringWithPassword()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -89,11 +89,11 @@ public class AddRedisTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<IResourceWithConnectionString>());
-        Assert.Equal("{myRedis.bindings.tcp.host}:{myRedis.bindings.tcp.port},password={pass.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<IResourceWithConnectionString>());
+        Assert.AreEqual("{myRedis.bindings.tcp.host}:{myRedis.bindings.tcp.port},password={pass.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public void RedisCreatesConnectionStringWithPasswordAndPort()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -106,11 +106,11 @@ public class AddRedisTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<IResourceWithConnectionString>());
-        Assert.Equal("{myRedis.bindings.tcp.host}:{myRedis.bindings.tcp.port},password={pass.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<IResourceWithConnectionString>());
+        Assert.AreEqual("{myRedis.bindings.tcp.host}:{myRedis.bindings.tcp.port},password={pass.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task RedisCreatesConnectionStringWithDefaultPassword()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -121,13 +121,13 @@ public class AddRedisTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<IResourceWithConnectionString>());
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<IResourceWithConnectionString>());
         var connectionString = await connectionStringResource.GetConnectionStringAsync(default);
-        Assert.Equal("{myRedis.bindings.tcp.host}:{myRedis.bindings.tcp.port},password={myRedis-password.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
-        Assert.StartsWith("localhost:2000", connectionString);
+        Assert.AreEqual("{myRedis.bindings.tcp.host}:{myRedis.bindings.tcp.port},password={myRedis-password.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        StringAssert.StartsWith(connectionString, "localhost:2000");
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyWithoutPasswordManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -158,10 +158,10 @@ public class AddRedisTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyWithPasswordManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -196,10 +196,10 @@ public class AddRedisTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyWithPasswordValueNotProvidedManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -231,30 +231,30 @@ public class AddRedisTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void WithRedisCommanderAddsRedisCommanderResource()
     {
         var builder = DistributedApplication.CreateBuilder();
         builder.AddRedis("myredis1").WithRedisCommander();
         builder.AddRedis("myredis2").WithRedisCommander();
 
-        Assert.Single(builder.Resources.OfType<RedisCommanderResource>());
+        Assert.ContainsSingle(builder.Resources.OfType<RedisCommanderResource>());
     }
 
-    [Fact]
+    [TestMethod]
     public void WithRedisInsightAddsWithRedisInsightResource()
     {
         var builder = DistributedApplication.CreateBuilder();
         builder.AddRedis("myredis1").WithRedisInsight();
         builder.AddRedis("myredis2").WithRedisInsight();
 
-        Assert.Single(builder.Resources.OfType<RedisInsightResource>());
+        Assert.ContainsSingle(builder.Resources.OfType<RedisInsightResource>());
     }
 
-    [Fact]
+    [TestMethod]
     public void WithRedisCommanderSupportsChangingContainerImageValues()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -265,14 +265,14 @@ public class AddRedisTests
             c.WithImageTag("someothertag");
         });
 
-        var resource = Assert.Single(builder.Resources.OfType<RedisCommanderResource>());
-        var containerAnnotation = Assert.Single(resource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal("example.mycompany.com", containerAnnotation.Registry);
-        Assert.Equal("customrediscommander", containerAnnotation.Image);
-        Assert.Equal("someothertag", containerAnnotation.Tag);
+        var resource = Assert.ContainsSingle(builder.Resources.OfType<RedisCommanderResource>());
+        var containerAnnotation = Assert.ContainsSingle(resource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual("example.mycompany.com", containerAnnotation.Registry);
+        Assert.AreEqual("customrediscommander", containerAnnotation.Image);
+        Assert.AreEqual("someothertag", containerAnnotation.Tag);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithRedisInsightSupportsChangingContainerImageValues()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -283,14 +283,14 @@ public class AddRedisTests
             c.WithImageTag("someothertag");
         });
 
-        var resource = Assert.Single(builder.Resources.OfType<RedisInsightResource>());
-        var containerAnnotation = Assert.Single(resource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal("example.mycompany.com", containerAnnotation.Registry);
-        Assert.Equal("customrediscommander", containerAnnotation.Image);
-        Assert.Equal("someothertag", containerAnnotation.Tag);
+        var resource = Assert.ContainsSingle(builder.Resources.OfType<RedisInsightResource>());
+        var containerAnnotation = Assert.ContainsSingle(resource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual("example.mycompany.com", containerAnnotation.Registry);
+        Assert.AreEqual("customrediscommander", containerAnnotation.Image);
+        Assert.AreEqual("someothertag", containerAnnotation.Tag);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithRedisCommanderSupportsChangingHostPort()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -299,12 +299,12 @@ public class AddRedisTests
             c.WithHostPort(1000);
         });
 
-        var resource = Assert.Single(builder.Resources.OfType<RedisCommanderResource>());
-        var endpoint = Assert.Single(resource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(1000, endpoint.Port);
+        var resource = Assert.ContainsSingle(builder.Resources.OfType<RedisCommanderResource>());
+        var endpoint = Assert.ContainsSingle(resource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(1000, endpoint.Port);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithRedisInsightSupportsChangingHostPort()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -313,12 +313,12 @@ public class AddRedisTests
             c.WithHostPort(1000);
         });
 
-        var resource = Assert.Single(builder.Resources.OfType<RedisInsightResource>());
-        var endpoint = Assert.Single(resource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(1000, endpoint.Port);
+        var resource = Assert.ContainsSingle(builder.Resources.OfType<RedisInsightResource>());
+        var endpoint = Assert.ContainsSingle(resource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(1000, endpoint.Port);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SingleRedisInstanceWithoutPasswordProducesCorrectRedisHostsVariable()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -337,10 +337,10 @@ public class AddRedisTests
             DistributedApplicationOperation.Run,
             TestServiceProvider.Instance);
 
-        Assert.Equal($"myredis1:{redis.Resource.Name}:6379:0:{redis.Resource.PasswordParameter?.Value}", config["REDIS_HOSTS"]);
+        Assert.AreEqual($"myredis1:{redis.Resource.Name}:6379:0:{redis.Resource.PasswordParameter?.Value}", config["REDIS_HOSTS"]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SingleRedisInstanceWithPasswordProducesCorrectRedisHostsVariable()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -358,10 +358,10 @@ public class AddRedisTests
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(commander);
 
-        Assert.Equal($"myredis1:{redis.Resource.Name}:6379:0:{password}", config["REDIS_HOSTS"]);
+        Assert.AreEqual($"myredis1:{redis.Resource.Name}:6379:0:{password}", config["REDIS_HOSTS"]);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task MultipleRedisInstanceProducesCorrectRedisHostsVariable()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -382,13 +382,13 @@ public class AddRedisTests
             DistributedApplicationOperation.Run,
             TestServiceProvider.Instance);
 
-        Assert.Equal($"myredis1:{redis1.Resource.Name}:6379:0:{redis1.Resource.PasswordParameter?.Value},myredis2:myredis2:6379:0:{redis2.Resource.PasswordParameter?.Value}", config["REDIS_HOSTS"]);
+        Assert.AreEqual($"myredis1:{redis1.Resource.Name}:6379:0:{redis1.Resource.PasswordParameter?.Value},myredis2:myredis2:6379:0:{redis2.Resource.PasswordParameter?.Value}", config["REDIS_HOSTS"]);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithDataVolumeAddsVolumeAnnotation(bool? isReadOnly)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -404,16 +404,16 @@ public class AddRedisTests
 
         var volumeAnnotation = redis.Resource.Annotations.OfType<ContainerMountAnnotation>().Single();
 
-        Assert.Equal($"{builder.GetVolumePrefix()}-myRedis-data", volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.Volume, volumeAnnotation.Type);
-        Assert.Equal(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
+        Assert.AreEqual($"{builder.GetVolumePrefix()}-myRedis-data", volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.Volume, volumeAnnotation.Type);
+        Assert.AreEqual(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(true)]
+    [DataRow(false)]
     public void WithDataBindMountAddsMountAnnotation(bool? isReadOnly)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -429,13 +429,13 @@ public class AddRedisTests
 
         var volumeAnnotation = redis.Resource.Annotations.OfType<ContainerMountAnnotation>().Single();
 
-        Assert.Equal(Path.Combine(builder.AppHostDirectory, "mydata"), volumeAnnotation.Source);
-        Assert.Equal("/data", volumeAnnotation.Target);
-        Assert.Equal(ContainerMountType.BindMount, volumeAnnotation.Type);
-        Assert.Equal(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
+        Assert.AreEqual(Path.Combine(builder.AppHostDirectory, "mydata"), volumeAnnotation.Source);
+        Assert.AreEqual("/data", volumeAnnotation.Target);
+        Assert.AreEqual(ContainerMountType.BindMount, volumeAnnotation.Type);
+        Assert.AreEqual(isReadOnly ?? false, volumeAnnotation.IsReadOnly);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDataVolumeAddsPersistenceAnnotation()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -446,7 +446,7 @@ public class AddRedisTests
         Assert.Contains("--save 60 1", args);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDataVolumeDoesNotAddPersistenceAnnotationIfIsReadOnly()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -457,7 +457,7 @@ public class AddRedisTests
         Assert.DoesNotContain("--save", args);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDataBindMountAddsPersistenceAnnotation()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -468,7 +468,7 @@ public class AddRedisTests
         Assert.Contains("--save 60 1", args);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithDataBindMountDoesNotAddPersistenceAnnotationIfIsReadOnly()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -479,7 +479,7 @@ public class AddRedisTests
         Assert.DoesNotContain("--save", args);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WithPersistenceReplacesPreviousAnnotationInstances()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -501,18 +501,18 @@ public class AddRedisTests
         return string.Join(" ", args);
     }
 
-    [Fact]
+    [TestMethod]
     public void WithPersistenceAddsCommandLineArgsAnnotation()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         var redis = builder.AddRedis("myRedis")
                            .WithPersistence(TimeSpan.FromSeconds(60));
 
-        Assert.True(redis.Resource.TryGetAnnotationsOfType<CommandLineArgsCallbackAnnotation>(out var argsAnnotations));
-        Assert.NotNull(argsAnnotations.SingleOrDefault());
+        Assert.IsTrue(redis.Resource.TryGetAnnotationsOfType<CommandLineArgsCallbackAnnotation>(out var argsAnnotations));
+        Assert.IsNotNull(argsAnnotations.SingleOrDefault());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddRedisContainerWithPasswordAnnotationMetadata()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -527,11 +527,11 @@ public class AddRedisTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<RedisResource>());
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<RedisResource>());
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<IResourceWithConnectionString>());
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<IResourceWithConnectionString>());
         var connectionString = await connectionStringResource.GetConnectionStringAsync(default);
-        Assert.Equal("{myRedis.bindings.tcp.host}:{myRedis.bindings.tcp.port},password={pass.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
-        Assert.StartsWith($"localhost:5001,password={password}", connectionString);
+        Assert.AreEqual("{myRedis.bindings.tcp.host}:{myRedis.bindings.tcp.port},password={pass.value}", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        StringAssert.StartsWith(connectionString, $"localhost:5001,password={password}");
     }
 }

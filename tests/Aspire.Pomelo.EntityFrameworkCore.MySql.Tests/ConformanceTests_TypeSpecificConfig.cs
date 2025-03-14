@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Aspire.Pomelo.EntityFrameworkCore.MySql.Tests;
 
+[TestClass]
 public class ConformanceTests_TypeSpecificConfig : ConformanceTests
 {
     public ConformanceTests_TypeSpecificConfig(MySqlContainerFixture containerFixture) : base(containerFixture)

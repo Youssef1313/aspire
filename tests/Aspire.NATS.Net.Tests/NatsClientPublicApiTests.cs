@@ -5,19 +5,19 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NATS.Client.Core;
-using Xunit;
 
 namespace Aspire.NATS.Net.Tests;
 
+[TestClass]
 public class NatsClientPublicApiTests
 {
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    [InlineData(3)]
-    [InlineData(4)]
-    [InlineData(5)]
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(1)]
+    [DataRow(2)]
+    [DataRow(3)]
+    [DataRow(4)]
+    [DataRow(5)]
     public void AddNatsClientShouldThrowWhenBuilderIsNull(int overrideIndex)
     {
         IHostApplicationBuilder builder = null!;
@@ -38,22 +38,22 @@ public class NatsClientPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0, false)]
-    [InlineData(0, true)]
-    [InlineData(1, false)]
-    [InlineData(1, true)]
-    [InlineData(2, false)]
-    [InlineData(2, true)]
-    [InlineData(3, false)]
-    [InlineData(3, true)]
-    [InlineData(4, false)]
-    [InlineData(4, true)]
-    [InlineData(5, false)]
-    [InlineData(5, true)]
+    [TestMethod]
+    [DataRow(0, false)]
+    [DataRow(0, true)]
+    [DataRow(1, false)]
+    [DataRow(1, true)]
+    [DataRow(2, false)]
+    [DataRow(2, true)]
+    [DataRow(3, false)]
+    [DataRow(3, true)]
+    [DataRow(4, false)]
+    [DataRow(4, true)]
+    [DataRow(5, false)]
+    [DataRow(5, true)]
     public void AddNatsClientShouldThrowWhenConnectionNameIsNullOrEmpty(int overrideIndex, bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -76,16 +76,16 @@ public class NatsClientPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    [InlineData(3)]
-    [InlineData(4)]
-    [InlineData(5)]
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(1)]
+    [DataRow(2)]
+    [DataRow(3)]
+    [DataRow(4)]
+    [DataRow(5)]
     public void AddKeyedNatsClientShouldThrowWhenBuilderIsNull(int overrideIndex)
     {
         IHostApplicationBuilder builder = null!;
@@ -106,22 +106,22 @@ public class NatsClientPublicApiTests
         };
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(0, false)]
-    [InlineData(0, true)]
-    [InlineData(1, false)]
-    [InlineData(1, true)]
-    [InlineData(2, false)]
-    [InlineData(2, true)]
-    [InlineData(3, false)]
-    [InlineData(3, true)]
-    [InlineData(4, false)]
-    [InlineData(4, true)]
-    [InlineData(5, false)]
-    [InlineData(5, true)]
+    [TestMethod]
+    [DataRow(0, false)]
+    [DataRow(0, true)]
+    [DataRow(1, false)]
+    [DataRow(1, true)]
+    [DataRow(2, false)]
+    [DataRow(2, true)]
+    [DataRow(3, false)]
+    [DataRow(3, true)]
+    [DataRow(4, false)]
+    [DataRow(4, true)]
+    [DataRow(5, false)]
+    [DataRow(5, true)]
     public void AddKeyedNatsClientShouldThrowWhenNameIsNullOrEmpty(int overrideIndex, bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -144,10 +144,10 @@ public class NatsClientPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddNatsJetStreamShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -155,22 +155,22 @@ public class NatsClientPublicApiTests
         var action = builder.AddNatsJetStream;
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true, true, false, false)]
-    [InlineData(true, true, true, false)]
-    [InlineData(true, true, false, true)]
-    [InlineData(true, false, false, false)]
-    [InlineData(true, false, true, false)]
-    [InlineData(true, false, false, true)]
-    [InlineData(false, true, false, false)]
-    [InlineData(false, true, true, false)]
-    [InlineData(false, true, false, true)]
-    [InlineData(false, false, false, false)]
-    [InlineData(false, false, true, false)]
-    [InlineData(false, false, false, true)]
+    [TestMethod]
+    [DataRow(true, true, false, false)]
+    [DataRow(true, true, true, false)]
+    [DataRow(true, true, false, true)]
+    [DataRow(true, false, false, false)]
+    [DataRow(true, false, true, false)]
+    [DataRow(true, false, false, true)]
+    [DataRow(false, true, false, false)]
+    [DataRow(false, true, true, false)]
+    [DataRow(false, true, false, true)]
+    [DataRow(false, false, false, false)]
+    [DataRow(false, false, true, false)]
+    [DataRow(false, false, false, true)]
     public void AddNatsClientConfigured(bool useKeyed, bool useConfigureSettings, bool useConfigureOptions, bool useConfigureOptionsWithServiceProvider)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -211,12 +211,12 @@ public class NatsClientPublicApiTests
 
         if (useConfigureSettings)
         {
-            Assert.True(configureSettingsIsCalled);
+            Assert.IsTrue(configureSettingsIsCalled);
         }
 
         if (useConfigureOptions || useConfigureOptionsWithServiceProvider)
         {
-            Assert.True(configureOptionsIsCalled);
+            Assert.IsTrue(configureOptionsIsCalled);
         }
 
         void ConfigureSettings(NatsClientSettings _)

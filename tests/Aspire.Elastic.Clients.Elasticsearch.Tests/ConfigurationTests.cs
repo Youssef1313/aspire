@@ -1,21 +1,21 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
 
 namespace Aspire.Elastic.Clients.Elasticsearch.Tests;
 
+[TestClass]
 public class ConfigurationTests
 {
-    [Fact]
+    [TestMethod]
     public void EndpointIsNullByDefault() =>
-        Assert.Null(new ElasticClientsElasticsearchSettings().Endpoint);
+        Assert.IsNull(new ElasticClientsElasticsearchSettings().Endpoint);
 
-    [Fact]
+    [TestMethod]
     public void HealthChecksEnabledByDefault() =>
-        Assert.False(new ElasticClientsElasticsearchSettings().DisableHealthChecks);
+        Assert.IsFalse(new ElasticClientsElasticsearchSettings().DisableHealthChecks);
 
-    [Fact]
+    [TestMethod]
     public void TracingEnabledByDefault() =>
-      Assert.False(new ElasticClientsElasticsearchSettings().DisableTracing);
+      Assert.IsFalse(new ElasticClientsElasticsearchSettings().DisableTracing);
 }

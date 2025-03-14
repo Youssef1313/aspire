@@ -10,16 +10,16 @@ using Google.Protobuf;
 using Google.Protobuf.Collections;
 using OpenTelemetry.Proto.Common.V1;
 using OpenTelemetry.Proto.Metrics.V1;
-using Xunit;
 using static Aspire.Tests.Shared.Telemetry.TelemetryTestHelpers;
 
 namespace Aspire.Dashboard.Tests.TelemetryRepositoryTests;
 
+[TestClass]
 public class MetricsTests
 {
     private static readonly DateTime s_testTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-    [Fact]
+    [TestMethod]
     public void AddMetrics()
     {
         // Arrange
@@ -58,49 +58,49 @@ public class MetricsTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var applications = repository.GetApplications();
-        Assert.Collection(applications,
+        Assert.That.Collection(applications,
             app =>
             {
-                Assert.Equal("TestService", app.ApplicationName);
-                Assert.Equal("TestId", app.InstanceId);
+                Assert.AreEqual("TestService", app.ApplicationName);
+                Assert.AreEqual("TestId", app.InstanceId);
             });
 
         var instruments = repository.GetInstrumentsSummaries(applications[0].ApplicationKey);
-        Assert.Collection(instruments,
+        Assert.That.Collection(instruments,
             instrument =>
             {
-                Assert.Equal("test", instrument.Name);
-                Assert.Equal("Test metric description", instrument.Description);
-                Assert.Equal("widget", instrument.Unit);
-                Assert.Equal("test-meter", instrument.Parent.MeterName);
+                Assert.AreEqual("test", instrument.Name);
+                Assert.AreEqual("Test metric description", instrument.Description);
+                Assert.AreEqual("widget", instrument.Unit);
+                Assert.AreEqual("test-meter", instrument.Parent.MeterName);
             },
             instrument =>
             {
-                Assert.Equal("test2", instrument.Name);
-                Assert.Equal("Test metric description", instrument.Description);
-                Assert.Equal("widget", instrument.Unit);
-                Assert.Equal("test-meter", instrument.Parent.MeterName);
+                Assert.AreEqual("test2", instrument.Name);
+                Assert.AreEqual("Test metric description", instrument.Description);
+                Assert.AreEqual("widget", instrument.Unit);
+                Assert.AreEqual("test-meter", instrument.Parent.MeterName);
             },
             instrument =>
             {
-                Assert.Equal("test", instrument.Name);
-                Assert.Equal("Test metric description", instrument.Description);
-                Assert.Equal("widget", instrument.Unit);
-                Assert.Equal("test-meter2", instrument.Parent.MeterName);
+                Assert.AreEqual("test", instrument.Name);
+                Assert.AreEqual("Test metric description", instrument.Description);
+                Assert.AreEqual("widget", instrument.Unit);
+                Assert.AreEqual("test-meter2", instrument.Parent.MeterName);
             },
             instrument =>
             {
-                Assert.Equal("test2", instrument.Name);
-                Assert.Equal("Test metric description", instrument.Description);
-                Assert.Equal("widget", instrument.Unit);
-                Assert.Equal("test-meter2", instrument.Parent.MeterName);
+                Assert.AreEqual("test2", instrument.Name);
+                Assert.AreEqual("Test metric description", instrument.Description);
+                Assert.AreEqual("widget", instrument.Unit);
+                Assert.AreEqual("test-meter2", instrument.Parent.MeterName);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void AddMetrics_MeterAttributeLimits_LimitsApplied()
     {
         // Arrange
@@ -138,14 +138,14 @@ public class MetricsTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var applications = repository.GetApplications();
-        Assert.Collection(applications,
+        Assert.That.Collection(applications,
             app =>
             {
-                Assert.Equal("TestService", app.ApplicationName);
-                Assert.Equal("TestId", app.InstanceId);
+                Assert.AreEqual("TestService", app.ApplicationName);
+                Assert.AreEqual("TestId", app.InstanceId);
             });
 
         var instrument = repository.GetInstrument(new GetInstrumentRequest
@@ -157,64 +157,64 @@ public class MetricsTests
             EndTime = DateTime.MaxValue
         })!;
 
-        Assert.Collection(instrument.Summary.Parent.Attributes,
+        Assert.That.Collection(instrument.Summary.Parent.Attributes,
             p =>
             {
-                Assert.Equal("Meter_Key0", p.Key);
-                Assert.Equal("01234", p.Value);
+                Assert.AreEqual("Meter_Key0", p.Key);
+                Assert.AreEqual("01234", p.Value);
             },
             p =>
             {
-                Assert.Equal("Meter_Key1", p.Key);
-                Assert.Equal("0123456789", p.Value);
+                Assert.AreEqual("Meter_Key1", p.Key);
+                Assert.AreEqual("0123456789", p.Value);
             },
             p =>
             {
-                Assert.Equal("Meter_Key2", p.Key);
-                Assert.Equal("012345678901234", p.Value);
+                Assert.AreEqual("Meter_Key2", p.Key);
+                Assert.AreEqual("012345678901234", p.Value);
             },
             p =>
             {
-                Assert.Equal("Meter_Key3", p.Key);
-                Assert.Equal("0123456789012345", p.Value);
+                Assert.AreEqual("Meter_Key3", p.Key);
+                Assert.AreEqual("0123456789012345", p.Value);
             },
             p =>
             {
-                Assert.Equal("Meter_Key4", p.Key);
-                Assert.Equal("0123456789012345", p.Value);
+                Assert.AreEqual("Meter_Key4", p.Key);
+                Assert.AreEqual("0123456789012345", p.Value);
             });
 
         var dimensionAttributes = instrument.Dimensions.Single().Attributes;
 
-        Assert.Collection(dimensionAttributes,
+        Assert.That.Collection(dimensionAttributes,
             p =>
             {
-                Assert.Equal("Meter_Key0", p.Key);
-                Assert.Equal("01234", p.Value);
+                Assert.AreEqual("Meter_Key0", p.Key);
+                Assert.AreEqual("01234", p.Value);
             },
             p =>
             {
-                Assert.Equal("Meter_Key1", p.Key);
-                Assert.Equal("0123456789", p.Value);
+                Assert.AreEqual("Meter_Key1", p.Key);
+                Assert.AreEqual("0123456789", p.Value);
             },
             p =>
             {
-                Assert.Equal("Meter_Key2", p.Key);
-                Assert.Equal("012345678901234", p.Value);
+                Assert.AreEqual("Meter_Key2", p.Key);
+                Assert.AreEqual("012345678901234", p.Value);
             },
             p =>
             {
-                Assert.Equal("Meter_Key3", p.Key);
-                Assert.Equal("0123456789012345", p.Value);
+                Assert.AreEqual("Meter_Key3", p.Key);
+                Assert.AreEqual("0123456789012345", p.Value);
             },
             p =>
             {
-                Assert.Equal("Meter_Key4", p.Key);
-                Assert.Equal("0123456789012345", p.Value);
+                Assert.AreEqual("Meter_Key4", p.Key);
+                Assert.AreEqual("0123456789012345", p.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void AddMetrics_MetricAttributeLimits_LimitsApplied()
     {
         // Arrange
@@ -254,14 +254,14 @@ public class MetricsTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var applications = repository.GetApplications();
-        Assert.Collection(applications,
+        Assert.That.Collection(applications,
             app =>
             {
-                Assert.Equal("TestService", app.ApplicationName);
-                Assert.Equal("TestId", app.InstanceId);
+                Assert.AreEqual("TestService", app.ApplicationName);
+                Assert.AreEqual("TestId", app.InstanceId);
             });
 
         var instrument = repository.GetInstrument(new GetInstrumentRequest
@@ -273,53 +273,53 @@ public class MetricsTests
             EndTime = DateTime.MaxValue
         })!;
 
-        Assert.Collection(instrument.Summary.Parent.Attributes,
+        Assert.That.Collection(instrument.Summary.Parent.Attributes,
             p =>
             {
-                Assert.Equal("Meter_Key0", p.Key);
-                Assert.Equal("01234", p.Value);
+                Assert.AreEqual("Meter_Key0", p.Key);
+                Assert.AreEqual("01234", p.Value);
             });
 
         var dimensionAttributes = instrument.Dimensions.Single().Attributes;
 
-        Assert.Collection(dimensionAttributes,
+        Assert.That.Collection(dimensionAttributes,
             p =>
             {
-                Assert.Equal("Meter_Key0", p.Key);
-                Assert.Equal("01234", p.Value);
+                Assert.AreEqual("Meter_Key0", p.Key);
+                Assert.AreEqual("01234", p.Value);
             },
             p =>
             {
-                Assert.Equal("Metric_Key0", p.Key);
-                Assert.Equal("01234", p.Value);
+                Assert.AreEqual("Metric_Key0", p.Key);
+                Assert.AreEqual("01234", p.Value);
             },
             p =>
             {
-                Assert.Equal("Metric_Key1", p.Key);
-                Assert.Equal("0123456789", p.Value);
+                Assert.AreEqual("Metric_Key1", p.Key);
+                Assert.AreEqual("0123456789", p.Value);
             },
             p =>
             {
-                Assert.Equal("Metric_Key2", p.Key);
-                Assert.Equal("012345678901234", p.Value);
+                Assert.AreEqual("Metric_Key2", p.Key);
+                Assert.AreEqual("012345678901234", p.Value);
             },
             p =>
             {
-                Assert.Equal("Metric_Key3", p.Key);
-                Assert.Equal("0123456789012345", p.Value);
+                Assert.AreEqual("Metric_Key3", p.Key);
+                Assert.AreEqual("0123456789012345", p.Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void RoundtripSeconds()
     {
         var start = s_testTime.AddMinutes(1);
         var nanoSeconds = DateTimeToUnixNanoseconds(start);
         var end = OtlpHelpers.UnixNanoSecondsToDateTime(nanoSeconds);
-        Assert.Equal(start, end);
+        Assert.AreEqual(start, end);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetInstrument()
     {
         // Arrange
@@ -352,14 +352,14 @@ public class MetricsTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var applications = repository.GetApplications();
-        Assert.Collection(applications,
+        Assert.That.Collection(applications,
             app =>
             {
-                Assert.Equal("TestService", app.ApplicationName);
-                Assert.Equal("TestId", app.InstanceId);
+                Assert.AreEqual("TestService", app.ApplicationName);
+                Assert.AreEqual("TestId", app.InstanceId);
             });
 
         var instrumentData = repository.GetInstrument(new GetInstrumentRequest
@@ -371,34 +371,34 @@ public class MetricsTests
             EndTime = s_testTime.AddMinutes(1.5),
         });
 
-        Assert.NotNull(instrumentData);
-        Assert.Equal("test", instrumentData.Summary.Name);
-        Assert.Equal("Test metric description", instrumentData.Summary.Description);
-        Assert.Equal("widget", instrumentData.Summary.Unit);
-        Assert.Equal("test-meter", instrumentData.Summary.Parent.MeterName);
+        Assert.IsNotNull(instrumentData);
+        Assert.AreEqual("test", instrumentData.Summary.Name);
+        Assert.AreEqual("Test metric description", instrumentData.Summary.Description);
+        Assert.AreEqual("widget", instrumentData.Summary.Unit);
+        Assert.AreEqual("test-meter", instrumentData.Summary.Parent.MeterName);
 
-        Assert.Collection(instrumentData.KnownAttributeValues.OrderBy(kvp => kvp.Key),
+        Assert.That.Collection(instrumentData.KnownAttributeValues.OrderBy(kvp => kvp.Key),
             e =>
             {
-                Assert.Equal("key1", e.Key);
-                Assert.Equal(new[] { null, "value1", "value2" }, e.Value);
+                Assert.AreEqual("key1", e.Key);
+                Assert.AreEqual(new[] { null, "value1", "value2" }, e.Value);
             },
             e =>
             {
-                Assert.Equal("key2", e.Key);
-                Assert.Equal(new[] { null, "value1", "" }, e.Value);
+                Assert.AreEqual("key2", e.Key);
+                Assert.AreEqual(new[] { null, "value1", "" }, e.Value);
             });
 
-        Assert.Equal(5, instrumentData.Dimensions.Count);
+        Assert.AreEqual(5, instrumentData.Dimensions.Count);
 
         var dimension = instrumentData.Dimensions.Single(d => d.Attributes.Length == 0);
-        var exemplar = Assert.Single(dimension.Values[0].Exemplars);
+        var exemplar = Assert.ContainsSingle(dimension.Values[0].Exemplars);
 
-        Assert.Equal("key1", exemplar.Attributes[0].Key);
-        Assert.Equal("value1", exemplar.Attributes[0].Value);
+        Assert.AreEqual("key1", exemplar.Attributes[0].Key);
+        Assert.AreEqual("value1", exemplar.Attributes[0].Value);
 
         var instrument = applications.Single().GetInstrument("test-meter", "test", s_testTime.AddMinutes(1), s_testTime.AddMinutes(1.5));
-        Assert.NotNull(instrument);
+        Assert.IsNotNull(instrument);
 
         AssertDimensionValues(instrument.Dimensions, Array.Empty<KeyValuePair<string, string>>(), valueCount: 1);
         AssertDimensionValues(instrument.Dimensions, new KeyValuePair<string, string>[] { KeyValuePair.Create("key1", "value1") }, valueCount: 1);
@@ -427,7 +427,7 @@ public class MetricsTests
         return exemplar;
     }
 
-    [Fact]
+    [TestMethod]
     public void AddMetrics_Capacity_ValuesRemoved()
     {
         // Arrange
@@ -459,14 +459,14 @@ public class MetricsTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var applications = repository.GetApplications();
-        Assert.Collection(applications,
+        Assert.That.Collection(applications,
             app =>
             {
-                Assert.Equal("TestService", app.ApplicationName);
-                Assert.Equal("TestId", app.InstanceId);
+                Assert.AreEqual("TestService", app.ApplicationName);
+                Assert.AreEqual("TestId", app.InstanceId);
             });
 
         var instrument = repository.GetInstrument(new GetInstrumentRequest
@@ -478,35 +478,35 @@ public class MetricsTests
             EndTime = DateTime.MaxValue
         })!;
 
-        Assert.Equal("test", instrument.Summary.Name);
-        Assert.Equal("Test metric description", instrument.Summary.Description);
-        Assert.Equal("widget", instrument.Summary.Unit);
-        Assert.Equal("test-meter", instrument.Summary.Parent.MeterName);
+        Assert.AreEqual("test", instrument.Summary.Name);
+        Assert.AreEqual("Test metric description", instrument.Summary.Description);
+        Assert.AreEqual("widget", instrument.Summary.Unit);
+        Assert.AreEqual("test-meter", instrument.Summary.Parent.MeterName);
 
         // Only the last 3 values should be kept.
-        var dimension = Assert.Single(instrument.Dimensions);
-        Assert.Collection(dimension.Values,
+        var dimension = Assert.ContainsSingle(instrument.Dimensions);
+        Assert.That.Collection(dimension.Values,
             m =>
             {
-                Assert.Equal(s_testTime.AddMinutes(2), m.Start);
-                Assert.Equal(s_testTime.AddMinutes(3), m.End);
-                Assert.Equal(3, ((MetricValue<long>)m).Value);
+                Assert.AreEqual(s_testTime.AddMinutes(2), m.Start);
+                Assert.AreEqual(s_testTime.AddMinutes(3), m.End);
+                Assert.AreEqual(3, ((MetricValue<long>)m).Value);
             },
             m =>
             {
-                Assert.Equal(s_testTime.AddMinutes(3), m.Start);
-                Assert.Equal(s_testTime.AddMinutes(4), m.End);
-                Assert.Equal(4, ((MetricValue<long>)m).Value);
+                Assert.AreEqual(s_testTime.AddMinutes(3), m.Start);
+                Assert.AreEqual(s_testTime.AddMinutes(4), m.End);
+                Assert.AreEqual(4, ((MetricValue<long>)m).Value);
             },
             m =>
             {
-                Assert.Equal(s_testTime.AddMinutes(4), m.Start);
-                Assert.Equal(s_testTime.AddMinutes(5), m.End);
-                Assert.Equal(5, ((MetricValue<long>)m).Value);
+                Assert.AreEqual(s_testTime.AddMinutes(4), m.Start);
+                Assert.AreEqual(s_testTime.AddMinutes(5), m.End);
+                Assert.AreEqual(5, ((MetricValue<long>)m).Value);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetMetrics_MultipleInstances()
     {
         // Arrange
@@ -567,24 +567,24 @@ public class MetricsTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var appKey = new ApplicationKey("app1", InstanceId: null);
         var instruments = repository.GetInstrumentsSummaries(appKey);
-        Assert.Collection(instruments,
+        Assert.That.Collection(instruments,
             instrument =>
             {
-                Assert.Equal("test1", instrument.Name);
-                Assert.Equal("Test metric description", instrument.Description);
-                Assert.Equal("widget", instrument.Unit);
-                Assert.Equal("test-meter", instrument.Parent.MeterName);
+                Assert.AreEqual("test1", instrument.Name);
+                Assert.AreEqual("Test metric description", instrument.Description);
+                Assert.AreEqual("widget", instrument.Unit);
+                Assert.AreEqual("test-meter", instrument.Parent.MeterName);
             },
             instrument =>
             {
-                Assert.Equal("test2", instrument.Name);
-                Assert.Equal("Test metric description", instrument.Description);
-                Assert.Equal("widget", instrument.Unit);
-                Assert.Equal("test-meter", instrument.Parent.MeterName);
+                Assert.AreEqual("test2", instrument.Name);
+                Assert.AreEqual("Test metric description", instrument.Description);
+                Assert.AreEqual("widget", instrument.Unit);
+                Assert.AreEqual("test-meter", instrument.Parent.MeterName);
             });
 
         var instrument = repository.GetInstrument(new GetInstrumentRequest
@@ -596,36 +596,36 @@ public class MetricsTests
             EndTime = s_testTime.AddMinutes(20)
         });
 
-        Assert.NotNull(instrument);
-        Assert.Equal("test1", instrument.Summary.Name);
+        Assert.IsNotNull(instrument);
+        Assert.AreEqual("test1", instrument.Summary.Name);
 
-        Assert.Collection(instrument.Dimensions.OrderBy(d => d.Name),
+        Assert.That.Collection(instrument.Dimensions.OrderBy(d => d.Name),
             d =>
             {
-                Assert.Equal(KeyValuePair.Create("key-1", "value-1"), d.Attributes.Single());
-                Assert.Equal(1, ((MetricValue<long>)d.Values.Single()).Value);
+                Assert.AreEqual(KeyValuePair.Create("key-1", "value-1"), d.Attributes.Single());
+                Assert.AreEqual(1, ((MetricValue<long>)d.Values.Single()).Value);
             },
             d =>
             {
-                Assert.Equal(KeyValuePair.Create("key-1", "value-2"), d.Attributes.Single());
-                Assert.Equal(2, ((MetricValue<long>)d.Values.Single()).Value);
+                Assert.AreEqual(KeyValuePair.Create("key-1", "value-2"), d.Attributes.Single());
+                Assert.AreEqual(2, ((MetricValue<long>)d.Values.Single()).Value);
             },
             d =>
             {
-                Assert.Equal(KeyValuePair.Create("key-1", "value-3"), d.Attributes.Single());
-                Assert.Equal(3, ((MetricValue<long>)d.Values.Single()).Value);
+                Assert.AreEqual(KeyValuePair.Create("key-1", "value-3"), d.Attributes.Single());
+                Assert.AreEqual(3, ((MetricValue<long>)d.Values.Single()).Value);
             });
 
-        var knownValues = Assert.Single(instrument.KnownAttributeValues);
-        Assert.Equal("key-1", knownValues.Key);
+        var knownValues = Assert.ContainsSingle(instrument.KnownAttributeValues);
+        Assert.AreEqual("key-1", knownValues.Key);
 
-        Assert.Collection(knownValues.Value.Order(),
-            v => Assert.Equal("value-1", v),
-            v => Assert.Equal("value-2", v),
-            v => Assert.Equal("value-3", v));
+        Assert.That.Collection(knownValues.Value.Order(),
+            v => Assert.AreEqual("value-1", v),
+            v => Assert.AreEqual("value-2", v),
+            v => Assert.AreEqual("value-3", v));
     }
 
-    [Fact]
+    [TestMethod]
     public void RemoveMetrics_All()
     {
         // Arrange
@@ -688,19 +688,19 @@ public class MetricsTests
         repository.ClearMetrics();
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var app1Key = new ApplicationKey("app1", InstanceId: null);
         var app1Instruments = repository.GetInstrumentsSummaries(app1Key);
-        Assert.Empty(app1Instruments);
+        Assert.IsEmpty(app1Instruments);
 
         var app2Key = new ApplicationKey("app2", InstanceId: null);
         var app2Instruments = repository.GetInstrumentsSummaries(app2Key);
 
-        Assert.Empty(app2Instruments);
+        Assert.IsEmpty(app2Instruments);
     }
 
-    [Fact]
+    [TestMethod]
     public void RemoveMetrics_SelectedResource()
     {
         // Arrange
@@ -763,16 +763,16 @@ public class MetricsTests
         repository.ClearMetrics(new ApplicationKey("app1", "456"));
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var app1Key = new ApplicationKey("app1", InstanceId: null);
         var app1Instruments = repository.GetInstrumentsSummaries(app1Key);
 
-        var app1Instrument = Assert.Single(app1Instruments);
-        Assert.Equal("test1", app1Instrument.Name);
-        Assert.Equal("Test metric description", app1Instrument.Description);
-        Assert.Equal("widget", app1Instrument.Unit);
-        Assert.Equal("test-meter", app1Instrument.Parent.MeterName);
+        var app1Instrument = Assert.ContainsSingle(app1Instruments);
+        Assert.AreEqual("test1", app1Instrument.Name);
+        Assert.AreEqual("Test metric description", app1Instrument.Description);
+        Assert.AreEqual("widget", app1Instrument.Unit);
+        Assert.AreEqual("test-meter", app1Instrument.Parent.MeterName);
 
         var app1Test1Instrument = repository.GetInstrument(new GetInstrumentRequest
         {
@@ -783,18 +783,18 @@ public class MetricsTests
             EndTime = s_testTime.AddMinutes(20)
         });
 
-        Assert.NotNull(app1Test1Instrument);
-        Assert.Equal("test1", app1Test1Instrument.Summary.Name);
+        Assert.IsNotNull(app1Test1Instrument);
+        Assert.AreEqual("test1", app1Test1Instrument.Summary.Name);
 
-        var app1Test1Dimensions = Assert.Single(app1Test1Instrument.Dimensions);
-        Assert.Collection(app1Test1Dimensions.Values,
+        var app1Test1Dimensions = Assert.ContainsSingle(app1Test1Instrument.Dimensions);
+        Assert.That.Collection(app1Test1Dimensions.Values,
             v =>
             {
-                Assert.Equal(1, ((MetricValue<long>)v).Value);
+                Assert.AreEqual(1, ((MetricValue<long>)v).Value);
             },
             v =>
             {
-                Assert.Equal(2, ((MetricValue<long>)v).Value);
+                Assert.AreEqual(2, ((MetricValue<long>)v).Value);
             });
 
         var app1Test2Instrument = repository.GetInstrument(new GetInstrumentRequest
@@ -806,25 +806,25 @@ public class MetricsTests
             EndTime = s_testTime.AddMinutes(20)
         });
 
-        Assert.Null(app1Test2Instrument);
+        Assert.IsNull(app1Test2Instrument);
 
         var app2Key = new ApplicationKey("app2", InstanceId: null);
         var app2Instruments = repository.GetInstrumentsSummaries(app2Key);
 
-        Assert.Collection(app2Instruments,
+        Assert.That.Collection(app2Instruments,
             instrument =>
             {
-                Assert.Equal("test1", instrument.Name);
-                Assert.Equal("Test metric description", instrument.Description);
-                Assert.Equal("widget", instrument.Unit);
-                Assert.Equal("test-meter", instrument.Parent.MeterName);
+                Assert.AreEqual("test1", instrument.Name);
+                Assert.AreEqual("Test metric description", instrument.Description);
+                Assert.AreEqual("widget", instrument.Unit);
+                Assert.AreEqual("test-meter", instrument.Parent.MeterName);
             },
             instrument =>
             {
-                Assert.Equal("test3", instrument.Name);
-                Assert.Equal("Test metric description", instrument.Description);
-                Assert.Equal("widget", instrument.Unit);
-                Assert.Equal("test-meter", instrument.Parent.MeterName);
+                Assert.AreEqual("test3", instrument.Name);
+                Assert.AreEqual("Test metric description", instrument.Description);
+                Assert.AreEqual("widget", instrument.Unit);
+                Assert.AreEqual("test-meter", instrument.Parent.MeterName);
             });
 
         var app2Test1Instrument = repository.GetInstrument(new GetInstrumentRequest
@@ -836,11 +836,11 @@ public class MetricsTests
             EndTime = s_testTime.AddMinutes(20)
         });
 
-        Assert.NotNull(app2Test1Instrument);
-        Assert.Equal("test1", app2Test1Instrument.Summary.Name);
+        Assert.IsNotNull(app2Test1Instrument);
+        Assert.AreEqual("test1", app2Test1Instrument.Summary.Name);
 
-        var app2Test1Dimensions = Assert.Single(app2Test1Instrument.Dimensions);
-        Assert.Equal(5, ((MetricValue<long>)app2Test1Dimensions.Values.Single()).Value);
+        var app2Test1Dimensions = Assert.ContainsSingle(app2Test1Instrument.Dimensions);
+        Assert.AreEqual(5, ((MetricValue<long>)app2Test1Dimensions.Values.Single()).Value);
 
         var app2Test3Instrument = repository.GetInstrument(new GetInstrumentRequest
         {
@@ -851,14 +851,14 @@ public class MetricsTests
             EndTime = s_testTime.AddMinutes(20)
         });
 
-        Assert.NotNull(app2Test3Instrument);
-        Assert.Equal("test3", app2Test3Instrument.Summary.Name);
+        Assert.IsNotNull(app2Test3Instrument);
+        Assert.AreEqual("test3", app2Test3Instrument.Summary.Name);
 
-        var app2Test3Dimensions = Assert.Single(app2Test3Instrument.Dimensions);
-        Assert.Equal(6, ((MetricValue<long>)app2Test3Dimensions.Values.Single()).Value);
+        var app2Test3Dimensions = Assert.ContainsSingle(app2Test3Instrument.Dimensions);
+        Assert.AreEqual(6, ((MetricValue<long>)app2Test3Dimensions.Values.Single()).Value);
     }
 
-    [Fact]
+    [TestMethod]
     public void RemoveMetrics_MultipleSelectedResources()
     {
         // Arrange
@@ -921,11 +921,11 @@ public class MetricsTests
         repository.ClearMetrics(new ApplicationKey("app1", null));
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var app1Key = new ApplicationKey("app1", InstanceId: null);
         var app1Instruments = repository.GetInstrumentsSummaries(app1Key);
-        Assert.Empty(app1Instruments);
+        Assert.IsEmpty(app1Instruments);
 
         var app1Test1Instrument = repository.GetInstrument(new GetInstrumentRequest
         {
@@ -936,7 +936,7 @@ public class MetricsTests
             EndTime = s_testTime.AddMinutes(20)
         });
 
-        Assert.Null(app1Test1Instrument);
+        Assert.IsNull(app1Test1Instrument);
 
         var app1Test2Instrument = repository.GetInstrument(new GetInstrumentRequest
         {
@@ -947,24 +947,24 @@ public class MetricsTests
             EndTime = s_testTime.AddMinutes(20)
         });
 
-        Assert.Null(app1Test2Instrument);
+        Assert.IsNull(app1Test2Instrument);
 
         var app2Key = new ApplicationKey("app2", InstanceId: null);
         var app2Instruments = repository.GetInstrumentsSummaries(app2Key);
-        Assert.Collection(app2Instruments,
+        Assert.That.Collection(app2Instruments,
             instrument =>
             {
-                Assert.Equal("test1", instrument.Name);
-                Assert.Equal("Test metric description", instrument.Description);
-                Assert.Equal("widget", instrument.Unit);
-                Assert.Equal("test-meter", instrument.Parent.MeterName);
+                Assert.AreEqual("test1", instrument.Name);
+                Assert.AreEqual("Test metric description", instrument.Description);
+                Assert.AreEqual("widget", instrument.Unit);
+                Assert.AreEqual("test-meter", instrument.Parent.MeterName);
             },
             instrument =>
             {
-                Assert.Equal("test3", instrument.Name);
-                Assert.Equal("Test metric description", instrument.Description);
-                Assert.Equal("widget", instrument.Unit);
-                Assert.Equal("test-meter", instrument.Parent.MeterName);
+                Assert.AreEqual("test3", instrument.Name);
+                Assert.AreEqual("Test metric description", instrument.Description);
+                Assert.AreEqual("widget", instrument.Unit);
+                Assert.AreEqual("test-meter", instrument.Parent.MeterName);
             });
 
         var app2Test1Instrument = repository.GetInstrument(new GetInstrumentRequest
@@ -976,11 +976,11 @@ public class MetricsTests
             EndTime = s_testTime.AddMinutes(20)
         });
 
-        Assert.NotNull(app2Test1Instrument);
-        Assert.Equal("test1", app2Test1Instrument.Summary.Name);
+        Assert.IsNotNull(app2Test1Instrument);
+        Assert.AreEqual("test1", app2Test1Instrument.Summary.Name);
 
-        var app2Test1Dimensions = Assert.Single(app2Test1Instrument.Dimensions);
-        Assert.Equal(5, ((MetricValue<long>)app2Test1Dimensions.Values.Single()).Value);
+        var app2Test1Dimensions = Assert.ContainsSingle(app2Test1Instrument.Dimensions);
+        Assert.AreEqual(5, ((MetricValue<long>)app2Test1Dimensions.Values.Single()).Value);
 
         var app2Test3Instrument = repository.GetInstrument(new GetInstrumentRequest
         {
@@ -991,14 +991,14 @@ public class MetricsTests
             EndTime = s_testTime.AddMinutes(20)
         });
 
-        Assert.NotNull(app2Test3Instrument);
-        Assert.Equal("test3", app2Test3Instrument.Summary.Name);
+        Assert.IsNotNull(app2Test3Instrument);
+        Assert.AreEqual("test3", app2Test3Instrument.Summary.Name);
 
-        var app2Test3Dimensions = Assert.Single(app2Test3Instrument.Dimensions);
-        Assert.Equal(6, ((MetricValue<long>)app2Test3Dimensions.Values.Single()).Value);
+        var app2Test3Dimensions = Assert.ContainsSingle(app2Test3Instrument.Dimensions);
+        Assert.AreEqual(6, ((MetricValue<long>)app2Test3Dimensions.Values.Single()).Value);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddMetrics_InvalidInstrument()
     {
         // Arrange
@@ -1028,21 +1028,21 @@ public class MetricsTests
         });
 
         // Assert
-        Assert.Equal(1, addContext.FailureCount);
+        Assert.AreEqual(1, addContext.FailureCount);
 
         var app1Key = new ApplicationKey("app1", InstanceId: null);
         var app1Instruments = repository.GetInstrumentsSummaries(app1Key);
-        Assert.Collection(app1Instruments,
+        Assert.That.Collection(app1Instruments,
             instrument =>
             {
-                Assert.Equal("test1", instrument.Name);
-                Assert.Equal("Test metric description", instrument.Description);
-                Assert.Equal("widget", instrument.Unit);
-                Assert.Equal("test-meter", instrument.Parent.MeterName);
+                Assert.AreEqual("test1", instrument.Name);
+                Assert.AreEqual("Test metric description", instrument.Description);
+                Assert.AreEqual("widget", instrument.Unit);
+                Assert.AreEqual("test-meter", instrument.Parent.MeterName);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void AddMetrics_InvalidHistogramDataPoints()
     {
         // Arrange
@@ -1106,9 +1106,9 @@ public class MetricsTests
         });
 
         // Assert
-        Assert.Equal(2, addContext.FailureCount);
+        Assert.AreEqual(2, addContext.FailureCount);
 
-        var applications = Assert.Single(repository.GetApplications());
+        var applications = Assert.ContainsSingle(repository.GetApplications());
 
         var instrument = repository.GetInstrument(new GetInstrumentRequest
         {
@@ -1119,17 +1119,17 @@ public class MetricsTests
             EndTime = DateTime.MaxValue
         });
 
-        Assert.NotNull(instrument);
-        Assert.Equal("test", instrument.Summary.Name);
-        Assert.Equal("Test metric description", instrument.Summary.Description);
-        Assert.Equal("widget", instrument.Summary.Unit);
-        Assert.Equal("test-meter", instrument.Summary.Parent.MeterName);
+        Assert.IsNotNull(instrument);
+        Assert.AreEqual("test", instrument.Summary.Name);
+        Assert.AreEqual("Test metric description", instrument.Summary.Description);
+        Assert.AreEqual("widget", instrument.Summary.Unit);
+        Assert.AreEqual("test-meter", instrument.Summary.Parent.MeterName);
 
-        var dimension = Assert.Single(instrument.Dimensions);
-        Assert.Single(dimension.Values);
+        var dimension = Assert.ContainsSingle(instrument.Dimensions);
+        Assert.ContainsSingle(dimension.Values);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddMetrics_OverflowDimension()
     {
         // Arrange
@@ -1165,7 +1165,7 @@ public class MetricsTests
         });
 
         // Assert
-        Assert.Equal(0, addContext.FailureCount);
+        Assert.AreEqual(0, addContext.FailureCount);
 
         var instrument1 = repository.GetInstrument(new GetInstrumentRequest
         {
@@ -1176,8 +1176,8 @@ public class MetricsTests
             EndTime = DateTime.MaxValue
         });
 
-        Assert.NotNull(instrument1);
-        Assert.True(instrument1.HasOverflow);
+        Assert.IsNotNull(instrument1);
+        Assert.IsTrue(instrument1.HasOverflow);
 
         var instrument2 = repository.GetInstrument(new GetInstrumentRequest
         {
@@ -1188,15 +1188,15 @@ public class MetricsTests
             EndTime = DateTime.MaxValue
         });
 
-        Assert.NotNull(instrument2);
-        Assert.False(instrument2.HasOverflow);
+        Assert.IsNotNull(instrument2);
+        Assert.IsFalse(instrument2.HasOverflow);
     }
 
     private static void AssertDimensionValues(Dictionary<ReadOnlyMemory<KeyValuePair<string, string>>, DimensionScope> dimensions, ReadOnlyMemory<KeyValuePair<string, string>> key, int valueCount)
     {
         var scope = dimensions[key];
-        Assert.True(Enumerable.SequenceEqual(MemoryMarshal.ToEnumerable(key), scope.Attributes), "Key and attributes don't match.");
+        Assert.IsTrue(Enumerable.SequenceEqual(MemoryMarshal.ToEnumerable(key), scope.Attributes), "Key and attributes don't match.");
 
-        Assert.Equal(valueCount, scope.Values.Count);
+        Assert.AreEqual(valueCount, scope.Values.Count);
     }
 }

@@ -4,7 +4,6 @@
 using Aspire.Components.Common.Tests;
 using Aspire.Hosting.Elasticsearch;
 using Testcontainers.Elasticsearch;
-using Xunit;
 
 namespace Aspire.Elastic.Clients.Elasticsearch.Tests;
 

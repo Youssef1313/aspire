@@ -6,10 +6,10 @@ using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Producer;
 using Microsoft.DotNet.RemoteExecutor;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Azure.Messaging.EventHubs.Tests;
 
+[TestClass]
 public class ConformanceTests_EventHubProducerClient : ConformanceTestsBase<EventHubProducerClient, AzureMessagingEventHubsProducerSettings>
 {
     protected override void SetHealthCheck(AzureMessagingEventHubsProducerSettings options, bool enabled)
@@ -58,11 +58,11 @@ public class ConformanceTests_EventHubProducerClient : ConformanceTestsBase<Even
     // At the time of writing this seems to be the only client with telemetry
     // c.f. https://learn.microsoft.com/dotnet/api/overview/azure/messaging.eventhubs-readme?view=azure-dotnet#key-concepts
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: null), EnableTracingForAzureSdk()).Dispose();
 
-    [Fact]
+    [TestMethod]
     public void TracingEnablesTheRightActivitySource_Keyed()
         => RemoteExecutor.Invoke(() => ActivitySourceTest(key: "key"), EnableTracingForAzureSdk()).Dispose();
 }

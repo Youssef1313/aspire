@@ -2,14 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using static Aspire.Hosting.VolumeNameGenerator;
-using Xunit;
 using Aspire.Hosting.Utils;
 
 namespace Aspire.Hosting.Tests.Utils;
 
+[TestClass]
 public class VolumeNameGeneratorTests
 {
-    [Fact]
+    [TestMethod]
     public void VolumeGeneratorUsesUniqueName()
     {
         var builder = DistributedApplication.CreateBuilder();
@@ -20,10 +20,10 @@ public class VolumeNameGeneratorTests
 
         var volumeName = Generate(resource, "data");
 
-        Assert.Equal($"{volumePrefix}-{resource.Resource.Name}-data", volumeName);
+        Assert.AreEqual($"{volumePrefix}-{resource.Resource.Name}-data", volumeName);
     }
 
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(InvalidNameParts))]
     public void ThrowsWhenSuffixContainsInvalidChars(string suffix)
     {
@@ -49,7 +49,7 @@ public class VolumeNameGeneratorTests
         public ResourceAnnotationCollection Annotations { get; } = [];
     }
 
-    [Fact]
+    [TestMethod]
     public void VolumeNameDiffersBetweenPublishAndRun()
     {
         var runBuilder = TestDistributedApplicationBuilder.Create();
@@ -64,8 +64,8 @@ public class VolumeNameGeneratorTests
         var runVolumeName = Generate(runResource, "data");
         var publishVolumeName = Generate(publishResource, "data");
 
-        Assert.Equal($"{runVolumePrefix}-{runResource.Resource.Name}-data", runVolumeName);
-        Assert.Equal($"{publishVolumePrefix}-{publishResource.Resource.Name}-data", publishVolumeName);
-        Assert.NotEqual(runVolumeName, publishVolumeName);
+        Assert.AreEqual($"{runVolumePrefix}-{runResource.Resource.Name}-data", runVolumeName);
+        Assert.AreEqual($"{publishVolumePrefix}-{publishResource.Resource.Name}-data", publishVolumeName);
+        Assert.AreNotEqual(runVolumeName, publishVolumeName);
     }
 }

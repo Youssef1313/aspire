@@ -10,10 +10,10 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.Pomelo.EntityFrameworkCore.MySql.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<TestDbContext, PomeloEntityFrameworkCoreMySqlSettings>, IClassFixture<MySqlContainerFixture>
 {
     private readonly MySqlContainerFixture? _containerFixture;
@@ -107,27 +107,27 @@ public class ConformanceTests : ConformanceTests<TestDbContext, PomeloEntityFram
         }
     }
 
-    [Fact]
+    [TestMethod]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Required to verify pooling without touching DB")]
     public void DbContextPoolingRegistersIDbContextPool()
     {
         using IHost host = CreateHostWithComponent();
 
         IDbContextPool<TestDbContext>? pool = host.Services.GetService<IDbContextPool<TestDbContext>>();
-        Assert.NotNull(pool);
+        Assert.IsNotNull(pool);
     }
 
-    [Fact]
+    [TestMethod]
     public void DbContextCanBeAlwaysResolved()
     {
         using IHost host = CreateHostWithComponent();
 
         TestDbContext? dbContext = host.Services.GetService<TestDbContext>();
 
-        Assert.NotNull(dbContext);
+        Assert.IsNotNull(dbContext);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void TracingEnablesTheRightActivitySource()
         => RemoteExecutor.Invoke(static connectionStringToUse => RunWithConnectionString(connectionStringToUse, obj => obj.ActivitySourceTest(key: null)),

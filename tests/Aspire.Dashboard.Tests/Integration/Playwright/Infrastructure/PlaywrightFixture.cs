@@ -3,7 +3,6 @@
 
 using Aspire.Workload.Tests;
 using Microsoft.Playwright;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.Integration.Playwright.Infrastructure;
 

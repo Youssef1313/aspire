@@ -14,16 +14,16 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 using Xunit.Abstractions;
 using DashboardService = Aspire.Hosting.Dashboard.DashboardService;
 using Resource = Aspire.Hosting.ApplicationModel.Resource;
 
 namespace Aspire.Hosting.Tests.Dashboard;
 
-public class DashboardServiceTests(ITestOutputHelper testOutputHelper)
+[TestClass]
+public class DashboardServiceTests(TestContext testContext)
 {
-    [Fact]
+    [TestMethod]
     public async Task WatchResourceConsoleLogs_LargePendingData_BatchResults()
     {
         // Arrange
@@ -53,30 +53,30 @@ public class DashboardServiceTests(ITestOutputHelper testOutputHelper)
 
         // Assert
         var exceedLimitUpdate = await writer.ReadNextAsync().DefaultTimeout();
-        Assert.Collection(exceedLimitUpdate.LogLines,
-            l => Assert.Equal(DashboardService.LogMaxBatchCharacters, l.Text.Length));
+        Assert.That.Collection(exceedLimitUpdate.LogLines,
+            l => Assert.AreEqual(DashboardService.LogMaxBatchCharacters, l.Text.Length));
 
         var longLinesUpdate1 = await writer.ReadNextAsync().DefaultTimeout();
-        Assert.Collection(longLinesUpdate1.LogLines,
-            l => Assert.Equal(LongLineCharacters, l.Text.Split(' ')[1].Length),
-            l => Assert.Equal(LongLineCharacters, l.Text.Split(' ')[1].Length));
+        Assert.That.Collection(longLinesUpdate1.LogLines,
+            l => Assert.AreEqual(LongLineCharacters, l.Text.Split(' ')[1].Length),
+            l => Assert.AreEqual(LongLineCharacters, l.Text.Split(' ')[1].Length));
 
         var longLinesUpdate2 = await writer.ReadNextAsync().DefaultTimeout();
-        Assert.Collection(longLinesUpdate2.LogLines,
-            l => Assert.Equal(LongLineCharacters, l.Text.Split(' ')[1].Length));
+        Assert.That.Collection(longLinesUpdate2.LogLines,
+            l => Assert.AreEqual(LongLineCharacters, l.Text.Split(' ')[1].Length));
 
         resourceLoggerService.Complete("test-resource");
         await task.DefaultTimeout();
     }
 
-    [Fact]
+    [TestMethod]
     public async Task WatchResources_ResourceHasCommands_CommandsSentWithResponse()
     {
         // Arrange
         var loggerFactory = LoggerFactory.Create(builder =>
         {
             builder.SetMinimumLevel(LogLevel.Trace);
-            builder.AddXunit(testOutputHelper);
+            builder.AddMSTest(testContext);
         });
 
         var logger = loggerFactory.CreateLogger<DashboardServiceTests>();
@@ -86,7 +86,7 @@ public class DashboardServiceTests(ITestOutputHelper testOutputHelper)
         var dashboardService = new DashboardService(dashboardServiceData, new TestHostEnvironment(), new TestHostApplicationLifetime(), loggerFactory.CreateLogger<DashboardService>());
 
         var testResource = new TestResource("test-resource");
-        using var applicationBuilder = TestDistributedApplicationBuilder.Create(testOutputHelper: testOutputHelper);
+        using var applicationBuilder = TestDistributedApplicationBuilder.Create(testContext: testContext);
         var builder = applicationBuilder.AddResource(testResource);
         builder.WithCommand(
             name: "TestName",
@@ -128,19 +128,19 @@ public class DashboardServiceTests(ITestOutputHelper testOutputHelper)
         var update = await writer.ReadNextAsync().DefaultTimeout();
 
         logger.LogInformation($"Initial data count: {update.InitialData.Resources.Count}");
-        var resourceData = Assert.Single(update.InitialData.Resources);
+        var resourceData = Assert.ContainsSingle(update.InitialData.Resources);
 
         logger.LogInformation($"Commands count: {resourceData.Commands.Count}");
-        var commandData = Assert.Single(resourceData.Commands);
+        var commandData = Assert.ContainsSingle(resourceData.Commands);
 
-        Assert.Equal("TestName", commandData.Name);
-        Assert.Equal("Display name!", commandData.DisplayName);
-        Assert.Equal("Display description!", commandData.DisplayDescription);
-        Assert.Equal(Value.ForList(Value.ForString("One"), Value.ForString("Two")), commandData.Parameter);
-        Assert.Equal("Confirmation message!", commandData.ConfirmationMessage);
-        Assert.Equal("Icon name!", commandData.IconName);
-        Assert.Equal(ResourceService.Proto.V1.IconVariant.Filled, commandData.IconVariant);
-        Assert.True(commandData.IsHighlighted);
+        Assert.AreEqual("TestName", commandData.Name);
+        Assert.AreEqual("Display name!", commandData.DisplayName);
+        Assert.AreEqual("Display description!", commandData.DisplayDescription);
+        Assert.AreEqual(Value.ForList(Value.ForString("One"), Value.ForString("Two")), commandData.Parameter);
+        Assert.AreEqual("Confirmation message!", commandData.ConfirmationMessage);
+        Assert.AreEqual("Icon name!", commandData.IconName);
+        Assert.AreEqual(ResourceService.Proto.V1.IconVariant.Filled, commandData.IconVariant);
+        Assert.IsTrue(commandData.IsHighlighted);
 
         await CancelTokenAndAwaitTask(cts, task).DefaultTimeout();
     }

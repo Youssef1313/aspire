@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Extensions.Hosting;
-using Xunit;
 
 namespace Aspire.OpenAI.Tests;
 
+[TestClass]
 public class OpenAIPublicApiTests
 {
-    [Fact]
+    [TestMethod]
     public void CtorAspireOpenAIClientBuilderShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder hostBuilder = null!;
@@ -19,12 +19,12 @@ public class OpenAIPublicApiTests
         var action = () => new AspireOpenAIClientBuilder(hostBuilder, connectionName, serviceKey, disableTracing);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(hostBuilder), exception.ParamName);
+        Assert.AreEqual(nameof(hostBuilder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void CtorAspireOpenAIClientBuilderShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var hostBuilder = Host.CreateEmptyApplicationBuilder(null);
@@ -37,10 +37,10 @@ public class OpenAIPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddChatClientShouldThrowWhenBuilderIsNull()
     {
         AspireOpenAIClientBuilder builder = null!;
@@ -48,10 +48,10 @@ public class OpenAIPublicApiTests
         var action = () => builder.AddChatClient();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeyedChatClientShouldThrowWhenBuilderIsNull()
     {
         AspireOpenAIClientBuilder builder = null!;
@@ -60,12 +60,12 @@ public class OpenAIPublicApiTests
         var action = () => builder.AddKeyedChatClient(serviceKey);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddKeyedChatClientShouldThrowWhenServiceKeyIsNullOrEmpty(bool isNull)
     {
         var hostBuilder = Host.CreateEmptyApplicationBuilder(null);
@@ -80,10 +80,10 @@ public class OpenAIPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(serviceKey), exception.ParamName);
+        Assert.AreEqual(nameof(serviceKey), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddEmbeddingGeneratorShouldThrowWhenBuilderIsNull()
     {
         AspireOpenAIClientBuilder builder = null!;
@@ -91,10 +91,10 @@ public class OpenAIPublicApiTests
         var action = () => builder.AddEmbeddingGenerator();
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeyedEmbeddingGeneratorShouldThrowWhenBuilderIsNull()
     {
         AspireOpenAIClientBuilder builder = null!;
@@ -103,12 +103,12 @@ public class OpenAIPublicApiTests
         var action = () => builder.AddKeyedEmbeddingGenerator(serviceKey);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddKeyedEmbeddingGeneratorShouldThrowWhenServiceKeyIsNullOrEmpty(bool isNull)
     {
         var hostBuilder = Host.CreateEmptyApplicationBuilder(null);
@@ -123,10 +123,10 @@ public class OpenAIPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(serviceKey), exception.ParamName);
+        Assert.AreEqual(nameof(serviceKey), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddOpenAIClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -135,12 +135,12 @@ public class OpenAIPublicApiTests
         var action = () => builder.AddOpenAIClient(connectionName);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddOpenAIClientShouldThrowWhenConnectionNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -151,10 +151,10 @@ public class OpenAIPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(connectionName), exception.ParamName);
+        Assert.AreEqual(nameof(connectionName), exception.ParamName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddKeyedOpenAIClientShouldThrowWhenBuilderIsNull()
     {
         IHostApplicationBuilder builder = null!;
@@ -163,12 +163,12 @@ public class OpenAIPublicApiTests
         var action = () => builder.AddKeyedOpenAIClient(name);
 
         var exception = Assert.Throws<ArgumentNullException>(action);
-        Assert.Equal(nameof(builder), exception.ParamName);
+        Assert.AreEqual(nameof(builder), exception.ParamName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddKeyedOpenAIClientShouldThrowWhenNameIsNullOrEmpty(bool isNull)
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -179,6 +179,6 @@ public class OpenAIPublicApiTests
         var exception = isNull
             ? Assert.Throws<ArgumentNullException>(action)
             : Assert.Throws<ArgumentException>(action);
-        Assert.Equal(nameof(name), exception.ParamName);
+        Assert.AreEqual(nameof(name), exception.ParamName);
     }
 }

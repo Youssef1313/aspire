@@ -7,10 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
-using Xunit;
 
 namespace Aspire.MongoDB.Driver.Tests;
 
+[TestClass]
 public class ConformanceTests : ConformanceTests<IMongoClient, MongoDBSettings>, IClassFixture<MongoDbContainerFixture>
 {
     private readonly MongoDbContainerFixture _containerFixture;
@@ -104,9 +104,9 @@ public class ConformanceTests : ConformanceTests<IMongoClient, MongoDBSettings>,
         service.ListDatabases(source.Token);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("key")]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("key")]
     public void ClientAndDatabaseInstancesShouldBeResolved(string? key)
     {
         using IHost host = CreateHostWithComponent(key: key);
@@ -114,8 +114,8 @@ public class ConformanceTests : ConformanceTests<IMongoClient, MongoDBSettings>,
         IMongoClient? mongoClient = Resolve<IMongoClient>();
         IMongoDatabase? mongoDatabase = Resolve<IMongoDatabase>();
 
-        Assert.NotNull(mongoClient);
-        Assert.NotNull(mongoDatabase);
+        Assert.IsNotNull(mongoClient);
+        Assert.IsNotNull(mongoDatabase);
 
         T? Resolve<T>() => key is null ? host.Services.GetService<T>() : host.Services.GetKeyedService<T>(key);
     }

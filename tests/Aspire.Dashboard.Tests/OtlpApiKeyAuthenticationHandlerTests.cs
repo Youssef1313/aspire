@@ -9,13 +9,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.InternalTesting;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests;
 
+[TestClass]
 public class OtlpApiKeyAuthenticationHandlerTests
 {
-    [Fact]
+    [TestMethod]
     public async Task AuthenticateAsync_NoHeader_Failure()
     {
         // Arrange
@@ -25,11 +25,11 @@ public class OtlpApiKeyAuthenticationHandlerTests
         var result = await handler.AuthenticateAsync().DefaultTimeout();
 
         // Assert
-        Assert.NotNull(result.Failure);
-        Assert.Equal($"API key from '{OtlpApiKeyAuthenticationHandler.ApiKeyHeaderName}' header is missing.", result.Failure.Message);
+        Assert.IsNotNull(result.Failure);
+        Assert.AreEqual($"API key from '{OtlpApiKeyAuthenticationHandler.ApiKeyHeaderName}' header is missing.", result.Failure.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AuthenticateAsync_BigApiKeys_NoMatch_Failure()
     {
         // Arrange
@@ -39,11 +39,11 @@ public class OtlpApiKeyAuthenticationHandlerTests
         var result = await handler.AuthenticateAsync().DefaultTimeout();
 
         // Assert
-        Assert.NotNull(result.Failure);
-        Assert.Equal($"Incoming API key from '{OtlpApiKeyAuthenticationHandler.ApiKeyHeaderName}' header doesn't match configured API key.", result.Failure.Message);
+        Assert.IsNotNull(result.Failure);
+        Assert.AreEqual($"Incoming API key from '{OtlpApiKeyAuthenticationHandler.ApiKeyHeaderName}' header doesn't match configured API key.", result.Failure.Message);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AuthenticateAsync_BigApiKeys_Match_Success()
     {
         // Arrange
@@ -53,14 +53,14 @@ public class OtlpApiKeyAuthenticationHandlerTests
         var result = await handler.AuthenticateAsync().DefaultTimeout();
 
         // Assert
-        Assert.Null(result.Failure);
+        Assert.IsNull(result.Failure);
     }
 
-    [Theory]
-    [InlineData("abc", null, "abc", true)]
-    [InlineData("abcd", null, "abc", false)]
-    [InlineData("abc", null, "abcd", false)]
-    [InlineData("abc", "abcd", "abcd", true)]
+    [TestMethod]
+    [DataRow("abc", null, "abc", true)]
+    [DataRow("abcd", null, "abc", false)]
+    [DataRow("abc", null, "abcd", false)]
+    [DataRow("abc", "abcd", "abcd", true)]
     public async Task AuthenticateAsync_MatchHeader_Success(string primaryApiKey, string? secondaryApiKey, string otlpApiKeyHeader, bool success)
     {
         // Arrange
@@ -70,7 +70,7 @@ public class OtlpApiKeyAuthenticationHandlerTests
         var result = await handler.AuthenticateAsync().DefaultTimeout();
 
         // Assert
-        Assert.Equal(success, result.Failure == null);
+        Assert.AreEqual(success, result.Failure == null);
     }
 
     private static async Task<OtlpApiKeyAuthenticationHandler> CreateAuthHandlerAsync(string primaryApiKey, string? secondaryApiKey, string? otlpApiKeyHeader)
@@ -84,7 +84,7 @@ public class OtlpApiKeyAuthenticationHandlerTests
                 SecondaryApiKey = secondaryApiKey
             }
         };
-        Assert.True(options.Otlp.TryParseOptions(out _));
+        Assert.IsTrue(options.Otlp.TryParseOptions(out _));
 
         var handler = new OtlpApiKeyAuthenticationHandler(
             new TestOptionsMonitor<DashboardOptions>(options),

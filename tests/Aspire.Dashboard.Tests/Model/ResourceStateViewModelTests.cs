@@ -8,46 +8,46 @@ using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.FluentUI.AspNetCore.Components;
-using Xunit;
 using Enum = System.Enum;
 
 namespace Aspire.Dashboard.Tests.Model;
 
+[TestClass]
 public class ResourceStateViewModelTests
 {
     private const string ResourceType = "Container";
 
-    [Theory]
+    [TestMethod]
     // Resource is no longer running
-    [InlineData(
+    [DataRow(
         /* state */ KnownResourceState.Exited, null, null,null,
         /* expected output */ $"Localized:{nameof(Columns.StateColumnResourceExited)}:{ResourceType}", "Warning", Color.Warning, "Exited")]
-    [InlineData(
+    [DataRow(
         /* state */ KnownResourceState.Exited, 3, null, null,
         /* expected output */ $"Localized:{nameof(Columns.StateColumnResourceExitedUnexpectedly)}:{ResourceType}+3", "ErrorCircle", Color.Error, "Exited")]
-    [InlineData(
+    [DataRow(
         /* state */ KnownResourceState.Finished, 0, null, null,
         /* expected output */ $"Localized:{nameof(Columns.StateColumnResourceExited)}:{ResourceType}", "RecordStop", Color.Info, "Finished")]
-    [InlineData(
+    [DataRow(
         /* state */ KnownResourceState.Unknown, null, null, null,
         /* expected output */ "Unknown", "CircleHint", Color.Info, "Unknown")]
     // Health checks
-    [InlineData(
+    [DataRow(
         /* state */ KnownResourceState.Running, null, "Healthy", null,
         /* expected output */ "Running", "CheckmarkCircle", Color.Success, "Running")]
-    [InlineData(
+    [DataRow(
         /* state */ KnownResourceState.Running, null, "", null,
         /* expected output */ $"Localized:{nameof(Columns.RunningAndUnhealthyResourceStateToolTip)}", "CheckmarkCircleWarning", Color.Warning, "Running (Unhealthy)")]
-    [InlineData(
+    [DataRow(
         /* state */ KnownResourceState.Running, null, "Unhealthy", null,
         /* expected output */ $"Localized:{nameof(Columns.RunningAndUnhealthyResourceStateToolTip)}", "CheckmarkCircleWarning", Color.Warning, "Running (Unhealthy)")]
-    [InlineData(
+    [DataRow(
         /* state */ KnownResourceState.Running, null, "Healthy", "warning",
         /* expected output */ "Running", "Warning", Color.Warning, "Running")]
-    [InlineData(
+    [DataRow(
         /* state */ KnownResourceState.Running, null, "Healthy", "NOT_A_VALID_STATE_STYLE",
         /* expected output */ "Running", "Circle", Color.Neutral, "Running")]
-    [InlineData(
+    [DataRow(
         /* state */ KnownResourceState.RuntimeUnhealthy, null, null, null,
         /* expected output */ $"Localized:{nameof(Columns.StateColumnResourceContainerRuntimeUnhealthy)}", "Warning", Color.Warning, "Runtime unhealthy")]
     public void ResourceViewModel_ReturnsCorrectIconAndTooltip(
@@ -88,10 +88,10 @@ public class ResourceStateViewModelTests
         var vm = ResourceStateViewModel.GetStateViewModel(resource, localizer);
 
         // Assert
-        Assert.Equal(expectedTooltip, tooltip);
+        Assert.AreEqual(expectedTooltip, tooltip);
 
-        Assert.Equal(expectedIconName, vm.Icon.Name);
-        Assert.Equal(expectedColor, vm.Color);
-        Assert.Equal(expectedText, vm.Text);
+        Assert.AreEqual(expectedIconName, vm.Icon.Name);
+        Assert.AreEqual(expectedColor, vm.Color);
+        Assert.AreEqual(expectedText, vm.Text);
     }
 }

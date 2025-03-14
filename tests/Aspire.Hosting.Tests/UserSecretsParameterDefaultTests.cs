@@ -7,15 +7,15 @@ using System.Text;
 using Aspire.Hosting.Publishing;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.SecretManager.Tools.Internal;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class UserSecretsParameterDefaultTests
 {
     private static readonly ConstructorInfo s_userSecretsIdAttrCtor = typeof(UserSecretsIdAttribute).GetConstructor([typeof(string)])!;
 
-    [Fact]
+    [TestMethod]
     public void UserSecretsParameterDefault_GetDefaultValue_SavesValueInAppHostUserSecrets()
     {
         var userSecretsId = Guid.NewGuid().ToString("N");
@@ -28,12 +28,12 @@ public class UserSecretsParameterDefaultTests
         var initialValue = userSecretDefault.GetDefaultValue();
 
         var userSecrets = GetUserSecrets(userSecretsId);
-        Assert.Equal(initialValue, userSecrets["Parameters:param1"]);
+        Assert.AreEqual(initialValue, userSecrets["Parameters:param1"]);
 
         DeleteUserSecretsFile(userSecretsId);
     }
 
-    [Fact]
+    [TestMethod]
     public void UserSecretsParameterDefault_GetDefaultValue_DoesntThrowIfValueCantBeSaved()
     {
         // Do not set a user secrets id attribute on the assembly
@@ -42,10 +42,10 @@ public class UserSecretsParameterDefaultTests
         var userSecretDefault = new UserSecretsParameterDefault(testAssembly, "TestApplication.AppHost", "param1", paramDefault);
 
         var initialValue = userSecretDefault.GetDefaultValue();
-        Assert.NotNull(initialValue);
+        Assert.IsNotNull(initialValue);
     }
 
-    [Fact]
+    [TestMethod]
     public void UserSecretsParameterDefault_GetDefaultValue_DoesntThrowIfSecretsFileContainsComments()
     {
         var userSecretsId = Guid.NewGuid().ToString("N");

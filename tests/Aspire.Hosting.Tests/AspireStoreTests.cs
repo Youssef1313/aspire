@@ -3,32 +3,32 @@
 
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Aspire.Hosting.Tests;
 
+[TestClass]
 public class AspireStoreTests
 {
-    [Fact]
+    [TestMethod]
     public void Create_ShouldInitializeStore()
     {
         var store = CreateStore();
 
-        Assert.NotNull(store);
-        Assert.True(Directory.Exists(Path.GetDirectoryName(store.BasePath)));
+        Assert.IsNotNull(store);
+        Assert.IsTrue(Directory.Exists(Path.GetDirectoryName(store.BasePath)));
     }
 
-    [Fact]
+    [TestMethod]
     public void BasePath_ShouldBeAbsolute()
     {
         var store = CreateStore();
 
         var path = store.BasePath;
 
-        Assert.True(Path.IsPathRooted(path));
+        Assert.IsTrue(Path.IsPathRooted(path));
     }
 
-    [Fact]
+    [TestMethod]
     public void BasePath_ShouldUseConfiguration()
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -42,7 +42,7 @@ public class AspireStoreTests
         Assert.Contains(Path.GetTempPath(), path);
     }
 
-    [Fact]
+    [TestMethod]
     public void BasePath_ShouldBePrefixed_WhenUsingConfiguration()
     {
         var store = CreateStore();
@@ -52,7 +52,7 @@ public class AspireStoreTests
         Assert.Contains(".aspire", path);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetOrCreateFileWithContent_ShouldCreateFile_WithStreamContent()
     {
         var builder = TestDistributedApplicationBuilder.Create();
@@ -64,11 +64,11 @@ public class AspireStoreTests
         var content = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("Test content"));
         var filePath = store.GetFileNameWithContent(filename, content);
 
-        Assert.True(File.Exists(filePath));
-        Assert.Equal("Test content", File.ReadAllText(filePath));
+        Assert.IsTrue(File.Exists(filePath));
+        Assert.AreEqual("Test content", File.ReadAllText(filePath));
     }
 
-    [Fact]
+    [TestMethod]
     public void GetOrCreateFileWithContent_ShouldCreateFile_WithFileContent()
     {
         var store = CreateStore();
@@ -78,8 +78,8 @@ public class AspireStoreTests
         File.WriteAllText(tempFilename, "Test content");
         var filePath = store.GetFileNameWithContent(filename, tempFilename);
 
-        Assert.True(File.Exists(filePath));
-        Assert.Equal("Test content", File.ReadAllText(filePath));
+        Assert.IsTrue(File.Exists(filePath));
+        Assert.AreEqual("Test content", File.ReadAllText(filePath));
 
         try
         {
@@ -90,7 +90,7 @@ public class AspireStoreTests
         }
     }
 
-    [Fact]
+    [TestMethod]
     public void GetOrCreateFileWithContent_Throws_WhenSourceDoesntExist()
     {
         var store = CreateStore();
@@ -98,7 +98,7 @@ public class AspireStoreTests
         Assert.Throws<FileNotFoundException>(() => store.GetFileNameWithContent("testfile.txt", "randomfilename.txt"));
     }
 
-    [Fact]
+    [TestMethod]
     public void GetOrCreateFileWithContent_ShouldNotRecreateFile()
     {
         var store = CreateStore();
@@ -113,15 +113,15 @@ public class AspireStoreTests
         var filePath2 = store.GetFileNameWithContent(filename, content);
         var content2 = File.ReadAllText(filePath2);
 
-        Assert.Equal("updated", content2);
+        Assert.AreEqual("updated", content2);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("./folder")]
-    [InlineData("folder")]
-    [InlineData("obj/")]
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("./folder")]
+    [DataRow("folder")]
+    [DataRow("obj/")]
     public void AspireStoreConstructor_ShouldThrow_IfNotAbsolutePath(string? basePath)
     {
         Assert.ThrowsAny<Exception>(() => new AspireStore(basePath!));

@@ -3,7 +3,6 @@
 
 using Aspire.Components.Common.Tests;
 using Microsoft.Playwright;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Workload.Tests;
@@ -12,7 +11,7 @@ public abstract partial class PerTestFrameworkTemplatesTests : WorkloadTestsBase
 {
     private readonly string _testTemplateName;
 
-    public PerTestFrameworkTemplatesTests(string testType, ITestOutputHelper testOutput) : base(testOutput)
+    public PerTestFrameworkTemplatesTests(string testType, TestContext testOutput) : base(testOutput)
     {
         _testTemplateName = testType;
     }
@@ -25,7 +24,7 @@ public abstract partial class PerTestFrameworkTemplatesTests : WorkloadTestsBase
         }
     }
 
-    [Theory]
+    [TestMethod]
     [MemberData(nameof(ProjectNamesWithTestTemplate_TestData))]
     public async Task TemplatesForIndividualTestFrameworks(string prefix)
     {
@@ -55,7 +54,7 @@ public abstract partial class PerTestFrameworkTemplatesTests : WorkloadTestsBase
 
         var res = await cmd.ExecuteAsync($"test -c {config}");
 
-        Assert.True(res.ExitCode != 0, $"Expected the tests project run to fail");
+        Assert.IsTrue(res.ExitCode != 0, $"Expected the tests project run to fail");
         Assert.Matches("System.ArgumentException.*Resource 'webfrontend' not found.", res.Output);
         Assert.Matches("Failed! * - Failed: *1, Passed: *0, Skipped: *0, Total: *1", res.Output);
 
@@ -79,21 +78,21 @@ public abstract partial class PerTestFrameworkTemplatesTests : WorkloadTestsBase
 // Individual class for each test framework so the tests can run in separate helix jobs
 public class MSTest_PerTestFrameworkTemplatesTests : PerTestFrameworkTemplatesTests
 {
-    public MSTest_PerTestFrameworkTemplatesTests(ITestOutputHelper testOutput) : base("aspire-mstest", testOutput)
+    public MSTest_PerTestFrameworkTemplatesTests(TestContext testOutput) : base("aspire-mstest", testOutput)
     {
     }
 }
 
 public class Xunit_PerTestFrameworkTemplatesTests : PerTestFrameworkTemplatesTests
 {
-    public Xunit_PerTestFrameworkTemplatesTests(ITestOutputHelper testOutput) : base("aspire-xunit", testOutput)
+    public Xunit_PerTestFrameworkTemplatesTests(TestContext testOutput) : base("aspire-xunit", testOutput)
     {
     }
 }
 
 public class Nunit_PerTestFrameworkTemplatesTests : PerTestFrameworkTemplatesTests
 {
-    public Nunit_PerTestFrameworkTemplatesTests(ITestOutputHelper testOutput) : base("aspire-nunit", testOutput)
+    public Nunit_PerTestFrameworkTemplatesTests(TestContext testOutput) : base("aspire-nunit", testOutput)
     {
     }
 }

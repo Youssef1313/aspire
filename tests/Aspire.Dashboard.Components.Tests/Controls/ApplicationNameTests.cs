@@ -8,14 +8,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Xunit;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Aspire.Dashboard.Components.Tests.Controls;
 
-public class ApplicationNameTests : TestContext
+[TestClass]
+public class ApplicationNameTests : Bunit.TestContext
 {
-    [Fact]
+    [TestMethod]
     public void Render_DashboardClientDisabled_Success()
     {
         // Arrange
@@ -33,7 +33,7 @@ public class ApplicationNameTests : TestContext
         cut.MarkupMatches("Aspire");
     }
 
-    [Fact]
+    [TestMethod]
     public void Render_With_Args()
     {
         // Arrange
@@ -56,7 +56,7 @@ public class ApplicationNameTests : TestContext
         cut.MarkupMatches("Localized:Aspire traces (Hello World)");
     }
 
-    [Fact]
+    [TestMethod]
     public void Render_DashboardClientEnabled_HtmlInName_Success()
     {
         // Arrange

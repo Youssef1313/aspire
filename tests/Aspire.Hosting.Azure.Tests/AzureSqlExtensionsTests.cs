@@ -3,16 +3,17 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Azure.Tests;
 
-public class AzureSqlExtensionsTests(ITestOutputHelper output)
+[TestClass]
+public class AzureSqlExtensionsTests
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task AddAzureSqlServer(bool publishMode)
     {
         using var builder = TestDistributedApplicationBuilder.Create(publishMode ? DistributedApplicationOperation.Publish : DistributedApplicationOperation.Run);
@@ -43,7 +44,7 @@ public class AzureSqlExtensionsTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, manifest.ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, manifest.ManifestNode.ToString());
 
         var allowAllIpsFirewall = "";
         var bicepPrincipalTypeParam = "";
@@ -126,13 +127,13 @@ public class AzureSqlExtensionsTests(ITestOutputHelper output)
 
             output sqlServerFqdn string = sql.properties.fullyQualifiedDomainName
             """;
-        output.WriteLine(manifest.BicepText);
-        Assert.Equal(expectedBicep, manifest.BicepText);
+        TestContext.WriteLine(manifest.BicepText);
+        Assert.AreEqual(expectedBicep, manifest.BicepText);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public async Task AddAzureSqlServerRunAsContainerProducesCorrectConnectionString(bool addDbBeforeRunAsContainer)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -158,25 +159,25 @@ public class AzureSqlExtensionsTests(ITestOutputHelper output)
             db2 = sql.AddDatabase("db2", "db2Name");
         }
 
-        Assert.True(sql.Resource.IsContainer(), "The resource should now be a container resource.");
+        Assert.IsTrue(sql.Resource.IsContainer(), "The resource should now be a container resource.");
         var serverConnectionString = await sql.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None);
-        Assert.StartsWith("Server=127.0.0.1,12455;User ID=sa;Password=", serverConnectionString);
-        Assert.EndsWith(";TrustServerCertificate=true", serverConnectionString);
+        StringAssert.StartsWith(serverConnectionString, "Server=127.0.0.1,12455;User ID=sa;Password=");
+        StringAssert.EndsWith(serverConnectionString, ";TrustServerCertificate=true");
 
         var db1ConnectionString = await db1.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None);
-        Assert.StartsWith("Server=127.0.0.1,12455;User ID=sa;Password=", db1ConnectionString);
-        Assert.EndsWith(";TrustServerCertificate=true;Database=db1", db1ConnectionString);
+        StringAssert.StartsWith(db1ConnectionString, "Server=127.0.0.1,12455;User ID=sa;Password=");
+        StringAssert.EndsWith(db1ConnectionString, ";TrustServerCertificate=true;Database=db1");
 
         var db2ConnectionString = await db2.Resource.ConnectionStringExpression.GetValueAsync(CancellationToken.None);
-        Assert.StartsWith("Server=127.0.0.1,12455;User ID=sa;Password=", db2ConnectionString);
-        Assert.EndsWith(";TrustServerCertificate=true;Database=db2Name", db2ConnectionString);
+        StringAssert.StartsWith(db2ConnectionString, "Server=127.0.0.1,12455;User ID=sa;Password=");
+        StringAssert.EndsWith(db2ConnectionString, ";TrustServerCertificate=true;Database=db2Name");
     }
 
-    [Theory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
+    [TestMethod]
+    [DataRow(true, true)]
+    [DataRow(true, false)]
+    [DataRow(false, true)]
+    [DataRow(false, false)]
     public void RunAsContainerAppliesAnnotationsCorrectly(bool annotationsBefore, bool addDatabaseBefore)
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -220,14 +221,14 @@ public class AzureSqlExtensionsTests(ITestOutputHelper output)
         var sqlResourceInModel = builder.Resources.Single(r => r.Name == "sql");
         var dbResourceInModel = builder.Resources.Single(r => r.Name == "db1");
 
-        Assert.True(sqlResourceInModel.TryGetAnnotationsOfType<Dummy1Annotation>(out var sqlAnnotations1));
-        Assert.Single(sqlAnnotations1);
+        Assert.IsTrue(sqlResourceInModel.TryGetAnnotationsOfType<Dummy1Annotation>(out var sqlAnnotations1));
+        Assert.ContainsSingle(sqlAnnotations1);
 
-        Assert.True(sqlResourceInModel.TryGetAnnotationsOfType<Dummy2Annotation>(out var sqlAnnotations2));
-        Assert.Single(sqlAnnotations2);
+        Assert.IsTrue(sqlResourceInModel.TryGetAnnotationsOfType<Dummy2Annotation>(out var sqlAnnotations2));
+        Assert.ContainsSingle(sqlAnnotations2);
 
-        Assert.True(dbResourceInModel.TryGetAnnotationsOfType<Dummy1Annotation>(out var dbAnnotations));
-        Assert.Single(dbAnnotations);
+        Assert.IsTrue(dbResourceInModel.TryGetAnnotationsOfType<Dummy1Annotation>(out var dbAnnotations));
+        Assert.ContainsSingle(dbAnnotations);
     }
 
     private sealed class Dummy1Annotation : IResourceAnnotation

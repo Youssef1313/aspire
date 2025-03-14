@@ -12,14 +12,14 @@ using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components.Components.Tooltip;
-using Xunit;
 
 namespace Aspire.Dashboard.Components.Tests.Layout;
 
 [UseCulture("en-US")]
-public partial class MainLayoutTests : TestContext
+[TestClass]
+public partial class MainLayoutTests : Bunit.TestContext
 {
-    [Fact]
+    [TestMethod]
     public async Task OnInitialize_UnsecuredOtlp_NotDismissed_DisplayMessageBar()
     {
         // Arrange
@@ -71,14 +71,14 @@ public partial class MainLayoutTests : TestContext
         // Assert
         await messageShownTcs.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
-        Assert.NotNull(message);
+        Assert.IsNotNull(message);
 
         message.Close();
 
-        Assert.True(await dismissedSettingSetTcs.Task.WaitAsync(TimeSpan.FromSeconds(5)));
+        Assert.IsTrue(await dismissedSettingSetTcs.Task.WaitAsync(TimeSpan.FromSeconds(5)));
     }
 
-    [Fact]
+    [TestMethod]
     public async Task OnInitialize_UnsecuredOtlp_Dismissed_NoMessageBar()
     {
         // Arrange
@@ -118,8 +118,8 @@ public partial class MainLayoutTests : TestContext
 
         // It's hard to test something not happening.
         // In this case of checking for a message, apply a small display and then double check that no message was displayed.
-        Assert.True(completedTask != messageShownTcs.Task, "No message bar should be displayed.");
-        Assert.Empty(messageService.AllMessages);
+        Assert.IsTrue(completedTask != messageShownTcs.Task, "No message bar should be displayed.");
+        Assert.IsEmpty(messageService.AllMessages);
     }
 
     private void SetupMainLayoutServices(TestLocalStorage? localStorage = null, MessageService? messageService = null)

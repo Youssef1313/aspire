@@ -3,10 +3,10 @@
 
 using Aspire.Dashboard.Model;
 using Aspire.Tests.Shared.DashboardModel;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.Model;
 
+[TestClass]
 public sealed class ResourceEndpointHelpersTests
 {
     public static List<DisplayedEndpoint> GetEndpoints(ResourceViewModel resource, bool includeInternalUrls = false)
@@ -14,31 +14,31 @@ public sealed class ResourceEndpointHelpersTests
         return ResourceEndpointHelpers.GetEndpoints(resource, includeInternalUrls);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetEndpoints_Empty_NoResults()
     {
         var endpoints = GetEndpoints(ModelTestHelpers.CreateResource(urls: []));
 
-        Assert.Empty(endpoints);
+        Assert.IsEmpty(endpoints);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetEndpoints_HasServices_Results()
     {
         var endpoints = GetEndpoints(ModelTestHelpers.CreateResource(urls: [new("Test", new("http://localhost:8080"), isInternal: false, isInactive: false)]));
 
-        Assert.Collection(endpoints,
+        Assert.That.Collection(endpoints,
             e =>
             {
-                Assert.Equal("http://localhost:8080", e.Text);
-                Assert.Equal("Test", e.Name);
-                Assert.Equal("http://localhost:8080", e.Url);
-                Assert.Equal("localhost", e.Address);
-                Assert.Equal(8080, e.Port);
+                Assert.AreEqual("http://localhost:8080", e.Text);
+                Assert.AreEqual("Test", e.Name);
+                Assert.AreEqual("http://localhost:8080", e.Url);
+                Assert.AreEqual("localhost", e.Address);
+                Assert.AreEqual(8080, e.Port);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetEndpoints_HasEndpointAndService_Results()
     {
         var endpoints = GetEndpoints(ModelTestHelpers.CreateResource(urls: [
@@ -46,26 +46,26 @@ public sealed class ResourceEndpointHelpersTests
             new("Test2", new("http://localhost:8081"), isInternal: false, isInactive: false)])
         );
 
-        Assert.Collection(endpoints,
+        Assert.That.Collection(endpoints,
             e =>
             {
-                Assert.Equal("http://localhost:8080", e.Text);
-                Assert.Equal("Test", e.Name);
-                Assert.Equal("http://localhost:8080", e.Url);
-                Assert.Equal("localhost", e.Address);
-                Assert.Equal(8080, e.Port);
+                Assert.AreEqual("http://localhost:8080", e.Text);
+                Assert.AreEqual("Test", e.Name);
+                Assert.AreEqual("http://localhost:8080", e.Url);
+                Assert.AreEqual("localhost", e.Address);
+                Assert.AreEqual(8080, e.Port);
             },
             e =>
             {
-                Assert.Equal("http://localhost:8081", e.Text);
-                Assert.Equal("Test2", e.Name);
-                Assert.Equal("http://localhost:8081", e.Url);
-                Assert.Equal("localhost", e.Address);
-                Assert.Equal(8081, e.Port);
+                Assert.AreEqual("http://localhost:8081", e.Text);
+                Assert.AreEqual("Test2", e.Name);
+                Assert.AreEqual("http://localhost:8081", e.Url);
+                Assert.AreEqual("localhost", e.Address);
+                Assert.AreEqual(8081, e.Port);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetEndpoints_OnlyHttpAndHttpsEndpointsSetTheUrl()
     {
         var endpoints = GetEndpoints(ModelTestHelpers.CreateResource(urls: [
@@ -73,26 +73,26 @@ public sealed class ResourceEndpointHelpersTests
             new("Test2", new("tcp://localhost:8081"), isInternal: false, isInactive: false)])
         );
 
-        Assert.Collection(endpoints,
+        Assert.That.Collection(endpoints,
             e =>
             {
-                Assert.Equal("http://localhost:8080", e.Text);
-                Assert.Equal("Test", e.Name);
-                Assert.Equal("http://localhost:8080", e.Url);
-                Assert.Equal("localhost", e.Address);
-                Assert.Equal(8080, e.Port);
+                Assert.AreEqual("http://localhost:8080", e.Text);
+                Assert.AreEqual("Test", e.Name);
+                Assert.AreEqual("http://localhost:8080", e.Url);
+                Assert.AreEqual("localhost", e.Address);
+                Assert.AreEqual(8080, e.Port);
             },
             e =>
             {
-                Assert.Equal("tcp://localhost:8081", e.Text);
-                Assert.Equal("Test2", e.Name);
-                Assert.Null(e.Url);
-                Assert.Equal("localhost", e.Address);
-                Assert.Equal(8081, e.Port);
+                Assert.AreEqual("tcp://localhost:8081", e.Text);
+                Assert.AreEqual("Test2", e.Name);
+                Assert.IsNull(e.Url);
+                Assert.AreEqual("localhost", e.Address);
+                Assert.AreEqual(8081, e.Port);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetEndpoints_IncludeEndpointUrl_HasEndpointAndService_Results()
     {
         var endpoints = GetEndpoints(ModelTestHelpers.CreateResource(urls: [
@@ -100,26 +100,26 @@ public sealed class ResourceEndpointHelpersTests
             new("Test", new("https://localhost:8081/test2"), isInternal: false, isInactive: false)
         ]));
 
-        Assert.Collection(endpoints,
+        Assert.That.Collection(endpoints,
             e =>
             {
-                Assert.Equal("https://localhost:8080/test", e.Text);
-                Assert.Equal("First", e.Name);
-                Assert.Equal("https://localhost:8080/test", e.Url);
-                Assert.Equal("localhost", e.Address);
-                Assert.Equal(8080, e.Port);
+                Assert.AreEqual("https://localhost:8080/test", e.Text);
+                Assert.AreEqual("First", e.Name);
+                Assert.AreEqual("https://localhost:8080/test", e.Url);
+                Assert.AreEqual("localhost", e.Address);
+                Assert.AreEqual(8080, e.Port);
             },
             e =>
             {
-                Assert.Equal("https://localhost:8081/test2", e.Text);
-                Assert.Equal("Test", e.Name);
-                Assert.Equal("https://localhost:8081/test2", e.Url);
-                Assert.Equal("localhost", e.Address);
-                Assert.Equal(8081, e.Port);
+                Assert.AreEqual("https://localhost:8081/test2", e.Text);
+                Assert.AreEqual("Test", e.Name);
+                Assert.AreEqual("https://localhost:8081/test2", e.Url);
+                Assert.AreEqual("localhost", e.Address);
+                Assert.AreEqual(8081, e.Port);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetEndpoints_ExcludesInternalUrls()
     {
         var endpoints = GetEndpoints(ModelTestHelpers.CreateResource(urls: [
@@ -127,18 +127,18 @@ public sealed class ResourceEndpointHelpersTests
             new("Test", new("https://localhost:8081/test2"), isInternal: false, isInactive: false)
         ]));
 
-        Assert.Collection(endpoints,
+        Assert.That.Collection(endpoints,
             e =>
             {
-                Assert.Equal("https://localhost:8081/test2", e.Text);
-                Assert.Equal("Test", e.Name);
-                Assert.Equal("https://localhost:8081/test2", e.Url);
-                Assert.Equal("localhost", e.Address);
-                Assert.Equal(8081, e.Port);
+                Assert.AreEqual("https://localhost:8081/test2", e.Text);
+                Assert.AreEqual("Test", e.Name);
+                Assert.AreEqual("https://localhost:8081/test2", e.Url);
+                Assert.AreEqual("localhost", e.Address);
+                Assert.AreEqual(8081, e.Port);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetEndpoints_ExcludesInactiveUrls()
     {
         var endpoints = GetEndpoints(ModelTestHelpers.CreateResource(urls: [
@@ -146,18 +146,18 @@ public sealed class ResourceEndpointHelpersTests
             new("Test", new("https://localhost:8081/test2"), isInternal: false, isInactive: false)
         ]));
 
-        Assert.Collection(endpoints,
+        Assert.That.Collection(endpoints,
             e =>
             {
-                Assert.Equal("https://localhost:8081/test2", e.Text);
-                Assert.Equal("Test", e.Name);
-                Assert.Equal("https://localhost:8081/test2", e.Url);
-                Assert.Equal("localhost", e.Address);
-                Assert.Equal(8081, e.Port);
+                Assert.AreEqual("https://localhost:8081/test2", e.Text);
+                Assert.AreEqual("Test", e.Name);
+                Assert.AreEqual("https://localhost:8081/test2", e.Url);
+                Assert.AreEqual("localhost", e.Address);
+                Assert.AreEqual(8081, e.Port);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetEndpoints_IncludesIncludeInternalUrls()
     {
         var endpoints = GetEndpoints(ModelTestHelpers.CreateResource(urls: [
@@ -166,26 +166,26 @@ public sealed class ResourceEndpointHelpersTests
         ]),
         includeInternalUrls: true);
 
-        Assert.Collection(endpoints,
+        Assert.That.Collection(endpoints,
             e =>
             {
-                Assert.Equal("https://localhost:8080/test", e.Text);
-                Assert.Equal("First", e.Name);
-                Assert.Equal("https://localhost:8080/test", e.Url);
-                Assert.Equal("localhost", e.Address);
-                Assert.Equal(8080, e.Port);
+                Assert.AreEqual("https://localhost:8080/test", e.Text);
+                Assert.AreEqual("First", e.Name);
+                Assert.AreEqual("https://localhost:8080/test", e.Url);
+                Assert.AreEqual("localhost", e.Address);
+                Assert.AreEqual(8080, e.Port);
             },
             e =>
             {
-                Assert.Equal("https://localhost:8081/test2", e.Text);
-                Assert.Equal("Test", e.Name);
-                Assert.Equal("https://localhost:8081/test2", e.Url);
-                Assert.Equal("localhost", e.Address);
-                Assert.Equal(8081, e.Port);
+                Assert.AreEqual("https://localhost:8081/test2", e.Text);
+                Assert.AreEqual("Test", e.Name);
+                Assert.AreEqual("https://localhost:8081/test2", e.Url);
+                Assert.AreEqual("localhost", e.Address);
+                Assert.AreEqual(8081, e.Port);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public void GetEndpoints_OrderByName()
     {
         var endpoints = GetEndpoints(ModelTestHelpers.CreateResource(urls: [
@@ -196,11 +196,11 @@ public sealed class ResourceEndpointHelpersTests
             new("Z", new("https://localhost:8080"), isInternal: false, isInactive: false)
         ]));
 
-        Assert.Collection(endpoints,
-            e => Assert.Equal("Z", e.Name),
-            e => Assert.Equal("a", e.Name),
-            e => Assert.Equal("C", e.Name),
-            e => Assert.Equal("B", e.Name),
-            e => Assert.Equal("D", e.Name));
+        Assert.That.Collection(endpoints,
+            e => Assert.AreEqual("Z", e.Name),
+            e => Assert.AreEqual("a", e.Name),
+            e => Assert.AreEqual("C", e.Name),
+            e => Assert.AreEqual("B", e.Name),
+            e => Assert.AreEqual("D", e.Name));
     }
 }

@@ -3,14 +3,15 @@
 
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Utils;
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Aspire.Hosting.Azure.Tests;
 
-public class ExistingAzureResourceTests(ITestOutputHelper output)
+[TestClass]
+public class ExistingAzureResourceTests
 {
-    [Fact]
+    public TestContext TestContext { get; set; }
+
+    [TestMethod]
     public async Task AddExistingAzureServiceBusInRunMode()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -34,7 +35,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -70,11 +71,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output name string = existingResourceName
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task RequiresPublishAsExistingInPublishMode()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -97,7 +98,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -143,11 +144,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output name string = messaging.name
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddExistingAzureServiceBusInPublishMode()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -171,7 +172,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -207,11 +208,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output name string = existingResourceName
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingServiceBusWithResourceGroupInPublishMode()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -240,7 +241,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -276,11 +277,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output name string = existingResourceName
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingServiceBusWithStaticArguments()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -305,7 +306,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -339,11 +340,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output name string = messaging.name
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingStorageAccountWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -370,7 +371,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -430,11 +431,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output name string = existingResourceName
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingStorageAccountWithResourceGroupAndStaticArguments()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -458,7 +459,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -516,11 +517,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output name string = storage.name
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingAppConfigurationWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -548,7 +549,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -577,11 +578,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output appConfigEndpoint string = appConfig.properties.endpoint
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingEventHubsWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -609,7 +610,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -638,11 +639,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output eventHubsEndpoint string = eventHubs.properties.serviceBusEndpoint
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingKeyVaultWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -670,7 +671,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -699,11 +700,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output vaultUri string = keyVault.properties.vaultUri
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingLogAnalyticsWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -728,7 +729,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -743,11 +744,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output logAnalyticsWorkspaceId string = logAnalytics.id
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingPostgresSqlWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -776,7 +777,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -819,11 +820,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output connectionString string = 'Host=${postgresSql.properties.fullyQualifiedDomainName};Username=${principalName}'
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingPostgresSqlWithResourceGroupWithPasswordAuth()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -856,7 +857,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -897,11 +898,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingAzureSearchWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -929,7 +930,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -968,11 +969,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output connectionString string = 'Endpoint=https://${existingResourceName}.search.windows.net'
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingAzureSignalRWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1000,7 +1001,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -1029,11 +1030,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output hostName string = signalR.properties.hostName
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingAzureWebPubSubWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1061,7 +1062,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -1090,11 +1091,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output endpoint string = 'https://${webPubSub.properties.hostName}'
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingAzureSqlServerWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1122,7 +1123,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -1159,11 +1160,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output sqlServerFqdn string = sqlServer.properties.fullyQualifiedDomainName
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingAzureSqlServerInRunMode()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Run);
@@ -1187,7 +1188,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -1233,11 +1234,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output sqlServerFqdn string = sqlServer.properties.fullyQualifiedDomainName
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingAzureRedisWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1265,7 +1266,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -1294,11 +1295,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output connectionString string = '${redis.properties.hostName},ssl=true'
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingAzureRedisWithResouceGroupAndAccessKeyAuth()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1323,7 +1324,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -1348,11 +1349,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingAzureApplicationInsightsWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1377,7 +1378,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -1392,11 +1393,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output appInsightsConnectionString string = appInsights.properties.ConnectionString
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingAzureOpenAIWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1424,7 +1425,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -1469,11 +1470,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output connectionString string = 'Endpoint=${openAI.properties.endpoint}'
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingAzureCosmosDBWithResourceGroup()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1503,7 +1504,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -1564,11 +1565,11 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             output connectionString string = cosmos.properties.documentEndpoint
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SupportsExistingAzureCosmosDBWithResourceGroupAccessKey()
     {
         using var builder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
@@ -1598,7 +1599,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
               }
             }
             """;
-        Assert.Equal(expectedManifest, ManifestNode.ToString());
+        Assert.AreEqual(expectedManifest, ManifestNode.ToString());
 
         var expectedBicep = """
             @description('The location for the resource(s) to be deployed.')
@@ -1652,7 +1653,7 @@ public class ExistingAzureResourceTests(ITestOutputHelper output)
             }
             """;
 
-        output.WriteLine(BicepText);
-        Assert.Equal(expectedBicep, BicepText);
+        TestContext.WriteLine(BicepText);
+        Assert.AreEqual(expectedBicep, BicepText);
     }
 }

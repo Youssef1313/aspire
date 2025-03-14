@@ -11,16 +11,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Trace;
 using Oracle.ManagedDataAccess.OpenTelemetry;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Aspire.Oracle.EntityFrameworkCore.Tests;
 
 [Collection("Oracle Database collection")]
+[TestClass]
 public class ConformanceTests : ConformanceTests<TestDbContext, OracleEntityFrameworkCoreSettings>
 {
     private readonly OracleContainerFixture? _containerFixture;
-    private readonly ITestOutputHelper? _testOutputHelper;
+    private readonly TestContext? _testContext;
 
     protected string ConnectionString { get; private set; }
 
@@ -96,16 +96,16 @@ public class ConformanceTests : ConformanceTests<TestDbContext, OracleEntityFram
         }
     }
 
-    public ConformanceTests(OracleContainerFixture? containerFixture, ITestOutputHelper? testOutputHelper)
+    public ConformanceTests(OracleContainerFixture? containerFixture, TestContext? testContext)
     {
         _containerFixture = containerFixture;
-        _testOutputHelper = testOutputHelper;
+        _testContext = testContext;
         ConnectionString = (_containerFixture is not null && RequiresDockerAttribute.IsSupported)
                                         ? _containerFixture.GetConnectionString()
                                         : "Server=localhost;User ID=oracle;Password=oracle;Database=FREEPDB1";
     }
 
-    [Fact]
+    [TestMethod]
     public void DbContextPoolingRegistersIDbContextPool()
     {
         using IHost host = CreateHostWithComponent();
@@ -114,20 +114,20 @@ public class ConformanceTests : ConformanceTests<TestDbContext, OracleEntityFram
         IDbContextPool<TestDbContext>? pool = host.Services.GetService<IDbContextPool<TestDbContext>>();
 #pragma warning restore EF1001
 
-        Assert.NotNull(pool);
+        Assert.IsNotNull(pool);
     }
 
-    [Fact]
+    [TestMethod]
     public void DbContextCanBeAlwaysResolved()
     {
         using IHost host = CreateHostWithComponent();
 
         TestDbContext? dbContext = host.Services.GetService<TestDbContext>();
 
-        Assert.NotNull(dbContext);
+        Assert.IsNotNull(dbContext);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void TracingEnablesTheRightActivitySource()
     {
@@ -135,7 +135,7 @@ public class ConformanceTests : ConformanceTests<TestDbContext, OracleEntityFram
                              ConnectionString).Dispose();
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void TracingHasSemanticConventions()
     {
@@ -163,7 +163,7 @@ public class ConformanceTests : ConformanceTests<TestDbContext, OracleEntityFram
 
             var service = host.Services.GetRequiredService<TestDbContext>();
 
-            Assert.Empty(exportedActivities);
+            Assert.IsEmpty(exportedActivities);
 
             try
             {

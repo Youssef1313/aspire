@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
@@ -6,13 +6,13 @@ using Aspire.Dashboard.Model;
 using Aspire.Dashboard.Model.Otlp;
 using Aspire.Dashboard.Otlp.Model;
 using Aspire.Tests.Shared.DashboardModel;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests.ConsoleLogsTests;
 
+[TestClass]
 public class CreateResourceSelectModelsTests
 {
-    [Fact]
+    [TestMethod]
     public void GetViewModels_ReturnsRightReplicas()
     {
         // Arrange
@@ -42,61 +42,61 @@ public class CreateResourceSelectModelsTests
         var viewModels = Components.Pages.ConsoleLogs.GetConsoleLogResourceSelectViewModels(resourcesByName, noSelectionViewModel, unknownStateText);
 
         // Assert
-        Assert.Collection(viewModels,
+        Assert.That.Collection(viewModels,
             entry =>
             {
-                Assert.Equal(entry, noSelectionViewModel);
+                Assert.AreEqual(entry, noSelectionViewModel);
             },
             entry =>
             {
-                Assert.NotNull(entry.Id);
-                Assert.Equal(OtlpApplicationType.ResourceGrouping, entry.Id.Type);
-                Assert.Null(entry.Id.InstanceId);
-                Assert.Equal("App1", entry.Id.ReplicaSetName);
+                Assert.IsNotNull(entry.Id);
+                Assert.AreEqual(OtlpApplicationType.ResourceGrouping, entry.Id.Type);
+                Assert.IsNull(entry.Id.InstanceId);
+                Assert.AreEqual("App1", entry.Id.ReplicaSetName);
 
-                Assert.Equal("App1", entry.Name);
+                Assert.AreEqual("App1", entry.Name);
             },
             entry =>
             {
-                Assert.NotNull(entry.Id);
-                Assert.Equal(OtlpApplicationType.Instance, entry.Id.Type);
-                Assert.Equal("App1-r1", entry.Id.InstanceId);
-                Assert.Equal("App1", entry.Id.ReplicaSetName);
+                Assert.IsNotNull(entry.Id);
+                Assert.AreEqual(OtlpApplicationType.Instance, entry.Id.Type);
+                Assert.AreEqual("App1-r1", entry.Id.InstanceId);
+                Assert.AreEqual("App1", entry.Id.ReplicaSetName);
 
-                Assert.Equal("App1-r1", entry.Name);
+                Assert.AreEqual("App1-r1", entry.Name);
             },
             entry =>
             {
-                Assert.NotNull(entry.Id);
-                Assert.Equal(OtlpApplicationType.Instance, entry.Id.Type);
-                Assert.Equal("App1-r2", entry.Id.InstanceId);
-                Assert.Equal("App1", entry.Id.ReplicaSetName);
+                Assert.IsNotNull(entry.Id);
+                Assert.AreEqual(OtlpApplicationType.Instance, entry.Id.Type);
+                Assert.AreEqual("App1-r2", entry.Id.InstanceId);
+                Assert.AreEqual("App1", entry.Id.ReplicaSetName);
 
-                Assert.Equal($"App1-r2 ({unknownStateText})", entry.Name);
+                Assert.AreEqual($"App1-r2 ({unknownStateText})", entry.Name);
             },
             entry =>
             {
-                Assert.NotNull(entry.Id);
-                Assert.Equal(OtlpApplicationType.Singleton, entry.Id.Type);
-                Assert.Equal("App2", entry.Id.InstanceId);
+                Assert.IsNotNull(entry.Id);
+                Assert.AreEqual(OtlpApplicationType.Singleton, entry.Id.Type);
+                Assert.AreEqual("App2", entry.Id.InstanceId);
 
-                Assert.Equal("App2 (Starting)", entry.Name);
+                Assert.AreEqual("App2 (Starting)", entry.Name);
             },
             entry =>
             {
-                Assert.NotNull(entry.Id);
-                Assert.Equal(OtlpApplicationType.Singleton, entry.Id.Type);
-                Assert.Equal("App3", entry.Id.InstanceId);
+                Assert.IsNotNull(entry.Id);
+                Assert.AreEqual(OtlpApplicationType.Singleton, entry.Id.Type);
+                Assert.AreEqual("App3", entry.Id.InstanceId);
 
-                Assert.Equal("App3 (Finished)", entry.Name);
+                Assert.AreEqual("App3 (Finished)", entry.Name);
             },
             entry =>
             {
-                Assert.NotNull(entry.Id);
-                Assert.Equal(OtlpApplicationType.Singleton, entry.Id.Type);
-                Assert.Equal("App4", entry.Id.InstanceId);
+                Assert.IsNotNull(entry.Id);
+                Assert.AreEqual(OtlpApplicationType.Singleton, entry.Id.Type);
+                Assert.AreEqual("App4", entry.Id.InstanceId);
 
-                Assert.Equal("App4", entry.Name);
+                Assert.AreEqual("App4", entry.Name);
             });
     }
 }

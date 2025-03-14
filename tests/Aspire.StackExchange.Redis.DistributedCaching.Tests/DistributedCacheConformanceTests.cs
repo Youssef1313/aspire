@@ -10,10 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Instrumentation.StackExchangeRedis;
 using OpenTelemetry.Trace;
-using Xunit;
 
 namespace Aspire.StackExchange.Redis.DistributedCaching.Tests;
 
+[TestClass]
 public class DistributedCacheConformanceTests : ConformanceTests
 {
     // Schema only references Aspire.StackExchange.Redis' schema so nothing
@@ -36,7 +36,7 @@ public class DistributedCacheConformanceTests : ConformanceTests
     {
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void WorksWithOpenTelemetryTracing()
     {
@@ -64,22 +64,22 @@ public class DistributedCacheConformanceTests : ConformanceTests
 
             // read the first 3 activities
             var activityList = await notifier.TakeAsync(3, TimeSpan.FromSeconds(10));
-            Assert.Equal(3, activityList.Count);
-            Assert.Collection(activityList,
+            Assert.AreEqual(3, activityList.Count);
+            Assert.That.Collection(activityList,
                 // https://github.com/dotnet/aspnetcore/pull/54239 added 2 CLIENT activities on the first call
                 activity =>
                 {
-                    Assert.Equal("CLIENT", activity.OperationName);
+                    Assert.AreEqual("CLIENT", activity.OperationName);
                     Assert.Contains(activity.Tags, kvp => kvp.Key == "db.system" && kvp.Value == "redis");
                 },
                 activity =>
                 {
-                    Assert.Equal("CLIENT", activity.OperationName);
+                    Assert.AreEqual("CLIENT", activity.OperationName);
                     Assert.Contains(activity.Tags, kvp => kvp.Key == "db.system" && kvp.Value == "redis");
                 },
                 activity =>
                 {
-                    Assert.Equal("HMGET", activity.OperationName);
+                    Assert.AreEqual("HMGET", activity.OperationName);
                     Assert.Contains(activity.Tags, kvp => kvp.Key == "db.system" && kvp.Value == "redis");
                 });
         }, ConnectionString).Dispose();

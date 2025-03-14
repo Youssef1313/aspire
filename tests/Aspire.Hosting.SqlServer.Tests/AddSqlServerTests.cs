@@ -6,33 +6,33 @@ using Aspire.Hosting.Tests.Utils;
 using Aspire.Hosting.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Sockets;
-using Xunit;
 
 namespace Aspire.Hosting.SqlServer.Tests;
 
+[TestClass]
 public class AddSqlServerTests
 {
-    [Fact]
+    [TestMethod]
     public void AddSqlServerAddsGeneratedPasswordParameterWithUserSecretsParameterDefaultInRunMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create();
 
         var sql = appBuilder.AddSqlServer("sql");
 
-        Assert.Equal("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", sql.Resource.PasswordParameter.Default?.GetType().FullName);
+        Assert.AreEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", sql.Resource.PasswordParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public void AddSqlServerDoesNotAddGeneratedPasswordParameterWithUserSecretsParameterDefaultInPublishMode()
     {
         using var appBuilder = TestDistributedApplicationBuilder.Create(DistributedApplicationOperation.Publish);
 
         var sql = appBuilder.AddSqlServer("sql");
 
-        Assert.NotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", sql.Resource.PasswordParameter.Default?.GetType().FullName);
+        Assert.AreNotEqual("Aspire.Hosting.ApplicationModel.UserSecretsParameterDefault", sql.Resource.PasswordParameter.Default?.GetType().FullName);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task AddSqlServerContainerWithDefaultsAddsAnnotationMetadata()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -43,40 +43,40 @@ public class AddSqlServerTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var containerResource = Assert.Single(appModel.Resources.OfType<SqlServerServerResource>());
-        Assert.Equal("sqlserver", containerResource.Name);
+        var containerResource = Assert.ContainsSingle(appModel.Resources.OfType<SqlServerServerResource>());
+        Assert.AreEqual("sqlserver", containerResource.Name);
 
-        var endpoint = Assert.Single(containerResource.Annotations.OfType<EndpointAnnotation>());
-        Assert.Equal(1433, endpoint.TargetPort);
-        Assert.False(endpoint.IsExternal);
-        Assert.Equal("tcp", endpoint.Name);
-        Assert.Null(endpoint.Port);
-        Assert.Equal(ProtocolType.Tcp, endpoint.Protocol);
-        Assert.Equal("tcp", endpoint.Transport);
-        Assert.Equal("tcp", endpoint.UriScheme);
+        var endpoint = Assert.ContainsSingle(containerResource.Annotations.OfType<EndpointAnnotation>());
+        Assert.AreEqual(1433, endpoint.TargetPort);
+        Assert.IsFalse(endpoint.IsExternal);
+        Assert.AreEqual("tcp", endpoint.Name);
+        Assert.IsNull(endpoint.Port);
+        Assert.AreEqual(ProtocolType.Tcp, endpoint.Protocol);
+        Assert.AreEqual("tcp", endpoint.Transport);
+        Assert.AreEqual("tcp", endpoint.UriScheme);
 
-        var containerAnnotation = Assert.Single(containerResource.Annotations.OfType<ContainerImageAnnotation>());
-        Assert.Equal(SqlServerContainerImageTags.Tag, containerAnnotation.Tag);
-        Assert.Equal(SqlServerContainerImageTags.Image, containerAnnotation.Image);
-        Assert.Equal(SqlServerContainerImageTags.Registry, containerAnnotation.Registry);
+        var containerAnnotation = Assert.ContainsSingle(containerResource.Annotations.OfType<ContainerImageAnnotation>());
+        Assert.AreEqual(SqlServerContainerImageTags.Tag, containerAnnotation.Tag);
+        Assert.AreEqual(SqlServerContainerImageTags.Image, containerAnnotation.Image);
+        Assert.AreEqual(SqlServerContainerImageTags.Registry, containerAnnotation.Registry);
 
         var config = await EnvironmentVariableEvaluator.GetEnvironmentVariablesAsync(containerResource, DistributedApplicationOperation.Run, TestServiceProvider.Instance);
 
-        Assert.Collection(config,
+        Assert.That.Collection(config,
             env =>
             {
-                Assert.Equal("ACCEPT_EULA", env.Key);
-                Assert.Equal("Y", env.Value);
+                Assert.AreEqual("ACCEPT_EULA", env.Key);
+                Assert.AreEqual("Y", env.Value);
             },
             env =>
             {
-                Assert.Equal("MSSQL_SA_PASSWORD", env.Key);
-                Assert.NotNull(env.Value);
-                Assert.True(env.Value.Length >= 8);
+                Assert.AreEqual("MSSQL_SA_PASSWORD", env.Key);
+                Assert.IsNotNull(env.Value);
+                Assert.IsTrue(env.Value.Length >= 8);
             });
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SqlServerCreatesConnectionString()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -90,14 +90,14 @@ public class AddSqlServerTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var connectionStringResource = Assert.Single(appModel.Resources.OfType<SqlServerServerResource>());
+        var connectionStringResource = Assert.ContainsSingle(appModel.Resources.OfType<SqlServerServerResource>());
         var connectionString = await connectionStringResource.GetConnectionStringAsync(default);
 
-        Assert.Equal("Server=127.0.0.1,1433;User ID=sa;Password=p@ssw0rd1;TrustServerCertificate=true", connectionString);
-        Assert.Equal("Server={sqlserver.bindings.tcp.host},{sqlserver.bindings.tcp.port};User ID=sa;Password={pass.value};TrustServerCertificate=true", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("Server=127.0.0.1,1433;User ID=sa;Password=p@ssw0rd1;TrustServerCertificate=true", connectionString);
+        Assert.AreEqual("Server={sqlserver.bindings.tcp.host},{sqlserver.bindings.tcp.port};User ID=sa;Password={pass.value};TrustServerCertificate=true", connectionStringResource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task SqlServerDatabaseCreatesConnectionString()
     {
         var appBuilder = DistributedApplication.CreateBuilder();
@@ -112,15 +112,15 @@ public class AddSqlServerTests
 
         var appModel = app.Services.GetRequiredService<DistributedApplicationModel>();
 
-        var sqlResource = Assert.Single(appModel.Resources.OfType<SqlServerDatabaseResource>());
+        var sqlResource = Assert.ContainsSingle(appModel.Resources.OfType<SqlServerDatabaseResource>());
         var connectionStringResource = (IResourceWithConnectionString)sqlResource;
         var connectionString = await connectionStringResource.GetConnectionStringAsync();
 
-        Assert.Equal("Server=127.0.0.1,1433;User ID=sa;Password=p@ssw0rd1;TrustServerCertificate=true;Database=mydb", connectionString);
-        Assert.Equal("{sqlserver.connectionString};Database=mydb", connectionStringResource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("Server=127.0.0.1,1433;User ID=sa;Password=p@ssw0rd1;TrustServerCertificate=true;Database=mydb", connectionString);
+        Assert.AreEqual("{sqlserver.connectionString};Database=mydb", connectionStringResource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifest()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -149,7 +149,7 @@ public class AddSqlServerTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, serverManifest.ToString());
+        Assert.AreEqual(expectedManifest, serverManifest.ToString());
 
         expectedManifest = """
             {
@@ -157,10 +157,10 @@ public class AddSqlServerTests
               "connectionString": "{sqlserver.connectionString};Database=db"
             }
             """;
-        Assert.Equal(expectedManifest, dbManifest.ToString());
+        Assert.AreEqual(expectedManifest, dbManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public async Task VerifyManifestWithPasswordParameter()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -189,10 +189,10 @@ public class AddSqlServerTests
               }
             }
             """;
-        Assert.Equal(expectedManifest, serverManifest.ToString());
+        Assert.AreEqual(expectedManifest, serverManifest.ToString());
     }
 
-    [Fact]
+    [TestMethod]
     public void ThrowsWithIdenticalChildResourceNames()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -203,7 +203,7 @@ public class AddSqlServerTests
         Assert.Throws<DistributedApplicationException>(() => db.AddDatabase("db"));
     }
 
-    [Fact]
+    [TestMethod]
     public void ThrowsWithIdenticalChildResourceNamesDifferentParents()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -215,7 +215,7 @@ public class AddSqlServerTests
         Assert.Throws<DistributedApplicationException>(() => db.AddDatabase("db"));
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddDatabasesWithDifferentNamesOnSingleServer()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -225,14 +225,14 @@ public class AddSqlServerTests
         var db1 = sqlserver1.AddDatabase("db1", "customers1");
         var db2 = sqlserver1.AddDatabase("db2", "customers2");
 
-        Assert.Equal("customers1", db1.Resource.DatabaseName);
-        Assert.Equal("customers2", db2.Resource.DatabaseName);
+        Assert.AreEqual("customers1", db1.Resource.DatabaseName);
+        Assert.AreEqual("customers2", db2.Resource.DatabaseName);
 
-        Assert.Equal("{sqlserver1.connectionString};Database=customers1", db1.Resource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal("{sqlserver1.connectionString};Database=customers2", db2.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{sqlserver1.connectionString};Database=customers1", db1.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{sqlserver1.connectionString};Database=customers2", db2.Resource.ConnectionStringExpression.ValueExpression);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddDatabasesWithTheSameNameOnMultipleServers()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
@@ -243,10 +243,10 @@ public class AddSqlServerTests
         var db2 = builder.AddSqlServer("sqlserver2")
             .AddDatabase("db2", "imports");
 
-        Assert.Equal("imports", db1.Resource.DatabaseName);
-        Assert.Equal("imports", db2.Resource.DatabaseName);
+        Assert.AreEqual("imports", db1.Resource.DatabaseName);
+        Assert.AreEqual("imports", db2.Resource.DatabaseName);
 
-        Assert.Equal("{sqlserver1.connectionString};Database=imports", db1.Resource.ConnectionStringExpression.ValueExpression);
-        Assert.Equal("{sqlserver2.connectionString};Database=imports", db2.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{sqlserver1.connectionString};Database=imports", db1.Resource.ConnectionStringExpression.ValueExpression);
+        Assert.AreEqual("{sqlserver2.connectionString};Database=imports", db2.Resource.ConnectionStringExpression.ValueExpression);
     }
 }

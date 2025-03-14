@@ -9,10 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Trace;
-using Xunit;
 
 namespace Aspire.Elastic.Clients.Elasticsearch.Tests;
 
+[TestClass]
 public class AspireElasticClientExtensionsTest : IClassFixture<ElasticsearchContainerFixture>
 {
     private const string DefaultConnectionName = "elasticsearch";
@@ -27,9 +27,9 @@ public class AspireElasticClientExtensionsTest : IClassFixture<ElasticsearchCont
     private string DefaultConnectionString =>
             RequiresDockerAttribute.IsSupported ? _containerFixture.GetConnectionString() : "http://elastic:password@localhost:27011";
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     [RequiresDocker]
     public async Task AddElasticsearchClient_HealthCheckShouldBeRegisteredWhenEnabled(bool useKeyed)
     {
@@ -63,9 +63,9 @@ public class AspireElasticClientExtensionsTest : IClassFixture<ElasticsearchCont
         Assert.Contains(healthCheckReport.Entries, x => x.Key == healthCheckName);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
     public void AddElasticsearchClient_HealthCheckShouldNotBeRegisteredWhenDisabled(bool useKeyed)
     {
         var builder = CreateBuilder(DefaultConnectionString);
@@ -89,10 +89,10 @@ public class AspireElasticClientExtensionsTest : IClassFixture<ElasticsearchCont
 
         var healthCheckService = host.Services.GetService<HealthCheckService>();
 
-        Assert.Null(healthCheckService);
+        Assert.IsNull(healthCheckService);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddMultipleKeyedServices()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -112,12 +112,12 @@ public class AspireElasticClientExtensionsTest : IClassFixture<ElasticsearchCont
         var client2 = host.Services.GetRequiredKeyedService<ElasticsearchClient>("elasticsearch2");
         var client3 = host.Services.GetRequiredKeyedService<ElasticsearchClient>("elasticsearch3");
 
-        Assert.NotSame(client1, client2);
-        Assert.NotSame(client1, client3);
-        Assert.NotSame(client2, client3);
+        Assert.AreNotSame(client1, client2);
+        Assert.AreNotSame(client1, client3);
+        Assert.AreNotSame(client2, client3);
     }
 
-    [Fact]
+    [TestMethod]
     public void CanAddClientFromEncodedConnectionString()
     {
         var builder = Host.CreateEmptyApplicationBuilder(null);
@@ -135,10 +135,10 @@ public class AspireElasticClientExtensionsTest : IClassFixture<ElasticsearchCont
         var client1 = host.Services.GetRequiredService<ElasticsearchClient>();
         var client2 = host.Services.GetRequiredKeyedService<ElasticsearchClient>("elasticsearch2");
 
-        Assert.NotSame(client1, client2);
+        Assert.AreNotSame(client1, client2);
     }
 
-    [Fact]
+    [TestMethod]
     [RequiresDocker]
     public void ElasticsearchInstrumentationEndToEnd()
     {
@@ -160,11 +160,11 @@ public class AspireElasticClientExtensionsTest : IClassFixture<ElasticsearchCont
             await elasticsearchClient.PingAsync();
 
             var activityList = await notifier.TakeAsync(1, TimeSpan.FromSeconds(10));
-            Assert.Single(activityList);
+            Assert.ContainsSingle(activityList);
 
             var activity = activityList[0];
-            Assert.Equal("ping", activity.DisplayName);
-            Assert.Equal("HEAD", activity.OperationName);
+            Assert.AreEqual("ping", activity.DisplayName);
+            Assert.AreEqual("HEAD", activity.OperationName);
             Assert.Contains(activity.Tags, kvp => kvp.Key == "db.system" && kvp.Value == "elasticsearch");
         }, DefaultConnectionString, new RemoteInvokeOptions { TimeOut = 120_000 }).Dispose();
     }

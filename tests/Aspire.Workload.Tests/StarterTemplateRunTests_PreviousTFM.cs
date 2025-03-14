@@ -9,7 +9,7 @@ namespace Aspire.Workload.Tests;
 [RequiresSSLCertificate]
 public class StarterTemplateRunTests_PreviousTFM : StarterTemplateRunTestsBase<StarterTemplateFixture_PreviousTFM>
 {
-    public StarterTemplateRunTests_PreviousTFM(StarterTemplateFixture_PreviousTFM fixture, ITestOutputHelper testOutput)
+    public StarterTemplateRunTests_PreviousTFM(StarterTemplateFixture_PreviousTFM fixture, TestContext testOutput)
         : base(fixture, testOutput)
     {
     }

@@ -6,10 +6,10 @@ using System.Threading.Channels;
 using Aspire.Dashboard.Model;
 using Aspire.Tests.Shared.DashboardModel;
 using Microsoft.AspNetCore.InternalTesting;
-using Xunit;
 
 namespace Aspire.Dashboard.Tests;
 
+[TestClass]
 public class ResourceOutgoingPeerResolverTests
 {
     private static ResourceViewModel CreateResource(string name, string? serviceAddress = null, int? servicePort = null, string? displayName = null)
@@ -20,7 +20,7 @@ public class ResourceOutgoingPeerResolverTests
             urls: serviceAddress is null || servicePort is null ? [] : [new UrlViewModel(name, new($"http://{serviceAddress}:{servicePort}"), isInternal: false, isInactive: false)]);
     }
 
-    [Fact]
+    [TestMethod]
     public void EmptyAttributes_NoMatch()
     {
         // Arrange
@@ -30,10 +30,10 @@ public class ResourceOutgoingPeerResolverTests
         };
 
         // Act & Assert
-        Assert.False(TryResolvePeerName(resources, [], out _));
+        Assert.IsFalse(TryResolvePeerName(resources, [], out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void EmptyUrlAttribute_NoMatch()
     {
         // Arrange
@@ -43,10 +43,10 @@ public class ResourceOutgoingPeerResolverTests
         };
 
         // Act & Assert
-        Assert.False(TryResolvePeerName(resources, [KeyValuePair.Create("peer.service", "")], out _));
+        Assert.IsFalse(TryResolvePeerName(resources, [KeyValuePair.Create("peer.service", "")], out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void NullUrlAttribute_NoMatch()
     {
         // Arrange
@@ -56,10 +56,10 @@ public class ResourceOutgoingPeerResolverTests
         };
 
         // Act & Assert
-        Assert.False(TryResolvePeerName(resources, [KeyValuePair.Create<string, string>("peer.service", null!)], out _));
+        Assert.IsFalse(TryResolvePeerName(resources, [KeyValuePair.Create<string, string>("peer.service", null!)], out _));
     }
 
-    [Fact]
+    [TestMethod]
     public void ExactValueAttribute_Match()
     {
         // Arrange
@@ -69,11 +69,11 @@ public class ResourceOutgoingPeerResolverTests
         };
 
         // Act & Assert
-        Assert.True(TryResolvePeerName(resources, [KeyValuePair.Create("peer.service", "localhost:5000")], out var value));
-        Assert.Equal("test", value);
+        Assert.IsTrue(TryResolvePeerName(resources, [KeyValuePair.Create("peer.service", "localhost:5000")], out var value));
+        Assert.AreEqual("test", value);
     }
 
-    [Fact]
+    [TestMethod]
     public void NumberAddressValueAttribute_Match()
     {
         // Arrange
@@ -83,11 +83,11 @@ public class ResourceOutgoingPeerResolverTests
         };
 
         // Act & Assert
-        Assert.True(TryResolvePeerName(resources, [KeyValuePair.Create("peer.service", "127.0.0.1:5000")], out var value));
-        Assert.Equal("test", value);
+        Assert.IsTrue(TryResolvePeerName(resources, [KeyValuePair.Create("peer.service", "127.0.0.1:5000")], out var value));
+        Assert.AreEqual("test", value);
     }
 
-    [Fact]
+    [TestMethod]
     public void CommaAddressValueAttribute_Match()
     {
         // Arrange
@@ -97,11 +97,11 @@ public class ResourceOutgoingPeerResolverTests
         };
 
         // Act & Assert
-        Assert.True(TryResolvePeerName(resources, [KeyValuePair.Create("peer.service", "127.0.0.1,5000")], out var value));
-        Assert.Equal("test", value);
+        Assert.IsTrue(TryResolvePeerName(resources, [KeyValuePair.Create("peer.service", "127.0.0.1,5000")], out var value));
+        Assert.AreEqual("test", value);
     }
 
-    [Fact]
+    [TestMethod]
     public void ServerAddressAndPort_Match()
     {
         // Arrange
@@ -111,11 +111,11 @@ public class ResourceOutgoingPeerResolverTests
         };
 
         // Act & Assert
-        Assert.True(TryResolvePeerName(resources, [KeyValuePair.Create("server.address", "localhost"), KeyValuePair.Create("server.port", "5000")], out var value));
-        Assert.Equal("test", value);
+        Assert.IsTrue(TryResolvePeerName(resources, [KeyValuePair.Create("server.address", "localhost"), KeyValuePair.Create("server.port", "5000")], out var value));
+        Assert.AreEqual("test", value);
     }
 
-    [Fact]
+    [TestMethod]
     public async Task OnPeerChanges_DataUpdates_EventRaised()
     {
         // Arrange
@@ -131,7 +131,7 @@ public class ResourceOutgoingPeerResolverTests
         });
 
         var readValue = 0;
-        Assert.False(resultChannel.Reader.TryRead(out readValue));
+        Assert.IsFalse(resultChannel.Reader.TryRead(out readValue));
 
         // Act 1
         tcs.SetResult(new ResourceViewModelSubscription(
@@ -140,14 +140,14 @@ public class ResourceOutgoingPeerResolverTests
 
         // Assert 1
         readValue = await resultChannel.Reader.ReadAsync().DefaultTimeout();
-        Assert.Equal(1, readValue);
+        Assert.AreEqual(1, readValue);
 
         // Act 2
         await sourceChannel.Writer.WriteAsync(new ResourceViewModelChange(ResourceViewModelChangeType.Upsert, CreateResource("test2")));
 
         // Assert 2
         readValue = await resultChannel.Reader.ReadAsync().DefaultTimeout();
-        Assert.Equal(2, readValue);
+        Assert.AreEqual(2, readValue);
 
         await resolver.DisposeAsync().DefaultTimeout();
 
@@ -160,7 +160,7 @@ public class ResourceOutgoingPeerResolverTests
         }
     }
 
-    [Fact]
+    [TestMethod]
     public void NameAndDisplayNameDifferent_OneInstance_ReturnDisplayName()
     {
         // Arrange
@@ -170,11 +170,11 @@ public class ResourceOutgoingPeerResolverTests
         };
 
         // Act & Assert
-        Assert.True(TryResolvePeerName(resources, [KeyValuePair.Create("server.address", "localhost"), KeyValuePair.Create("server.port", "5000")], out var value));
-        Assert.Equal("test", value);
+        Assert.IsTrue(TryResolvePeerName(resources, [KeyValuePair.Create("server.address", "localhost"), KeyValuePair.Create("server.port", "5000")], out var value));
+        Assert.AreEqual("test", value);
     }
 
-    [Fact]
+    [TestMethod]
     public void NameAndDisplayNameDifferent_MultipleInstances_ReturnName()
     {
         // Arrange
@@ -185,11 +185,11 @@ public class ResourceOutgoingPeerResolverTests
         };
 
         // Act & Assert
-        Assert.True(TryResolvePeerName(resources, [KeyValuePair.Create("server.address", "localhost"), KeyValuePair.Create("server.port", "5000")], out var value1));
-        Assert.Equal("test-abc", value1);
+        Assert.IsTrue(TryResolvePeerName(resources, [KeyValuePair.Create("server.address", "localhost"), KeyValuePair.Create("server.port", "5000")], out var value1));
+        Assert.AreEqual("test-abc", value1);
 
-        Assert.True(TryResolvePeerName(resources, [KeyValuePair.Create("server.address", "localhost"), KeyValuePair.Create("server.port", "5001")], out var value2));
-        Assert.Equal("test-def", value2);
+        Assert.IsTrue(TryResolvePeerName(resources, [KeyValuePair.Create("server.address", "localhost"), KeyValuePair.Create("server.port", "5001")], out var value2));
+        Assert.AreEqual("test-def", value2);
     }
 
     private static bool TryResolvePeerName(IDictionary<string, ResourceViewModel> resources, KeyValuePair<string, string>[] attributes, out string? peerName)

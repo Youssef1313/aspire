@@ -4,13 +4,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Time.Testing;
-using Xunit;
 
 namespace Microsoft.Extensions.ServiceDiscovery.Dns.Tests;
 
 public class DnsServiceEndpointResolverTests
 {
-    [Fact]
+    [TestMethod]
     public async Task ResolveServiceEndpoint_Dns_MultiShot()
     {
         var timeProvider = new FakeTimeProvider();
@@ -21,15 +20,15 @@ public class DnsServiceEndpointResolverTests
             .BuildServiceProvider();
         var resolver = services.GetRequiredService<ServiceEndpointResolver>();
         var initialResult = await resolver.GetEndpointsAsync("https://localhost", CancellationToken.None);
-        Assert.NotNull(initialResult);
-        Assert.True(initialResult.Endpoints.Count > 0);
+        Assert.IsNotNull(initialResult);
+        Assert.IsTrue(initialResult.Endpoints.Count > 0);
         timeProvider.Advance(TimeSpan.FromSeconds(7));
         var secondResult = await resolver.GetEndpointsAsync("https://localhost", CancellationToken.None);
-        Assert.NotNull(secondResult);
-        Assert.True(initialResult.Endpoints.Count > 0);
+        Assert.IsNotNull(secondResult);
+        Assert.IsTrue(initialResult.Endpoints.Count > 0);
         timeProvider.Advance(TimeSpan.FromSeconds(80));
         var thirdResult = await resolver.GetEndpointsAsync("https://localhost", CancellationToken.None);
-        Assert.NotNull(thirdResult);
-        Assert.True(initialResult.Endpoints.Count > 0);
+        Assert.IsNotNull(thirdResult);
+        Assert.IsTrue(initialResult.Endpoints.Count > 0);
     }
 }
